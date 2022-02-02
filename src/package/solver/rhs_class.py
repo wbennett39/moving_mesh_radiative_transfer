@@ -16,25 +16,30 @@ class rhs_class():
         self.M = build.M
         self.mus = build.mus
     def __call__(self,t, V, mesh, matrices, num_flux, source, flux):
-        print(t)
         V_new = V.copy().reshape((self.N_ang, self.N_space, self.M+1))
         V_old = V_new.copy()
         
         mesh.move(t)
-        
+        print(t)
+
         for space in range(0, self.N_space):
             
             xR = mesh.edges[space+1]
             xL = mesh.edges[space]
             dxR = mesh.Dedges[space+1]
             dxL = mesh.Dedges[space]
-            L = matrices(xL, xR, dxL, dxR, "L")
-            G = matrices(xL, xR, dxL, dxR, "G")
-            P = flux(V_old[:,space,:])
-            S = source(t, xR, xL)
+            matrices.make_L(xL, xR)
+            matrices.make_G(xL, xR, dxL, dxR)
+            L = matrices.L
+            G = matrices.G
+            flux.make_P(V_old[:,space,:])
+            P = flux.P
+            source.make_source(t, xR, xL)
+            S = source.S
             for angle in range(self.N_ang):
                 mul = self.mus[angle]
-                LU =  num_flux(mesh, V_old[angle,:,:], space, mul)
+                num_flux.make_LU(mesh, V_old[angle,:,:], space, mul)
+                LU = num_flux.LU
                 U = np.zeros(self.M+1).transpose()
                 U[:] = V_old[angle,space,:]
                 RHS = np.dot(G,U) + -LU + mul*np.dot(L,U) - U + P + S

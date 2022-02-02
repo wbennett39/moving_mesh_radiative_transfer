@@ -7,9 +7,30 @@ Created on Fri Jan 28 12:14:04 2022
 """
 import numpy as np
 import math
+from numba import float64, int64, deferred_type
+from numba.experimental import jitclass
+
 from mesh import mesh_class
 ###############################################################################
-class LU_surf:
+mesh_class_type = deferred_type()
+mesh_class_type.define(mesh_class.class_type.instance_type)
+
+data = [("M", int64),
+        ("i", int64),
+        ("h", float64),
+        ("u", float64[:,:]),
+        ("space", int64),
+        ("mul", float64),
+        ("LU", float64[:]),
+        ("v0", int64),
+        ("v1", int64),
+        ("v2", int64),
+        ("v3", int64),
+        
+        ]
+###############################################################################
+@jitclass(data)
+class LU_surf(object):
     def __init__(self, M):
         self.LU = np.zeros(M+1).transpose()
         self.M = M
@@ -26,7 +47,7 @@ class LU_surf:
             else: 
                 B_left = -math.sqrt(2*i+1)/h
         return B_left, B_right
-    def __call__(self, mesh_class, u, space, mul):
+    def make_LU(self, mesh_class, u, space, mul):
         self.v0 = 0 
         self.v1 = 0
         self.v2 = 0
@@ -56,4 +77,3 @@ class LU_surf:
         for i in range(0,self.M+1):
             B_left, B_right = self.B_LR_func(i, h)
             self.LU[i] = (B_right*rightspeed*psi_plus - B_left*leftspeed*psi_minus)
-        return self.LU

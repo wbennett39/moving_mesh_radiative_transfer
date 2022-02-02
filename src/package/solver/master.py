@@ -1,5 +1,6 @@
 import numpy as np
 import scipy.integrate as integrate
+import quadpy
 
 from build_problem import build
 from matrices import G_L
@@ -31,11 +32,15 @@ def main():
     N_spaces = [2]
     x0 = 1e-12
     
-    source_type = "plane"
+    source_type = np.array([1,0,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
     uncollided = True
-    moving = "linear"
+    moving = True
+    move_type = np.array([1,0,0,0])
     time = True 
     plotting = True
+    RMS = True
+    
+    
     
     for count, N_space in enumerate(N_spaces):
         sigma_t = np.ones(N_space)
@@ -43,10 +48,15 @@ def main():
         M = Ms[0]
         N_ang = angles[0]
         
-        initialize = build(N_ang, N_space, M, tfinal, x0, sigma_t, sigma_s, source_type, uncollided, moving, time, plotting)
+        mus = quadpy.c1.gauss_lobatto(N_ang).points
+        ws = quadpy.c1.gauss_lobatto(N_ang).weights
+        xs_quad = quadpy.c1.gauss_lobatto(M).points
+        ws_quad = quadpy.c1.gauss_lobatto(M).weights
+        
+        initialize = build(N_ang, N_space, M, tfinal, x0, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, time, plotting, RMS)
         initialize.make_IC()
         IC = initialize.IC
-        mesh = mesh_class(N_space, x0, source_type, tfinal, uncollided, moving) 
+        mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
         matrices = G_L(initialize)
         num_flux = LU_surf(M)
         source = source_class(initialize)

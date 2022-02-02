@@ -8,8 +8,24 @@ Created on Fri Jan 28 14:38:34 2022
 import numpy as np
 from build_problem import build
 import math
+
+from numba import float64, int64, deferred_type
+from numba.experimental import jitclass
 ###############################################################################
-class source_class:
+build_type = deferred_type()
+build_type.define(build.class_type.instance_type)
+
+data = [("S", float64[:]),
+        ("source_type", int64[:]),
+        ("uncollided", int64),
+        ("x0", float64),
+        ("t", float64),
+        ("xL", float64),
+        ("xR", float64)
+        ]
+###############################################################################
+@jitclass(data)
+class source_class(object):
     def __init__(self, build):
         self.S = np.zeros(build.M+1).transpose()
         self.source_type = build.source_type
@@ -25,12 +41,9 @@ class source_class:
         return temp
         
         
-    def __call__(self, t, xR, xL):
+    def make_source(self, t, xR, xL):
         if self.uncollided == True:
-            if self.source_type == "plane":
+            if self.source_type[0] == 1:
                 self.S[0] = (math.exp(-t)/(2*t+self.x0)*math.sqrt(xR-xL))
-                return self.S
-            elif self.source_type == "square_IC":
-                return "placeholder"
                 
             

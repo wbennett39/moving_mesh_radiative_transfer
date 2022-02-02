@@ -22,6 +22,7 @@ class fifi(object):
     self.a = combis
     self.b = 2
     self.c = toto(combis)
+    self.d = "onetwo3"
 
   def mySqrt(self,x):
     s = x
