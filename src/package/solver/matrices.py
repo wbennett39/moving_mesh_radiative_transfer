@@ -10,7 +10,7 @@ from build_problem import build
 import math
 ###############################################################################
 
-class G_L(build):
+class G_L:
     def __init__(self, build):
         self.M = build.M
         self.L = np.zeros((self.M+1, self.M+1))
