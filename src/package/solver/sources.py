@@ -41,7 +41,7 @@ class source_class(object):
         return temp
         
         
-    def make_source(self, t, xR, xL):
+    def make_source(self, t, xL, xR):
         if self.uncollided == True:
             if self.source_type[0] == 1:
                 self.S[0] = (math.exp(-t)/(2*t+self.x0)*math.sqrt(xR-xL))
