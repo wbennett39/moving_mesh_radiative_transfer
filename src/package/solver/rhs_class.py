@@ -36,12 +36,8 @@ class rhs_class():
             G = matrices.G
             flux.make_P(V_old[:,space,:])
             P = flux.P
-            # P = np.zeros(self.M+1).transpose()
-            # for i in range(0,self.M+1):
-                # P[i]  = np.sum(np.multiply(V_old[:,space,i],self.ws))
             source.make_source(t, xL, xR)
             S = source.S
-            # print(S[0],t)
             for angle in range(self.N_ang):
                 mul = self.mus[angle]
                 num_flux.make_LU(mesh, V_old[angle,:,:], space, mul)

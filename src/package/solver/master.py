@@ -12,7 +12,7 @@ from phi_class import scalar_flux
 from mesh import mesh_class
 from rhs_class import rhs_class
 from make_output import make_output
-from functions import make_phi
+from functions import make_phi,find_nodes
 ###############################################################################
 """ 
 [] have main take inputs from YAML 
@@ -21,7 +21,10 @@ from functions import make_phi
 [] source for no-uncollided cases
 [] find uncollided for square source
 [] make benchmarks for all cases 
-[] njit all classes 
+[] figure out where that factor of two comes from in the source
+[x] njit all classes 
+[] jitclass RHS
+[x] find solution at nodes 
 """
 ###############################################################################
 
@@ -31,13 +34,13 @@ from functions import make_phi
 def main():
     
     tfinal = 1.0
-    angles = [2]
-    Ms = [2]
+    angles = [4]
+    Ms = [3]
     N_spaces = [2]
-    x0 = 1e-12
+    x0 = 1/2
     
-    source_type = np.array([1,0,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
-    uncollided = True
+    source_type = np.array([0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
+    uncollided = False
     moving = True
     move_type = np.array([1,0,0,0])
     time = True 
@@ -60,6 +63,7 @@ def main():
         initialize = build(N_ang, N_space, M, tfinal, x0, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, time, plotting, RMS)
         initialize.make_IC()
         IC = initialize.IC
+        print(IC)
         mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
         matrices = G_L(initialize)
         num_flux = LU_surf(M)
@@ -69,15 +73,16 @@ def main():
         RHS = lambda t, V: rhs(t, V, mesh, matrices, num_flux, source, flux)
         sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(N_ang*N_space*(M+1)), method='DOP853', t_eval = [tfinal])
         sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
-        edges = np.array([-1,0,1])
-        xs = np.linspace(-tfinal, tfinal, 50)
+        mesh.move(tfinal)
+        edges = mesh.edges
+        
+        xs = find_nodes(xs_quad, edges)
         phi = make_phi(N_ang, ws, xs, sol_last, M, edges) + math.exp(-tfinal)/(2*tfinal+x0)
         
         # output = make_output(sol_last, initialize, mesh, tfinal)
         # xs = output.xs_list
         # phi = output.phi_list
         plt.plot(xs, phi, "-o")
-        print(sol_last)
         
         
 main()
