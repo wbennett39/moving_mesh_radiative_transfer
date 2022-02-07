@@ -26,17 +26,14 @@ class IC_func(object):
         self.source_type = source_type
         self.uncollided = uncollided
         self.x0 = x0
+        
     def function(self, x):
         if self.uncollided == True:
             return np.zeros(x.size)
         elif self.uncollided == False and self.source_type[1] == 1:
             return self.square_IC(x)
-            # if abs[x] <= 1/2:
-            #     return 1.0
-            # else:
-            #     return 0.0
+        
     def square_IC(self, x):
         temp = np.greater(x, -self.x0)*1.0 - np.greater(x, self.x0)*1.0
-        print(temp)
-        return temp
+        return temp/2.0
         

@@ -17,30 +17,36 @@ from functions import make_phi,find_nodes
 """ 
 [] have main take inputs from YAML 
 [] make sigma_t and sigma_s dependent on space
-[] uncollided source for square, truncated, square IC
-[] source for no-uncollided cases
+[x] uncollided source for square IC
 [] find uncollided for square source
+[] uncollided for truncated
+    [] IC for plane
+    [x] IC for square 
+    [] IC for truncated
 [] make benchmarks for all cases 
 [] figure out where that factor of two comes from in the source
 [x] njit all classes 
 [] jitclass RHS
 [x] find solution at nodes 
+[] fix numerical flux class
+[] put imports __init__ file
+[] comments
+[] something is going on with square IC with uncollided
+[x] is the benchmark maker off by a little bit?
 """
 ###############################################################################
-
-    
-    
 
 def main():
     
     tfinal = 1.0
-    angles = [4]
-    Ms = [3]
-    N_spaces = [2]
+    angles = [32]
+    Ms = [4]
+    N_spaces = [2,4,8]
+    # x0 = 1e-10
     x0 = 1/2
     
     source_type = np.array([0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
-    uncollided = False
+    uncollided = True
     moving = True
     move_type = np.array([1,0,0,0])
     time = True 
@@ -63,7 +69,6 @@ def main():
         initialize = build(N_ang, N_space, M, tfinal, x0, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, time, plotting, RMS)
         initialize.make_IC()
         IC = initialize.IC
-        print(IC)
         mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
         matrices = G_L(initialize)
         num_flux = LU_surf(M)
