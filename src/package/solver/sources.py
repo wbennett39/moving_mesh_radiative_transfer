@@ -50,29 +50,33 @@ class source_class(object):
         argument = (b-a)/2*self.xs_quad + (a+b)/2
         self.S[j] = (b-a)/2 * np.sum(self.ws_quad * source_vector * normPn(j, argument, a, b))
         
-    def square_IC_uncollidided_source(self, xs, t):
+    def square_IC_uncollidided_solution(self, xs, t):
         temp = xs*0
         for ix in range(xs.size):
             xx = xs[ix]
             abxx = abs(xx)
             if (abxx <= t + self.x0) and (abxx <= t - self.x0):
-                mag = math.exp(-t)/(4*t*t*self.x0 + 1e-12)
+                mag = math.exp(-t)/(2.0*t + 1e-12)
                 temp[ix] = mag
             elif (xx < t + self.x0) and (xx > -t - self.x0):
                 if (self.x0 - xx >= t) and (self.x0 + xx <= t):
-                    temp[ix] = math.exp(-t)*(t + xx + self.x0)/(4.0*t*t*self.x0 + 1e-12)
+                    temp[ix] = math.exp(-t)*(t + xx + self.x0)/(2.0 * t + 1e-12)
                 elif (self.x0 - xx <= t) and (self.x0 + xx >= t):
-                    temp[ix] = math.exp(-t)*(t - xx + self.x0)/(4.0*t*t*self.x0 + 1e-12)
+                    temp[ix] = math.exp(-t)*(t - xx + self.x0)/(2.0 * t + 1e-12)
                 else:
                     temp[ix] = 0.0
             else: 
                 temp[ix] = 0.0
-        return temp/2.0
-    
-
         return temp
+    def plane_IC_uncollided_solution(self, xs, t):
+        temp = xs*0
+        for ix in range(xs.size):
+            if abs(xs[ix]) <= t:
+                temp[ix] = math.exp(-t)/(2*t+1e-12)
+        return temp
+    
     def plane_IC_uncollided_source_integrated(self, t, xL, xR):
-        self.S[0] = (math.exp(-t)/(2*t+self.x0)*math.sqrt(xR-xL))/2
+        self.S[0] = (math.exp(-t)/(2*t+self.x0)*math.sqrt(xR-xL))
         
     def make_source(self, t, xL, xR):
         if self.uncollided == True:
@@ -81,8 +85,19 @@ class source_class(object):
             elif self.source_type[1] == 1:
                 for j in range(self.M+1):
                     argument = (xL-xR)/2*self.xs_quad + (xL+xR)/2
-                    source_vector= self.square_IC_uncollidided_source(argument, t)
+                    source_vector= self.square_IC_uncollidided_solution(argument, t)
                     self.integrate_quad(t, xL, xR, j, source_vector)
+                    
+    def uncollided_solution(self, xs, t):
+        if self.uncollided == True:
+            if self.source_type[0] == 1:
+                return self.plane_IC_uncollided_solution(xs, t)
+            elif self.source_type[1] == 1:
+                return self.square_IC_uncollidided_solution(xs, t)
+        else:
+            return xs*0
+        
+    
                 
-                
+
             

@@ -11,8 +11,8 @@ from sources import source_class
 from phi_class import scalar_flux
 from mesh import mesh_class
 from rhs_class import rhs_class
-from make_output import make_output
-from functions import make_phi,find_nodes
+from make_phi import make_output
+from functions import make_phi, find_nodes
 ###############################################################################
 """ 
 [] have main take inputs from YAML 
@@ -33,6 +33,7 @@ from functions import make_phi,find_nodes
 [] comments
 [] something is going on with square IC with uncollided
 [x] is the benchmark maker off by a little bit?
+[] add correct uncollided to square uncol
 """
 ###############################################################################
 
@@ -42,11 +43,11 @@ def main():
     angles = [32]
     Ms = [4]
     N_spaces = [2,4,8]
-    # x0 = 1e-10
-    x0 = 1/2
+    x0 = 1e-10
+    # x0 = 1/2
     
     source_type = np.array([0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
-    uncollided = True
+    uncollided = False
     moving = True
     move_type = np.array([1,0,0,0])
     time = True 
@@ -82,11 +83,9 @@ def main():
         edges = mesh.edges
         
         xs = find_nodes(xs_quad, edges)
-        phi = make_phi(N_ang, ws, xs, sol_last, M, edges) + math.exp(-tfinal)/(2*tfinal+x0)
-        
-        # output = make_output(sol_last, initialize, mesh, tfinal)
-        # xs = output.xs_list
-        # phi = output.phi_list
+        output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
+        phi = output.make_phi(source)
+        # phi = make_phi(N_ang, ws, xs, sol_last, M, edges) 
         plt.plot(xs, phi, "-o")
         
         
