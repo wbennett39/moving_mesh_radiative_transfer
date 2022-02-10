@@ -41,10 +41,10 @@ from functions import make_phi, find_nodes
 
 def main():
     
-    tfinal = 1e-5
+    tfinal = 1
     angles = [32]
     Ms = [4]
-    N_spaces = [4,8]
+    N_spaces = [4]
     # x0 = 1e-10
     x0 = 1/2
     source_type = np.array([0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]

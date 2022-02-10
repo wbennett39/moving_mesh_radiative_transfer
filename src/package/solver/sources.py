@@ -55,9 +55,10 @@ class source_class(object):
         for ix in range(xs.size):
             xx = xs[ix]
             abxx = abs(xx)
-            if (abxx <= t + self.x0) and (abxx <= t - self.x0):
-                mag = math.exp(-t)/(2.0 * t + 1e-12)
-                temp[ix] = mag
+            if (t <= self.x0) and (xx >= -self.x0 + t) and (xx <= self.x0 - t):
+                temp[ix] = math.exp(-t)
+            elif t > self.x0  and (-t + self.x0 <=  xx) and (t - self.x0 >= xx):
+                temp[ix] = math.exp(-t) * self.x0 / (t + 1e-12)
             elif (xx < t + self.x0) and (xx > -t - self.x0):
                 if (self.x0 - xx >= t) and (self.x0 + xx <= t):
                     temp[ix] = math.exp(-t)*(t + xx + self.x0)/(2.0 * t + 1e-12)
