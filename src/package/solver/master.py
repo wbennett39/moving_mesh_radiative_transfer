@@ -23,8 +23,12 @@ from functions import make_phi, find_nodes
     [] IC for plane
     [x] IC for square 
     [] IC for truncated
-[] make benchmarks for all cases 
-[] figure out where that factor of two comes from in the source
+[] make benchmarks for 
+    [x] plane source
+    [x] square IC
+    [x] truncated gaussian
+    [] square source
+[x] figure out where that factor of two comes from in the source
 [x] njit all classes 
 [] jitclass RHS
 [x] find solution at nodes 
@@ -33,7 +37,6 @@ from functions import make_phi, find_nodes
 [] comments
 [x] something is going on with square IC with uncollided
 [x] is the benchmark maker off by a little bit?
-[] add correct uncollided to square uncol
 [] fix find nodes
 [x] chase factors of 2 
 [] usability - make functions that are used for IC, benchmarking, source, mesh, easy to modify 
