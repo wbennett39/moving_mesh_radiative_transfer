@@ -35,7 +35,8 @@ from functions import make_phi, find_nodes
 [x] is the benchmark maker off by a little bit?
 [] add correct uncollided to square uncol
 [] fix find nodes
-[] chase factors of 2 
+[x] chase factors of 2 
+[] usability - make functions that are used for IC, benchmarking, source, mesh, easy to modify 
 """
 ###############################################################################
 
