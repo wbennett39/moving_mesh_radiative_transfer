@@ -31,23 +31,24 @@ from functions import make_phi, find_nodes
 [] fix numerical flux class
 [] put imports __init__ file
 [] comments
-[] something is going on with square IC with uncollided
+[x] something is going on with square IC with uncollided
 [x] is the benchmark maker off by a little bit?
 [] add correct uncollided to square uncol
+[] fix find nodes
+[] chase factors of 2 
 """
 ###############################################################################
 
 def main():
     
-    tfinal = 1.0
+    tfinal = 1e-5
     angles = [32]
     Ms = [4]
-    N_spaces = [2,4,8]
-    x0 = 1e-10
-    # x0 = 1/2
-    
+    N_spaces = [4,8]
+    # x0 = 1e-10
+    x0 = 1/2
     source_type = np.array([0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
-    uncollided = False
+    uncollided = False 
     moving = True
     move_type = np.array([1,0,0,0])
     time = True 

@@ -46,9 +46,9 @@ class source_class(object):
         self.xs_quad = build.xs_quad
         self.ws_quad = build.ws_quad
         
-    def integrate_quad(self, t, a, b, j, source_vector):
+    def integrate_quad(self, t, a, b, j, func):
         argument = (b-a)/2*self.xs_quad + (a+b)/2
-        self.S[j] = (b-a)/2 * np.sum(self.ws_quad * source_vector * normPn(j, argument, a, b))
+        self.S[j] = (b-a)/2 * np.sum(self.ws_quad * func(argument, t) * normPn(j, argument, a, b))
         
     def square_IC_uncollidided_solution(self, xs, t):
         temp = xs*0
@@ -56,17 +56,17 @@ class source_class(object):
             xx = xs[ix]
             abxx = abs(xx)
             if (abxx <= t + self.x0) and (abxx <= t - self.x0):
-                mag = math.exp(-t)/(2.0*t + 1e-12)
+                mag = math.exp(-t)/(2.0 * t + 1e-12)
                 temp[ix] = mag
             elif (xx < t + self.x0) and (xx > -t - self.x0):
                 if (self.x0 - xx >= t) and (self.x0 + xx <= t):
                     temp[ix] = math.exp(-t)*(t + xx + self.x0)/(2.0 * t + 1e-12)
                 elif (self.x0 - xx <= t) and (self.x0 + xx >= t):
                     temp[ix] = math.exp(-t)*(t - xx + self.x0)/(2.0 * t + 1e-12)
-                else:
-                    temp[ix] = 0.0
-            else: 
-                temp[ix] = 0.0
+                # else:
+                #     temp[ix] = 0.0
+            # else: 
+            #     temp[ix] = 0.0
         return temp
     def plane_IC_uncollided_solution(self, xs, t):
         temp = xs*0
@@ -84,9 +84,9 @@ class source_class(object):
                 self.plane_IC_uncollided_source_integrated(t, xL, xR)
             elif self.source_type[1] == 1:
                 for j in range(self.M+1):
-                    argument = (xL-xR)/2*self.xs_quad + (xL+xR)/2
-                    source_vector= self.square_IC_uncollidided_solution(argument, t)
-                    self.integrate_quad(t, xL, xR, j, source_vector)
+                    # argument = (xL-xR)/2*self.xs_quad + (xL+xR)/2
+                    # source_vector= self.square_IC_uncollidided_solution(argument, t)
+                    self.integrate_quad(t, xL, xR, j, self.square_IC_uncollidided_solution)
                     
     def uncollided_solution(self, xs, t):
         if self.uncollided == True:
