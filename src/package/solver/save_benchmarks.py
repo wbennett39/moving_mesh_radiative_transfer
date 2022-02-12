@@ -11,7 +11,7 @@ import numpy as np
 from create_benchmark import integrate_ganapol
 
 ###############################################################################
-npnts = 10
+npnts = 10000
 x0 = 1/2
 bench_maker = integrate_ganapol(npnts, x0)
 

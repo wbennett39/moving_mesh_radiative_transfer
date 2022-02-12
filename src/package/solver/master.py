@@ -13,6 +13,7 @@ from mesh import mesh_class
 from rhs_class import rhs_class
 from make_phi import make_output
 from functions import make_phi, find_nodes
+from load_bench import load_bench # fix later 
 ###############################################################################
 """ 
 [] have main take inputs from YAML 
@@ -28,6 +29,7 @@ from functions import make_phi, find_nodes
     [x] square IC
     [x] truncated gaussian
     [] square source
+[] save benchmarks
 [x] figure out where that factor of two comes from in the source
 [x] njit all classes 
 [] jitclass RHS
@@ -45,15 +47,15 @@ from functions import make_phi, find_nodes
 
 def main():
     
-    tfinal = 1
+    tfinal = 1e-6
     angles = [32]
     Ms = [4]
-    N_spaces = [4]
+    N_spaces = [2,4]
     # x0 = 1e-10
     x0 = 1/2
     source_type = np.array([0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
     uncollided = False 
-    moving = True
+    moving = False
     move_type = np.array([1,0,0,0])
     time = True 
     plotting = True
@@ -90,8 +92,14 @@ def main():
         xs = find_nodes(xs_quad, edges)
         output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
         phi = output.make_phi(source)
+        
+        benchmark = load_bench(source_type, tfinal)
+        benchmark_solution = benchmark(xs)
+        RMS = np.linalg.norm(phi - benchmark_solution)
+        
         # phi = make_phi(N_ang, ws, xs, sol_last, M, edges) 
         plt.plot(xs, phi, "-o")
+        plt.plot(xs, benchmark_solution, "k-")
         
         
 main()

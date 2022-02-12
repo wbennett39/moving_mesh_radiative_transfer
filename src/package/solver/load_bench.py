@@ -34,7 +34,7 @@ class load_bench:
         if self.ask_for_bench == True:
             tstring = self.source_type_str[self.t_string_index]
             solution = f[source_name][tstring]
-        self.interpolated_solution = interp1d(solution[0], solution[1])
+            self.interpolated_solution = interp1d(solution[0], solution[1])
         f.close()
     def __call__(self, xs):
         if self.ask_for_bench == True:

@@ -69,17 +69,17 @@ class source_class(object):
             # else: 
             #     temp[ix] = 0.0
         return temp
-    def truncated_gaussian_IC_uncollided_solution(self, xs, t):
-        temp = xs*0
+    # def truncated_gaussian_IC_uncollided_solution(self, xs, t):
+    #     temp = xs*0
     
-        for ix in range(xs.size):
+    #     for ix in range(xs.size):
             
 
-                # else:
-                #     temp[ix] = 0.0
-            # else: 
-            #     temp[ix] = 0.0
-        return temp
+    #             # else:
+    #             #     temp[ix] = 0.0
+    #         # else: 
+    #         #     temp[ix] = 0.0
+    #     return temp
         
     def plane_IC_uncollided_solution(self, xs, t):
         temp = xs*0
