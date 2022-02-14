@@ -16,46 +16,60 @@ from functions import make_phi, find_nodes
 from load_bench import load_bench # fix later 
 ###############################################################################
 """ 
+
+class goals:
 [] have main take inputs from YAML 
 [] make sigma_t and sigma_s dependent on space
+[] jitclass RHS
+[] fix numerical flux class
+[] put imports __init__ file
+[] figure out where that factor of two comes from in the source
+[] comments
+[] usability - make functions that are used for IC, benchmarking, source, mesh, easy to modify 
+[] pytest
+[] put benchmarks back in its own module
+    ideas for tests:
+        source - check if integrator returns analytic integral of plane uncollided for x inside t 
+        G, and L, check against mathematica result
+
+paper goals:
+[] static mesh plane uncollided
+[] run benchmarks with more evaluation points    
+[] mesh function to better capture square, truncated IC
+[] mesh function to move with uncollided sol for square, truncated 
 [x] uncollided source for square IC
+[x] fix find nodes
 [] find uncollided for square source
 [] uncollided for truncated
-    [] IC for plane
+[] uncollided for truncated source
+[] MMS
+    [??] IC for plane 
     [x] IC for square 
     [] IC for truncated
 [] make benchmarks for 
     [x] plane source
     [x] square IC
-    [x] truncated gaussian
+    [x] truncated gaussian IC
+    [] trunc gauss source
     [] square source
-[] save benchmarks
-[x] figure out where that factor of two comes from in the source
-[x] njit all classes 
-[] jitclass RHS
-[x] find solution at nodes 
-[] fix numerical flux class
-[] put imports __init__ file
-[] comments
+[] timing
 [x] something is going on with square IC with uncollided
 [x] is the benchmark maker off by a little bit?
-[] fix find nodes
-[x] chase factors of 2 
-[] usability - make functions that are used for IC, benchmarking, source, mesh, easy to modify 
+
 """
 ###############################################################################
 
 def main():
     
-    tfinal = 1e-6
+    tfinal = 1.0
     angles = [32]
-    Ms = [4]
-    N_spaces = [2,4]
-    # x0 = 1e-10
-    x0 = 1/2
-    source_type = np.array([0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
-    uncollided = False 
-    moving = False
+    Ms = [3]
+    N_spaces = [2,4,8,16]
+    x0 = 1e-10
+    # x0 = 1/2
+    source_type = np.array([1,0,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
+    uncollided = False
+    moving = True
     move_type = np.array([1,0,0,0])
     time = True 
     plotting = True
@@ -71,8 +85,8 @@ def main():
         
         mus = quadpy.c1.gauss_lobatto(N_ang).points
         ws = quadpy.c1.gauss_lobatto(N_ang).weights
-        xs_quad = quadpy.c1.gauss_lobatto(M).points
-        ws_quad = quadpy.c1.gauss_lobatto(M).weights
+        xs_quad = quadpy.c1.gauss_lobatto(M+2).points
+        ws_quad = quadpy.c1.gauss_lobatto(M+2).weights
         
         initialize = build(N_ang, N_space, M, tfinal, x0, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, time, plotting, RMS)
         initialize.make_IC()
@@ -89,7 +103,7 @@ def main():
         mesh.move(tfinal)
         edges = mesh.edges
         
-        xs = find_nodes(xs_quad, edges)
+        xs = find_nodes(edges, M)
         output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
         phi = output.make_phi(source)
         

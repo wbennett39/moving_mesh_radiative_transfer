@@ -23,16 +23,16 @@ class load_bench:
         self.t_eval_str = ["t = 1", " t = 5", "t = 10"]
         index_of_source_name = np.argmin(np.abs(np.array(self.source_type)-1))
         source_name = self.source_type_str[index_of_source_name]
-        if tfinal == 1:
+        if tfinal == 1.0:
             self.t_string_index = 0
-        elif tfinal == 5:
+        elif tfinal == 5.0:
             self.t_string_index = 1
-        elif tfinal == 10:
+        elif tfinal == 10.0:
             self.t_string_index = 2
         else:
             self.ask_for_bench = False
         if self.ask_for_bench == True:
-            tstring = self.source_type_str[self.t_string_index]
+            tstring = self.t_eval_str[self.t_string_index]
             solution = f[source_name][tstring]
             self.interpolated_solution = interp1d(solution[0], solution[1])
         f.close()
