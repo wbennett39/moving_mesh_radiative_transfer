@@ -56,7 +56,7 @@ class source_class(object):
         temp = xs*0
         for ix in range(xs.size):
             xx = xs[ix]
-            abxx = abs(xx)
+            # abxx = abs(xx)
             if (t <= self.x0) and (xx >= -self.x0 + t) and (xx <= self.x0 - t):
                 temp[ix] = math.exp(-t)
             elif t > self.x0  and (-t + self.x0 <=  xx) and (t - self.x0 >= xx):
@@ -87,7 +87,7 @@ class source_class(object):
         temp = xs*0
         for ix in range(xs.size):
             if (-t <= xs[ix] <= t):
-                temp[ix] = math.exp(-t)/(2*t+1e-12)
+                temp[ix] = math.exp(-t)/(2*t+1e-18)
         return temp
     
     def plane_IC_uncollided_solution_integrated(self, t, xL, xR):
@@ -101,6 +101,10 @@ class source_class(object):
                 elif self.moving == False:
                     for j in range(self.M+1):
                         self.integrate_quad(t, xL, xR, j, self.plane_IC_uncollided_solution)
+                        # if xL >= -t and xR <= t:
+                        #     if self.S[j] > 1e-14:
+                                # print(self.S[j], math.exp(-t)/2/t*math.sqrt(xR-xL),t)
+                                   
             elif self.source_type[1] == 1:
                 for j in range(self.M+1):
                     self.integrate_quad(t, xL, xR, j, self.square_IC_uncollidided_solution)

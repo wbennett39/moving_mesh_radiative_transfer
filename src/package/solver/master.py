@@ -33,9 +33,9 @@ class goals:
         G, and L, check against mathematica result
 
 paper goals:
-[] static mesh plane uncollided
+[x] static mesh plane uncollided
 [] run benchmarks with more evaluation points    
-[] mesh function to better capture square, truncated IC
+[] mesh function to better capture square, truncated IC, delta function
 [] mesh function to move with uncollided sol for square, truncated 
 [x] uncollided source for square IC
 [x] fix find nodes
@@ -43,7 +43,7 @@ paper goals:
 [] uncollided for truncated
 [] uncollided for truncated source
 [] MMS
-    [??] IC for plane 
+    [x] IC for plane -- static probably needs special mesh
     [x] IC for square 
     [] IC for truncated
 [] make benchmarks for 
@@ -63,13 +63,13 @@ def main():
     
     tfinal = 1.0
     angles = [32]
-    Ms = [3]
-    N_spaces = [2,4,8,16]
-    x0 = 1e-10
-    # x0 = 1/2
-    source_type = np.array([1,0,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
-    uncollided = False
-    moving = True
+    Ms = [4]
+    N_spaces = [2,4]
+    # x0 = 1e-10
+    x0 = 1/2
+    source_type = np.array([0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
+    uncollided = True
+    moving = False
     move_type = np.array([1,0,0,0])
     time = True 
     plotting = True
@@ -85,8 +85,8 @@ def main():
         
         mus = quadpy.c1.gauss_lobatto(N_ang).points
         ws = quadpy.c1.gauss_lobatto(N_ang).weights
-        xs_quad = quadpy.c1.gauss_lobatto(M+2).points
-        ws_quad = quadpy.c1.gauss_lobatto(M+2).weights
+        xs_quad = quadpy.c1.gauss_legendre(M+2).points
+        ws_quad = quadpy.c1.gauss_legendre(M+2).weights
         
         initialize = build(N_ang, N_space, M, tfinal, x0, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, time, plotting, RMS)
         initialize.make_IC()
