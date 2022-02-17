@@ -11,8 +11,9 @@ import numpy as np
 from create_benchmark import integrate_ganapol
 
 ###############################################################################
-npnts = 10000
+npnts = 200
 x0 = 1/2
+
 bench_maker = integrate_ganapol(npnts, x0)
 
 bench_maker.plane_source(1.0)
@@ -25,6 +26,8 @@ bench_maker.plane_source(10.0)
 p10 = bench_maker.sol_list
 p10xs = bench_maker.x_list
 
+print("plane finished")
+
 bench_maker.square_IC(1.0)
 si1 = bench_maker.sol_list
 si1xs = bench_maker.x_list
@@ -34,6 +37,8 @@ si5xs = bench_maker.x_list
 bench_maker.square_IC(10.0)
 si10 = bench_maker.sol_list
 si10xs = bench_maker.x_list
+
+print("square IC finished")
 
 bench_maker.truncated_gaussian_IC(1.0)
 tg1 = bench_maker.sol_list
@@ -45,6 +50,7 @@ bench_maker.truncated_gaussian_IC(10.0)
 tg10 = bench_maker.sol_list
 tg10xs = bench_maker.x_list
 
+print("gauss finished")
 
 f = h5py.File("benchmarks.hdf5", "a")
 plane = f.create_group("plane_IC")

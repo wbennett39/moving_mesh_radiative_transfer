@@ -62,13 +62,13 @@ paper goals:
 def main():
     
     tfinal = 1.0
-    angles = [32]
+    angles = [64]
     Ms = [4]
-    N_spaces = [2,4]
-    # x0 = 1e-10
-    x0 = 1/2
-    source_type = np.array([0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
-    uncollided = True
+    N_spaces = [2,4,8,16,32]
+    x0 = 1e-10
+    # x0 = 1/2
+    source_type = np.array([1,0,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
+    uncollided = False
     moving = False
     move_type = np.array([1,0,0,0])
     time = True 
