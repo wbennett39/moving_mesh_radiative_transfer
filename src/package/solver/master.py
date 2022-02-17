@@ -14,6 +14,7 @@ from rhs_class import rhs_class
 from make_phi import make_output
 from functions import make_phi, find_nodes
 from load_bench import load_bench # fix later 
+from save_output import save_output
 ###############################################################################
 """ 
 
@@ -62,19 +63,20 @@ paper goals:
 def main():
     
     tfinal = 1.0
-    angles = [64]
+    angles = [4]
     Ms = [4]
-    N_spaces = [2,4,8,16,32]
+    N_spaces = [2,4]
+    RMS_list = []
     x0 = 1e-10
     # x0 = 1/2
     source_type = np.array([1,0,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
-    uncollided = False
-    moving = False
+    uncollided = True
+    moving = True
     move_type = np.array([1,0,0,0])
     time = True 
     plotting = True
     RMS = True
-    
+    saving = save_output(tfinal, Ms[0], angles[0], source_type, moving, uncollided)
     
     
     for count, N_space in enumerate(N_spaces):
@@ -110,12 +112,14 @@ def main():
         benchmark = load_bench(source_type, tfinal)
         benchmark_solution = benchmark(xs)
         RMS = np.linalg.norm(phi - benchmark_solution)
+        RMS_list.append(RMS)
         
         # phi = make_phi(N_ang, ws, xs, sol_last, M, edges) 
         plt.plot(xs, phi, "-o")
         plt.plot(xs, benchmark_solution, "k-")
         
-        
+    saving.save_RMS(RMS_list, N_spaces)
+    
 main()
         
         
