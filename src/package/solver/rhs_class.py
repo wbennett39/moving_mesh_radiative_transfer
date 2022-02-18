@@ -7,9 +7,56 @@ Created on Mon Jan 31 11:25:35 2022
 """
 import numpy as np
 from build_problem import build
+from matrices import G_L
 from functions import LU_surf_func
-###############################################################################
+from sources import source_class
+from phi_class import scalar_flux
 
+from numerical_flux import LU_surf
+from numba.experimental import jitclass
+from numba import int64, float64, deferred_type
+
+build_type = deferred_type()
+build_type.define(build.class_type.instance_type)
+matrices_type = deferred_type()
+matrices_type.define(G_L.class_type.instance_type)
+num_flux_type = deferred_type()
+num_flux_type.define(LU_surf.class_type.instance_type)
+source_type = deferred_type()
+source_type.define(source_class.class_type.instance_type)
+flux_type = deferred_type()
+flux_type.define(scalar_flux.class_type.instance_type)
+
+
+
+data = [('N_ang', int64), 
+        ('N_space', int64),
+        ('M', int64),
+        ('t', float64),
+        ('sigma_t', float64[:]),
+        ('sigma_s', float64[:]),
+        ('IC', float64[:,:,:]),
+        ('mus', float64[:]),
+        ('ws', float64[:]),
+        ('x0', float64),
+        ("xL", float64),
+        ("xR", float64),
+        ("dxL", float64),
+        ("dxR", float64),
+        ("L", float64[:,:]),
+        ("G", float64[:,:]),
+        ("P", float64[:]),
+        ("S", float64[:]),
+        ("LU", float64[:]),
+        ("U", float64[:]),
+        ("V_new", float64[:,:,:]),
+        ("V", float64[:,:,:]),
+        ("V_old", float64[:,:,:]),
+        
+        
+        ]
+##############################################################################
+@jitclass(data)
 class rhs_class():
     def __init__(self, build):
         self.N_ang = build.N_ang 
@@ -17,7 +64,8 @@ class rhs_class():
         self.M = build.M
         self.mus = build.mus
         self.ws = build.ws
-    def __call__(self,t, V, mesh, matrices, num_flux, source, flux):
+    # def __call__(self,t, V, mesh, matrices, num_flux, source, flux):
+    def call(self,t, V, mesh, matrices, num_flux, source, flux):
         
         V_new = V.copy().reshape((self.N_ang, self.N_space, self.M+1))
         V_old = V_new.copy()

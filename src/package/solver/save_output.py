@@ -32,6 +32,8 @@ class save_output:
             self.clr = "c0"
         elif self.uncollided == False:
             self.clr = "c1"
+        self.mkr_string = self.line_mkr + self.mkr
+        
         
         
     def save_RMS(self, RMS_list, N_spaces):
@@ -39,13 +41,14 @@ class save_output:
         dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
         # dest_str = "plane_IC"
         destination = f[dest_str]
-        rms_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static")  + str(self.N_ang) + "_angles" + "_M_" + str(self.M)
+        rms_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_")  + str(self.N_ang) + "_angles" + "_M_" + str(self.M)
         if destination.__contains__(rms_str):
             del destination[rms_str]
         dset = destination.create_dataset(rms_str, (2, len(N_spaces)) )
         dset[0] = N_spaces
         dset[1] = RMS_list
         f.close()
+    
             
             
             

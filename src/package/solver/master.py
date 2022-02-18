@@ -3,6 +3,8 @@ import scipy.integrate as integrate
 import quadpy
 import matplotlib.pyplot as plt
 import math
+from numba import njit
+from timeit import default_timer as timer
 
 from build_problem import build
 from matrices import G_L
@@ -35,7 +37,7 @@ class goals:
 
 paper goals:
 [x] static mesh plane uncollided
-[] run benchmarks with more evaluation points    
+[x] run benchmarks with more evaluation points    
 [] mesh function to better capture square, truncated IC, delta function
 [] mesh function to move with uncollided sol for square, truncated 
 [x] uncollided source for square IC
@@ -61,15 +63,16 @@ paper goals:
 ###############################################################################
 
 def main():
-    
-    tfinal = 1.0
-    angles = [4]
-    Ms = [4]
-    N_spaces = [2,4]
+    rt = 1e-11
+    at = 1e-9
+    tfinal = 1
+    angles = [256]
+    Ms = [6]
+    N_spaces = [2,4,8]
     RMS_list = []
-    x0 = 1e-10
-    # x0 = 1/2
-    source_type = np.array([1,0,0,0])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
+    # x0 = 1e-11
+    x0 = 1/2
+    source_type = np.array([0,0,0,1])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
     uncollided = True
     moving = True
     move_type = np.array([1,0,0,0])
@@ -78,6 +81,8 @@ def main():
     RMS = True
     saving = save_output(tfinal, Ms[0], angles[0], source_type, moving, uncollided)
     
+    print("uncollided", uncollided)
+    print("moving", moving)
     
     for count, N_space in enumerate(N_spaces):
         sigma_t = np.ones(N_space)
@@ -99,8 +104,14 @@ def main():
         source = source_class(initialize)
         flux = scalar_flux(initialize)
         rhs = rhs_class(initialize)
-        RHS = lambda t, V: rhs(t, V, mesh, matrices, num_flux, source, flux)
-        sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(N_ang*N_space*(M+1)), method='DOP853', t_eval = [tfinal])
+        # RHS = lambda t, V: rhs(t, V, mesh, matrices, num_flux, source, flux)
+        # @njit
+        def RHS(t, V):
+            return rhs.call(t, V, mesh, matrices, num_flux, source, flux)
+        
+        start = timer()
+        sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(N_ang*N_space*(M+1)), method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
+        end = timer()
         sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
         mesh.move(tfinal)
         edges = mesh.edges
@@ -111,10 +122,13 @@ def main():
         
         benchmark = load_bench(source_type, tfinal)
         benchmark_solution = benchmark(xs)
-        RMS = np.linalg.norm(phi - benchmark_solution)
+        RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
         RMS_list.append(RMS)
+        print(N_space, "spaces", "    ", end-start, "time elapsed")
+        print("RMSE", RMS)
         
         # phi = make_phi(N_ang, ws, xs, sol_last, M, edges) 
+        plt.figure(10)
         plt.plot(xs, phi, "-o")
         plt.plot(xs, benchmark_solution, "k-")
         
