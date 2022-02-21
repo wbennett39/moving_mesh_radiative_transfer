@@ -36,17 +36,18 @@ class save_output:
         
         
         
-    def save_RMS(self, RMS_list, N_spaces):
+    def save_RMS(self, RMS_list, N_spaces, N_angles):
         f = h5py.File('run_data_RMS.h5', 'a')
         dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
         # dest_str = "plane_IC"
         destination = f[dest_str]
-        rms_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_")  + str(self.N_ang) + "_angles" + "_M_" + str(self.M)
+        rms_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "_M_" + str(self.M)
         if destination.__contains__(rms_str):
             del destination[rms_str]
-        dset = destination.create_dataset(rms_str, (2, len(N_spaces)) )
+        dset = destination.create_dataset(rms_str, (3, len(N_spaces)) )
         dset[0] = N_spaces
         dset[1] = RMS_list
+        dset[2] = N_angles
         f.close()
     
             

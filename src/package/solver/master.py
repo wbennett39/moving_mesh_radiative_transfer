@@ -66,13 +66,13 @@ def main():
     rt = 1e-11
     at = 1e-9
     tfinal = 1
-    angles = [32]
+    angles = [2,2,2,2]
     Ms = [4]
-    N_spaces = [2,4,8]
+    N_spaces = [2,4,8,16]
     RMS_list = []
-    # x0 = 1e-11
-    x0 = 4
-    source_type = np.array([0,0,0,1])                                                     # ["plane", "square_IC", "square_source", "gaussian"]
+    x0 = 1e-11
+    # x0 = 4
+    source_type = np.array([1,0,0,0])                                                     # ["plane", "square_IC", "square_source", "gaussian"]
     uncollided = True
     moving = True
     move_type = np.array([1,0,0,0])
@@ -88,7 +88,7 @@ def main():
         sigma_t = np.ones(N_space)
         sigma_s = np.ones(N_space)
         M = Ms[0]
-        N_ang = angles[0]
+        N_ang = angles[count]
         
         mus = quadpy.c1.gauss_lobatto(N_ang).points
         ws = quadpy.c1.gauss_lobatto(N_ang).weights
@@ -132,7 +132,7 @@ def main():
         plt.plot(xs, phi, "-o")
         plt.plot(xs, benchmark_solution, "k-")
         
-    # saving.save_RMS(RMS_list, N_spaces)
+    saving.save_RMS(RMS_list, N_spaces, angles)
     
 main()
         
