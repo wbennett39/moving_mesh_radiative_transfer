@@ -66,13 +66,13 @@ def main():
     rt = 1e-11
     at = 1e-9
     tfinal = 1
-    angles = [256]
-    Ms = [6]
+    angles = [32]
+    Ms = [4]
     N_spaces = [2,4,8]
     RMS_list = []
     # x0 = 1e-11
-    x0 = 1/2
-    source_type = np.array([0,0,0,1])                                                     # ["plane", "square_IC", "square_source", "truncated_gaussian"]
+    x0 = 4
+    source_type = np.array([0,0,0,1])                                                     # ["plane", "square_IC", "square_source", "gaussian"]
     uncollided = True
     moving = True
     move_type = np.array([1,0,0,0])
@@ -132,7 +132,7 @@ def main():
         plt.plot(xs, phi, "-o")
         plt.plot(xs, benchmark_solution, "k-")
         
-    saving.save_RMS(RMS_list, N_spaces)
+    # saving.save_RMS(RMS_list, N_spaces)
     
 main()
         

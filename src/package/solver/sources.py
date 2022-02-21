@@ -74,28 +74,13 @@ class source_class(object):
             # else: 
             #     temp[ix] = 0.0
         return temp
-    def truncated_gaussian_IC_uncollided_solution(self, xs, t):
+    def gaussian_IC_uncollided_solution(self, xs, t):
         temp = xs*0
         sqrtpi = math.sqrt(math.pi)
         for ix in range(xs.size):
             xx = xs[ix]
-            # abxx = abs(xx)
-            if (t <= self.x0) and (xx >= -self.x0 + t) and (xx <= self.x0 - t):
-                temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t-2*xx) + math.erf(2*t+2*xx))/(8.0 * t + 1e-12)
-            elif t > self.x0  and (-t + self.x0 <=  xx) and (t - self.x0 >= xx):
-                temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*self.x0))/(4.0 * t + 1e-12)
-            elif (xx < t + self.x0) and (xx > -t - self.x0):
-                if (self.x0 - xx >= t) and (self.x0 + xx <= t):
-                    temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t+2*xx) + math.erf(2*self.x0))/(8.0 * t + 1e-12)
-                elif (self.x0 - xx <= t) and (self.x0 + xx >= t):
-                    temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t-2*xx) + math.erf(2*self.x0))/(8.0 * t + 1e-12)
-                # else:
-                #     temp[ix] = 0.0
-            # else: 
-            #     temp[ix] = 0.0
+            temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t-2*xx) + math.erf(2*t+2*xx))/(8.0 * t + 1e-12)
         return temp
-        
-    
         
     def plane_IC_uncollided_solution(self, xs, t):
         temp = xs*0
@@ -125,7 +110,7 @@ class source_class(object):
                     
             elif self.source_type[3] == 1:
                 for j in range(self.M+1):
-                    self.integrate_quad(t, xL, xR, j, self.truncated_gaussian_IC_uncollided_solution)
+                    self.integrate_quad(t, xL, xR, j, self.gaussian_IC_uncollided_solution)
                 
                     
     def uncollided_solution(self, xs, t):
@@ -135,7 +120,7 @@ class source_class(object):
             elif self.source_type[1] == 1:
                 return self.square_IC_uncollidided_solution(xs, t)
             elif self.source_type[3] == 1:
-                return self.truncated_gaussian_IC_uncollided_solution(xs, t)
+                return self.gaussian_IC_uncollided_solution(xs, t)
         else:
             return xs*0
         

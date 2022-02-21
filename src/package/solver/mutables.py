@@ -35,13 +35,14 @@ class IC_func(object):
         elif self.uncollided == False and self.source_type[1] == 1:
             return self.plane_and_square_IC(x)
         elif self.uncollided == False and self.source_type[3] == 1:
-            return self.truncated_gaussian_IC(x)
+            return self.gaussian_IC(x)
         
     def plane_and_square_IC(self, x):
         temp = np.greater(x, -self.x0)*1.0 - np.greater(x, self.x0)*1.0
-        # temp = x/x
+            # temp = x/x
         return temp/2.0
-    def truncated_gaussian_IC(self, x):
-        temp = (np.greater(x, -self.x0)*1.0 - np.greater(x, self.x0)*1.0) * np.exp(-4*x*x)
+    
+    def gaussian_IC(self, x):
+        temp = np.exp(-4*x*x)
         return temp/2.0
         

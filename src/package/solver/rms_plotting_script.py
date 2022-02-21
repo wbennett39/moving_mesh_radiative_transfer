@@ -74,7 +74,7 @@ plt.loglog(spaces, RMS, "--or")
 
 plt.xlabel("cells")
 plt.ylabel("root mean square error")
-# plt.savefig("square_IC_t=1_M4.pdf")
+# plt.savefig("square_IC_t=1_M2.pdf")
 
 plt.show()
 

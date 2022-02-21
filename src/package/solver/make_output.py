@@ -39,5 +39,5 @@ class make_output:
             psi = np.zeros((self.N_ang,div)) 
             for ang2 in range(0,self.N_ang):
                 psi[ang2,:] = np.sum(sol_vec[ang2,:,:],axis=0)
-            phi = np.sum(np.multiply(psi.transpose(),self.ws),axis=1) 
-            self.phi_list[k*div:(k+1)*div] = phi      
+            phi = np.sum(np.multiply(psi.transpose(),self.ws),axis=1)*0
+            # self.phi_list[k*div:(k+1)*div] += phi      
