@@ -23,23 +23,23 @@ f = h5py.File('run_data_RMS.h5', 'r')
 
 plt.figure(1)
 
-n_ang = 512
-plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/uncollided_moving_{n_ang}_angles_M_4"]
+# n_ang = 512
+plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/uncollided_moving_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "-^b")
 
-plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/uncollided_static_{n_ang}_angles_M_4"]
+plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/uncollided_static_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "--^b")
 
-plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/no_uncollided_moving_{n_ang}_angles_M_4"]
+plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/no_uncollided_moving_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "-^r")
 
-plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/no_uncollided_static_{n_ang}_angles_M_4"]
+plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/no_uncollided_static_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "--^r")
@@ -52,22 +52,22 @@ plt.show()
 plt.figure(2)
 
 n_ang = 512
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_moving_{n_ang}_angles_M_2"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_moving_M_2"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "-ob")
 
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_static_{n_ang}_angles_M_2"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_static_M_2"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "--ob")
 
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_moving_{n_ang}_angles_M_2"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_moving_M_2"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "-or")
 
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_static_{n_ang}_angles_M_2"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_static_M_2"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "--or")
@@ -80,22 +80,22 @@ plt.show()
 
 
 plt.figure(3)
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_moving_{n_ang}_angles_M_4"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_moving_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "-^b")
 
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_static_{n_ang}_angles_M_4"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_static_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "--^b")
 
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_moving_{n_ang}_angles_M_4"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_moving_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "-^r")
 
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_static_{n_ang}_angles_M_4"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_static_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "--^r")
@@ -106,22 +106,22 @@ plt.ylabel("root mean square error")
 plt.show()
 
 plt.figure(4)
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_moving_{n_ang}_angles_M_6"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_moving_M_6"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "-sb")
 
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_static_{n_ang}_angles_M_6"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_static_M_6"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "--sb")
 
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_moving_{n_ang}_angles_M_6"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_moving_M_6"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "-sr")
 
-plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_static_{n_ang}_angles_M_6"]
+plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_static_M_6"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
 plt.loglog(spaces, RMS, "--sr")
@@ -131,6 +131,137 @@ plt.ylabel("root mean square error")
 # plt.savefig("square_IC_t=1_M6.pdf")
 plt.show()
 
+plt.figure(5)
+t_1_dataset = f[f"gaussian_IC/t=1/RMS/uncollided_moving_M_2"]
+spaces = t_1_dataset[0]
+RMS = t_1_dataset[1]
+plt.loglog(spaces, RMS, "-ob")
 
+# t_1_dataset = f[f"gaussian_IC/t=1/RMS/uncollided_static_M_2"]
+# spaces = t_1_dataset[0]
+# RMS = t_1_dataset[1]
+# plt.loglog(spaces, RMS, "--ob")
+
+# t_1_dataset = f[f"gaussian_IC/t=1/RMS/no_uncollided_moving_M_2"]
+# spaces = t_1_dataset[0]
+# RMS = t_1_dataset[1]
+# plt.loglog(spaces, RMS, "-or")
+
+# t_1_dataset = f[f"gaussian_IC/t=1/RMS/no_uncollided_static_M_2"]
+# spaces = t_1_dataset[0]
+# RMS = t_1_dataset[1]
+# plt.loglog(spaces, RMS, "--or")
+
+
+
+
+t_1_dataset = f[f"gaussian_IC/t=1/RMS/uncollided_moving_M_4"]
+spaces = t_1_dataset[0]
+RMS = t_1_dataset[1]
+plt.loglog(spaces, RMS, "-^b")
+
+# t_1_dataset = f[f"gaussian_IC/t=1/RMS/uncollided_static_M_4"]
+# spaces = t_1_dataset[0]
+# RMS = t_1_dataset[1]
+# plt.loglog(spaces, RMS, "--^b")
+
+# t_1_dataset = f[f"gaussian_IC/t=1/RMS/no_uncollided_moving_M_4"]
+# spaces = t_1_dataset[0]
+# RMS = t_1_dataset[1]
+# plt.loglog(spaces, RMS, "-^r")
+
+# t_1_dataset = f[f"gaussian_IC/t=1/RMS/no_uncollided_static_M_4"]
+# spaces = t_1_dataset[0]
+# RMS = t_1_dataset[1]
+# plt.loglog(spaces, RMS, "--^r")
+
+
+
+
+t_1_dataset = f[f"gaussian_IC/t=1/RMS/uncollided_moving_M_6"]
+spaces = t_1_dataset[0]
+RMS = t_1_dataset[1]
+plt.loglog(spaces, RMS, "-sb")
+
+# t_1_dataset = f[f"gaussian_IC/t=1/RMS/uncollided_static_M_6"]
+# spaces = t_1_dataset[0]
+# RMS = t_1_dataset[1]
+# plt.loglog(spaces, RMS, "--sb")
+
+# t_1_dataset = f[f"gaussian_IC/t=1/RMS/no_uncollided_moving_M_6"]
+# spaces = t_1_dataset[0]
+# RMS = t_1_dataset[1]
+# plt.loglog(spaces, RMS, "-sr")
+
+# t_1_dataset = f[f"gaussian_IC/t=1/RMS/no_uncollided_static_M_6"]
+# spaces = t_1_dataset[0]
+# RMS = t_1_dataset[1]
+# plt.loglog(spaces, RMS, "--sr")
+
+# plt.xlabel("cells")
+# plt.ylabel("root mean square error")
+
+plt.savefig("gaussian_IC_t=1_M2_4_6_uncollided.pdf")
+plt.show()
+
+
+plt.figure(6)
+
+""" plots RMS for plane IC all four cases M = 4
+"""
+plane_source_t_1_dataset = f[f"plane_IC/t=10/RMS/uncollided_moving_M_4"]
+spaces = plane_source_t_1_dataset[0]
+RMS = plane_source_t_1_dataset[1]
+plt.loglog(spaces, RMS, "-^b")
+
+plane_source_t_1_dataset = f[f"plane_IC/t=10/RMS/uncollided_static_M_4"]
+spaces = plane_source_t_1_dataset[0]
+RMS = plane_source_t_1_dataset[1]
+plt.loglog(spaces, RMS, "--^b")
+
+plane_source_t_1_dataset = f[f"plane_IC/t=10/RMS/no_uncollided_moving_M_4"]
+spaces = plane_source_t_1_dataset[0]
+RMS = plane_source_t_1_dataset[1]
+plt.loglog(spaces, RMS, "-^r")
+
+plane_source_t_1_dataset = f[f"plane_IC/t=10/RMS/no_uncollided_static_M_4"]
+spaces = plane_source_t_1_dataset[0]
+RMS = plane_source_t_1_dataset[1]
+plt.loglog(spaces, RMS, "--^r")
+
+plt.xlabel("cells")
+plt.ylabel("root mean square error")
+# plt.savefig("plane_IC_t=1.pdf")
+plt.show()
+
+
+
+plt.figure(7)
+""" Plots RMS for MMS M=2, 4, 6
+
+"""
+
+t_1_dataset = f[f"MMS/t=1/RMS/no_uncollided_moving_M_2"]
+spaces = t_1_dataset[0]
+RMS = t_1_dataset[1]
+plt.loglog(spaces, RMS, "-or")
+
+t_1_dataset = f[f"MMS/t=1/RMS/no_uncollided_moving_M_4"]
+spaces = t_1_dataset[0]
+RMS = t_1_dataset[1]
+plt.loglog(spaces, RMS, "-^r")
+
+t_1_dataset = f[f"MMS/t=1/RMS/no_uncollided_moving_M_6"]
+spaces = t_1_dataset[0]
+RMS = t_1_dataset[1]
+plt.loglog(spaces, RMS, "-sr")
+
+
+
+
+plt.xlabel("cells")
+plt.ylabel("root mean square error")
+# plt.savefig("plane_IC_t=1.pdf")
+plt.show()
 
 f.close()

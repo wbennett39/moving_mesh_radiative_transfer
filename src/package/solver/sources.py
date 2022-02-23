@@ -55,6 +55,10 @@ class source_class(object):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
         self.S[j] = (b-a)/2 * np.sum(self.ws_quad * func(argument, t) * normPn(j, argument, a, b))
         
+    def integrate_quad_not_isotropic(self, t, a, b, j, mu, func):
+        argument = (b-a)/2 * self.xs_quad + (a+b)/2
+        self.S[j] = (b-a)/2 * np.sum(self.ws_quad * func(argument, t, mu) * normPn(j, argument, a, b))
+        
     def square_IC_uncollidided_solution(self, xs, t):
         temp = xs*0
         for ix in range(xs.size):
@@ -86,8 +90,15 @@ class source_class(object):
         temp = xs*0
         for ix in range(xs.size):
             if (-t <= xs[ix] <= t):
-                temp[ix] = math.exp(-t)/(2*t+1e-18)
+                temp[ix] = math.exp(-t)/(2*t+1e-12)
         return temp
+    def MMS_source(self, xs, t, mu):
+        temp = xs*0
+        for ix in range(xs.size):
+            if -t - self.x0 <= xs[ix] <= t + self.x0:
+                # temp[ix] = - math.exp(-xs[ix]*xs[ix]/2)*(1 + (1+t)*xs[ix]*mu)/((1+t)**2)/2
+                temp[ix] = -0.5*(1 + (1 + t)*xs[ix]*mu)/(math.exp(xs[ix]**2/2.)*(1 + t)**2)
+        return temp*2.0
     
     def plane_IC_uncollided_solution_integrated(self, t, xL, xR):
         self.S[0] = (math.exp(-t)/(2*t+self.x0)*math.sqrt(xR-xL))
@@ -111,6 +122,11 @@ class source_class(object):
             elif self.source_type[3] == 1:
                 for j in range(self.M+1):
                     self.integrate_quad(t, xL, xR, j, self.gaussian_IC_uncollided_solution)
+
+    def make_source_not_isotropic(self, t, mu, xL, xR):
+            if self.source_type[4] ==1:
+                for j in range(self.M+1):
+                    self.integrate_quad_not_isotropic(t, xL, xR, j, mu, self.MMS_source)
                 
                     
     def uncollided_solution(self, xs, t):

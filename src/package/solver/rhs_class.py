@@ -14,7 +14,7 @@ from phi_class import scalar_flux
 
 from numerical_flux import LU_surf
 from numba.experimental import jitclass
-from numba import int64, float64, deferred_type
+from numba import int64, float64, deferred_type, prange
 
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
@@ -32,6 +32,7 @@ flux_type.define(scalar_flux.class_type.instance_type)
 data = [('N_ang', int64), 
         ('N_space', int64),
         ('M', int64),
+        ('source_type', int64[:]),
         ('t', float64),
         ('sigma_t', float64[:]),
         ('sigma_s', float64[:]),
@@ -64,6 +65,7 @@ class rhs_class():
         self.M = build.M
         self.mus = build.mus
         self.ws = build.ws
+        self.source_type = build.source_type
     # def __call__(self,t, V, mesh, matrices, num_flux, source, flux):
     def call(self,t, V, mesh, matrices, num_flux, source, flux):
         
@@ -72,7 +74,7 @@ class rhs_class():
         
         mesh.move(t)
 
-        for space in range(self.N_space):
+        for space in prange(self.N_space):
             
             xR = mesh.edges[space+1]
             xL = mesh.edges[space]
@@ -84,14 +86,17 @@ class rhs_class():
             G = matrices.G
             flux.make_P(V_old[:,space,:])
             P = flux.P
-            source.make_source(t, xL, xR)
+            if self.source_type[4] != 1:
+                source.make_source(t, xL, xR)
             S = source.S
             for angle in range(self.N_ang):
                 mul = self.mus[angle]
-                num_flux.make_LU(mesh, V_old[angle,:,:], space, mul)
-                # LU = num_flux.LU
-                LU = np.zeros(self.M+1).transpose()
-                LU = LU_surf_func(V_old[angle,:,:],space,self.N_space,mul,self.M,xL,xR,dxL,dxR)
+                if self.source_type[4] == 1:
+                    source.make_source_not_isotropic(t, mul, xL, xR)
+                num_flux.make_LU(t, mesh, V_old[angle,:,:], space, mul)
+                LU = num_flux.LU
+                # LU = np.zeros(self.M+1).transpose()
+                # LU = LU_surf_func(V_old[angle,:,:],space,self.N_space,mul,self.M,xL,xR,dxL,dxR)
                 U = np.zeros(self.M+1).transpose()
                 U[:] = V_old[angle,space,:]
                 RHS = np.dot(G,U) + -LU + mul*np.dot(L,U) - U + P + S/2.0
