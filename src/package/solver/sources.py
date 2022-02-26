@@ -35,7 +35,8 @@ data = [("S", float64[:]),
         ("ws_quad", float64[:]),
         ("mag", float64),
         ("term1", float64),
-        ("term2", float64)
+        ("term2", float64),
+        ("tfinal", float64)
         
         ]
 ###############################################################################
@@ -50,6 +51,7 @@ class source_class(object):
         self.xs_quad = build.xs_quad
         self.ws_quad = build.ws_quad
         self.moving = build.moving
+        self.tfinal = build.tfinal
         
     def integrate_quad(self, t, a, b, j, func):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
@@ -100,6 +102,14 @@ class source_class(object):
                 temp[ix] = -0.5*(1 + (1 + t)*xs[ix]*mu)/(math.exp(xs[ix]**2/2.)*(1 + t)**2)
         return temp*2.0
     
+    def square_source(self, xs, t):
+        temp = xs*0
+        for ix in range(xs.size):
+            if abs(xs[ix]) <= self.x0 and t <= self.tfinal:
+                temp[ix] = 1.0
+        return temp/2.0
+            
+    
     def plane_IC_uncollided_solution_integrated(self, t, xL, xR):
         self.S[0] = (math.exp(-t)/(2*t+self.x0)*math.sqrt(xR-xL))
     
@@ -122,6 +132,10 @@ class source_class(object):
             elif self.source_type[3] == 1:
                 for j in range(self.M+1):
                     self.integrate_quad(t, xL, xR, j, self.gaussian_IC_uncollided_solution)
+        elif self.uncollided == False:
+            if self.source_type[2] == 1:
+                for j in range(self.M+1):
+                    self.integrate_quad(t, xL, xR, j, self.square_source)
 
     def make_source_not_isotropic(self, t, mu, xL, xR):
             if self.source_type[4] ==1:

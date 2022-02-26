@@ -37,12 +37,12 @@ plt.loglog(spaces, RMS, "--^b")
 plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/no_uncollided_moving_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "-^r")
+plt.loglog(spaces, RMS, "-^r", mfc = "none")
 
 plane_source_t_1_dataset = f[f"plane_IC/t=1/RMS/no_uncollided_static_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "--^r")
+plt.loglog(spaces, RMS, "--^r", mfc = "none")
 
 plt.xlabel("cells")
 plt.ylabel("root mean square error")
@@ -65,12 +65,12 @@ plt.loglog(spaces, RMS, "--ob")
 plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_moving_M_2"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "-or")
+plt.loglog(spaces, RMS, "-or", mfc = "none")
 
 plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_static_M_2"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "--or")
+plt.loglog(spaces, RMS, "--or", mfc = "none")
 
 plt.xlabel("cells")
 plt.ylabel("root mean square error")
@@ -83,22 +83,22 @@ plt.figure(3)
 plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_moving_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "-^b")
+plt.loglog(spaces, RMS, "-^b", mfc = "none")
 
 plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/uncollided_static_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "--^b")
+plt.loglog(spaces, RMS, "--^b", mfc = "none")
 
 plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_moving_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "-^r")
+plt.loglog(spaces, RMS, "-^r", mfc = "none")
 
 plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_static_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "--^r")
+plt.loglog(spaces, RMS, "--^r", mfc = "none")
 
 plt.xlabel("cells")
 plt.ylabel("root mean square error")
@@ -119,12 +119,12 @@ plt.loglog(spaces, RMS, "--sb")
 plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_moving_M_6"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "-sr")
+plt.loglog(spaces, RMS, "-sr", mfc = "none")
 
 plane_source_t_1_dataset = f[f"square_IC/t=1/RMS/no_uncollided_static_M_6"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "--sr")
+plt.loglog(spaces, RMS, "--sr", mfc = "none")
 
 plt.xlabel("cells")
 plt.ylabel("root mean square error")
@@ -222,12 +222,12 @@ plt.loglog(spaces, RMS, "--^b")
 plane_source_t_1_dataset = f[f"plane_IC/t=10/RMS/no_uncollided_moving_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "-^r")
+plt.loglog(spaces, RMS, "-^r", mfc = "none")
 
 plane_source_t_1_dataset = f[f"plane_IC/t=10/RMS/no_uncollided_static_M_4"]
 spaces = plane_source_t_1_dataset[0]
 RMS = plane_source_t_1_dataset[1]
-plt.loglog(spaces, RMS, "--^r")
+plt.loglog(spaces, RMS, "--^r", mfc = "none")
 
 plt.xlabel("cells")
 plt.ylabel("root mean square error")
@@ -244,17 +244,17 @@ plt.figure(7)
 t_1_dataset = f[f"MMS/t=1/RMS/no_uncollided_moving_M_2"]
 spaces = t_1_dataset[0]
 RMS = t_1_dataset[1]
-plt.loglog(spaces, RMS, "-or")
+plt.loglog(spaces, RMS, "-or", mfc = "none")
 
 t_1_dataset = f[f"MMS/t=1/RMS/no_uncollided_moving_M_4"]
 spaces = t_1_dataset[0]
 RMS = t_1_dataset[1]
-plt.loglog(spaces, RMS, "-^r")
+plt.loglog(spaces, RMS, "-^r", mfc = "none")
 
 t_1_dataset = f[f"MMS/t=1/RMS/no_uncollided_moving_M_6"]
 spaces = t_1_dataset[0]
 RMS = t_1_dataset[1]
-plt.loglog(spaces, RMS, "-sr")
+plt.loglog(spaces, RMS, "-sr", mfc = "none")
 
 
 

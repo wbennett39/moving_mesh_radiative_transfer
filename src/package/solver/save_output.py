@@ -14,7 +14,7 @@ class save_output:
         self.tfinal = int(tfinal)
         self.moving = moving
         self.uncollided = uncollided
-        source_name_list = ["plane_IC", "square_IC", "square_source", "gaussian_IC", "MMS"]
+        source_name_list = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "MMS"]
         index_of_source_name = np.argmin(np.abs(np.array(source_type)-1))
         self.source_name = source_name_list[index_of_source_name]
         if self.M == 2:

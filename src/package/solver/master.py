@@ -68,19 +68,22 @@ paper goals:
 
 def main(uncollided = True, moving = True):
     N_runs = 1
-    rt = 1e-13
-    at = 1e-11
-    tfinal = 1
-    angles = [32,64]
+    rt = 1e-9
+    at = 1e-7
+    tfinal = 1.0
+    angles = [256,256,256]
+    # pars for no uncollided moving plane
+    #angles [256, 512 ]
+    # tols 1e-9, 1e-7 -- 1e-9, 1e-7, -- 
     # angles = [2,2,2,2]
     r_times = np.zeros(len(angles))
-    Ms = [6]
-    N_spaces = [2,4]
+    Ms = [4]
+    N_spaces = [2,4,8]
     RMS_list = []
-    x0 = 1e-10
-    # x0 = 1/2
+    # x0 = 1e-5
+    x0 = 0.5
     x0s = np.ones(4)*x0
-    source_type = np.array([1,0,0,0,0])                                                     # ["plane", "square_IC", "square_source", "gaussian", "MMS"]
+    source_type = np.array([0,0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "gaussian", "MMS"]
     move_type = np.array([1,0,0,0])
     time = True 
     plotting = True
@@ -107,7 +110,7 @@ def main(uncollided = True, moving = True):
             N_ang = angles[count]
             if source_type[0] == 1 and uncollided == False and moving == True:
                 x0 = x0s[count]/N_space
-                print(x0)  
+                print(x0)
             mus = quadpy.c1.gauss_lobatto(N_ang).points
             ws = quadpy.c1.gauss_lobatto(N_ang).weights
             xs_quad = quadpy.c1.gauss_legendre(M+2).points

@@ -34,6 +34,8 @@ class IC_func(object):
             return self.plane_and_square_IC(x)/self.x0/2.0
         elif self.uncollided == False and self.source_type[1] == 1:
             return self.plane_and_square_IC(x)
+        elif self.uncollided == False and self.source_type[2] == 1:
+            return self.plane_and_square_IC(x)*0.0
         elif self.uncollided == False and self.source_type[3] == 1:
             return self.gaussian_IC(x)
         elif self.source_type[4] == 1:
