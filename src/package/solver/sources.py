@@ -107,7 +107,7 @@ class source_class(object):
         for ix in range(xs.size):
             if abs(xs[ix]) <= self.x0 and t <= self.tfinal:
                 temp[ix] = 1.0
-        return temp/2.0
+        return temp
             
     
     def plane_IC_uncollided_solution_integrated(self, t, xL, xR):

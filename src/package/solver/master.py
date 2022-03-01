@@ -71,17 +71,17 @@ def main(uncollided = True, moving = True):
     rt = 1e-9
     at = 1e-7
     tfinal = 1.0
-    angles = [256,256,256]
+    angles = [256,256]
     # pars for no uncollided moving plane
     #angles [256, 512 ]
     # tols 1e-9, 1e-7 -- 1e-9, 1e-7, -- 
     # angles = [2,2,2,2]
     r_times = np.zeros(len(angles))
     Ms = [4]
-    N_spaces = [2,4,8]
+    N_spaces = [2,4]
     RMS_list = []
-    # x0 = 1e-5
-    x0 = 0.5
+    # x0 = 1e-10 1
+    x0 = 0.5 
     x0s = np.ones(4)*x0
     source_type = np.array([0,0,1,0,0])                                                     # ["plane", "square_IC", "square_source", "gaussian", "MMS"]
     move_type = np.array([1,0,0,0])
