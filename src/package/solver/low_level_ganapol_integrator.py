@@ -46,14 +46,16 @@ def F1(args):
     ## define new variables  ##
     xp = x-s
     tp = t-tau
-    if abs(xp) < tp:
+    if abs(xp) < tp and tp > 0:
         eta = xp/tp
+        
         ## find xi ##
         q = (1+eta)/(1-eta)
         zz = np.tan(u/2)
         xi = (np.log(q) + u*1j)/(eta + zz*1j)
         
         complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
+        
         return (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp
     else:
         return 0.0
@@ -66,13 +68,13 @@ def F(args):
     t = args[2]
     x = args[3]
     ## define new variables
-    xp = x-s
+    xp = x - s
     tp = t - tau
     ###
-    if tp != 0 and abs(xp) < tp:     
+    if 1 - abs(xp/tp) > 0.0 :  
         return math.exp(-tp)/2/tp
     else:
-        return 0
+        return 0.0
 
 
 # parms = np.array([0,1])

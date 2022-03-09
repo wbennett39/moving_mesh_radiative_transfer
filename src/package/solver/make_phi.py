@@ -18,7 +18,7 @@ class make_output:
         self.edges = edges
         self.uncollided = uncollided
         self.t = t
-    def make_phi(self, source):
+    def make_phi(self, uncollided_solution):
         output = self.xs*0
         psi = np.zeros((self.N_ang, self.xs.size))
         for ang in range(self.N_ang):
@@ -32,5 +32,5 @@ class make_output:
                     psi[ang, count] += self.u[ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         output = np.sum(np.multiply(psi.transpose(), self.ws), axis = 1)
         if self.uncollided == True:
-            output += source.uncollided_solution(self.xs, self.t)
+            output += uncollided_solution.uncollided_solution(self.xs, self.t)
         return output

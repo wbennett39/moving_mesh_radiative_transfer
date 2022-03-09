@@ -261,7 +261,7 @@ plt.loglog(spaces, RMS, "-sr", mfc = "none")
 
 plt.xlabel("cells")
 plt.ylabel("root mean square error")
-# plt.savefig("plane_IC_t=1.pdf")
+plt.savefig("MMS_t=1.pdf")
 plt.show()
 
 f.close()

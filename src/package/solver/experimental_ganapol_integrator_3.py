@@ -6,6 +6,12 @@ Created on Sat Feb 26 20:51:32 2022
 @author: bennett
 """
 
+"""
+[] add gaussian IC, source
+[] clean up scripts/drafts
+
+"""
+
 import numpy as np
 import math as math
 import scipy.integrate as integrate 
@@ -14,6 +20,7 @@ import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 import h5py
 from low_level_ganapol_integrator import F, F1
+from experimental_F1_integrator import integrand
 
 
 # @cfunc("complex128(float64, float64)")
@@ -52,7 +59,7 @@ def pyF(s, tau, t, x):
         return 0
     
 def opts0(*args, **kwargs):
-       return {'limit':400}
+       return {'limit':1000}
    
 def opts1(*args, **kwargs):
        return {'limit':1000}
@@ -71,14 +78,17 @@ def do_square_ic(x, tfinal, x0):
     return integral_1 + integral_2
 
 def do_square_source(x, tfinal, x0):
-    integral_1 = integrate.nquad(F, [[-x0, x0], [0, tfinal]], args =  (tfinal, x), opts = [opts0, opts1, opts2])[0]
-    integral_2 = integrate.nquad(F1, [[0, math.pi], [-x0, x0], [0, tfinal]], args =  (x, tfinal), opts = [opts0, opts0, opts0])[0]
-
+    # integral_1 = 0*integrate.nquad(F, [[-x0, x0], [0, tfinal]], args =  (tfinal, x), opts = [opts0, opts1, opts2])[0]
+    integral_1 = integrate.nquad(integrand, [[0.0, tfinal]], args =  (1.0, x, 0.5))[0]
+    integral_2 = integrate.nquad(F1, [[0, math.pi], [-x0, x0], [0, tfinal]], args =  (x, tfinal), opts = [opts0, opts1, opts2])[0]
+    # integral_1 = 0.0
     return integral_1 + integral_2
-def plotter(tfinal, x0, npnts = [1000, 500, 50]):
+
+def plotter(tfinal, x0, npnts = [1000, 500, 500]):
     xs1 = np.linspace(0, tfinal, npnts[0])
     xs2 = np.linspace(0, tfinal + x0, npnts[1])
     xs3 = np.linspace(0, tfinal + x0, npnts[2])
+    # xs3 = np.array([0.176,1.5])
     phi_pl = xs1*0
     phi_sq = xs2*0
     phi_sqs = xs3*0
@@ -97,20 +107,22 @@ def plotter(tfinal, x0, npnts = [1000, 500, 50]):
     
     plt.plot(xs1, phi_pl, "-.",label = "plane")
     plt.plot(xs2, phi_sq, "--", label = "square IC")
-    plt.plot(xs3, phi_sqs, "-", label = "square source")
-    
-    # plt.legend()
+    plt.plot(xs3, phi_sqs, ":", label = "square source")
+    plt.xlabel("x")
+    plt.ylabel("scalar flux")
+    plt.legend()
     print("-   -   -   -   -   -   -   -   -")
     print("time elapsed", end-start)
+    print(phi_sqs)
     print("-   -   -   -   -   -   -   -   -")
     
-    f = h5py.File("benchmarks_2_28.hdf5", "a")
+    f = h5py.File("benchmarks_3_4.hdf5", "a")
     
-    gaussian_IC = f.create_group("gaussian_IC")
+    plane_IC = f.create_group("plane_IC")
     square_IC = f.create_group("square_IC")
     square_source = f.create_group("square_source")
     
-    gaussian_IC.create_dataset("t = 1", (2, npnts[0]), dtype = "f", data = (xs1, phi_pl))
+    plane_IC.create_dataset("t = 1", (2, npnts[0]), dtype = "f", data = (xs1, phi_pl))
     square_IC.create_dataset("t = 1", (2, npnts[1]), dtype = "f", data = (xs2, phi_sq))
     square_source.create_dataset("t = 1", (2, npnts[2]), dtype = "f", data = (xs3, phi_sqs))
 

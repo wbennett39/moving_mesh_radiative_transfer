@@ -8,9 +8,9 @@ Created on Mon Jan 31 11:25:35 2022
 import numpy as np
 from build_problem import build
 from matrices import G_L
-from functions import LU_surf_func
 from sources import source_class
 from phi_class import scalar_flux
+from uncollided_solutions import uncollided_solution
 
 from numerical_flux import LU_surf
 from numba.experimental import jitclass
@@ -26,7 +26,8 @@ source_type = deferred_type()
 source_type.define(source_class.class_type.instance_type)
 flux_type = deferred_type()
 flux_type.define(scalar_flux.class_type.instance_type)
-
+uncollided_solution_type = deferred_type()
+uncollided_solution_type.define(uncollided_solution.class_type.instance_type)
 
 
 data = [('N_ang', int64), 
@@ -67,7 +68,7 @@ class rhs_class():
         self.ws = build.ws
         self.source_type = build.source_type
     # def __call__(self,t, V, mesh, matrices, num_flux, source, flux):
-    def call(self,t, V, mesh, matrices, num_flux, source, flux):
+    def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux):
         
         V_new = V.copy().reshape((self.N_ang, self.N_space, self.M+1))
         V_old = V_new.copy()
@@ -87,7 +88,7 @@ class rhs_class():
             flux.make_P(V_old[:,space,:])
             P = flux.P
             if self.source_type[4] != 1:
-                source.make_source(t, xL, xR)
+                source.make_source(t, xL, xR, uncollided_sol)
             S = source.S
             for angle in range(self.N_ang):
                 mul = self.mus[angle]
