@@ -100,7 +100,7 @@ class rhs_class():
                 # LU = LU_surf_func(V_old[angle,:,:],space,self.N_space,mul,self.M,xL,xR,dxL,dxR)
                 U = np.zeros(self.M+1).transpose()
                 U[:] = V_old[angle,space,:]
-                RHS = np.dot(G,U) + -LU + mul*np.dot(L,U) - U + P + S/2.0
+                RHS = np.dot(G,U) + -LU + mul*np.dot(L,U) - U + P + S/2
                 V_new[angle,space,:] = RHS
         return V_new.reshape(self.N_ang*self.N_space*(self.M+1))
             

@@ -35,11 +35,13 @@ class IC_func(object):
         elif self.uncollided == False and self.source_type[1] == 1:
             return self.plane_and_square_IC(x)
         elif self.uncollided == False and self.source_type[2] == 1:
-            return self.plane_and_square_IC(x)*0.0
+            return np.zeros(x.size)
         elif self.uncollided == False and self.source_type[3] == 1:
             return self.gaussian_IC(x)
         elif self.source_type[4] == 1:
             return self.MMS_IC(x)
+        else:
+            return np.zeros(x.size)
         
     def plane_and_square_IC(self, x):
         temp = np.greater(x, -self.x0)*1.0 - np.greater(x, self.x0)*1.0

@@ -87,6 +87,15 @@ class source_class(object):
                 temp[ix] = 1.0
         return temp
             
+    def gaussian_source(self, xs, t):
+        temp = xs*0
+        for ix in range(xs.size):
+            x = xs[ix]
+            if t <= self.t0:
+                temp[ix] = math.exp(-4.0*x*x)
+        return temp
+        
+        
     def make_source(self, t, xL, xR, uncollided_solution):
         if self.uncollided == True:
             if self.source_type[0] == 1:
@@ -100,6 +109,9 @@ class source_class(object):
             if self.source_type[2] == 1:
                 for j in range(self.M+1):
                     self.integrate_quad(t, xL, xR, j, self.square_source)
+            elif self.source_type[5] == 1:
+                for j in range(self.M+1):
+                    self.integrate_quad(t, xL, xR, j, self.gaussian_source)
 
     def make_source_not_isotropic(self, t, mu, xL, xR):
             if self.source_type[4] ==1:

@@ -88,7 +88,6 @@ class uncollided_solution(object):
         temp = xs*0
         for ix in range(xs.size):
             x = xs[ix]
-            
             temp[ix] = uncollided_square_s2(x, t, self.x0, self.t0)
             
             # t1 = 0.0

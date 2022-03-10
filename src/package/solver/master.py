@@ -33,17 +33,21 @@ class goals:
 [] comments
 [] usability - make functions that are used for IC, benchmarking, source, mesh, easy to modify 
 [] pytest
-[] bug in hp hm for MMS
-[] put benchmarks back in its own module
+[x] bug in hp hm for MMS
+[] clean up file structure
     ideas for tests:
         source - check if integrator returns analytic integral of plane uncollided for x inside t 
         G, and L, check against mathematica result
 [x] I should probably make a class that just returns uncollided solutions
+[] make new benchmark maker into a class
+[] benchmarks for t 1= , 5, 10 not just 1
+[] fix h5 algorithm on benchmark
+[] incorporate the experimental scripts
 
 paper goals:
 [x] static mesh plane uncollided
 [x] run benchmarks with more evaluation points    
-[] mesh function to better capture square, truncated IC, delta function
+[] mesh function to better capture square,, delta function
 [] mesh function to move with uncollided sol for square, truncated <--------
 [x] uncollided source for square IC
 [x] fix find nodes
@@ -58,7 +62,7 @@ paper goals:
     [x] plane source
     [x] square IC
     [x] gaussian IC
-    [] gauss source
+    [x] gauss source
     [x] square source
 [x] timing
 [x] something is going on with square IC with uncollided
@@ -73,21 +77,21 @@ def main(uncollided = True, moving = True):
     N_runs = 1
     rt = 1e-13
     at = 1e-10
-    tfinal = 1.0
-    angles = [64,64]
+    tfinal = 1
+    angles = [16,16,16]
     # pars for no uncollided moving plane
     #angles [256, 512 ]
     # tols 1e-9, 1e-7 -- 1e-9, 1e-7, -- 
     # angles = [2,2,2,2]
     r_times = np.zeros(len(angles))
     Ms = [4]
-    N_spaces = [4,8]
+    N_spaces = [2,4,8]
     RMS_list = []
     # x0 = 1e-10 
-    x0 = 0.5
-    # x0 = 4
+    # x0 = 0.5
+    x0 = 3
     x0s = np.ones(4)*x0
-    source_type = np.array([0,1,0,0,0])                                                     # ["plane", "square_IC", "square_source", "gaussian", "MMS"]
+    source_type = np.array([0,0,0,0,0,1])                                                     # ["plane", "square_IC", "square_source", "gaussian IC", "MMS", "gaussian source"]
     move_type = np.array([1,0,0,0])
     time = True 
     plotting = True
@@ -117,7 +121,6 @@ def main(uncollided = True, moving = True):
             N_ang = angles[count]
             if source_type[0] == 1 and uncollided == False and moving == True:
                 x0 = x0s[count]/N_space
-                print(x0)
             mus = quadpy.c1.gauss_lobatto(N_ang).points
             ws = quadpy.c1.gauss_lobatto(N_ang).weights
             xs_quad = quadpy.c1.gauss_legendre(M+2).points
@@ -155,9 +158,9 @@ def main(uncollided = True, moving = True):
             RMS_list.append(RMS)
             print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")
             print("RMSE", RMS)
-            if count > 0:
-                print("Order", "%.2f" % convergence(RMS_list[count-1], N_spaces[count-1], RMS, N_space))
-            
+            # if count > 0:
+                # print("Order", "%.2f" % convergence(RMS_list[count-1], N_spaces[count-1], RMS, N_space))
+            print(max(phi))
             # phi = make_phi(N_ang, ws, xs, sol_last, M, edges) 
             plt.figure(11)
             # plt.plot(xs, phi, "-o")
@@ -169,8 +172,8 @@ def main(uncollided = True, moving = True):
             
     saving.save_RMS(RMS_list, N_spaces, angles, r_times)
         
-main()
-# main(uncollided = False)
+# main()
+main(uncollided = False)
 # main(moving = False)
 # main(uncollided = False, moving = False)
         

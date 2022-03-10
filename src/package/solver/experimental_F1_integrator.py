@@ -44,6 +44,8 @@ def uncollided_square_s2(x, t, x0, t0):
     t3 = f3(t, tau_4, x0, x) - f3(t, tau_3, x0, x)
     
     return t1 + t2 + t3
+
+
     
     
 
@@ -91,18 +93,16 @@ def integrand(tau, t, x, x0):
 
 
 
-xs  = np.linspace(0.0,1.5, 100)
-phi = xs*0
-phi_u = xs*0
-tf = 1
+# xs  = np.linspace(0.0,1.5, 100)
+# phi = xs*0
+# phi_u = xs*0
+# tf = 0.005
 
-for i in range(len(xs)):
-    integral = integrate.nquad(integrand, [[0.0, tf]], args =  (1.0, xs[i], 0.5))[0]
-    phi[i] = integral
-    phi_u[i] = uncollided_square_s2(xs[i], tf, 0.5, tf)
-plt.figure(1)
-plt.plot(xs, phi, "-o")
-plt.plot(xs, phi_u, "x")
-print(uncollided_square_s2(0.7, tf, 0.5, tf))
-print(f1(1,0,0.5))
-print(f2(1,0,0.5,0))
+# for i in range(len(xs)):
+#     integral = integrate.nquad(integrand, [[0.0, tf]], args =  (tf, xs[i], 0.5))[0]
+#     phi[i] = integral
+#     phi_u[i] = uncollided_square_s2(xs[i], tf, 0.5, tf)
+# plt.figure(11)
+# plt.plot(xs, phi, "-o")
+# plt.plot(xs, phi_u, "x")
+

@@ -9,7 +9,7 @@ Created on Mon Feb 28 16:40:27 2022
 import numpy as np
 import scipy.integrate as si
 import numba
-from numba import cfunc,carray
+from numba import cfunc,carray,njit
 from numba.types import intc, CPointer, float64
 from scipy import LowLevelCallable
 import math as math
@@ -31,7 +31,22 @@ def jit_F(integrand_function):
         return jitted_function(values)
     return LowLevelCallable(wrapped.ctypes)
 
+def jit_F_gaussian_source(integrand_function):
+    jitted_function = numba.jit(integrand_function, nopython=True)
+    @cfunc(float64(intc, CPointer(float64)))
+    def wrapped(n, xx):
+        values = carray(xx,n)
+        return jitted_function(values)
+    return LowLevelCallable(wrapped.ctypes)
 
+
+@njit
+def source(s, source_type):
+    if source_type == 0:     # square 
+        return 1.0
+    elif source_type == 1:   # gaussian 
+        return np.exp(-4*s*s)
+    
 
 @jit_F1
 def F1(args):
@@ -42,6 +57,7 @@ def F1(args):
     tau = args[2]
     x = args[3]
     t = args[4]
+    source_type = args[5]
     
     ## define new variables  ##
     xp = x-s
@@ -56,26 +72,46 @@ def F1(args):
         
         complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
         
-        return (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp
+        return (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp * source(s, source_type)
     else:
         return 0.0
 @jit_F
 def F(args):
     """ integrand for the double integral. ags = s, tau, t, x
+    the  sqrt(pi)/8 is left out 
     """
     s = args[0]
     tau = args[1]
     t = args[2]
     x = args[3]
+    source_type = args[4]
     ## define new variables
     xp = x - s
     tp = t - tau
     ###
     if 1 - abs(xp/tp) > 0.0 :  
-        return math.exp(-tp)/2/tp
+        return math.exp(-tp)/2/tp * source(s, source_type)
     else:
         return 0.0
-
+@jit_F_gaussian_source
+def F_gaussian_source(args):
+    tau = args[0]
+    t = args[1]
+    x = args[2]
+    
+    abx = abs(x)
+    tp = t - tau
+    
+    if tp != 0:
+        erf1 = math.erf(2*(tp - abx)) 
+        erf2 = math.erf(2*(tp + abx))
+        return math.exp(-tp)* (erf1 + erf2) / tp
+    else:
+        return 0.0
+        
+    
+    
+    
 
 # parms = np.array([0,1])
 # start = timer()
