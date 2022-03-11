@@ -16,62 +16,38 @@ from .solver_classes.mesh import mesh_class
 from .solver_classes.rhs_class import rhs_class
 from .solver_classes.make_phi import make_output
 from .solver_classes.functions import find_nodes, convergence
-from .solver_classes.save_output import save_output
+from .save_output import save_output
 from .load_bench import load_bench
 ###############################################################################
 """ 
 
 class goals:
-[x] have main take inputs from YAML 
-[] make sigma_t and sigma_s dependent on space
-[x] jitclass RHS
-        is it any faster?
-[x] fix numerical flux class
-[] put imports __init__ file
-[x] figure out where that factor of two comes from in the source
-[] uncollided_solution -- make temp[ix] self
-[] comments
-[] usability - make functions that are used for IC, benchmarking, source, mesh, easy to modify 
+[] write benchmarking module that evaluates and saves at t = 1, t = 5, and t = 10, renames the experimental scripts
+[] write plotting function that reads RMS data and makes plots for paper and lives in a \plots folder
+    [] err vs space
+    [] err vs time
+    [] err vs best case
+    [] benchmark solution 
+[] write plotting function that plots results from run_plane, run_square_IC etc.
+[] find best parameters for each problem type, put into input file 
+[] comments for all classes, functions
 [] pytest
-[x] bug in hp hm for MMS
-[] clean up file structure
-    ideas for tests:
-        source - check if integrator returns analytic integral of plane uncollided for x inside t 
-        G, and L, check against mathematica result
-[x] I should probably make a class that just returns uncollided solutions
-[] make new benchmark maker into a class
-[] benchmarks for t 1= , 5, 10 not just 1
-[] fix h5 algorithm on benchmark
-[] incorporate the experimental scripts
-[] clean up main with auxilliary functions
+[] x0 function for the gaussian and plane 
+[] no-uncollided plane source doesnt converge -- take it out
 
-paper goals:
-[x] static mesh plane uncollided
-[x] run benchmarks with more evaluation points    
+ideas for tests:
+    source - check if integrator returns analytic integral of plane uncollided for x inside t 
+    G, and L, check against integrated normPns
+
+long term goals:
+[] mu mapping for the cases that have smooth but discontinuous $\psi_u$
+[] uncollided_solution -- make temp[ix] self
+[] sigma_t and sigma_s functions of space
+[] usability - make functions that are used for IC, benchmarking, source, mesh, easy to modify 
 [] mesh function to better capture square,, delta function
 [] mesh function to move with uncollided sol for square, truncated <--------
-[x] uncollided source for square IC
-[x] fix find nodes
-[x] find uncollided for square source
-[] fix square source uncollided 
-[x] uncollided for gaussian
-[x] uncollided for gaussian source
-[x] MMS
-    [x] IC for plane -- static probably needs special mesh
-    [x] IC for square 
-    [x] IC for gaussian
-[] make benchmarks for 
-    [x] plane source
-    [x] square IC
-    [x] gaussian IC
-    [x] gauss source
-    [x] square source
-[x] timing
-[x] something is going on with square IC with uncollided
-[x] is the benchmark maker off by a little bit?
-[] no-uncollided plane source doesnt converge -- take it out
-[] x0 function fort the gaussian and plane 
- 
+[] ability to automatically add other benchmark times
+[] is jitclass RHS any faster?
 """
 ###############################################################################
 data_folder = Path("package")
@@ -81,13 +57,81 @@ config_file_path = data_folder / "config.yaml"
 
 def run_plane(uncollided = True, moving = True):
     source_name = "plane_IC"
+    print("---  ---  ---  ---  ---  ---  ---")
     print("running plane IC")
+    print("---  ---  ---  ---  ---  ---  ---")
+    main(source_name, uncollided, moving)
+    
+def run_square_IC(uncollided = True, moving = True):
+    source_name = "square_IC"
+    print("---  ---  ---  ---  ---  ---  ---")
+    print("running square IC")
+    print("---  ---  ---  ---  ---  ---  ---")
+    main(source_name, uncollided, moving)
+    
+def run_square_source(uncollided = True, moving = True):
+    source_name = "square_source"
+    print("---  ---  ---  ---  ---  ---  ---")
+    print("running square source")
+    print("---  ---  ---  ---  ---  ---  ---")
+    main(source_name, uncollided, moving)
+    
+def run_gaussian_IC(uncollided = True, moving = True):
+    source_name = "gaussian_IC"
+    print("---  ---  ---  ---  ---  ---  ---")
+    print("running Gaussian IC")
+    print("---  ---  ---  ---  ---  ---  ---")
+    main(source_name, uncollided, moving)
+    
+def run_gaussian_source(uncollided = True, moving = True):
+    source_name = "gaussian_source"
+    print("---  ---  ---  ---  ---  ---  ---")
+    print("running Gaussian source")
+    print("---  ---  ---  ---  ---  ---  ---")
+    main(source_name, uncollided, moving)
+    
+def run_MMS(uncollided = False, moving = True):
+    source_name = "MMS"
+    print("---  ---  ---  ---  ---  ---  ---")
+    print("running MMS problem")
+    print("---  ---  ---  ---  ---  ---  ---")
     main(source_name, uncollided, moving)
     
 def run_all():
-    return 0
+    run_plane(True, True)
+    run_plane(True, False)
+    run_plane(False, True)
+    run_plane(False, False)
     
-def main(source_name, uncollided, moving):
+    run_square_IC(True, True)
+    run_square_IC(True, False)
+    run_square_IC(False, True)
+    run_square_IC(False, False)
+    
+    run_square_source(True, True)
+    run_square_source(True, False)
+    run_square_source(False, True)
+    run_square_source(False, False)
+    
+    run_gaussian_IC(True, True)
+    run_gaussian_IC(True, False)
+    run_gaussian_IC(False, True)
+    run_gaussian_IC(False, False)
+    
+    run_gaussian_source(True, True)
+    run_gaussian_source(True, False)
+    run_gaussian_source(False, True)
+    run_gaussian_source(False, False)
+    
+    run_MMS(False, True)
+    run_MMS(False, False)
+    
+    
+    
+    
+    
+    
+def main(source_name = "plane_IC", uncollided = True, moving = True):
     
     with open(config_file_path, 'r') as file:
        parameters = yaml.safe_load(file)
@@ -126,8 +170,9 @@ def main(source_name, uncollided, moving):
     plt.plot(xsb, bench, "k-")
     plt.plot(-xsb, bench, "k-")
     
-    print("uncollided", uncollided)
-    print("moving", moving)
+    print("uncollided  = ", uncollided)
+    print("moving mesh = ", moving)
+    print("---  ---  ---  ---  ---  ---  ---")
     for nr in range(N_runs):
         for count, N_space in enumerate(N_spaces):
             sigma_t = np.ones(N_space)
@@ -175,14 +220,16 @@ def main(source_name, uncollided, moving):
             if count > 0:
                 print("Order", "%.2f" % convergence(RMS_list[count-1], N_spaces[count-1], RMS, N_space))
             # phi = make_phi(N_ang, ws, xs, sol_last, M, edges) 
+            print("---  ---  ---  ---  ---  ---  ---")
             plt.figure(11)
             # plt.plot(xs, phi, "-o")
             plt.xlabel("x")
             plt.ylabel("scalar flux")
-            plt.plot(xs, phi, "-o")
+            plt.plot(xs, phi, "-o", label = f"{N_space}, spaces")
+            if count == 1:
+                plt.legend()
+        plt.show()
             # plt.plot(xs, benchmark_solution, "k-")
-
-            
     saving.save_RMS(RMS_list, N_spaces, N_angles, r_times)
         
         

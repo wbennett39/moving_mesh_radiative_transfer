@@ -7,9 +7,12 @@ Created on Thu Feb 17 07:35:06 2022
 """
 import numpy as np
 import h5py
+from pathlib import Path
 
 class save_output:
     def __init__(self, tfinal, M, source_type, moving, uncollided):
+        data_folder = Path("package")
+        self.config_file_path = data_folder / 'run_data_RMS.h5'
         self.M = M
         self.tfinal = int(tfinal)
         self.moving = moving
@@ -40,7 +43,7 @@ class save_output:
         
     def save_RMS(self, RMS_list, N_spaces, N_angles, r_times):
         if self.tfinal == any(self.tlist):
-            f = h5py.File('run_data_RMS.h5', 'a')
+            f = h5py.File(self.config_file_path, 'a')
             dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
             # dest_str = "plane_IC"
             destination = f[dest_str]
