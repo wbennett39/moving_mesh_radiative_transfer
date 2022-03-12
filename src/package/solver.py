@@ -23,14 +23,16 @@ from .load_bench import load_bench
 
 class goals:
 
-[] license
+[x] license
 [x] write benchmarking module that evaluates and saves at t = 1, t = 5, and t = 10, renames the experimental scripts
+    [] run the benchmark maker
 [] write plotting function that reads RMS data and makes plots for paper and lives in a \plots folder
     [] err vs space
     [] err vs time
     [] err vs best case
     [] benchmark solution 
-[] write plotting function that plots results from run_plane, run_square_IC etc.
+[x] write plotting function that plots results from run_plane, run_square_IC etc.
+    [] do I need to find a way to close the windows?
 [] find best parameters for each problem type, put into input file 
 [] comments for all classes, functions
 [] pytest

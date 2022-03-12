@@ -13,8 +13,8 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 import h5py
-from benchmark_functions import F, F1, F_gaussian_source, F1_integrand, uncollided_square_s2, pyF
-
+from .benchmark_functions import F, F1, F_gaussian_source, F1_integrand, uncollided_square_s2, pyF
+from pathlib import Path
 
 # @cfunc("complex128(float64, float64)")
 # @jit
@@ -67,9 +67,11 @@ def do_gaussian_source(x, tfinal):
 
     
 def make_benchmark_file_structure():
+    data_folder = Path("package/benchmarks")
+    bench_file_path = data_folder / 'benchmarks.hdf5'
     source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 'gaussian_source']
     
-    f = h5py.File("benchmarks.hdf5", "a")
+    f = h5py.File(bench_file_path, "a")
     
     for source_name in source_name_list:
         if f.__contains__(source_name):
@@ -79,14 +81,17 @@ def make_benchmark_file_structure():
     f.close()
 
 def write_to_file(xs, phi, tfinal, source_name, npnts):
-    with h5py.File("benchmarks.hdf5",'r+') as f:
+    data_folder = Path("package/benchmarks")
+    bench_file_path = data_folder / 'benchmarks.hdf5'
+    
+    with h5py.File(bench_file_path,'r+') as f:
         if f.__contains__(source_name + f'/t = {tfinal}'):
             del f[source_name + f'/t = {tfinal}'] 
         f.create_dataset(source_name + f'/t = {tfinal}', (2, npnts), dtype = "f", data=(xs, phi))
     f.close()
     
 
-def make_benchmarks(tfinal, x0, npnts = [10000, 2, 2, 2, 2]):
+def make_benchmarks(tfinal, x0, npnts = [10000, 600, 600, 600, 600]):
     print("t = ", tfinal)
     xs1 = np.linspace(0, tfinal, npnts[0])
     xs2 = np.linspace(0, tfinal + x0, npnts[1])
@@ -157,7 +162,7 @@ def make_benchmarks(tfinal, x0, npnts = [10000, 2, 2, 2, 2]):
     
     
 
-def make_benchmarks_all_times():
+def make_all():
     x0 = 0.5
     make_benchmarks(1, x0)
     make_benchmarks(5, x0)
