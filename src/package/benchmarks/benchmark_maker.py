@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Created on Sat Feb 26 20:51:32 2022
+Created on Sat Mar 12 11:17:06 2022
 
 @author: bennett
-"""
-
-"""
-[] add gaussian IC, source
-[] clean up scripts/drafts
-
 """
 
 import numpy as np
@@ -19,44 +13,12 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 import h5py
-from low_level_ganapol_integrator import F, F1, F_gaussian_source
-from experimental_F1_integrator import integrand, uncollided_square_s2
+from benchmark_functions import F, F1, F_gaussian_source, F1_integrand, uncollided_square_s2, pyF
 
 
 # @cfunc("complex128(float64, float64)")
 # @jit
-def xi(u, eta):
-    q = (1+eta)/(1-eta)
-    if q <= 0:
-        print(eta)
-    zz = np.tan(u/2)
-    
-    # return (np.log(q) + complex(0, u))/(eta + complex(0, zz))
-    return (np.log(q) + u*1j)/(eta + zz*1j)
 
-# @cfunc("float64(float64, float64, float64, float64, float64)")
-# @jit
-def pyF1(u, s, tau, x, t):
-    xp = x-s
-    tp = t-tau
-    if abs(xp) < tp:
-        eta = xp/tp
-        eval_xi = xi(u, eta)
-        complex_term = np.exp(tp*((1 - eta**2)*eval_xi/2.))*eval_xi**2
-        return (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp
-    else:
-        return 0.0
-
-
-# @cfunc("float64(float64, float64, float64, float64)")
-# @jit
-def pyF(s, tau, t, x):
-    xp = x-s
-    tp = t - tau
-    if tp != 0 and abs(xp) <= tp:     
-        return math.exp(-tp)/2/tp
-    else:
-        return 0
     
 def opts0(*args, **kwargs):
        return {'limit':1000}
@@ -80,7 +42,7 @@ def do_square_ic(x, tfinal, x0):
 def do_square_source(x, tfinal, x0):
     """ clean up and comment this"""
     # integral_1 = 0*integrate.nquad(F, [[-x0, x0], [0, tfinal]], args =  (tfinal, x), opts = [opts0, opts1, opts2])[0]
-    # integral_1 = integrate.nquad(integrand, [[0.0, tfinal]], args =  (tfinal, x, 0.5))[0]
+    # integral_1 = integrate.nquad(F1_integrand, [[0.0, tfinal]], args =  (tfinal, x, 0.5))[0]
     integral_1 = uncollided_square_s2(x, tfinal, x0, tfinal)
     integral_2 = integrate.nquad(F1, [[0, math.pi], [-x0, x0], [0, tfinal]], args =  (x, tfinal, 0), opts = [opts0, opts1, opts2])[0]
     # integral_1 = 0.0
@@ -104,9 +66,27 @@ def do_gaussian_source(x, tfinal):
 
 
     
-# make this into a class
+def make_benchmark_file_structure():
+    source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 'gaussian_source']
+    
+    f = h5py.File("benchmarks.hdf5", "a")
+    
+    for source_name in source_name_list:
+        if f.__contains__(source_name):
+            del f[source_name]
+        f.create_group(source_name)
+    
+    f.close()
 
-def plotter(tfinal, x0, npnts = [1000, 500, 500, 500, 500]):
+def write_to_file(xs, phi, tfinal, source_name, npnts):
+    with h5py.File("benchmarks.hdf5",'r+') as f:
+        if f.__contains__(source_name + f'/t = {tfinal}'):
+            del f[source_name + f'/t = {tfinal}'] 
+        f.create_dataset(source_name + f'/t = {tfinal}', (2, npnts), dtype = "f", data=(xs, phi))
+    f.close()
+    
+
+def make_benchmarks(tfinal, x0, npnts = [10000, 2, 2, 2, 2]):
     print("t = ", tfinal)
     xs1 = np.linspace(0, tfinal, npnts[0])
     xs2 = np.linspace(0, tfinal + x0, npnts[1])
@@ -121,7 +101,6 @@ def plotter(tfinal, x0, npnts = [1000, 500, 500, 500, 500]):
     phi_gss = xs4*0
     phi_gss_s = xs5*0
     
-    plt.figure(10)
     start = timer()
     for i in range(npnts[0]):
         phi_pl[i] = do_ganapol(xs1[i], tfinal, 0.0)
@@ -149,15 +128,17 @@ def plotter(tfinal, x0, npnts = [1000, 500, 500, 500, 500]):
     print("Gauss source finished")
     
     
-    plt.plot(xs1, phi_pl, "-.",label = "plane")
-    plt.plot(xs2, phi_sq, "--", label = "square IC")
-    plt.plot(xs3, phi_sqs, ":", label = "square source")
-    plt.plot(xs4, phi_gss, "--*", label = "Gaussian IC")
-    plt.plot(xs5, phi_gss_s, "--x", label = "Gaussian source")
-    plt.xlabel("x")
-    plt.ylabel("scalar flux")
-    plt.xlim(0,tfinal + x0 + 1)
-    plt.legend()
+    # plt.plot(xs1, phi_pl, "-.",label = "plane")
+    # plt.plot(xs2, phi_sq, "--", label = "square IC")
+    # plt.plot(xs3, phi_sqs, ":", label = "square source")
+    # plt.plot(xs4, phi_gss, "--*", label = "Gaussian IC")
+    # plt.plot(xs5, phi_gss_s, "--x", label = "Gaussian source")
+    # plt.xlabel("x")
+    # plt.ylabel("scalar flux")
+    # plt.xlim(0,tfinal + x0 + 1)
+    # plt.legend()
+    
+    
     print("-   -   -   -   -   -   -   -   -")
     print("time elapsed")
     print(times)
@@ -166,37 +147,18 @@ def plotter(tfinal, x0, npnts = [1000, 500, 500, 500, 500]):
     print(times/np.array(npnts))
     print("-   -   -   -   -   -   -   -   -")
 
-    f = h5py.File("benchmarks.hdf5", "a")
-    del f["plane_IC"]
-    plane_IC = f.create_group("plane_IC")
-    del f["square_IC"]
-    square_IC = f.create_group("square_IC")
-    del f["square_source"]
-    square_source = f.create_group("square_source")
-    del f["gaussian_IC"]
-    gauss_IC = f.create_group("gaussian_IC")
-    del f["gaussian_source"]
-    gauss_source = f.create_group("gaussian_source")
     
 
-    
-    plane_IC.create_dataset(f"t = {tfinal}", (2, npnts[0]), dtype = "f", data = (xs1, phi_pl))
-    square_IC.create_dataset(f"t = {tfinal}", (2, npnts[1]), dtype = "f", data = (xs2, phi_sq))
-    square_source.create_dataset(f"t = {tfinal}", (2, npnts[2]), dtype = "f", data = (xs3, phi_sqs))
-    gauss_IC.create_dataset(f"t = {tfinal}", (2, npnts[3]), dtype = "f", data = (xs4, phi_gss))
-    gauss_source.create_dataset(f"t = {tfinal}", (2, npnts[4]), dtype = "f", data = (xs5, phi_gss_s))
-    
-
-    f.close()
+    write_to_file(xs1, phi_pl, tfinal, 'plane_IC', npnts[0])
+    write_to_file(xs2, phi_sq, tfinal, 'square_IC', npnts[1])
+    write_to_file(xs3, phi_sqs, tfinal, 'square_source', npnts[2])
+    write_to_file(xs4, phi_gss, tfinal, 'gaussian_IC', npnts[3])
+    write_to_file(xs5, phi_gss_s, tfinal, 'gaussian_source', npnts[4])
     
     
-    
-# result = do_integral(0.0, 1.0, 0.5)
-# result = do_heaviside(0.0, 1.0, 0.5)
-plotter(1, 0.5)
-# plotter(10,0.5)
 
-
-
-
-
+def make_benchmarks_all_times():
+    x0 = 0.5
+    make_benchmarks(1, x0)
+    make_benchmarks(5, x0)
+    make_benchmarks(10, x0)

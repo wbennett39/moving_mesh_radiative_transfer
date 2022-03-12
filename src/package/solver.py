@@ -22,7 +22,9 @@ from .load_bench import load_bench
 """ 
 
 class goals:
-[] write benchmarking module that evaluates and saves at t = 1, t = 5, and t = 10, renames the experimental scripts
+
+[] license
+[x] write benchmarking module that evaluates and saves at t = 1, t = 5, and t = 10, renames the experimental scripts
 [] write plotting function that reads RMS data and makes plots for paper and lives in a \plots folder
     [] err vs space
     [] err vs time
@@ -32,22 +34,31 @@ class goals:
 [] find best parameters for each problem type, put into input file 
 [] comments for all classes, functions
 [] pytest
-[] x0 function for the gaussian and plane 
+
 [] no-uncollided plane source doesnt converge -- take it out
+[] write report 
+[] pull request for report and code
+[] pull request to Dr. McClarrens rad transfer repo
 
 ideas for tests:
     source - check if integrator returns analytic integral of plane uncollided for x inside t 
     G, and L, check against integrated normPns
 
 long term goals:
+    
 [] mu mapping for the cases that have smooth but discontinuous $\psi_u$
 [] uncollided_solution -- make temp[ix] self
+[] x0 function for the gaussian and plane 
+[] benchmarking class
 [] sigma_t and sigma_s functions of space
 [] usability - make functions that are used for IC, benchmarking, source, mesh, easy to modify 
 [] mesh function to better capture square,, delta function
 [] mesh function to move with uncollided sol for square, truncated <--------
 [] ability to automatically add other benchmark times
 [] is jitclass RHS any faster?
+[] pycuda for integrator
+[] finite domain for ganapol? 
+
 """
 ###############################################################################
 data_folder = Path("package")
@@ -56,46 +67,71 @@ config_file_path = data_folder / "config.yaml"
 
 
 def run_plane(uncollided = True, moving = True):
+    plt.figure(1)
     source_name = "plane_IC"
     print("---  ---  ---  ---  ---  ---  ---")
     print("running plane IC")
     print("---  ---  ---  ---  ---  ---  ---")
+    
     main(source_name, uncollided, moving)
+    plt.title("plane IC")
+    plt.legend()
+    plt.show(block = False)
     
 def run_square_IC(uncollided = True, moving = True):
+    plt.figure(2)
     source_name = "square_IC"
     print("---  ---  ---  ---  ---  ---  ---")
     print("running square IC")
     print("---  ---  ---  ---  ---  ---  ---")
     main(source_name, uncollided, moving)
+    plt.title("square IC")
+    plt.legend()
+    plt.show(block = False)
     
 def run_square_source(uncollided = True, moving = True):
+    plt.figure(3)
     source_name = "square_source"
     print("---  ---  ---  ---  ---  ---  ---")
     print("running square source")
     print("---  ---  ---  ---  ---  ---  ---")
     main(source_name, uncollided, moving)
+    plt.title("square source")
+    plt.legend()
+    plt.show(block = False)
     
 def run_gaussian_IC(uncollided = True, moving = True):
+    plt.figure(4)
     source_name = "gaussian_IC"
     print("---  ---  ---  ---  ---  ---  ---")
     print("running Gaussian IC")
     print("---  ---  ---  ---  ---  ---  ---")
     main(source_name, uncollided, moving)
+    plt.title("Gaussian IC")
+    plt.legend()
+    plt.show(block = False)
     
 def run_gaussian_source(uncollided = True, moving = True):
+    plt.figure(5)
     source_name = "gaussian_source"
     print("---  ---  ---  ---  ---  ---  ---")
     print("running Gaussian source")
     print("---  ---  ---  ---  ---  ---  ---")
     main(source_name, uncollided, moving)
+    plt.title("Gaussian source")
+    plt.legend()
+    plt.show(block = False)
     
 def run_MMS(uncollided = False, moving = True):
+    plt.figure(6)
     source_name = "MMS"
     print("---  ---  ---  ---  ---  ---  ---")
     print("running MMS problem")
     print("---  ---  ---  ---  ---  ---  ---")
     main(source_name, uncollided, moving)
+    plt.title("MMS")
+    plt.legend()
+    plt.show(block = False)
     
 def run_all():
     run_plane(True, True)
@@ -124,13 +160,8 @@ def run_all():
     run_gaussian_source(False, False)
     
     run_MMS(False, True)
-    run_MMS(False, False)
     
-    
-    
-    
-    
-    
+     
 def main(source_name = "plane_IC", uncollided = True, moving = True):
     
     with open(config_file_path, 'r') as file:
@@ -158,7 +189,6 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     saving = save_output(tfinal, Ms[0], source_type, moving, uncollided)
     benchmark = load_bench(source_type, tfinal, x0)
     
-    plt.figure(11)
     if source_type[0] == 1:
         xsb2 = np.linspace(0, tfinal , 1000)
         xsb = np.concatenate((xsb2, np.ones(1)*1.0000001))
@@ -167,7 +197,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
         xsb = np.linspace(0, tfinal + x0, 100000)
         bench = benchmark(xsb)
         
-    plt.plot(xsb, bench, "k-")
+    plt.plot(xsb, bench, "k-", label = "benchmark")
     plt.plot(-xsb, bench, "k-")
     
     print("uncollided  = ", uncollided)
@@ -221,18 +251,16 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                 print("Order", "%.2f" % convergence(RMS_list[count-1], N_spaces[count-1], RMS, N_space))
             # phi = make_phi(N_ang, ws, xs, sol_last, M, edges) 
             print("---  ---  ---  ---  ---  ---  ---")
-            plt.figure(11)
-            # plt.plot(xs, phi, "-o")
+
+
             plt.xlabel("x")
             plt.ylabel("scalar flux")
-            plt.plot(xs, phi, "-o", label = f"{N_space}, spaces")
-            if count == 1:
-                plt.legend()
-        plt.show()
-            # plt.plot(xs, benchmark_solution, "k-")
+            
+            plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+            
+            
     saving.save_RMS(RMS_list, N_spaces, N_angles, r_times)
-        
-        
+    
 # run_plane()       
         
     
