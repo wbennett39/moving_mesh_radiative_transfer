@@ -1,6 +1,7 @@
 # moving_mesh_radiative_transfer
-### An accurate and fast moving mesh Discontinuous Galerkin package for solving the 1D isotropic transport equation for the purpose of coupling to rad-transfer problems
-**Quick start guide**
+## An accurate and fast moving mesh Discontinuous Galerkin package for solving the 1D isotropic transport equation for the purpose of coupling to rad-transfer problems
+### Quick start guide
+### Solver
 
 To solve the transport equation for a specific source, 
 
@@ -46,7 +47,7 @@ The command
 solver.run_all()
 ``
 runs all cases for every source.
-The terminal will print a RMSE vallue (root mean square error) compared with the benchmark solution. 
+The terminal will print a RMSE vallue (root mean square error) compared with the benchmark solution. The run data (RMSE, computation time, number of spaces, number of angles) will be saved to run_data_RMS.h5, overwriting previous runs that had the same parameters.
 
 To interact with the plots produced by the solver,
 
@@ -61,3 +62,6 @@ plt.close()
 ``
 
 to close the current plot.
+
+### Plotter
+
