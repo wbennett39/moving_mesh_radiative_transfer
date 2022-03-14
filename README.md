@@ -63,5 +63,18 @@ plt.close()
 
 to close the current plot.
 
-### Plotter
+### RMS Plotter
 
+To visualize the accuracy of the results
+
+``
+from moving_mesh_transport.plots import make_plots
+``
+
+run 
+
+``
+make_plots.plot_all_RMS(tfinal, M)
+``
+
+To plot the results from running ``solver.run_all()`` where ``tfinal`` is the evaluation time and ``M`` is the number of basis functions. For the example case, choose ``tfinal = 1`` and `` M = 6``.
