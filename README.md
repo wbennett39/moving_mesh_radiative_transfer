@@ -47,7 +47,7 @@ The command
 solver.run_all()
 ``
 runs all cases for every source.
-The terminal will print a RMSE vallue (root mean square error) compared with the benchmark solution. The run data (RMSE, computation time, number of spaces, number of angles) will be saved to run_data_RMS.h5, overwriting previous runs that had the same parameters.
+The terminal will print a RMSE vallue (root mean square error) compared with the benchmark solution. The run data (RMSE, computation time, number of spaces, number of angles) will be saved to run_data_RMS.h5, overwriting previous runs that had the same parameters. A plot will be created of the benchmark solution and the solutions returned by the solver. 
 
 To interact with the plots produced by the solver,
 
@@ -78,3 +78,17 @@ make_plots.plot_all_RMS(tfinal, M)
 ``
 
 To plot the results from running ``solver.run_all()`` where ``tfinal`` is the evaluation time and ``M`` is the number of basis functions. For the example case, choose ``tfinal = 1`` and `` M = 6``.
+
+### Benchmark maker
+
+If you are interested in re-running the benchmark module (which takes quite a while)
+
+``
+from moving_mesh_transport.benchmarks import make_benchmarks
+``
+
+``
+make_benchmarks.make_all()
+``
+
+will integrate the Greens function solution for the plane pulse and produce benchmark results for all of the sources run by the ``solver`` except for the MMS source at times 1, 5, and 10. For this reason, running the ``solver`` at other final times will return results but the benchmark solution will be 0 for all x. 
