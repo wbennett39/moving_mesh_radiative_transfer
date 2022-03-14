@@ -46,3 +46,18 @@ The command
 solver.run_all()
 ``
 runs all cases for every source.
+The terminal will print a RMSE vallue (root mean square error) compared with the benchmark solution. 
+
+To interact with the plots produced by the solver,
+
+``
+import matplotlib.pyplot as plt
+``
+
+run
+
+``
+plt.close()
+``
+
+to close the current plot.
