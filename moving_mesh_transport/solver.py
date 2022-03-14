@@ -26,7 +26,7 @@ class goals:
 [x] license
 [x] write benchmarking module that evaluates and saves at t = 1, t = 5, and t = 10, renames the experimental scripts
     [x] run the benchmark maker
-[] write plotting function that reads RMS data and makes plots for paper and lives in a \plots folder
+[x] write plotting function that reads RMS data and makes plots for paper and lives in a \plots folder
     [x] err vs space
     [] err vs computation time
     [] err vs best case avg
@@ -34,9 +34,10 @@ class goals:
 [x] write plotting function that plots results from run_plane, run_square_IC etc.
     [x] do I need to find a way to close the windows?
 [] find best parameters for each problem type, put into input file 
-[] comments for all classes, functions
-[] pytest
-[] README
+
+[x] pytest
+[] better convergence triangle
+[x] README
 
 [x] no-uncollided plane source doesnt converge -- take it out
 [] write report 
@@ -45,10 +46,11 @@ class goals:
 
 ideas for tests:
     source - check if integrator returns analytic integral of plane uncollided for x inside t 
-    G, and L, check against integrated normPns
+    G, and L, check against integrated normPns - ehhhhhh
+    check normPns
 
 long term goals:
-    
+[] comments for all classes, functions
 [] mu mapping for the cases that have smooth but discontinuous $\psi_u$
 [] uncollided_solution -- make temp[ix] self
 [] x0 function for the gaussian and plane 
@@ -145,7 +147,7 @@ def run_MMS(uncollided = False, moving = True):
 def run_all():
     run_plane_IC(True, True)
     run_plane_IC(True, False)
-    run_plane_IC(False, True)        # this doesn't converge
+    # run_plane_IC(False, True)        # this doesn't converge
     run_plane_IC(False, False)
     
     run_square_IC(True, True)

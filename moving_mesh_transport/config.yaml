@@ -5,8 +5,8 @@
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
     'Ms': [6]                           # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
-    'rt': 1e-10                         # rel tolerance for ODE integrator
-    'at': 1e-9                          # abs tolerance for ODE integrator
+    'rt': 1e-11                         # rel tolerance for ODE integrator
+    'at': 1e-10                          # abs tolerance for ODE integrator
 
 
 # plane pulse source

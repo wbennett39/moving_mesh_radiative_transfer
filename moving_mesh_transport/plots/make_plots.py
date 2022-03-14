@@ -87,7 +87,10 @@ def plot_all_RMS(tfinal, M):
             plotter.load_RMS_data(uncollided, moving)
             if count2 == 0:
                 clear = False
-            plotter.plot_RMS_vs_cells(count1+1, clear)
+            if source == "plane_IC" and uncollided == False and moving == True:
+                print("skipping no-uncol moving case for plane IC")
+            else:
+                plotter.plot_RMS_vs_cells(count1+1, clear)
     plotter = rms_plotter(tfinal, M, "MMS")
     plotter.load_RMS_data(uncollided = False, moving = True)
     plotter.plot_RMS_vs_cells(6, clear)
