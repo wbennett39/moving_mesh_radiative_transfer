@@ -47,7 +47,7 @@ The command
 solver.run_all()
 ``
 runs all cases for every source.
-The terminal will print a RMSE vallue (root mean square error) compared with the benchmark solution. The run data (RMSE, computation time, number of spaces, number of angles) will be saved to run_data_RMS.h5, overwriting previous runs that had the same parameters. A plot will be created of the benchmark solution and the solutions returned by the solver. 
+The terminal will print a RMSE vallue (root mean square error) compared with the benchmark solution. The order of convergence is displayed as `Order` The run data (RMSE, computation time, number of spaces, number of angles) will be saved to run_data_RMS.h5, overwriting previous runs that had the same parameters. A plot will be created of the benchmark solution and the solutions returned by the solver. 
 
 To interact with the plots produced by the solver,
 
