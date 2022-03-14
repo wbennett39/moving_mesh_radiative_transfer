@@ -11,5 +11,7 @@ import moving_mesh_transport.solver
 Running 
 
 ``
-solver.run_plane_IC()
+solver.run_plane_IC(uncollided = True, Moving = True)
 ``
+
+Will read in parameters from moving_mesh_transport/congfig.yaml and run an infininte plane pulse source with a moving mesh and using the uncollided solution. Setting ``uncollided = False`` does not use the uncollided solution and ``moving = False`` solves the equations with a static mesh.
