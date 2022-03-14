@@ -16,6 +16,7 @@ class rms_plotter:
     def __init__(self, tfinal, M, source_name):
         data_folder = Path("moving_mesh_transport")
         self.data_file_path = data_folder / 'run_data_RMS.h5'
+        self.plot_file_path = data_folder / "plots"
         # self.case_list = ["uncol_mov", "no_uncol_stat", "uncol_stat", "no_uncol_stat"]
         self.tfinal = tfinal
         self.M = M
@@ -50,10 +51,10 @@ class rms_plotter:
         f = h5py.File(self.data_file_path, 'r')
         # f = h5py.File("run_data_RMS.h5", 'r')
         
-        dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
+        self.dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
         data_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.M)
         
-        data = f[dest_str + '/' + data_str]
+        data = f[self.dest_str + '/' + data_str]
         self.cells = data[0]
         self.RMS = data[1]
         self.angles = data[2]
@@ -69,7 +70,7 @@ class rms_plotter:
         plt.ylabel("RMSE")
         plt.title(f"{self.source_name} t = {self.tfinal}")
         plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
-        plt.savefig(f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
+        plt.savefig(self.plot_file_path / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
         plt.show(block = False)
     
 
