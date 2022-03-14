@@ -17,7 +17,7 @@ from pathlib import Path
 
 class load_bench:
     def __init__(self, source_type, tfinal, x0):
-        data_folder = Path("package/benchmarks")
+        data_folder = Path("moving_mesh_transport/benchmarks")
         benchmark_file_path = data_folder / "benchmarks.hdf5"
         self.ask_for_bench = True
         self.source_type = source_type

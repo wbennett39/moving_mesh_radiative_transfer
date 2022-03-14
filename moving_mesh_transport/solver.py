@@ -25,19 +25,20 @@ class goals:
 
 [x] license
 [x] write benchmarking module that evaluates and saves at t = 1, t = 5, and t = 10, renames the experimental scripts
-    [] run the benchmark maker
+    [x] run the benchmark maker
 [] write plotting function that reads RMS data and makes plots for paper and lives in a \plots folder
-    [] err vs space
-    [] err vs time
-    [] err vs best case
+    [x] err vs space
+    [] err vs computation time
+    [] err vs best case avg
     [] benchmark solution 
 [x] write plotting function that plots results from run_plane, run_square_IC etc.
-    [] do I need to find a way to close the windows?
+    [x] do I need to find a way to close the windows?
 [] find best parameters for each problem type, put into input file 
 [] comments for all classes, functions
 [] pytest
+[] README
 
-[] no-uncollided plane source doesnt converge -- take it out
+[x] no-uncollided plane source doesnt converge -- take it out
 [] write report 
 [] pull request for report and code
 [] pull request to Dr. McClarrens rad transfer repo
@@ -63,12 +64,13 @@ long term goals:
 
 """
 ###############################################################################
-data_folder = Path("package")
+data_folder = Path("moving_mesh_transport")
 config_file_path = data_folder / "config.yaml"
 ###############################################################################
 
 
-def run_plane(uncollided = True, moving = True):
+def run_plane_IC(uncollided = True, moving = True):
+    plt.ion()
     plt.figure(1)
     source_name = "plane_IC"
     print("---  ---  ---  ---  ---  ---  ---")
@@ -81,6 +83,7 @@ def run_plane(uncollided = True, moving = True):
     plt.show(block = False)
     
 def run_square_IC(uncollided = True, moving = True):
+    plt.ion()
     plt.figure(2)
     source_name = "square_IC"
     print("---  ---  ---  ---  ---  ---  ---")
@@ -92,6 +95,7 @@ def run_square_IC(uncollided = True, moving = True):
     plt.show(block = False)
     
 def run_square_source(uncollided = True, moving = True):
+    plt.ion()
     plt.figure(3)
     source_name = "square_source"
     print("---  ---  ---  ---  ---  ---  ---")
@@ -103,6 +107,7 @@ def run_square_source(uncollided = True, moving = True):
     plt.show(block = False)
     
 def run_gaussian_IC(uncollided = True, moving = True):
+    plt.ion()
     plt.figure(4)
     source_name = "gaussian_IC"
     print("---  ---  ---  ---  ---  ---  ---")
@@ -114,6 +119,7 @@ def run_gaussian_IC(uncollided = True, moving = True):
     plt.show(block = False)
     
 def run_gaussian_source(uncollided = True, moving = True):
+    plt.ion()
     plt.figure(5)
     source_name = "gaussian_source"
     print("---  ---  ---  ---  ---  ---  ---")
@@ -125,6 +131,7 @@ def run_gaussian_source(uncollided = True, moving = True):
     plt.show(block = False)
     
 def run_MMS(uncollided = False, moving = True):
+    plt.ion()
     plt.figure(6)
     source_name = "MMS"
     print("---  ---  ---  ---  ---  ---  ---")
@@ -138,7 +145,7 @@ def run_MMS(uncollided = False, moving = True):
 def run_all():
     run_plane(True, True)
     run_plane(True, False)
-    run_plane(False, True)
+    run_plane(False, True)        # this doesn't converge
     run_plane(False, False)
     
     run_square_IC(True, True)
@@ -161,7 +168,7 @@ def run_all():
     run_gaussian_source(False, True)
     run_gaussian_source(False, False)
     
-    run_MMS(False, True)
+    run_MMS(False, True)            # only one case is possible for the MMS
     
      
 def main(source_name = "plane_IC", uncollided = True, moving = True):

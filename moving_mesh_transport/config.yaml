@@ -3,45 +3,45 @@
     'tfinal': 1.0                       # evaluation time
     'N_spaces': [2, 4, 8, 16]           # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [2]                           # number of basis functions -1
+    'Ms': [6]                           # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 1e-10                         # rel tolerance for ODE integrator
-    'at': 1e-13                         # abs tolerance for ODE integrator
+    'at': 1e-9                          # abs tolerance for ODE integrator
 
 
 # plane pulse source
 'plane_IC':
     'x0': 1e-10                         # source initial width/2
     'source_type': [1,0,0,0,0,0]
-    'N_angles': [32, 32, 32, 32]    # corresponds to N_spaces
+    'N_angles': [64, 256, 512, 2048]    # corresponds to N_spaces
     'move_type': [1,0,0,0]              # moving mesh function selector
     
 # square pulse source
 'square_IC':
     'x0': 0.5
     'source_type': [0,1,0,0,0,0]
-    'N_angles': [32, 32, 32, 32]
+    'N_angles': [64, 64, 256, 256]
     'move_type': [1,0,0,0]
     
 # square source
 'square_source':
     'x0': 0.5
     'source_type': [0,0,1,0,0,0]
-    'N_angles': [32, 32, 32, 32]
+    'N_angles': [64, 64, 256, 256]
     'move_type': [1,0,0,0]
     
 # gaussian pulse source
 'gaussian_IC':
     'x0': 3.5
     'source_type': [0,0,0,1,0,0]
-    'N_angles': [32, 32, 32, 32]
+    'N_angles': [64, 64, 256, 256]
     'move_type': [1,0,0,0]
     
 # gaussian  source
 'gaussian_source':
     'x0': 3.5
     'source_type': [0,0,0,0,0,1]
-    'N_angles': [32, 32, 32, 32]
+    'N_angles': [64, 64, 256, 256]
     'move_type': [1,0,0,0]
 
 # manufactured problem

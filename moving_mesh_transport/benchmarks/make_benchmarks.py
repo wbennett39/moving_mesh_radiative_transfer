@@ -67,7 +67,7 @@ def do_gaussian_source(x, tfinal):
 
     
 def make_benchmark_file_structure():
-    data_folder = Path("package/benchmarks")
+    data_folder = Path("moving_mesh_transport/benchmarks")
     bench_file_path = data_folder / 'benchmarks.hdf5'
     source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 'gaussian_source']
     
@@ -81,7 +81,7 @@ def make_benchmark_file_structure():
     f.close()
 
 def write_to_file(xs, phi, tfinal, source_name, npnts):
-    data_folder = Path("package/benchmarks")
+    data_folder = Path("moving_mesh_transport/benchmarks")
     bench_file_path = data_folder / 'benchmarks.hdf5'
     
     with h5py.File(bench_file_path,'r+') as f:
