@@ -34,7 +34,7 @@ class goals:
 [x] write plotting function that plots results from run_plane, run_square_IC etc.
     [x] do I need to find a way to close the windows?
 [] find best parameters for each problem type, put into input file 
-
+[] plot bench last
 [x] pytest
 [] better convergence triangle
 [x] README
@@ -208,8 +208,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
         xsb = np.linspace(0, tfinal + x0, 100000)
         bench = benchmark(xsb)
         
-    plt.plot(xsb, bench, "k-", label = "benchmark")
-    plt.plot(-xsb, bench, "k-")
+
     
     print("uncollided  = ", uncollided)
     print("moving mesh = ", moving)
@@ -271,7 +270,8 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             
             
     saving.save_RMS(RMS_list, N_spaces, N_angles, r_times)
-    
+    plt.plot(xsb, bench, "k-", label = "benchmark")
+    plt.plot(-xsb, bench, "k-")
 # run_plane()       
         
     

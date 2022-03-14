@@ -21,13 +21,13 @@ from pathlib import Path
 
     
 def opts0(*args, **kwargs):
-       return {'limit':1000}
+       return {'limit':100000}
    
 def opts1(*args, **kwargs):
-       return {'limit':1000}
+       return {'limit':100000}
    
 def opts2(*args, **kwargs):
-       return {'limit':1000}
+       return {'limit':100000}
 
 def do_ganapol(x, tfinal, x0):
     integral_1 = pyF(0.0, 0.0, tfinal, x)
@@ -42,7 +42,7 @@ def do_square_ic(x, tfinal, x0):
 def do_square_source(x, tfinal, x0):
     """ clean up and comment this"""
     # integral_1 = 0*integrate.nquad(F, [[-x0, x0], [0, tfinal]], args =  (tfinal, x), opts = [opts0, opts1, opts2])[0]
-    # integral_1 = integrate.nquad(F1_integrand, [[0.0, tfinal]], args =  (tfinal, x, 0.5))[0]
+#    integral_1 = integrate.nquad(F1_integrand, [[0.0, tfinal]], args =  (tfinal, x, 0.5))[0]
     integral_1 = uncollided_square_s2(x, tfinal, x0, tfinal)
     integral_2 = integrate.nquad(F1, [[0, math.pi], [-x0, x0], [0, tfinal]], args =  (x, tfinal, 0), opts = [opts0, opts1, opts2])[0]
     # integral_1 = 0.0
@@ -91,7 +91,7 @@ def write_to_file(xs, phi, tfinal, source_name, npnts):
     f.close()
     
 
-def make_benchmarks(tfinal, x0, npnts = [10000, 600, 600, 600, 600]):
+def make_benchmarks(tfinal, x0, npnts = [10000, 1000, 1000, 1000, 1000]):
     print("t = ", tfinal)
     xs1 = np.linspace(0, tfinal, npnts[0])
     xs2 = np.linspace(0, tfinal + x0, npnts[1])
