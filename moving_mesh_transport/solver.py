@@ -44,9 +44,15 @@ class goals:
 [] pull request for report and code
 [] pull request to Dr. McClarrens rad transfer repo
 
+square source:
+    -solve uncollided equation vs uncollided bench to see if it converges and confirm the uncollided solution is correct
+    -check if the triple integral can be simplified at all
+    -maybe <= instead of < in F1
+    -cancellation in F1 integrand
+
 ideas for tests:
     source - check if integrator returns analytic integral of plane uncollided for x inside t 
-    G, and L, check against integrated normPns - ehhhhhh
+    G, and L, check against integrated normPns -
     check normPns
 
 long term goals:
@@ -254,6 +260,12 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             
             benchmark_solution = benchmark(np.abs(xs))
             RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
+            #############
+            plt.figure(-1)
+            plt.plot(xs,phi-benchmark_solution)
+            plt.title("error")
+            plt.show()
+            ############
             RMS_list.append(RMS)
             print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")
             print("RMSE", RMS)
