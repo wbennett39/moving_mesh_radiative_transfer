@@ -9,6 +9,8 @@ Created on Wed Feb 23 15:40:39 2022
 import matplotlib.pyplot as plt
 import h5py 
 from pathlib import Path
+from ..load_bench import load_bench
+import numpy as np
 
 
 class rms_plotter:
@@ -88,7 +90,7 @@ class rms_plotter:
     
 
 
-def plot_all_RMS_vs_cells(tfinal, M):
+def plot_all_rms_cells(tfinal, M):
     source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s"]
     case_list_1 = [True, True, False, False]
     case_list_2 = [True, False, True, False]
@@ -117,7 +119,7 @@ def plot_all_RMS_vs_cells(tfinal, M):
     plotter.load_RMS_data(uncollided = False, moving = True)
     plotter.plot_RMS_vs_cells(6, clear)
     
-def plot_all_RMS_vs_times(tfinal, M):
+def plot_all_rms_times(tfinal, M):
     source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s"]
     case_list_1 = [True, True, False, False]
     case_list_2 = [True, False, True, False]
@@ -181,10 +183,78 @@ def compare_rms(tfinal, M):
         print(diff3, "average percent difference between case 1 and static w/ uncollided ")
         print(diff4, "average percent difference between case 1 and static w/o uncollided ")
         
+def plot_bench(tfinal, source_name, fign):
+    plt.fig(fign)
+    plt.xlabel("x")
+    plt.ylabel("phi")
+    if source_name == "plane_IC":
+        source_type = np.array([1,0,0,0,0,0])
+        x0 = 1e-11
+        bench = load_bench(source_type, tfinal, x0)
+        xs = np.linspace(0, tfinal)
+        interp_bench = bench(xs)
+        # bench.plot_bench(xs, fign = 1)
+        plt.figure(1)
+        plt.plot(xs, interp_bench, "-k")
+        plt.plot(-xs, interp_bench, "-k")
+        plt.show()
+    elif source_name == "square_IC":
+        source_type = np.array([0,1,0,0,0,0])
+        x0 = 0.5
+        bench = load_bench(source_type, tfinal, x0)
+        xs = np.linspace(0, tfinal + x0)
+        interp_bench = bench(xs)
+        # bench.plot_bench(xs, fign = 1)
+        plt.figure(1)
+        plt.plot(xs, interp_bench, "-k")
+        plt.plot(-xs, interp_bench, "-k")
+        plt.show()
+    elif source_name == "square_source":
+        source_type = np.array([0,0,1,0,0,0])
+        x0 = 0.5
+        bench = load_bench(source_type, tfinal, x0)
+        xs = np.linspace(0, tfinal + x0)
+        interp_bench = bench(xs)
+        # bench.plot_bench(xs, fign = 1)
+        plt.figure(1)
+        plt.plot(xs, interp_bench, "-k")
+        plt.plot(-xs, interp_bench, "-k")
+        plt.show()
+    elif source_name == "gaussian_IC":
+        source_type = np.array([0,0,0,1,0,0])
+        x0 = 4
+        bench = load_bench(source_type, tfinal, x0)
+        xs = np.linspace(0, tfinal + x0)
+        interp_bench = bench(xs)
+        # bench.plot_bench(xs, fign = 1)
+        plt.figure(1)
+        plt.plot(xs, interp_bench, "-k")
+        plt.plot(-xs, interp_bench, "-k")
+        plt.show()
+    elif source_name == "gaussian_source":
+        source_type = np.array([0,0,0,0,0,1])
+        x0 = 4
+        bench = load_bench(source_type, tfinal, x0)
+        xs = np.linspace(0, tfinal + x0)
+        interp_bench = bench(xs)
+        # bench.plot_bench(xs, fign = 1)
+        plt.figure(1)
+        plt.plot(xs, interp_bench, "-k")
+        plt.plot(-xs, interp_bench, "-k")
+        plt.show()
+    elif source_name == "MMS":
+        source_type = np.array([0,0,0,0,1,0])
+        x0 = 4
+        bench = load_bench(source_type, tfinal, x0)
+        xs = np.linspace(0, tfinal + x0)
+        interp_bench = bench(xs)
+        # bench.plot_bench(xs, fign = 1)
+        plt.figure(1)
+        plt.plot(xs, interp_bench, "-k")
+        plt.plot(-xs, interp_bench, "-k")
+        plt.show()
         
-        
-        
-        
+    
         
         
         

@@ -80,10 +80,18 @@ from moving_mesh_transport.plots import make_plots
 run 
 
 ``
-make_plots.plot_all_RMS(tfinal, M)
+make_plots.plot_all_rms_cells(tfinal, M)
 ``
 
 To plot the results from running ``solver.run_all()`` where ``tfinal`` is the evaluation time and ``M`` is the number of basis functions. For the example case, choose ``tfinal = 1`` and `` M = 6``.
+
+To plot a benchmark solutions, 
+
+``
+make_plots.plot_bench(tfinal, source_name, fign)
+``
+
+Where `source_name` can be `plane_IC`, `square_IC`, `square_source`, `gaussian_IC`, `gaussian_source`, or `MMS`.
 
 ### Benchmark maker
 

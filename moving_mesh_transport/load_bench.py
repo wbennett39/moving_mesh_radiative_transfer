@@ -10,6 +10,7 @@ Created on Thu Feb  3 15:12:33 2022
 import h5py 
 import numpy as np
 from scipy.interpolate import interp1d
+import matplotlib.pyplot as plt
 
 from pathlib import Path
 
@@ -41,8 +42,8 @@ class load_bench:
             
         if self.ask_for_bench == True:
             tstring = self.t_eval_str[self.t_string_index]
-            solution = f[source_name][tstring]
-            self.interpolated_solution = interp1d(solution[0], solution[1], kind = "cubic")
+            self.solution = f[source_name][tstring]
+            self.interpolated_solution = interp1d(self.solution[0], self.solution[1], kind = "cubic")
             
         f.close()
     def __call__(self, xs):
@@ -52,6 +53,7 @@ class load_bench:
             return np.exp(-xs*xs/2)/(1+self.tfinal) * np.heaviside(self.tfinal - np.abs(xs) + self.x0, 1)
         else:
             return xs * 0
+        
         
         
         

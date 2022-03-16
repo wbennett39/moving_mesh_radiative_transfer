@@ -30,20 +30,19 @@ class goals:
     [x] err vs space
     [x] err vs computation time
     [x] err vs best case avg
-    [] benchmark solution 
+    [x] benchmark solution 
 [x] write plotting function that plots results from run_plane, run_square_IC etc.
-    [x] do I need to find a way to close the windows?
 [x] find best parameters for each problem type, put into input file 
 [] fix time saving 
 [x] plot bench last
 [x] pytest
 [] better convergence triangle
+[] Sn labels on plot?
 [] update README
 
 [x] no-uncollided plane source doesnt converge -- take it out
 [] write report 
 [] pull request for report and code
-[] pull request to Dr. McClarrens rad transfer repo
 
 square source:
     -solve uncollided equation vs uncollided bench to see if it converges and confirm the uncollided solution is correct
@@ -261,12 +260,12 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             
             benchmark_solution = benchmark(np.abs(xs))
             RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
-            #############
-#            plt.figure(-1)
-#            plt.plot(xs,phi-benchmark_solution)
-#            plt.title("error")
-#            plt.show()
             ############
+            plt.figure(-1)
+            plt.plot(xs,phi-benchmark_solution)
+            plt.title("error")
+            plt.show()
+            ###########
             RMS_list.append(RMS)
             print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")
             print("RMSE", RMS)
@@ -276,15 +275,15 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             print("---  ---  ---  ---  ---  ---  ---")
 
 
-            plt.xlabel("x")
-            plt.ylabel("scalar flux")
+            # plt.xlabel("x")
+            # plt.ylabel("scalar flux")
             
-            plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+            # plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
             
             
     saving.save_RMS(RMS_list, N_spaces, N_angles, r_times)
-    plt.plot(xsb, bench, "k-", label = "benchmark")
-    plt.plot(-xsb, bench, "k-")
+    # plt.plot(xsb, bench, "k-", label = "benchmark")
+    # plt.plot(-xsb, bench, "k-")
 # run_plane()       
         
     
