@@ -28,16 +28,17 @@ class goals:
     [x] run the benchmark maker
 [x] write plotting function that reads RMS data and makes plots for paper and lives in a \plots folder
     [x] err vs space
-    [] err vs computation time
-    [] err vs best case avg
+    [x] err vs computation time
+    [x] err vs best case avg
     [] benchmark solution 
 [x] write plotting function that plots results from run_plane, run_square_IC etc.
     [x] do I need to find a way to close the windows?
-[] find best parameters for each problem type, put into input file 
-[] plot bench last
+[x] find best parameters for each problem type, put into input file 
+[] fix time saving 
+[x] plot bench last
 [x] pytest
 [] better convergence triangle
-[x] README
+[] update README
 
 [x] no-uncollided plane source doesnt converge -- take it out
 [] write report 

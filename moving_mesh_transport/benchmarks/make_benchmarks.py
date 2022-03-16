@@ -173,10 +173,11 @@ def make_square_source(tfinal, x0, npnts = [100]):
     times[0] = timer()  - start
     print("square source finished")
     
-    
+    plt.figure(-1)
     # plt.plot(xs1, phi_pl, "-.",label = "plane")
     # plt.plot(xs2, phi_sq, "--", label = "square IC")
-    # plt.plot(xs3, phi_sqs, ":", label = "square source")
+    plt.plot(xs1, phi_sqs, "-", label = "square source")
+    plt.show()
     # plt.plot(xs4, phi_gss, "--*", label = "Gaussian IC")
     # plt.plot(xs5, phi_gss_s, "--x", label = "Gaussian source")
     # plt.xlabel("x")
@@ -192,7 +193,7 @@ def make_square_source(tfinal, x0, npnts = [100]):
     print("time per evaluation point")
     print(times/np.array(npnts))
     print("-   -   -   -   -   -   -   -   -")
-    write_to_file(xs3, phi_sqs, tfinal, 'square_source', npnts[2])
+    write_to_file(xs1, phi_sqs, tfinal, 'square_source', npnts[0])
     
 
 def make_all():
