@@ -261,10 +261,10 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             benchmark_solution = benchmark(np.abs(xs))
             RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
             #############
-            plt.figure(-1)
-            plt.plot(xs,phi-benchmark_solution)
-            plt.title("error")
-            plt.show()
+#            plt.figure(-1)
+#            plt.plot(xs,phi-benchmark_solution)
+#            plt.title("error")
+#            plt.show()
             ############
             RMS_list.append(RMS)
             print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")

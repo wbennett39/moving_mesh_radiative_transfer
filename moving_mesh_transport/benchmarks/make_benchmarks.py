@@ -159,7 +159,40 @@ def make_benchmarks(tfinal, x0, npnts = [10000, 1000, 1000, 1000, 1000]):
     write_to_file(xs3, phi_sqs, tfinal, 'square_source', npnts[2])
     write_to_file(xs4, phi_gss, tfinal, 'gaussian_IC', npnts[3])
     write_to_file(xs5, phi_gss_s, tfinal, 'gaussian_source', npnts[4])
+
+def make_square_source(tfinal, x0, npnts = [100]):
+    print("t = ", tfinal)
+    xs1 = np.linspace(0, tfinal + x0, npnts[0])
+    # xs3 = np.array([0.176,1.5])
+    times = np.zeros(1)
+    phi_sqs = xs1*0
+
+    start = timer()
+    for k in range(npnts[0]):
+        phi_sqs[k] = do_square_source(xs1[k], tfinal, x0)
+    times[0] = timer()  - start
+    print("square source finished")
     
+    
+    # plt.plot(xs1, phi_pl, "-.",label = "plane")
+    # plt.plot(xs2, phi_sq, "--", label = "square IC")
+    # plt.plot(xs3, phi_sqs, ":", label = "square source")
+    # plt.plot(xs4, phi_gss, "--*", label = "Gaussian IC")
+    # plt.plot(xs5, phi_gss_s, "--x", label = "Gaussian source")
+    # plt.xlabel("x")
+    # plt.ylabel("scalar flux")
+    # plt.xlim(0,tfinal + x0 + 1)
+    # plt.legend()
+    
+    
+    print("-   -   -   -   -   -   -   -   -")
+    print("time elapsed")
+    print(times)
+    print("-   -   -   -   -   -   -   -   -")
+    print("time per evaluation point")
+    print(times/np.array(npnts))
+    print("-   -   -   -   -   -   -   -   -")
+    write_to_file(xs3, phi_sqs, tfinal, 'square_source', npnts[2])
     
 
 def make_all():

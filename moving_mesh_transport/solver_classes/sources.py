@@ -98,8 +98,7 @@ class source_class(object):
         
     def make_source(self, t, xL, xR, uncollided_solution):
         if self.uncollided == True:
-            if self.source_type[0] == 1:
-                if self.moving == True:
+            if (self.source_type[0] == 1) and  (self.moving == True):
                     self.S[0] = uncollided_solution.plane_IC_uncollided_solution_integrated(t, xL, xR)
             else:
                 for j in range(self.M+1):

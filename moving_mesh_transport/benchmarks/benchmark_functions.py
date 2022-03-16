@@ -30,11 +30,11 @@ def xi(u, eta):
 def pyF1(u, s, tau, x, t):
     xp = x-s
     tp = t-tau
-    if abs(xp) < tp:
+    if abs(xp) <= tp:
         eta = xp/tp
         eval_xi = xi(u, eta)
         complex_term = np.exp(tp*((1 - eta**2)*eval_xi/2.))*eval_xi**2
-        return (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp
+        return (1/np.cos(u/2.0))**2*complex_term.real * (4/math.pi) * (1 - eta**2) * math.exp(-tp)/2
     else:
         return 0.0
 
