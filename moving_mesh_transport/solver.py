@@ -260,12 +260,6 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             
             benchmark_solution = benchmark(np.abs(xs))
             RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
-            ############
-            plt.figure(-1)
-            plt.plot(xs,phi-benchmark_solution)
-            plt.title("error")
-            plt.show()
-            ###########
             RMS_list.append(RMS)
             print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")
             print("RMSE", RMS)
@@ -275,15 +269,15 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             print("---  ---  ---  ---  ---  ---  ---")
 
 
-            # plt.xlabel("x")
-            # plt.ylabel("scalar flux")
+            plt.xlabel("x")
+            plt.ylabel("scalar flux")
             
-            # plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+            plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
             
             
     saving.save_RMS(RMS_list, N_spaces, N_angles, r_times)
-    # plt.plot(xsb, bench, "k-", label = "benchmark")
-    # plt.plot(-xsb, bench, "k-")
+    plt.plot(xsb, bench, "k-", label = "benchmark")
+    plt.plot(-xsb, bench, "k-")
 # run_plane()       
         
     
