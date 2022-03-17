@@ -91,7 +91,7 @@ def write_to_file(xs, phi, tfinal, source_name, npnts):
     f.close()
     
 
-def make_benchmarks(tfinal, x0, npnts = [10000, 1000, 1000, 1000, 1000]):
+def make_benchmarks(tfinal, x0, npnts = [10000, 1000, 500, 500, 500]):
     print("t = ", tfinal)
     xs1 = np.linspace(0, tfinal, npnts[0])
     xs2 = np.linspace(0, tfinal + x0, npnts[1])

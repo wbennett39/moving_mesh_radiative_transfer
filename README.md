@@ -5,7 +5,7 @@
 Download the file ``moving_mesh_radiative_transfer`` and open the file. Invoke python via ``python3``.
 
 ### Testing
-run ``pytest``.
+before invoking python, run ``pytest`` in the top level folder.
 
 ### Solver
 
