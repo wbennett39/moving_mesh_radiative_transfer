@@ -34,11 +34,21 @@ def pyF1(u, s, tau, x, t):
         eta = xp/tp
         eval_xi = xi(u, eta)
         complex_term = np.exp(tp*((1 - eta**2)*eval_xi/2.))*eval_xi**2
-        return (1/np.cos(u/2.0))**2*complex_term.real * (4/math.pi) * (1 - eta**2) * math.exp(-tp)/2
+        return (1/np.cos(u/2.0))**2*complex_term.real * (4/math.pi) * (1 - eta**2) * math.exp(-tp)/2 # this seems wrong
     else:
         return 0.0
 
-
+def get_intervals(x, x0, t, t0):
+    intervals = np.zeros(4)
+    intervals[0] = 0.0 
+    intervals[3] = min(t, t0, t - abs(x) + x0)
+    intervals[2] = min(intervals[3], t + abs(x) - x0)
+    intervals[1] = min(intervals[3], t - abs(x) - x0)
+    for i in range(4):
+        if intervals[i] < 0:
+            intervals[i] = 0
+    return intervals    
+    
 # @cfunc("float64(float64, float64, float64, float64)")
 # @jit
 def pyF(s, tau, t, x):
@@ -84,7 +94,7 @@ def F1_integrand(tau, t, x, x0):
     tp = t - tau
     abstp = abs(tp)
 
-    if abstp <= abs(x) - x0:
+    if abstp <= abs(x) - x0 or abstp == 0:
         return 0.0
     else:
         if abstp == 0 or t < tau:
@@ -117,21 +127,6 @@ def jit_F1(integrand_function):
         return jitted_function(values)
     return LowLevelCallable(wrapped.ctypes)
 
-def jit_F(integrand_function):
-    jitted_function = numba.jit(integrand_function, nopython=True)
-    @cfunc(float64(intc, CPointer(float64)))
-    def wrapped(n, xx):
-        values = carray(xx,n)
-        return jitted_function(values)
-    return LowLevelCallable(wrapped.ctypes)
-
-def jit_F_gaussian_source(integrand_function):
-    jitted_function = numba.jit(integrand_function, nopython=True)
-    @cfunc(float64(intc, CPointer(float64)))
-    def wrapped(n, xx):
-        values = carray(xx,n)
-        return jitted_function(values)
-    return LowLevelCallable(wrapped.ctypes)
 
 
 @njit
@@ -141,6 +136,12 @@ def source(s, source_type):
     elif source_type == 1:   # gaussian 
         return np.exp(-4*s*s)
     
+@njit 
+def heaviside(arg):
+    if arg >= 0.0:
+        return 1.0
+    else:
+        return 0.0
 
 @jit_F1
 def F1(args):
@@ -163,13 +164,76 @@ def F1(args):
         q = (1+eta)/(1-eta)
         zz = np.tan(u/2)
         xi = (np.log(q) + u*1j)/(eta + zz*1j)
+        if abs(xi.real) < 1e-15:
+            xi = 0.0 + xi.imag
+        if abs(xi.imag) < 1e-15:
+            xi = xi.real + 0.0*1j
         
         complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
-        
-        return (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp * source(s, source_type)
+
+        res = (1/np.cos(u/2.0))**2*complex_term.real * (4/math.pi) * (1 - eta**2) * math.exp(-tp)/2 * source(s, source_type)
+        return res
     else:
         return 0.0
-@jit_F
+    
+@jit_F1
+def F1_c2(args):
+    """ The integrand for the triple integral args = (u, s, tau, x, t)
+    """
+    u = args[0]
+    s = args[1]
+    tau = args[2]
+    x = args[3]
+    t = args[4]
+    source_type = args[5]
+    
+    ## define new variables  ##
+    xp = x-s
+    tp = t-tau
+    eta = xp/(tp + 1e-10)
+    
+    heaviside_arg = x - (abs(x) - t - tau)
+    
+    ## find xi ##
+    q = (1+eta)/(1-eta)
+    zz = np.tan(u/2)
+    xi = (np.log(q) + u*1j)/(eta + zz*1j)
+    
+    complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
+    
+    res = (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp * source(s, source_type)*heaviside(heaviside_arg)
+    return res
+
+@jit_F1
+def F1_c3(args):
+    """ The integrand for the triple integral args = (u, s, tau, x, t)
+    """
+    u = args[0]
+    s = args[1]
+    tau = args[2]
+    x = args[3]
+    t = args[4]
+    source_type = args[5]
+    
+    ## define new variables  ##
+    xp = x-s
+    tp = t-tau
+    eta = xp/(tp + 1e-10)
+    
+    heaviside_arg_1 = x - (t-tau-s)
+    heaviside_arg_2 = x - (s + (t-tau))
+    
+    ## find xi ##
+    q = (1+eta)/(1-eta)
+    zz = np.tan(u/2)
+    xi = (np.log(q) + u*1j)/(eta + zz*1j)
+    
+    complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
+    
+    res = (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp * source(s, source_type)*heaviside(heaviside_arg_1)*heaviside(heaviside_arg_2)
+    return res
+
+@jit_F1
 def F(args):
     """ integrand for the double integral. ags = s, tau, t, x
     the  sqrt(pi)/8 is left out 
@@ -188,7 +252,7 @@ def F(args):
     else:
         return 0.0
     
-@jit_F_gaussian_source
+@jit_F1
 def F_gaussian_source(args):
     tau = args[0]
     t = args[1]

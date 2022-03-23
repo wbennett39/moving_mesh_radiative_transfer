@@ -13,7 +13,7 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 import h5py
-from .benchmark_functions import F, F1, F_gaussian_source, F1_integrand, uncollided_square_s2, pyF
+from .benchmark_functions import F, F1, F1_c2, F1_c3, F_gaussian_source, uncollided_square_s2, pyF, get_intervals
 from pathlib import Path
 
 # @cfunc("complex128(float64, float64)")
@@ -40,14 +40,29 @@ def do_square_ic(x, tfinal, x0):
     return integral_1 + integral_2
 
 def do_square_source(x, tfinal, x0):
-    """ clean up and comment this"""
-    # integral_1 = 0*integrate.nquad(F, [[-x0, x0], [0, tfinal]], args =  (tfinal, x), opts = [opts0, opts1, opts2])[0]
-#    integral_1 = integrate.nquad(F1_integrand, [[0.0, tfinal]], args =  (tfinal, x, 0.5))[0]
-    integral_1 = uncollided_square_s2(x, tfinal, x0, tfinal)
-    integral_2 = integrate.nquad(F1, [[0, math.pi], [-x0, x0], [0, tfinal]], args =  (x, tfinal, 0), opts = [opts0, opts1, opts2])[0]
-    # integral_1 = 0.0
-    # integral_2 = 0
-    return integral_1 + integral_2
+    collided_solution = integrate.nquad(F1, [[0, math.pi], [-x0, x0], [0,tfinal]], args =  (x, tfinal, 0), opts = [opts0, opts1, opts2])[0]
+    uncollided_solution = uncollided_square_s2(x, tfinal, x0, tfinal)
+
+    # intervals = get_intervals(x, tfinal, x0, tfinal)
+    # a = intervals[0]
+    # b = intervals[1]
+    # c = intervals[2]
+    # d = intervals[3]
+    
+    # if a == tfinal:
+    #     print("a = t")
+    # if b == tfinal:
+    #     print("b = t")
+    # if c == tfinal:
+    #     print("c = t")
+    # if d == tfinal:
+    #     print("d = t")
+    
+    # collided_solution += integrate.nquad(F1, [[0, math.pi], [-x0, x0], [a, b]], args =  (x, tfinal, 0), opts = [opts0, opts1, opts2])[0]
+    # collided_solution += integrate.nquad(F1_c2, [[0, math.pi], [-x0, x0], [b, c]], args =  (x, tfinal, 0), opts = [opts0, opts1, opts2])[0]
+    # collided_solution += integrate.nquad(F1_c3, [[0, math.pi], [-x0, x0], [c, d]], args =  (x, tfinal, 0), opts = [opts0, opts1, opts2])[0]
+    
+    return uncollided_solution + collided_solution
 
 def do_gaussian_ic(x, tfinal):
     integral_1 = integrate.nquad(F, [[-np.inf, np.inf]], args =  ([0.0, tfinal, x, 1]), opts = [opts0])[0]
@@ -61,7 +76,7 @@ def do_gaussian_source(x, tfinal):
     integral_1 = integrate.nquad(F_gaussian_source, [[0, tfinal]], args =  (tfinal, x), opts = [opts0])[0]
 
     integral_2 = integrate.nquad(F1, [[0, math.pi], [-np.inf, np.inf], [0, tfinal]], args =  (x, tfinal, 1), opts = [opts0, opts1, opts2])[0]
-    return sqrtpi/8 *integral_1 + integral_2
+    return sqrtpi/8 * integral_1 + integral_2
 
 
 
@@ -91,7 +106,7 @@ def write_to_file(xs, phi, tfinal, source_name, npnts):
     f.close()
     
 
-def make_benchmarks(tfinal, x0, npnts = [10000, 1000, 500, 500, 500]):
+def make_benchmarks(tfinal, x0, npnts = [10000, 1000, 250, 1000, 250]):
     print("t = ", tfinal)
     xs1 = np.linspace(0, tfinal, npnts[0])
     xs2 = np.linspace(0, tfinal + x0, npnts[1])
