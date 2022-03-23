@@ -158,6 +158,7 @@ def F1(args):
     xp = x-s
     tp = t-tau
     if abs(xp) < tp and tp > 0:
+        
         eta = xp/tp
         
         ## find xi ##
@@ -171,8 +172,46 @@ def F1(args):
         
         complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
 
-        res = (1/np.cos(u/2.0))**2*complex_term.real * (4/math.pi) * (1 - eta**2) * math.exp(-tp)/2 * source(s, source_type)
+        res = (1/np.cos(u/2.0))**2*complex_term.real * (1/math.pi/8) * (1 - eta**2) * math.exp(-tp) * source(s, source_type)
+    
         return res
+    
+    else:
+        return 0.0
+    
+@jit_F1
+def F1_spacefirst(args):
+    """ The integrand for the triple integral args = (u, s, tau, x, t)
+    """
+    u = args[0]
+    s = args[2]
+    tau = args[1]
+    x = args[3]
+    t = args[4]
+    source_type = args[5]
+    
+    ## define new variables  ##
+    xp = x-s
+    tp = t-tau
+    if abs(xp) < tp and tp > 0:
+        
+        eta = xp/tp
+        
+        ## find xi ##
+        q = (1+eta)/(1-eta)
+        zz = np.tan(u/2)
+        xi = (np.log(q) + u*1j)/(eta + zz*1j)
+        # if abs(xi.real) < 1e-15:
+        #     xi = 0.0 + xi.imag
+        # if abs(xi.imag) < 1e-15:
+        #     xi = xi.real + 0.0*1j
+        
+        complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
+
+        res = (1/np.cos(u/2.0))**2*complex_term.real * (1/math.pi/8) * (1 - eta**2) * math.exp(-tp) * source(s, source_type)
+    
+        return res
+    
     else:
         return 0.0
     

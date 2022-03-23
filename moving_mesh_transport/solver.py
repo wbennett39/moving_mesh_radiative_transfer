@@ -44,6 +44,11 @@ class goals:
 [] write report 
 [] pull request for report and code
 
+
+
+[] save benchmarks in the right place
+[] save uncol and col solutions for benchmark
+
 square source:
     -solve uncollided equation vs uncollided bench to see if it converges and confirm the uncollided solution is correct
     -check if the triple integral can be simplified at all

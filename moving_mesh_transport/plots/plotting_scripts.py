@@ -105,6 +105,7 @@ def plot_all_benchmarks(tfinal):
     M = 3
     source_list = ["plane_IC", "square_IC", "square_source", "gaussian_IC", "gaussian_source", "MMS"]
     for count, source in enumerate(source_list):
+        print(source)
         plotter = rms_plotter(tfinal, M, source)
         plotter.plot_bench(tfinal, source, count)
         

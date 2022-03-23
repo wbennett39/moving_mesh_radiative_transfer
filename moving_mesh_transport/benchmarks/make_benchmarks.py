@@ -21,13 +21,13 @@ from pathlib import Path
 
     
 def opts0(*args, **kwargs):
-       return {'limit':100000}
+       return {'limit':1000000}
    
 def opts1(*args, **kwargs):
-       return {'limit':100000}
+       return {'limit':1000000}
    
 def opts2(*args, **kwargs):
-       return {'limit':100000}
+       return {'limit':1000000}
 
 def do_ganapol(x, tfinal, x0):
     integral_1 = pyF(0.0, 0.0, tfinal, x)
@@ -106,7 +106,7 @@ def write_to_file(xs, phi, tfinal, source_name, npnts):
     f.close()
     
 
-def make_benchmarks(tfinal, x0, npnts = [10000, 1000, 250, 1000, 250]):
+def make_benchmarks(tfinal, x0, npnts = [20000, 2000, 500, 2000, 500]):
     print("t = ", tfinal)
     xs1 = np.linspace(0, tfinal, npnts[0])
     xs2 = np.linspace(0, tfinal + x0, npnts[1])
