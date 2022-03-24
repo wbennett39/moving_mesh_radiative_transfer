@@ -21,12 +21,12 @@ from pathlib import Path
 ###############################################################################
     
 def opts0(*args, **kwargs):
-       return {'limit':1000000}
+       return {'limit':10000000}
    
 def opts1(*args, **kwargs):
-       return {'limit':1000000}
+       return {'limit':10000000}
 def opts2(*args, **kwargs):
-       return {'limit':1000000}
+       return {'limit':10000000}
 ###############################################################################
 
 def find_intervals(t, tau, x, x0):

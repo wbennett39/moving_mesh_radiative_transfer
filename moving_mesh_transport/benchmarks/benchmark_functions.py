@@ -71,7 +71,8 @@ def f2(t, tau, x0, x):
 def f3(t, tau, x0, x):
     return math.exp(tau-t)
 
-def uncollided_square_s2(x, t, x0, t0):
+@njit
+def uncollided_square_source(x, t, x0, t0):
     tau_1 = 0.0
     end = min(t0, t - abs(x) + x0)
     if end <= 0.0:
@@ -90,33 +91,19 @@ def uncollided_square_s2(x, t, x0, t0):
     
     return t1 + t2 + t3
 
-def F1_integrand(tau, t, x, x0):
-    tp = t - tau
-    abstp = abs(tp)
-
-    if abstp <= abs(x) - x0 or abstp == 0:
-        return 0.0
-    else:
-        if abstp == 0 or t < tau:
-            return 0.0
-        else:
-            if abstp >= abs(x) + x0:  
-                return   x0 * math.exp(-tp)/(tp)
+@njit
+def uncollided_square_IC(xx, t, x0):
+    if (t <= x0) and (xx >= -x0 + t) and (xx <= x0 - t):
+        temp = math.exp(-t)
+    elif t > x0  and (-t + x0 <=  xx) and (t - x0 >= xx):
+        temp = math.exp(-t) * x0 / (t + 1e-12)
+    elif (xx < t + x0) and (xx > -t - x0):
+        if (x0 - xx >= t) and (x0 + xx <= t):
+            temp = math.exp(-t)*(t + xx + x0)/(2.0 * t + 1e-12)
+        elif (x0 - xx <= t) and (x0 + xx >= t):
+            temp = math.exp(-t)*(t - xx + x0)/(2.0 * t + 1e-12)
             
-            elif abstp < x0 + abs(x) and abstp >= x0 - abs(x):
-               return (x0 - abs(x) + abstp) * math.exp(-tp)/(2*tp)
-           
-            # elif abstp < x0 + abs(x) and abstp >= x0 + x:
-            #     return  (abstp - abs(x) + x0) * math.exp(-tp)/(2*tp)*0
-            
-            elif abstp < x0 + abs(x) and abstp < x0 - abs(x):
-                return  abstp * math.exp(-tp)/(tp)
-            
-            else:
-                print("exception", tau, t, x)
-                return 0.0
-
-
+    return temp
 
 ############# low level callable functions ####################################
 def jit_F1(integrand_function):
@@ -145,7 +132,7 @@ def heaviside(arg):
 
 @jit_F1
 def F1(args):
-    """ The integrand for the triple integral args = (u, s, tau, x, t)
+    """ The integrand for the triple integral for the collided solution args = (u, s, tau, x, t)
     """
     u = args[0]
     s = args[1]
@@ -181,7 +168,7 @@ def F1(args):
     
 @jit_F1
 def F1_spacefirst(args):
-    """ The integrand for the triple integral args = (u, s, tau, x, t)
+    """ The integrand for the triple integral for the collided solution args = (u, s, tau, x, t)
     """
     u = args[0]
     s = args[2]
@@ -215,66 +202,11 @@ def F1_spacefirst(args):
     else:
         return 0.0
     
-@jit_F1
-def F1_c2(args):
-    """ The integrand for the triple integral args = (u, s, tau, x, t)
-    """
-    u = args[0]
-    s = args[1]
-    tau = args[2]
-    x = args[3]
-    t = args[4]
-    source_type = args[5]
-    
-    ## define new variables  ##
-    xp = x-s
-    tp = t-tau
-    eta = xp/(tp + 1e-10)
-    
-    heaviside_arg = x - (abs(x) - t - tau)
-    
-    ## find xi ##
-    q = (1+eta)/(1-eta)
-    zz = np.tan(u/2)
-    xi = (np.log(q) + u*1j)/(eta + zz*1j)
-    
-    complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
-    
-    res = (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp * source(s, source_type)*heaviside(heaviside_arg)
-    return res
 
-@jit_F1
-def F1_c3(args):
-    """ The integrand for the triple integral args = (u, s, tau, x, t)
-    """
-    u = args[0]
-    s = args[1]
-    tau = args[2]
-    x = args[3]
-    t = args[4]
-    source_type = args[5]
-    
-    ## define new variables  ##
-    xp = x-s
-    tp = t-tau
-    eta = xp/(tp + 1e-10)
-    
-    heaviside_arg_1 = x - (t-tau-s)
-    heaviside_arg_2 = x - (s + (t-tau))
-    
-    ## find xi ##
-    q = (1+eta)/(1-eta)
-    zz = np.tan(u/2)
-    xi = (np.log(q) + u*1j)/(eta + zz*1j)
-    
-    complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
-    
-    res = (1/np.cos(u/2.0))**2*complex_term.real * (tp/4/math.pi) * (1 - eta**2) * math.exp(-tp)/2/tp * source(s, source_type)*heaviside(heaviside_arg_1)*heaviside(heaviside_arg_2)
-    return res
 
 @jit_F1
 def F(args):
-    """ integrand for the double integral. ags = s, tau, t, x
+    """ integrand for the double integral for the uncollided solution. ags = s, tau, t, x
     the  sqrt(pi)/8 is left out 
     """
     s = args[0]
