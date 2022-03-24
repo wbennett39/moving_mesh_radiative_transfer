@@ -13,7 +13,7 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 import h5py
-from .benchmark_functions import F, F1, F1_c2, F1_c3, F_gaussian_source, uncollided_square_s2, pyF, get_intervals
+from .benchmark_functions import F, F1,  F_gaussian_source, uncollided_square_source, pyF, get_intervals
 from pathlib import Path
 
 # @cfunc("complex128(float64, float64)")
@@ -36,7 +36,7 @@ def do_ganapol(x, tfinal, x0):
 
 def do_square_ic(x, tfinal, x0):
     integral_1 = integrate.nquad(F, [[-x0, x0]], args =  ([0.0, tfinal, x, 0]), opts = [opts0])[0]
-    integral_2 = integrate.nquad(F1, [[0, math.pi], [-x0, x0]], args =  (0.0, x, tfinal,0), opts = [opts0, opts0, opts0])[0]
+    integral_2 = integrate.nquad(F1, [[0, math.pi], [-x0, x0]], args =  (0.0, x, tfinal, 0), opts = [opts0, opts0, opts0])[0]
     return integral_1 + integral_2
 
 def do_square_source(x, tfinal, x0):

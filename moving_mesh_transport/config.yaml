@@ -27,7 +27,7 @@
 'square_source':
     'x0': 0.5
     'source_type': [0,0,1,0,0,0]
-    'N_angles': [64, 128, 256, 512, 2048, 4096]
+    'N_angles': [64, 128, 512, 512, 4096, 4096]
     'move_type': [1,0,0,0]
     
 # gaussian pulse source

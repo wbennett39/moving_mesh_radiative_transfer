@@ -12,14 +12,14 @@ import numpy as np
 ###############################################################################
 
 def opts0(*args, **kwargs):
-       return {'limit':10000000,'epsabs': 1.0e-11, 'epsrel':1.0e-11}
+       return {'limit':10000000}
    
 def opts1(*args, **kwargs):
-       return {'limit':10000000,'epsabs': 1.0e-11, 'epsrel':1.0e-11}
+       return {'limit':10000000}
 def opts2(*args, **kwargs):
-       return {'limit':10000000,'epsabs': 1.0e-11, 'epsrel':1.0e-11}
+       return {'limit':10000000}
 
-class collided:
+class collided_class:
     def __init__(self, source_type, x0, t0):
         self.x0 = x0
         self.t0 = t0

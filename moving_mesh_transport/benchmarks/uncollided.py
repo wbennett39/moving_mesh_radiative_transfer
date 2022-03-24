@@ -11,8 +11,9 @@ from .benchmark_functions import uncollided_square_source, uncollided_square_IC,
 
 
 ###############################################################################
-class uncollided:
-    def _init__(self, source_type, x0, t0):
+class uncollided_class:
+    
+    def __init__(self, source_type, x0, t0):
         self.source_type = source_type
         self.x0 = x0
         self.t0 = t0
@@ -43,7 +44,6 @@ class uncollided:
             x = xs[ix]
             temp[ix] = uncollided_square_source(x, t, self.x0, self.t0)
         return temp
-    
     def gaussian_IC(self, xs, t):
         """ uncollided scalar flux for 1D Gaussian pulse with standard deviation x0
         """
@@ -54,7 +54,7 @@ class uncollided:
             temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t-2*xx) + math.erf(2*t+2*xx))/(8.0 * t + 1e-12)
         return temp 
     
-    def gaussian_source_uncollided_solution(self, xs, t):
+    def gaussian_source(self, xs, t):
         """ uncollided scalar flux for 1D Gaussian source with standard deviation x0
         """
         self.t0 = min(self.t0, t)

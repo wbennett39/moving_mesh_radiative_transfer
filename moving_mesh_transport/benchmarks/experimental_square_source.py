@@ -13,7 +13,7 @@ import scipy.integrate as integrate
 import matplotlib.pyplot as plt
 from timeit import default_timer as timer
 import h5py
-from .benchmark_functions import F, F1, F1_c2, F1_c3, F1_spacefirst, F_gaussian_source, uncollided_square_s2, pyF, get_intervals
+from .benchmark_functions import F, F1, F1_spacefirst, F_gaussian_source, uncollided_square_source, pyF, get_intervals
 from .make_benchmarks import write_to_file
 from pathlib import Path
 
@@ -65,7 +65,7 @@ def time_integral(x, t):
     x0 = 0.5
     
     collided_solution = integrate.nquad(double_integral, [[0, t]], args = (x, t), opts = [opts2])[0]
-    uncollided_solution = uncollided_square_s2(x, t, x0, t)
+    uncollided_solution = uncollided_square_source(x, t, x0, t)
     
     # collided_solution = integrate.nquad(F1, [[0, math.pi], [-x0, x0], [0,tfinal]], args =  (x, tfinal, 0), opts = [opts0, opts1, opts2])[0]
 
@@ -82,7 +82,7 @@ def space_integral(x,t):
     x0 = 0.5
     
     collided_solution = integrate.nquad(double_integral_time, [[-x0, x0]], args = (x, t), opts = [opts2])[0]
-    uncollided_solution = uncollided_square_s2(x, t, x0, t)
+    uncollided_solution = uncollided_square_source(x, t, x0, t)
     
     return uncollided_solution + collided_solution
     

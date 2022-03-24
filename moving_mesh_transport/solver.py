@@ -46,9 +46,9 @@ class goals:
 
 
 
-[] save benchmarks in the right place
+[] save benchmarks plots in the right place
 [] save uncol and col solutions for benchmark
-
+[] save solution somewhere
 square source:
     -solve uncollided equation vs uncollided bench to see if it converges and confirm the uncollided solution is correct
     -check if the triple integral can be simplified at all
@@ -62,6 +62,7 @@ ideas for tests:
 
 long term goals:
 [] comments for all classes, functions
+[] fix np dot contiguous warning
 [] mu mapping for the cases that have smooth but discontinuous $\psi_u$
 [] uncollided_solution -- make temp[ix] self
 [] x0 function for the gaussian and plane 
