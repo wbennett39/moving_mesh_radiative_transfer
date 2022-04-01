@@ -64,8 +64,8 @@ def find_intervals_uncollided_s(r, t, theta, thetap):
 @jit_F1
 def uncollided_gauss_2D_integrand(args):
     
-    thetap = args[1]
-    s = args[0]
+    thetap = args[0]
+    s = args[1]
     rho = args[2]
     t = args[3]
     theta = args[4]
@@ -85,20 +85,22 @@ def uncollided_gauss_2D_integrand(args):
 
 
 def opts0(*args, **kwargs):
-       return {'limit':100000000}
+       return {'limit':100}
    
 """ uncollided """
 
-def uncollided_gauss_2D_s(thetap, theta, rho, t, x0):
-    interval = find_intervals_uncollided_s(rho, t, theta, thetap)
+def uncollided_gauss_2D_s(theta, rho, t, x0):
       
-    res = integrate.nquad(uncollided_gauss_2D_integrand,  [interval], args = (thetap, rho, t, theta, x0), opts = [opts0])[0]
+    res = integrate.nquad(uncollided_gauss_2D_theta, [[0, np.inf]], args = (theta, rho, t, x0), opts = [opts0])[0]
     
     return res
 
-def uncollided_gauss_2D_theta(theta, rho, t, x0):
+def uncollided_gauss_2D_theta(s, theta, rho, t, x0):
     
-    res = integrate.nquad(uncollided_gauss_2D_s,  [[0, 2*math.pi]], args = (theta, rho, t, x0), opts = [opts0])[0]
+    # interval = find_intervals_uncollided_theta(rho, t, theta, s)
+    interval = [0, 2*math.pi]
+    
+    res = integrate.nquad(uncollided_gauss_2D_integrand,  [interval], args = (s, rho, t, theta, x0), opts = [opts0])[0]
     
     return res
 
@@ -140,7 +142,7 @@ def collided_gauss_2D(rho, t, x0):
 
 x0 = 0.5
 tfinal = 1
-pnts = 300
+pnts = 10
 
 rhos = np.linspace(0, tfinal + 2 , pnts)
 # rhos = np.linspace(0, tfinal, pnts)
@@ -159,11 +161,11 @@ phi_uxy = np.zeros((xs.size, ys.size))
     
 for ix in range(rhos.size):
     print(ix)
-    phi_u[ix] = uncollided_gauss_2D_theta(math.pi, rhos[ix], tfinal, x0)
+    phi_u[ix] = uncollided_gauss_2D_s(math.pi/2, rhos[ix], tfinal, x0)
     # phi_c[ix] = collided_gauss_2D(rhos[ix], tfinal, x0)
     
     
-
+print(phi_u)
 plt.figure(1)
 plt.plot(rhos, phi_u, "-o", mfc = 'none')
 plt.plot(rhos, phi_c + phi_u, "-s", mfc = 'none')

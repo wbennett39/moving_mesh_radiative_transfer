@@ -7,9 +7,11 @@ Created on Wed Mar 23 12:01:21 2022
 """
 import math
 import scipy.integrate as integrate 
-from .benchmark_functions import uncollided_square_source, uncollided_square_IC, gaussian_source_integrand
+from .benchmark_functions import uncollided_square_source, uncollided_square_IC, gaussian_source_integrand, uncollided_gauss_2D_integrand
 
-
+def opts0(*args, **kwargs):
+       return {'limit':10000000}
+   
 ###############################################################################
 class uncollided_class:
     
@@ -25,7 +27,7 @@ class uncollided_class:
         for ix in range(xs.size):
             if (-t <= xs[ix] <= t):
                 temp[ix] = math.exp(-t)/(2*t+1e-12)
-            return temp
+        return temp
         
     def square_IC(self, xs, t):
         """ uncollided scalar flux for 1D square pulse 
@@ -66,6 +68,16 @@ class uncollided_class:
             temp[ix] = result
         return temp*sqrtpi/8.0  
     
+    def gaussian_IC_2D(self, rhos, t):
+        temp = rhos*0
+        for ix in range(rhos.size):
+            rho = rhos[ix]
+            b = rho + t
+            a = max(0.0, rho-t)
+            temp[ix] = integrate.nquad(uncollided_gauss_2D_integrand, [[a, b]], args = (rho, t, self.x0), opts = [opts0])[0]
+        
+        return temp
+    
     def __call__(self, xs, t):
         if self.source_type == 'plane_IC':
             return self.plane_IC(xs, t)
@@ -77,3 +89,5 @@ class uncollided_class:
             return self.gaussian_IC(xs, t)
         elif self.source_type == 'gaussian_source':
             return self.gaussian_source(xs, t)
+        elif self.source_type == 'gaussian_IC_2D':
+            return self.gaussian_IC_2D(xs, t)

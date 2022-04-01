@@ -27,7 +27,10 @@ class make_benchmark:
     def integrate(self, t, npnts):
         self.t = t
         self.npnts = npnts
-        self.xs = np.linspace(-t - self.x0, t + self.x0, npnts)
+        self.xs = np.linspace(0, t + self.x0, npnts)
+        if self.source_type == "gaussian_IC_2D":
+            self.xs = np.linspace(0.0, t + 1/self.x0, npnts)
+            
         self.uncollided_sol = self.call_uncollided(self.xs, t)
         self.collided_sol = self.call_collided(self.xs, t)
         
@@ -39,9 +42,9 @@ class make_benchmark:
     def clear_file(self):
         make_benchmark_file_structure()
         
-    def plot(self):
+    def plot(self, fign):
         plt.ion()
-        plt.figure(1)
+        plt.figure(fign)
         plt.plot(self.xs, self.uncollided_sol, "--k")
         plt.plot(self.xs, self.uncollided_sol + self.collided_sol, "-k")
         plt.show()

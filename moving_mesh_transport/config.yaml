@@ -1,9 +1,9 @@
 # parameters shared by all source types
 'all':
-    'tfinal': 1.0                       # evaluation time
+    'tfinal': 1.0e-11                       # evaluation time
     'N_spaces': [2, 4, 8, 16, 32, 64]           # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [10]                           # number of basis functions -1
+    'Ms': [8]                           # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 1e-12                         # rel tolerance for ODE integrator
     'at': 1e-10                         # abs tolerance for ODE integrator

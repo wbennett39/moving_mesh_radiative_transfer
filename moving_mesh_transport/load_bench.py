@@ -24,7 +24,7 @@ class load_bench:
         self.source_type = source_type
         self.tfinal = tfinal
         f = h5py.File(benchmark_file_path, "r")
-        self.source_type_str = ["plane_IC", "square_IC", "square_source", "gaussian_IC", "MMS", "gaussian_source"]
+        self.source_type_str = ["plane_IC", "square_IC", "square_source", "gaussian_IC", "MMS", "gaussian_source", "gaussian_IC_2D"]
         self.t_eval_str = ["t = 1", "t = 5", "t = 10"]
         index_of_source_name = np.argmin(np.abs(np.array(self.source_type)-1))
         source_name = self.source_type_str[index_of_source_name]
@@ -44,11 +44,12 @@ class load_bench:
             tstring = self.t_eval_str[self.t_string_index]
             self.solution = f[source_name][tstring]
             self.interpolated_solution = interp1d(self.solution[0], self.solution[1], kind = "cubic")
+            self.interpolated_uncollided_solution = interp1d(self.solution[0], self.solution[2], kind = "cubic")
             
         f.close()
     def __call__(self, xs):
         if self.ask_for_bench == True:
-            return self.interpolated_solution(xs)
+            return [self.interpolated_solution(xs), self.interpolated_uncollided_solution(xs)]
         elif self.ask_for_bench == False and self.source_type[4] == 1:
             return np.exp(-xs*xs/2)/(1+self.tfinal) * np.heaviside(self.tfinal - np.abs(xs) + self.x0, 1)
         else:

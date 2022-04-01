@@ -215,10 +215,10 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     if source_type[0] == 1:
         xsb2 = np.linspace(0, tfinal , 1000)
         xsb = np.concatenate((xsb2, np.ones(1)*1.0000001))
-        bench = np.concatenate((benchmark(xsb2),np.zeros(1)))
+        bench = np.concatenate((benchmark(xsb2)[0],np.zeros(1)))
     else:
         xsb = np.linspace(0, tfinal + x0, 100000)
-        bench = benchmark(xsb)
+        bench = benchmark(xsb)[0]
         
 
     

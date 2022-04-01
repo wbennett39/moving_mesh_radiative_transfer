@@ -6,6 +6,7 @@ Created on Wed Mar 23 12:49:44 2022
 @author: bennett
 """
 from .benchmark_functions import F1, F1_spacefirst, find_intervals_time
+from .benchmark_functions import F_2D_gaussian_pulse
 import scipy.integrate as integrate
 import math
 import numpy as np
@@ -13,7 +14,6 @@ import numpy as np
 
 def opts0(*args, **kwargs):
        return {'limit':10000000}
-   
 def opts1(*args, **kwargs):
        return {'limit':10000000}
 def opts2(*args, **kwargs):
@@ -60,6 +60,25 @@ class collided_class:
             temp[ix] = integrate.nquad(self.source_double_integral_time, [[-self.x0, self.x0]], args = (xs[ix], t, 1), opts = [opts2])[0]
         return temp
     
+    def gaussian_IC_2D_double_integral(self, s, rho, t):
+        eta = (rho-s)/t
+        omega_a = 0.0
+        omega_b = math.sqrt(1-eta**2)
+        res = integrate.nquad(F_2D_gaussian_pulse, [[0, math.pi],[omega_a, omega_b]], args = (s, rho, t, self.x0), opts = [opts0, opts0])[0]
+        return res
+
+
+    def gaussian_IC_2D(self, rhos, t):
+        # standard deviation is not set with this one, varies with x0
+        # multiply integrand by s?
+        temp = rhos*0
+        for ix in range(rhos.size):
+            rho = rhos[ix]
+            b = rho + t
+            a = max(0.0, rho-t)
+            temp[ix] = integrate.nquad(self.gaussian_IC_2D_double_integral, [[a, b]], args = (rho, t), opts = [opts0])[0]
+        return temp
+    
     def __call__(self, xs, t):
         if self.source_type == 'plane_IC':
             return self.plane_IC(xs, t)
@@ -71,3 +90,6 @@ class collided_class:
             return self.gaussian_IC(xs, t)
         elif self.source_type == 'gaussian_source':
             return self.gaussian_source(xs, t)
+        elif self.source_type == 'gaussian_IC_2D':
+            return self.gaussian_IC_2D(xs, t)
+        

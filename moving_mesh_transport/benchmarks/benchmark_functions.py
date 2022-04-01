@@ -95,6 +95,8 @@ def uncollided_square_source(x, t, x0, t0):
 
 
 def uncollided_square_IC(xx, t, x0):
+    temp = 0.0
+    
     if (t <= x0) and (xx >= -x0 + t) and (xx <= x0 - t):
         temp = math.exp(-t)
     elif t > x0  and (-t + x0 <=  xx) and (t - x0 >= xx):
@@ -121,6 +123,20 @@ def gaussian_source_integrand(tau, t, x):
     else:
         temp = 0.0
     return temp
+
+def uncollided_gauss_2D_integrand(s, rho, t, x0):
+    if rho**2 + s**2 -2*rho*s > 0:
+        eta = math.sqrt(rho**2 + s**2 - 2*rho*s)
+    
+        if abs(eta) < 1 and eta > 0:
+        
+            # res = s*0 * math.exp(-s**2/x0**2) / math.sqrt(1-eta**2) * math.exp(-t)/t/t
+            res = s *  math.exp(-s**2/x0**2) / math.sqrt(1-eta**2) * math.exp(-t)/t/t
+        else:
+            res = 0
+    else:
+        res = 0
+    return res
 ##################functions for integrating sources############################
 def find_intervals_time(t, x, s):
     a = 0 
@@ -290,16 +306,24 @@ def point_collided(u, r, t):
 def F_2D_gaussian_pulse(args):
     u = args[0]
     omega = args[1]
-    s = args[2]
-    rho = args[3]
-    t = args[4]
-    x0 = args[5]
+    thetap = args[2]
+    s = args[3]
+    rho = args[4]
+    theta = args[5]
+    t = args[6]
+    x0 = args[7]
     
-    eta = (rho - s)/t
-    if (0 <= eta < 1):
+    x = rho * math.cos(theta)
+    y = rho * math.sin(theta)
+    q = s * math.cos(thetap)
+    v = s * math.sin(thetap)
+    new_r = math.sqrt((x-q)**2 + (y-v)**2)
+    eta = new_r/t
+    
+    if eta < 1:
         r_arg = t * math.sqrt(eta**2 + omega**2)
-        return 2 * t * point_collided(u, r_arg, t) * math.exp(-s**2/x0)
-    else:
+        return s * 2 * t * point_collided(u, r_arg, t) * math.exp(-s**2/x0**2)
+    else: 
         return 0 
     
         
@@ -308,7 +332,7 @@ def F_2D_gaussian_pulse(args):
 def make_benchmark_file_structure():
     data_folder = Path("moving_mesh_transport/benchmarks")
     bench_file_path = data_folder / 'benchmarks.hdf5'
-    source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 'gaussian_source']
+    source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 'gaussian_source', 'gaussian_IC_2D']
     
     f = h5py.File(bench_file_path, "a")
     

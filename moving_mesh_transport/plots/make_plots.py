@@ -94,57 +94,78 @@ class rms_plotter:
         plt.xlabel("x")
         plt.ylabel("scalar flux")
         if source_name == "plane_IC":
-            source_type = np.array([1,0,0,0,0,0])
+            source_type = np.array([1,0,0,0,0,0,0])
             x0 = 1e-11
             bench = load_bench(source_type, tfinal, x0)
             xs = np.linspace(0, tfinal)
-            interp_bench = bench(xs)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
             interp_bench2 = np.append(interp_bench, np.array([0.0]))
+            uncol2 = np.append(uncol, np.array([0.0]))
             xs2 = np.append(xs, np.array([tfinal + .0000001]))
             plt.plot(xs2, interp_bench2, "-k")
             plt.plot(-xs2, interp_bench2, "-k")
+            if tfinal == 1:
+                plt.plot(xs2, uncol2, "--k")
+                plt.plot(-xs2, uncol2, "--k")
             show(f"plane_IC_t_{tfinal}_benchmark")
             plt.show(block = False)
         elif source_name == "square_IC":
-            source_type = np.array([0,1,0,0,0,0])
+            source_type = np.array([0,1,0,0,0,0,0])
             x0 = 0.5
             bench = load_bench(source_type, tfinal, x0)
             xs = np.linspace(0, tfinal + x0)
-            interp_bench = bench(xs)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
+            if tfinal == 1:
+                plt.plot(xs, uncol, "--k")
+                plt.plot(-xs, uncol, "--k")
             show(f"square_IC_t_{tfinal}_benchmark")
             plt.show()
         elif source_name == "square_source":
-            source_type = np.array([0,0,1,0,0,0])
+            source_type = np.array([0,0,1,0,0,0,0])
             x0 = 0.5
             bench = load_bench(source_type, tfinal, x0)
             xs = np.linspace(0, tfinal + x0)
-            interp_bench = bench(xs)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
+            if tfinal == 1 or tfinal ==5:
+                plt.plot(xs, uncol, "--k")
+                plt.plot(-xs, uncol, "--k")
             show(f"square_source_t_{tfinal}_benchmark")
             plt.show()
         elif source_name == "gaussian_IC":
-            source_type = np.array([0,0,0,1,0,0])
+            source_type = np.array([0,0,0,1,0,0,0])
             x0 = 4
             bench = load_bench(source_type, tfinal, x0)
             xs = np.linspace(0, tfinal + x0)
-            interp_bench = bench(xs)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            if tfinal == 1:
+                plt.plot(xs, uncol, "--k")
+                plt.plot(-xs, uncol, "--k")
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
             show(f"gaussian_IC_t_{tfinal}_benchmark")
         elif source_name == "gaussian_source":
-            source_type = np.array([0,0,0,0,0,1])
+            source_type = np.array([0,0,0,0,0,1,0])
             x0 = 4
             bench = load_bench(source_type, tfinal, x0)
             xs = np.linspace(0, tfinal + x0)
-            interp_bench = bench(xs)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            if tfinal == 1 or tfinal ==5:
+                plt.plot(xs, uncol, "--k")
+                plt.plot(-xs, uncol, "--k")
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
             show(f"gaussian_source_t_{tfinal}_benchmark")
         elif source_name == "MMS":
-            source_type = np.array([0,0,0,0,1,0])
+            source_type = np.array([0,0,0,0,1,0,0])
             x0 = 4
             bench = load_bench(source_type, tfinal, x0)
             xs = np.linspace(0, tfinal + x0)
@@ -152,7 +173,18 @@ class rms_plotter:
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
             show(f"MMS_t_{tfinal}_benchmark")
-    
+        elif source_name == "gaussian_IC_2D":
+            source_type = np.array([0,0,0,0,0,0,1])
+            x0 = 0.5
+            xs = np.linspace(0, tfinal + 1/x0)
+            bench = load_bench(source_type, tfinal, x0)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            xs = np.linspace(0, tfinal + 1/x0)
+            if tfinal == 1:
+                plt.plot(xs, uncol, "--k")
+            plt.plot(xs, interp_bench, "-k")
+            show(f"gaussian_IC_2D_t_{tfinal}_benchmark")
 
 
 
