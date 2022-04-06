@@ -122,6 +122,8 @@ def gaussian_source_integrand(tau, t, x):
         temp = 0.0
     return temp
 
+## I believe this is incorrect because it does not integrate over angle
+
 # def uncollided_gauss_2D_integrand(s, rho, t, x0):
 #     if rho**2 + s**2 -2*rho*s > 0:
 #         eta = math.sqrt(rho**2 + s**2 - 2*rho*s)
@@ -142,11 +144,6 @@ def find_intervals_time(t, x, s):
     if b < 0:
         b = 0
     return [a,b]
-
-
-
-
-
 
 ############# low level callable functions ####################################
 def jit_F1(integrand_function):
@@ -374,7 +371,20 @@ def uncollided_gauss_2D_integrand(s, v, x, y, t):
         res = ft / math.sqrt(1-eta**2) * gt  
     return res
 
-
+def find_intervals_2D_gaussian_s(r, t, theta, thetap):
+    sqrt_term = -r**2 + 2*t**2 + r**2*math.cos(2*theta-2*thetap)
+    a = 0.0
+    b = 0.0
+    if sqrt_term >=0:
+        denominator = 2*(math.cos(thetap)**2 + math.sin(thetap)**2)
+        t2 = 2 * r * (math.cos(theta) * math.cos(thetap) + math.sin(theta) * math.sin(thetap))
+        a = (-math.sqrt(2) * math.sqrt(sqrt_term) + t2)/denominator
+        b = (math.sqrt(2) * math.sqrt(sqrt_term) + t2)/denominator
+        if a < 0:
+            a = 0
+        if b < 0:
+            b = 0
+    return [a,b]
 
 ######################saving solution##########################################
 def make_benchmark_file_structure():

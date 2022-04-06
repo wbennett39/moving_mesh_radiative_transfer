@@ -87,7 +87,7 @@ def uncollided_gauss_2D_integrand(args):
 
 
 def opts0(*args, **kwargs):
-       return {'limit':50}
+       return {'limit':5}
 
 
 def opts1(*args, **kwargs):
@@ -159,7 +159,7 @@ def collided_gauss_2D_theta(rho, t, x0):
 
 x0 = 0.5
 tfinal = 1
-pnts = 100
+pnts = 5
 
 rhos = np.linspace(0, tfinal + 1, pnts)
 # rhos = np.linspace(0, tfinal, pnts)

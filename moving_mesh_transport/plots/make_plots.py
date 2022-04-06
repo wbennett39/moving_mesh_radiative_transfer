@@ -72,7 +72,7 @@ class rms_plotter:
         plt.ylabel("RMSE")
         plt.title(f"{self.source_name} t = {self.tfinal}")
         plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
-        plt.savefig(self.plot_file_path / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
+        plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
         plt.show(block = False)
         
     def plot_RMS_vs_times(self, fign = 1, clear = False):
@@ -85,7 +85,7 @@ class rms_plotter:
         plt.title(f"{self.source_name} t = {self.tfinal}")
         print(self.times)
         plt.loglog(self.times, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
-        plt.savefig(self.plot_file_path / f"{self.source_name}_t={self.tfinal}_times_vs_cells.pdf")
+        plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_times_vs_cells.pdf")
         plt.show(block = False)
         
     def plot_bench(self, tfinal, source_name, fign):
@@ -93,6 +93,7 @@ class rms_plotter:
         plt.ion()
         plt.xlabel("x")
         plt.ylabel("scalar flux")
+        file_path_string = str(self.plot_file_path) + "/" + "benchmark_plots"
         if source_name == "plane_IC":
             source_type = np.array([1,0,0,0,0,0,0])
             x0 = 1e-11
@@ -108,7 +109,8 @@ class rms_plotter:
             if tfinal == 1:
                 plt.plot(xs2, uncol2, "--k")
                 plt.plot(-xs2, uncol2, "--k")
-            show(f"plane_IC_t_{tfinal}_benchmark")
+            
+            show(file_path_string + f"/plane_IC_t_{tfinal}_benchmark")
             plt.show(block = False)
         elif source_name == "square_IC":
             source_type = np.array([0,1,0,0,0,0,0])
@@ -122,7 +124,7 @@ class rms_plotter:
             if tfinal == 1:
                 plt.plot(xs, uncol, "--k")
                 plt.plot(-xs, uncol, "--k")
-            show(f"square_IC_t_{tfinal}_benchmark")
+            show(file_path_string + f"/square_IC_t_{tfinal}_benchmark")
             plt.show()
         elif source_name == "square_source":
             source_type = np.array([0,0,1,0,0,0,0])
@@ -136,7 +138,7 @@ class rms_plotter:
             if tfinal == 1 or tfinal ==5:
                 plt.plot(xs, uncol, "--k")
                 plt.plot(-xs, uncol, "--k")
-            show(f"square_source_t_{tfinal}_benchmark")
+            show(file_path_string + f"/square_source_t_{tfinal}_benchmark")
             plt.show()
         elif source_name == "gaussian_IC":
             source_type = np.array([0,0,0,1,0,0,0])
@@ -150,7 +152,7 @@ class rms_plotter:
                 plt.plot(-xs, uncol, "--k")
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
-            show(f"gaussian_IC_t_{tfinal}_benchmark")
+            show(file_path_string + f"/gaussian_IC_t_{tfinal}_benchmark")
         elif source_name == "gaussian_source":
             source_type = np.array([0,0,0,0,0,1,0])
             x0 = 4
@@ -163,7 +165,7 @@ class rms_plotter:
                 plt.plot(-xs, uncol, "--k")
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
-            show(f"gaussian_source_t_{tfinal}_benchmark")
+            show(file_path_string + f"/gaussian_source_t_{tfinal}_benchmark")
         elif source_name == "MMS":
             source_type = np.array([0,0,0,0,1,0,0])
             x0 = 4
@@ -172,7 +174,7 @@ class rms_plotter:
             interp_bench = bench(xs)
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
-            show(f"MMS_t_{tfinal}_benchmark")
+            show(file_path_string + f"MMS_t_{tfinal}_benchmark")
         elif source_name == "gaussian_IC_2D":
             source_type = np.array([0,0,0,0,0,0,1])
             x0 = 0.5
@@ -184,7 +186,7 @@ class rms_plotter:
             if tfinal == 1:
                 plt.plot(xs, uncol, "--k")
             plt.plot(xs, interp_bench, "-k")
-            show(f"gaussian_IC_2D_t_{tfinal}_benchmark")
+            show(file_path_string + f"/gaussian_IC_2D_t_{tfinal}_benchmark")
 
 
 
