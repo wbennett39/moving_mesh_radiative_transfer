@@ -20,8 +20,6 @@ from pathlib import Path
 ###############################################################################
 def xi(u, eta):
     q = (1+eta)/(1-eta)
-    if q <= 0:
-        print(eta)
     zz = np.tan(u/2)
     
     # return (np.log(q) + complex(0, u))/(eta + complex(0, zz))
@@ -124,19 +122,19 @@ def gaussian_source_integrand(tau, t, x):
         temp = 0.0
     return temp
 
-def uncollided_gauss_2D_integrand(s, rho, t, x0):
-    if rho**2 + s**2 -2*rho*s > 0:
-        eta = math.sqrt(rho**2 + s**2 - 2*rho*s)
+# def uncollided_gauss_2D_integrand(s, rho, t, x0):
+#     if rho**2 + s**2 -2*rho*s > 0:
+#         eta = math.sqrt(rho**2 + s**2 - 2*rho*s)
     
-        if abs(eta) < 1 and eta > 0:
+#         if abs(eta) < 1 and eta > 0:
         
-            # res = s*0 * math.exp(-s**2/x0**2) / math.sqrt(1-eta**2) * math.exp(-t)/t/t
-            res = s *  math.exp(-s**2/x0**2) / math.sqrt(1-eta**2) * math.exp(-t)/t/t
-        else:
-            res = 0
-    else:
-        res = 0
-    return res
+#             # res = s*0 * math.exp(-s**2/x0**2) / math.sqrt(1-eta**2) * math.exp(-t)/t/t
+#             res = s *  math.exp(-s**2/x0**2) / math.sqrt(1-eta**2) * math.exp(-t)/t/t
+#         else:
+#             res = 0
+#     else:
+#         res = 0
+#     return res
 ##################functions for integrating sources############################
 def find_intervals_time(t, x, s):
     a = 0 
@@ -285,29 +283,41 @@ def F_gaussian_source(args):
         return 0.0
 
 @njit 
-def point_collided(u, r, t):
+def point_collided_2(u, r, t):
     eta = r/t
+    c = 1
     if eta >= 1:
         return 0.0
     else:
-        
-        first = math.exp(-t)/4/math.pi/r/t * math.log((1 + eta)/(1-eta))
+        # first = math.exp(-t)/4/math.pi/r/t * math.log((1 + eta)/(1-eta)) * c
         q = (1+eta)/(1-eta)
         zz = np.tan(u/2)
         xi = (np.log(q) + u*1j)/(eta + zz*1j)
-        exp_arg = t/2 * (1- eta**2) * xi
-        complex_term = (eta + 1j * zz)*xi**3 * np.exp(exp_arg)
+        # exp_arg = c * t * (1 - eta**2) * xi / 2
+        # complex_term = (eta + 1j * zz)*xi**3 * np.exp(exp_arg)
+        complex_term = (eta + 1j * zz) * np.exp(c*t*((1 - eta**2)*xi/2.))*xi**3
         
-        result = first + (1/2/math.pi) * math.exp(-t)/4/math.pi/r/t * (1/4) * (1- eta**2) * (1/math.cos(u/2))**2 * complex_term.real
+        result =  (1/2/math.pi) * math.exp(-t)/4/math.pi/r * (c/2)**2 * (1 - eta**2) * (1/math.cos(u/2))**2 * complex_term.real
         
     return result 
 
+@njit
+def point_collided_1(r,t):
+    
+    eta = r/t
+    c = 1
+    if eta >= 1:
+        return 0.0
+    else:
+        result = math.exp(-t)/4/math.pi/r/t * math.log((1 + eta)/(1-eta)) * c
+    return result 
+
 @jit_F1
-def F_2D_gaussian_pulse(args):
+def F2_2D_gaussian_pulse(args):
     u = args[0]
     omega = args[1]
     thetap = args[2]
-    s = args[3]
+    s = args[3]  # dummy radius 
     rho = args[4]
     theta = args[5]
     t = args[6]
@@ -322,11 +332,49 @@ def F_2D_gaussian_pulse(args):
     
     if eta < 1:
         r_arg = t * math.sqrt(eta**2 + omega**2)
-        return s * 2 * t * point_collided(u, r_arg, t) * math.exp(-s**2/x0**2)
+        return s * 2 * t * point_collided_2(u, r_arg, t) * math.exp(-s**2/x0**2)
+    else: 
+        return 0 
+@jit_F1
+def F1_2D_gaussian_pulse(args):
+    omega = args[0]
+    thetap = args[1]
+    s = args[2]
+    rho = args[3]
+    theta = args[4]
+    t = args[5]
+    x0 = args[6]
+    
+    x = rho * math.cos(theta)
+    y = rho * math.sin(theta)
+    q = s * math.cos(thetap)
+    v = s * math.sin(thetap)
+    new_r = math.sqrt((x-q)**2 + (y-v)**2)
+    eta = new_r/t
+    
+    if eta < 1:
+        r_arg = t * math.sqrt(eta**2 + omega**2)
+        return s * 2 * t * point_collided_1(r_arg, t) * math.exp(-s**2/x0**2)
     else: 
         return 0 
     
-        
+############################## 2D functions####################################
+@njit
+def eta_func_2d_gauss_cartesian(x, s, y, v):
+    res = (x-s)**2 + (y-v)**2
+    return math.sqrt(res)
+
+def uncollided_gauss_2D_integrand(s, v, x, y, t):
+    res = 0.0
+    eta = eta_func_2d_gauss_cartesian(x, s, y, v)
+    if eta < 1:
+        ft = math.exp(-t)/2/math.pi/t/t
+        garg = -(s**2 + v**2)/0.5**2
+        gt = math.exp(garg)
+        res = ft / math.sqrt(1-eta**2) * gt  
+    return res
+
+
 
 ######################saving solution##########################################
 def make_benchmark_file_structure():

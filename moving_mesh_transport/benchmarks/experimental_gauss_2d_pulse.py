@@ -10,11 +10,12 @@ import scipy.integrate as integrate
 import math
 import numpy as np
 import matplotlib.pyplot as plt
-from benchmark_functions import F_2D_gaussian_pulse
+from benchmark_functions import F1_2D_gaussian_pulse, F2_2D_gaussian_pulse
 from scipy import LowLevelCallable
 import numba 
 from numba import cfunc,carray
 from numba.types import intc, CPointer, float64
+from scipy.interpolate import interp1d as interp
 
 
 def jit_F1(integrand_function):
@@ -28,6 +29,7 @@ def jit_F1(integrand_function):
 #############################################################################
 def arcsec(x):
     return 1/math.cos(x)
+
 def find_intervals_uncollided_theta(r, t, theta, rho):
     interval_final = [0,0]
     sqrt_term = -(r**2*(r - t - rho)*(r + t - rho)*rho**2*(r - t + rho)*(r + t + rho)*math.sin(theta)**2)
@@ -79,26 +81,30 @@ def uncollided_gauss_2D_integrand(args):
     eta = new_r/t
     res = 0.0
     if eta < 1:
-        res = (s) * math.exp(-s**2/x0**2) / math.sqrt(1-eta**2) * math.exp(-t)/t/t/2/math.pi
+        res =   s * math.exp(-s**2/x0**2) / math.sqrt(1-eta**2) * math.exp(-t)/t/t/2/math.pi
     return res
 
 
 
 def opts0(*args, **kwargs):
-       return {'limit':100000000}
+       return {'limit':50}
+
+
+def opts1(*args, **kwargs):
+       return {'limit':51}
    
 """ uncollided """
 
 def uncollided_gauss_2D_s(thetap, theta, rho, t, x0):
     interval = find_intervals_uncollided_s(rho, t, theta, thetap)
-      
-    res = integrate.nquad(uncollided_gauss_2D_integrand,  [interval], args = (thetap, rho, t, theta, x0), opts = [opts0])[0]
+       
+    res = integrate.nquad(uncollided_gauss_2D_integrand,  [interval], args = (thetap, rho, t, theta, x0), opts = [opts1])[0]
     
     return res
 
 def uncollided_gauss_2D_theta(theta, rho, t, x0):
     
-    res = integrate.nquad(uncollided_gauss_2D_s,  [[0, 2*math.pi]], args = (theta, rho, t, x0), opts = [opts0])[0]
+    res = integrate.nquad(uncollided_gauss_2D_s,  [[0, 2*math.pi]], args = (theta, rho, t, x0), opts = [opts1])[0]
     
     return res
 
@@ -107,7 +113,9 @@ def uncollided_gauss_2D_theta(theta, rho, t, x0):
 
 
 
-def gaussian_pulse_2D_double_integral(thetap, s, rho, t, theta, x0):
+def gaussian_pulse_2D_double_integral(s, thetap, rho, t, theta, x0):
+    """ integrates over u, omega
+    """
     x = rho * math.cos(theta)
     y = rho * math.sin(theta)
     q = s * math.cos(thetap)
@@ -119,17 +127,28 @@ def gaussian_pulse_2D_double_integral(thetap, s, rho, t, theta, x0):
     
     if eta < 1:
         omega_b = math.sqrt(1-eta**2)
-        res = integrate.nquad(F_2D_gaussian_pulse, [[0, math.pi], [omega_a, omega_b]], args = (thetap, s, rho, theta, t,  x0), opts = [opts0, opts0])[0]
+        rest_collided = integrate.nquad(F2_2D_gaussian_pulse, [[0, math.pi], [omega_a, omega_b]], args = (thetap, s, rho, theta, t,  x0), opts = [opts0, opts0])[0]
+        first_collided = integrate.nquad(F1_2D_gaussian_pulse, [[omega_a, omega_b]], args = (thetap, s, rho, theta, t,  x0), opts = [opts0])[0]
+        res = rest_collided + first_collided
     return res
 
-
-def collided_gauss_2D(rho, t, x0):
+def collided_gauss_2D_s(thetap, rho, t, x0):
+    """ integrates over s
+    """
     theta = 0
-    b = np.inf
+    # b = np.inf
     # b = rho + t
-    # a = max(0.0, rho-t)
-    a = 0 
-    res = integrate.nquad(gaussian_pulse_2D_double_integral, [[0, math.pi*2], [a, b]], args = (rho, t, theta, x0), opts = [opts0, opts0])[0]
+    # interval = [a, b]
+    interval = find_intervals_uncollided_s(rho, t, theta, thetap)
+    res = integrate.nquad(gaussian_pulse_2D_double_integral, [interval], args = (thetap, rho, t, theta, x0), opts = [opts0])[0]
+    
+    return res
+
+def collided_gauss_2D_theta(rho, t, x0):
+    """ integrates over thetap
+    """
+
+    res = integrate.nquad(collided_gauss_2D_s, [[0, math.pi*2]], args = (rho, t, x0), opts = [opts0])[0]
     
     return res
 
@@ -140,9 +159,9 @@ def collided_gauss_2D(rho, t, x0):
 
 x0 = 0.5
 tfinal = 1
-pnts = 300
+pnts = 100
 
-rhos = np.linspace(0, tfinal + 2 , pnts)
+rhos = np.linspace(0, tfinal + 1, pnts)
 # rhos = np.linspace(0, tfinal, pnts)
 xs = np.linspace(0, tfinal, pnts)
 ys = np.linspace(0, tfinal, pnts)
@@ -159,13 +178,15 @@ phi_uxy = np.zeros((xs.size, ys.size))
     
 for ix in range(rhos.size):
     print(ix)
+    print(rhos[ix])
     phi_u[ix] = uncollided_gauss_2D_theta(math.pi, rhos[ix], tfinal, x0)
-    # phi_c[ix] = collided_gauss_2D(rhos[ix], tfinal, x0)
+    phi_c[ix] = collided_gauss_2D_theta(rhos[ix], tfinal, x0)
     
     
 
-plt.figure(1)
-plt.plot(rhos, phi_u, "-o", mfc = 'none')
+plt.figure(3)
+# plt.plot(rhos, phi_u, "-o", mfc = 'none')
+# plt.plot(rhos, phi_c, "-^", mfc = 'none')
 plt.plot(rhos, phi_c + phi_u, "-s", mfc = 'none')
 
 
@@ -182,9 +203,13 @@ with open('2d_gaussian_IC_scalar_flux.txt', 'w') as f:
     for row in results:
         f.write("%s\n" % str(row))
         
-        
-phi = np.loadtxt('new_rho.dat', unpack = True)
-rhos = np.loadtxt('new_x.dat', unpack = True)
-plt.plot(rhos, phi, "-k")
+ 
+"""Minwoo's code"""
+phi_min = np.loadtxt('new_rho.dat', unpack = True)
+rhos_min = np.loadtxt('new_x.dat', unpack = True)
+plt.plot(rhos_min, phi_min, "--k")
 
+minwoos = interp(rhos_min, phi_min, kind = "cubic")
 
+RMS = np.sqrt(np.mean(((phi_c + phi_u) - minwoos(rhos))**2))
+print("RMS = ", RMS)

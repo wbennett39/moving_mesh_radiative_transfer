@@ -6,7 +6,7 @@ Created on Wed Mar 23 12:49:44 2022
 @author: bennett
 """
 from .benchmark_functions import F1, F1_spacefirst, find_intervals_time
-from .benchmark_functions import F_2D_gaussian_pulse
+# from .benchmark_functions import F_2D_gaussian_pulse
 import scipy.integrate as integrate
 import math
 import numpy as np
@@ -64,7 +64,8 @@ class collided_class:
         eta = (rho-s)/t
         omega_a = 0.0
         omega_b = math.sqrt(1-eta**2)
-        res = integrate.nquad(F_2D_gaussian_pulse, [[0, math.pi],[omega_a, omega_b]], args = (s, rho, t, self.x0), opts = [opts0, opts0])[0]
+        # res = integrate.nquad(F_2D_gaussian_pulse, [[0, math.pi],[omega_a, omega_b]], args = (s, rho, t, self.x0), opts = [opts0, opts0])[0]
+        res = 0
         return res
 
 

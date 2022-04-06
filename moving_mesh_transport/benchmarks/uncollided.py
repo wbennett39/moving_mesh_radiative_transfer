@@ -8,18 +8,20 @@ Created on Wed Mar 23 12:01:21 2022
 import math
 import scipy.integrate as integrate 
 from .benchmark_functions import uncollided_square_source, uncollided_square_IC, gaussian_source_integrand, uncollided_gauss_2D_integrand
-
+import numpy as np
 def opts0(*args, **kwargs):
        return {'limit':10000000}
    
 ###############################################################################
+
 class uncollided_class:
     
     def __init__(self, source_type, x0, t0):
         self.source_type = source_type
         self.x0 = x0
         self.t0 = t0
-    
+        
+       
     def plane_IC(self, xs, t):
         """ uncollided scalar flux for 1D plane pulse 
         """
@@ -68,14 +70,29 @@ class uncollided_class:
             temp[ix] = result
         return temp*sqrtpi/8.0  
     
+    def uncollided_gauss_2D_first_integral(self, v, x, y, t):
+        """ integrates the line source over s (x dummy variable)
+        """
+        sqrt_term = t**2 - v**2 + 2*v*y - y**2
+        res = 0.0
+        if sqrt_term >= 0:
+            a = x - math.sqrt(sqrt_term)
+            b = x + math.sqrt(sqrt_term)
+            
+            res = integrate.nquad(uncollided_gauss_2D_integrand, [[a, b]], args = (v, x, y, t), opts = [opts0])[0]
+        return res
+
+    def uncollided_gauss_2D_second_integral(self, x, y, t):
+        """ integrates the line source over v (y dummy variable)
+        """
+        res = integrate.nquad(self.uncollided_gauss_2D_first_integral, [[-np.inf, np.inf]], args = (x, y, t), opts = [opts0])[0]
+        return res
+    
     def gaussian_IC_2D(self, rhos, t):
         temp = rhos*0
         for ix in range(rhos.size):
             rho = rhos[ix]
-            b = rho + t
-            a = max(0.0, rho-t)
-            temp[ix] = integrate.nquad(uncollided_gauss_2D_integrand, [[a, b]], args = (rho, t, self.x0), opts = [opts0])[0]
-        
+            temp[ix] = self.uncollided_gauss_2D_second_integral(rho, 0, t)
         return temp
     
     def __call__(self, xs, t):
@@ -91,3 +108,10 @@ class uncollided_class:
             return self.gaussian_source(xs, t)
         elif self.source_type == 'gaussian_IC_2D':
             return self.gaussian_IC_2D(xs, t)
+        
+        
+        
+        
+        
+        
+        

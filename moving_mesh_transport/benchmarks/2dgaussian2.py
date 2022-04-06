@@ -25,7 +25,7 @@ def jit_F1(integrand_function):
     return LowLevelCallable(wrapped.ctypes)
 
 def opts0(*args, **kwargs):
-       return {'limit':100000000}
+       return {'limit':2}
 @njit 
 def point_collided(u, r, t):
     eta = r/t
@@ -45,7 +45,7 @@ def point_collided(u, r, t):
     return result 
 
 @njit
-def eta_func(x, s, y, v):
+def eta_func_2d_gauss_cartesian(x, s, y, v):
     res = (x-s)**2 + (y-v)**2
     return math.sqrt(res)
 
@@ -60,7 +60,7 @@ def F_2D_gaussian_pulse(args):
     t = args[6]
     x0 = args[7]
     
-    eta = eta = eta_func(x, s, y, v)
+    eta = eta = eta_func_2d_gauss_cartesian(x, s, y, v)
     
     if eta < 1:
         r_arg = t * math.sqrt(eta**2 + omega**2)
@@ -74,7 +74,7 @@ def F_2D_gaussian_pulse(args):
 
 def integrand(s, v, x, y, t):
     res = 0.0
-    eta = eta_func(x, s, y, v)
+    eta = eta_func_2d_gauss_cartesian(x, s, y, v)
     if eta < 1:
         ft = math.exp(-t)/2/math.pi/t/t
         garg = -(s**2 + v**2)/0.5**2
@@ -101,7 +101,7 @@ def gaussian_pulse_2D_double_integral(s, v, x, y, t, x0):
     """ integrates over omega, and u
     """
     res = 0.0
-    eta = eta = eta_func(x, s, y, v)
+    eta = eta = eta_func_2d_gauss_cartesian(x, s, y, v)
     omega_a = 0
     if eta < 1:
         omega_b = math.sqrt(1-eta**2)
@@ -141,6 +141,7 @@ def solve(tfinal, pnts):
     phi_c = xs*0
     for ix in range(xs.size):
         print(ix)
+        print("x = ", xs[ix])
         phi_u[ix] = greens_solution_second_integral(xs[ix], y, tfinal)
         phi_c[ix] = collided_gauss_2D(xs[ix], y, tfinal, 0.5)
     plt.plot(xs, phi_u, "-o")
@@ -148,4 +149,8 @@ def solve(tfinal, pnts):
     plt.plot(xs, phi_u + phi_c, "-^")
     plt.show()
     
-solve(1, 5)
+solve(1, 25)
+
+
+
+
