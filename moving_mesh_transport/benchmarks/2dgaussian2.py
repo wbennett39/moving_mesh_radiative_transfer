@@ -136,7 +136,7 @@ def collided_gauss_2D(x, y, t, x0):
 ################################################################################
 def solve(tfinal, pnts):
     y = 0
-    xs = np.linspace(0, tfinal + 2.0 , pnts)
+    xs = np.linspace(0, tfinal + 1  , pnts)
     phi_u = xs*0
     phi_c = xs*0
     for ix in range(xs.size):

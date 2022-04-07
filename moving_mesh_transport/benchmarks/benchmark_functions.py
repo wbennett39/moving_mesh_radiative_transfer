@@ -355,18 +355,18 @@ def F1_2D_gaussian_pulse(args):
     else: 
         return 0 
     
-############################## 2D functions####################################
+############################## 2D functions ###################################
 @njit
-def eta_func_2d_gauss_cartesian(x, s, y, v):
+def eta_func_2d_gauss_cartesian(x, s, y, v, t):
     res = (x-s)**2 + (y-v)**2
-    return math.sqrt(res)
+    return math.sqrt(res)/t
 
 def uncollided_gauss_2D_integrand(s, v, x, y, t):
     res = 0.0
-    eta = eta_func_2d_gauss_cartesian(x, s, y, v)
+    eta = eta_func_2d_gauss_cartesian(x, s, y, v, t)
     if eta < 1:
         ft = math.exp(-t)/2/math.pi/t/t
-        garg = -(s**2 + v**2)/0.5**2
+        garg = -(s**2 + v**2)/0.5**2  # should make this variable x0
         gt = math.exp(garg)
         res = ft / math.sqrt(1-eta**2) * gt  
     return res

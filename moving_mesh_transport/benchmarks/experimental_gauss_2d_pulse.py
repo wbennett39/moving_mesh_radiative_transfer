@@ -159,7 +159,7 @@ def collided_gauss_2D_theta(rho, t, x0):
 
 x0 = 0.5
 tfinal = 1
-pnts = 5
+pnts = 15
 
 rhos = np.linspace(0, tfinal + 1, pnts)
 # rhos = np.linspace(0, tfinal, pnts)
@@ -205,9 +205,9 @@ with open('2d_gaussian_IC_scalar_flux.txt', 'w') as f:
         
  
 """Minwoo's code"""
-phi_min = np.loadtxt('new_rho.dat', unpack = True)
-rhos_min = np.loadtxt('new_x.dat', unpack = True)
-plt.plot(rhos_min, phi_min, "--k")
+phi_min = np.loadtxt('cut_rho200_p99.dat', unpack = True)
+rhos_min = np.loadtxt('cut_x200.dat', unpack = True)
+plt.plot(rhos_min, phi_min, "-k")
 
 minwoos = interp(rhos_min, phi_min, kind = "cubic")
 
