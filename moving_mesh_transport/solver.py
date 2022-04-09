@@ -198,6 +198,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     t_nodes = int(parameters['all']['tnodes'])
     rt = float(parameters['all']['rt'])
     at = float(parameters['all']['at'])
+    t0 = float(parameters['all']['t0'])
     
     N_angles = np.array(parameters[source_name]['N_angles'])
     x0 = float(parameters[source_name]['x0'])
@@ -239,7 +240,8 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             ws_quad = quadpy.c1.gauss_legendre(M+2).weights
             t_quad = quadpy.c1.gauss_legendre(t_nodes).points
             t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
-            initialize = build(N_ang, N_space, M, tfinal, x0, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws)
+            initialize = build(N_ang, N_space, M, tfinal, x0, t0, mus, ws, xs_quad,
+                               ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws)
             initialize.make_IC()
             IC = initialize.IC
             mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
@@ -249,6 +251,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             uncollided_sol = uncollided_solution(initialize)
             flux = scalar_flux(initialize)
             rhs = rhs_class(initialize)
+            
             def RHS(t, V):
                 return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux)
             
@@ -264,9 +267,10 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
             phi = output.make_phi(uncollided_sol)
             
-            benchmark_solution = benchmark(np.abs(xs))
+            benchmark_solution = benchmark(np.abs(xs))[0]
             RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
             RMS_list.append(RMS)
+            
             print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")
             print("RMSE", RMS)
             if count > 0:

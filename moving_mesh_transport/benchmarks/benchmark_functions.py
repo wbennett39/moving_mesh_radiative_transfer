@@ -151,7 +151,7 @@ def check_gaussian_tail(phi, tol):
     for count, val in enumerate(phi):
         if phi[count] < tol:
             index = count
-            
+            print(index)
             break
         
     if index == 0 and phi[-1] > tol :

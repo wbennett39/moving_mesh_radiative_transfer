@@ -62,7 +62,7 @@ class source_class(object):
         self.ws_quad = build.ws_quad
         self.moving = build.moving
         self.tfinal = build.tfinal
-        self.t0 = self.tfinal
+        self.t0 = build.t0
     
     def integrate_quad(self, t, a, b, j, func):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2

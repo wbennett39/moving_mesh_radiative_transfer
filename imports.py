@@ -1,1 +1,1 @@
-# imports functions to run package from terminal import moving_mesh_transport as mmtfrom moving_mesh_transport.benchmarks import integrate_greens as intgfrom moving_mesh_transport.plots import plotting_script as plotterfrom moving_mesh_transport import solver
+# imports functions to run package from terminal from moving_mesh_transport.benchmarks import integrate_greens as intgfrom moving_mesh_transport.plots import plotting_script as plotterfrom moving_mesh_transport import solverimport matplotlib.pyplot as plt
