@@ -48,7 +48,7 @@ class uncollided_solution(object):
         self.ws_quad = build.ws_quad
         self.moving = build.moving
         self.tfinal = build.tfinal
-        self.t0 = self.tfinal
+        self.t0 = build.t0
         self.sqs_interval_1 = 0.0
         self.sqs_interval_2 = 0.0
         self.sqs_interval_3 = 0.0
@@ -59,6 +59,8 @@ class uncollided_solution(object):
 ###############################################################################
         
     def integrate_quad_gaussian_source(self, t, x, a, b, func):
+        """ integrates the gaussian source over tau from 0 to min(t,t0)
+        """
         argument = (b-a)/2 * self.t_quad + (a+b)/2
         return(b-a)/2 * np.sum(self.t_ws * func(argument, t, x)) 
         
@@ -79,9 +81,10 @@ class uncollided_solution(object):
     def gaussian_source_uncollided_solution(self, xs, t):
         temp = xs*0
         sqrtpi = math.sqrt(math.pi)
+        t_ceiling = min(t,self.t0)
         for ix in range(xs.size):
             x = xs[ix]
-            result = self.integrate_quad_gaussian_source(t, x, 0.0, t, self.gaussian_source_integrand)
+            result = self.integrate_quad_gaussian_source(t, x, 0.0, t_ceiling, self.gaussian_source_integrand)
             temp[ix] = result
         return temp*sqrtpi/8.0  
     
