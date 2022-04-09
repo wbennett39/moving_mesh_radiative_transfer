@@ -94,11 +94,12 @@ class rms_plotter:
         plt.xlabel("x")
         plt.ylabel("scalar flux")
         file_path_string = str(self.plot_file_path) + "/" + "benchmark_plots"
+        npnts = 10000
         if source_name == "plane_IC":
             source_type = np.array([1,0,0,0,0,0,0])
             x0 = 1e-11
             bench = load_bench(source_type, tfinal, x0)
-            xs = np.linspace(0, tfinal)
+            xs = np.linspace(0, tfinal, npnts)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
             interp_bench2 = np.append(interp_bench, np.array([0.0]))
@@ -116,7 +117,7 @@ class rms_plotter:
             source_type = np.array([0,1,0,0,0,0,0])
             x0 = 0.5
             bench = load_bench(source_type, tfinal, x0)
-            xs = np.linspace(0, tfinal + x0)
+            xs = np.linspace(0, tfinal + x0, npnts)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
             plt.plot(xs, interp_bench, "-k")
@@ -130,12 +131,12 @@ class rms_plotter:
             source_type = np.array([0,0,1,0,0,0,0])
             x0 = 0.5
             bench = load_bench(source_type, tfinal, x0)
-            xs = np.linspace(0, tfinal + x0)
+            xs = np.linspace(0, tfinal + x0, npnts)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
-            if tfinal == 1 or tfinal ==5:
+            if tfinal == 1 or tfinal == 5:
                 plt.plot(xs, uncol, "--k")
                 plt.plot(-xs, uncol, "--k")
             show(file_path_string + f"/square_source_t_{tfinal}_benchmark")
@@ -144,7 +145,12 @@ class rms_plotter:
             source_type = np.array([0,0,0,1,0,0,0])
             x0 = 4
             bench = load_bench(source_type, tfinal, x0)
-            xs = np.linspace(0, tfinal + x0)
+            if tfinal == 1:
+                xs = np.linspace(0, 3.0, npnts)
+            elif tfinal == 5:
+                xs= np.linspace(0, 5.0, npnts)
+            elif tfinal == 10:
+                xs = np.linspace(0, 100.0, npnts)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
             if tfinal == 1:
@@ -157,10 +163,15 @@ class rms_plotter:
             source_type = np.array([0,0,0,0,0,1,0])
             x0 = 4
             bench = load_bench(source_type, tfinal, x0)
-            xs = np.linspace(0, tfinal + x0)
+            if tfinal == 1:
+                xs = np.linspace(0,3.0,npnts)
+            elif tfinal == 5:
+                xs = np.linspace(0, 5.0,npnts)
+            elif tfinal == 10:
+                xs = np.linspace(0, 8.0,npnts)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
-            if tfinal == 1 or tfinal ==5:
+            if tfinal == 1 or tfinal == 5:
                 plt.plot(xs, uncol, "--k")
                 plt.plot(-xs, uncol, "--k")
             plt.plot(xs, interp_bench, "-k")
@@ -170,7 +181,7 @@ class rms_plotter:
             source_type = np.array([0,0,0,0,1,0,0])
             x0 = 4
             bench = load_bench(source_type, tfinal, x0)
-            xs = np.linspace(0, tfinal + x0)
+            xs = np.linspace(0, tfinal + x0, npnts)
             interp_bench = bench(xs)
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
@@ -178,11 +189,10 @@ class rms_plotter:
         elif source_name == "gaussian_IC_2D":
             source_type = np.array([0,0,0,0,0,0,1])
             x0 = 0.5
-            xs = np.linspace(0, tfinal + 1/x0)
+            xs = np.linspace(0, tfinal + 1/x0, npnts)
             bench = load_bench(source_type, tfinal, x0)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
-            xs = np.linspace(0, tfinal + 1/x0)
             if tfinal == 1:
                 plt.plot(xs, uncol, "--k")
             plt.plot(xs, interp_bench, "-k")

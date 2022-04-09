@@ -138,13 +138,26 @@ def gaussian_source_integrand(tau, t, x):
 #         res = 0
 #     return res
 ##################functions for integrating sources############################
-def find_intervals_time(t, x, s):
+def find_intervals_time(t, t0, x, s):
     a = 0 
-    b = min(t, t - abs(x-s))
+    b = min(t, t0, t - abs(x-s))
     if b < 0:
         b = 0
     return [a,b]
 
+################ solution checking functions ##################################
+def check_gaussian_tail(phi, tol):
+    index = 0
+    for count, val in enumerate(phi):
+        if phi[count] < tol:
+            index = count
+            
+            break
+        
+    if index == 0 and phi[-1] > tol :
+        print("solution is not sufficiently small. Extend evaluation interval The solution at the edge is ", phi[-1])
+    return index
+        
 ############# low level callable functions ####################################
 def jit_F1(integrand_function):
     jitted_function = numba.jit(integrand_function, nopython=True)

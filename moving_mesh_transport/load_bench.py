@@ -31,6 +31,7 @@ class load_bench:
         self.x0 = x0
         if source_name == "MMS":
             self.ask_for_bench = False
+            self.xs = np.linspace(0, tfinal + 1/10)
         if tfinal == 1.0:
             self.t_string_index = 0
         elif tfinal == 5.0:
@@ -42,14 +43,39 @@ class load_bench:
             
         if self.ask_for_bench == True:
             tstring = self.t_eval_str[self.t_string_index]
-            self.solution = f[source_name][tstring]
-            self.interpolated_solution = interp1d(self.solution[0], self.solution[1], kind = "cubic")
-            self.interpolated_uncollided_solution = interp1d(self.solution[0], self.solution[2], kind = "cubic")
+            self.solution_dataset = f[source_name][tstring]
+            self.xs = self.solution_dataset[0]
+            self.phi = self.solution_dataset[1]
+            self.phi_u = self.solution_dataset[2]
+            
+            self.interpolated_solution = interp1d(self.xs, self.phi, kind = "cubic")
+            self.interpolated_uncollided_solution = interp1d(self.xs, self.phi_u, kind = "cubic")
             
         f.close()
+    def stich_solution(self, xs):
+        """ if an answer is requested outside of the solution interval, adds 
+            zeros to the edge of the interpolated solution
+        """
+        stiched_solution = xs*0
+        stiched_uncollided_solution = xs*0
+        original_xs = self.xs
+        edge_of_interpolated_sol = original_xs[-1]
+        edge_index = np.argmin(np.abs(xs-edge_of_interpolated_sol))
+        stiched_solution[0:edge_index] = self.interpolated_solution(xs)
+        stiched_uncollided_solution[0:edge_index] = self.interpolated_uncollided_solution(xs)
+        
+        return [stiched_solution, stiched_uncollided_solution]
+    
     def __call__(self, xs):
-        if self.ask_for_bench == True:
+        original_xs = self.xs
+        if xs[-1] > original_xs[-1]:
+            beyond_solution_domain = True
+        else:
+            beyond_solution_domain = False
+        if (self.ask_for_bench == True) and (beyond_solution_domain == False):
             return [self.interpolated_solution(xs), self.interpolated_uncollided_solution(xs)]
+        elif (self.ask_for_bench == True) and (beyond_solution_domain == True):
+            return self.stich_solution(xs)
         elif self.ask_for_bench == False and self.source_type[4] == 1:
             return np.exp(-xs*xs/2)/(1+self.tfinal) * np.heaviside(self.tfinal - np.abs(xs) + self.x0, 1)
         else:
