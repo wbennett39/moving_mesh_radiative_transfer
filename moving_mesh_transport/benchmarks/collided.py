@@ -53,15 +53,19 @@ class collided_class:
     
     def gaussian_IC(self, xs, t):
         temp = xs*0
-        s_interval = [-np.inf, np.inf]
+        # s_interval = [-np.inf, np.inf]
+        
         for ix in range(xs.size):
+            s_interval = [xs[ix]-t, xs[ix]+t]
             temp[ix] = integrate.nquad(F1, [[0, math.pi], s_interval], args =  (0.0, xs[ix], t, 1), opts = [opts0, opts1])[0]
         return temp
 
     def gaussian_source(self, xs, t):
         temp = xs*0
         for ix in range(xs.size):
-            temp[ix] = integrate.nquad(self.source_double_integral_time, [[-np.inf, np.inf]], args = (xs[ix], t, self.t0, 1), opts = [opts2])[0]
+            s_interval = [xs[ix]-t, xs[ix]+t]
+            # s_interval = [-np.inf, np.inf]
+            temp[ix] = integrate.nquad(self.source_double_integral_time, [s_interval], args = (xs[ix], t, self.t0, 1), opts = [opts2])[0]
         return temp
     
     

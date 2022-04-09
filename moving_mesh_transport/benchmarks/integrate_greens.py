@@ -52,7 +52,7 @@ def gaussian_IC_2D(t, npnts):
     bench_class.plot(fign)
     
     
-def do_all(npnts = [5000, 5000, 5000, 250, 350, 250]):
+def do_all(npnts = [5000, 5000, 5000, 5000, 5000, 500]):
     plane_IC(1, npnts[0])
     plane_IC(5, npnts[0])
     plane_IC(10, npnts[0])
