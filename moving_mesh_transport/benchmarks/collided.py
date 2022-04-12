@@ -8,6 +8,7 @@ Created on Wed Mar 23 12:49:44 2022
 from .benchmark_functions import F1, F1_spacefirst, find_intervals_time
 from .benchmark_functions import F1_2D_gaussian_pulse,F2_2D_gaussian_pulse
 from .benchmark_functions import find_intervals_2D_gaussian_s
+from .benchmark_functions import F_line_source_1,  F_line_source_2
 import scipy.integrate as integrate
 import math
 import numpy as np
@@ -109,7 +110,22 @@ class collided_class:
         res = integrate.nquad(self.collided_gauss_2D_s, [[0, math.pi*2]], args = (rho, t, x0), opts = [opts0])[0]
         
         return res
-
+    
+    def F_line_source_2_first_integral(self, u, rho, t):
+        eta = rho/t
+        res = 0.0
+        if eta <1:
+            omega_b = omega_b = math.sqrt(1-eta**2)
+            res = integrate.nquad(F_line_source_2, [[0, omega_b]], args = (u, rho, t), opts = [opts0])[0]
+        return res
+    
+    def collided_line_source(self, rho, t):
+        
+        res1  = integrate.nquad(self.F_line_source_2_first_integral, [[0, math.pi]], args = (rho, t), opts = [opts0])[0]
+        res2 = integrate.nquad(F_line_source_1, [[0, math.pi]], args = (rho, t), opts = [opts0])[0]
+        
+        return res1 + res2
+    
     def gaussian_IC_2D(self, rhos, t):
         # standard deviation is not set with this one, varies with x0
         # multiply integrand by s?
@@ -117,6 +133,14 @@ class collided_class:
         for ix in range(rhos.size):
             rho = rhos[ix]
             temp[ix] = self.collided_gauss_2D_theta(rho, t, self.x0)
+        return temp
+    
+    
+    def line_source(self, rhos, t):
+        temp = rhos*0
+        for ix in range(rhos.size):
+            rho = rhos[ix]
+            temp[ix] = self.collided_line_source(rho, t)
         return temp
     
     def __call__(self, xs, t):
@@ -132,4 +156,6 @@ class collided_class:
             return self.gaussian_source(xs, t)
         elif self.source_type == 'gaussian_IC_2D':
             return self.gaussian_IC_2D(xs, t)
+        elif self.source_type == "line_source":
+            return self.line_source(xs, t)
         

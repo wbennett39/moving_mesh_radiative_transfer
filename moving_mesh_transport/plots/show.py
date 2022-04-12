@@ -26,6 +26,10 @@ import csv
 
 # font = fm.FontProperties(family = 'Gill Sans', fname = '/users/wbenn/Anaconda3/Library/Fonts/GillSans.ttc', size = 20)
 # axisfont = fm.FontProperties(family = 'Gill Sans', fname = '/users/wbenn/Anaconda3/Library/Fonts/GillSans.ttc', size = 14)
+axisfont = fm.FontProperties(size = 30)
+font = fm.FontProperties(size = 30)
+
+
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 def hide_spines(intx=False,inty=False):
@@ -46,11 +50,11 @@ def hide_spines(intx=False,inty=False):
             ax.xaxis.set_ticks_position('bottom')
             ax.yaxis.set_ticks_position('left')
            # ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("10$^{%d}$" % math.log(v,10)) ))
-#             for label in ax.get_xticklabels() :
-#                 label.set_fontproperties(font)
-#             for label in ax.get_yticklabels() :
-#                 label.set_fontproperties(font)
-            #ax.set_xticklabels(ax.get_xticks(), fontproperties = font)
+            for label in ax.get_xticklabels() :
+                label.set_fontproperties(font)
+            for label in ax.get_yticklabels() :
+                label.set_fontproperties(font)
+            # ax.set_xticklabels(ax.get_xticks(), fontproperties = font)
             ax.set_xlabel(ax.get_xlabel() )
             ax.set_ylabel(ax.get_ylabel())
             ax.set_title(ax.get_title())
@@ -60,6 +64,10 @@ def hide_spines(intx=False,inty=False):
                 ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%d'))
 def show(nm,a=0,b=0):
     hide_spines(a,b)
+    plt.locator_params(axis = 'x', nbins=4)
+    plt.locator_params(axis = 'y', nbins=4)
+    
+    
     #ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("10$^{%d}$" % math.log(v,10)) ))
     #plt.yticks([1,1e-2,1e-4,1e-6,1e-8,1e-10,1e-12], labels)
     #ax.yaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("10$^{%d}$" % math.log(v,10)) ))

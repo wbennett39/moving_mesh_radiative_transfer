@@ -50,9 +50,16 @@ def gaussian_IC_2D(t, npnts):
     bench_class.integrate(t, npnts)
     bench_class.save()
     bench_class.plot(fign)
+
+def line_source(t, npnts):
+    fign = 6
+    bench_class = make_benchmark("line_source", 0.5, 1e-16)
+    bench_class.integrate(t, npnts)
+    bench_class.save()
+    bench_class.plot(fign)
     
     
-def do_all(npnts = [5000, 5000, 5000, 5000, 5000, 500]):
+def do_all(npnts = [5000, 5000, 5000, 5000, 5000, 250, 500]):
     plane_IC(1, npnts[0])
     plane_IC(5, npnts[0])
     plane_IC(10, npnts[0])
@@ -77,4 +84,8 @@ def do_all(npnts = [5000, 5000, 5000, 5000, 5000, 500]):
     gaussian_IC_2D(5, npnts[5])
     gaussian_IC_2D(10, npnts[5])
     print("gaussian IC 2D finished")
+    line_source(1, npnts[6])
+    line_source(5, npnts[6])
+    line_source(10, npnts[6])
+    print("line source finished")
     

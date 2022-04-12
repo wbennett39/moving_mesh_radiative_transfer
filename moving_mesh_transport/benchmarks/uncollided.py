@@ -95,6 +95,13 @@ class uncollided_class:
             temp[ix] = self.uncollided_gauss_2D_second_integral(rho, 0, t)
         return temp
     
+    def line_source(self, rhos, t):
+        temp = rhos*0
+        for ix in range(rhos.size):
+            rho = rhos[ix]
+            temp[ix] = uncollided_gauss_2D_integrand(0, 0, rho, 0, t)
+        return temp
+    
     def __call__(self, xs, t):
         if self.source_type == 'plane_IC':
             return self.plane_IC(xs, t)
@@ -108,6 +115,8 @@ class uncollided_class:
             return self.gaussian_source(xs, t)
         elif self.source_type == 'gaussian_IC_2D':
             return self.gaussian_IC_2D(xs, t)
+        elif self.source_type == "line_source":
+            return self.line_source(xs, t)
         
         
         

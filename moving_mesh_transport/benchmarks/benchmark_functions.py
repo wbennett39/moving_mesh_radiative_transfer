@@ -151,7 +151,6 @@ def check_gaussian_tail(phi, tol):
     for count, val in enumerate(phi):
         if phi[count] < tol:
             index = count
-            print(index)
             break
         
     if index == 0 and phi[-1] > tol :
@@ -323,6 +322,37 @@ def point_collided_1(r,t):
     return result 
 
 @jit_F1
+def F_line_source_2(args):
+    omega = args[0]
+    u = args[1]
+    r = args[2]
+    t = args[3]
+    
+    eta = r/t
+    
+    if eta < 1:
+        r_arg = t * math.sqrt(eta**2 + omega**2)
+        
+        return 2 * t * point_collided_2(u, r_arg, t)
+    else:
+        return 0.0
+@jit_F1
+def F_line_source_1(args):
+    omega = args[0]
+    r = args[1]
+    t = args[2]
+    
+    eta = r/t
+    
+    if eta < 1:
+        r_arg = t * math.sqrt(eta**2 + omega**2)
+        
+        return 2 * t * point_collided_1(r_arg, t)
+    else:
+        return 0.0
+    
+
+@jit_F1
 def F2_2D_gaussian_pulse(args):
     u = args[0]
     omega = args[1]
@@ -403,7 +433,7 @@ def find_intervals_2D_gaussian_s(r, t, theta, thetap):
 def make_benchmark_file_structure():
     data_folder = Path("moving_mesh_transport/benchmarks")
     bench_file_path = data_folder / 'benchmarks.hdf5'
-    source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 'gaussian_source', 'gaussian_IC_2D']
+    source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 'gaussian_source', 'gaussian_IC_2D', 'line_source']
     
     f = h5py.File(bench_file_path, "a")
     
