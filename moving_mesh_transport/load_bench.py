@@ -97,7 +97,7 @@ class load_bench:
             elif (beyond_solution_domain == True):
                 return self.stich_solution(xs)
         elif self.ask_for_bench == False and self.source_type[4] == 1:
-            return np.exp(-xs*xs/2)/(1+self.tfinal) * np.heaviside(self.tfinal - np.abs(xs) + self.x0, 1)
+            return [np.exp(-xs*xs/2)/(1+self.tfinal) * np.heaviside(self.tfinal - np.abs(xs) + self.x0, 1),0]
         else:
             return xs * 0
         

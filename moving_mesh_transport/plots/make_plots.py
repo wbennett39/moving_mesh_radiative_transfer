@@ -186,7 +186,7 @@ class rms_plotter:
             interp_bench = bench(xs)
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
-            show(file_path_string + f"MMS_t_{tfinal}_benchmark")
+            show(file_path_string + f"/MMS_t_{tfinal}_benchmark")
         elif source_name == "gaussian_IC_2D":
             plt.xlabel("r", fontsize = fntsize)
             source_type = np.array([0,0,0,0,0,0,1,0])
