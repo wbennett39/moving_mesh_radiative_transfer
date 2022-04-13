@@ -15,7 +15,7 @@ import numpy as np
 ###############################################################################
 
 def opts0(*args, **kwargs):
-       return {'limit':10000000}
+       return {'limit':100000000, 'epsabs':1.5e-12, 'epsrel':1.5e-12}
 def opts1(*args, **kwargs):
        return {'limit':10000000}
 def opts2(*args, **kwargs):
@@ -43,7 +43,7 @@ class collided_class:
         """ source function for the gaussian source and the square source (1-gaussian, 0-square)
         """
         ab = find_intervals_time(t, t0, x, s)
-        solution = integrate.nquad(F1_spacefirst, [[0, math.pi], [ab[0],ab[1]]], args =  (s, x, t, source), opts = [opts0, opts1])[0]
+        solution = integrate.nquad(F1_spacefirst, [[0, math.pi], [ab[0],ab[1]]], args =  (s, x, t, source), opts = [opts0, opts0])[0]
         return solution
         
     def square_source(self, xs, t):
@@ -58,7 +58,7 @@ class collided_class:
         
         for ix in range(xs.size):
             s_interval = [xs[ix]-t, xs[ix]+t]
-            temp[ix] = integrate.nquad(F1, [[0, math.pi], s_interval], args =  (0.0, xs[ix], t, 1), opts = [opts0, opts1])[0]
+            temp[ix] = integrate.nquad(F1, [[0, math.pi], s_interval], args =  (0.0, xs[ix], t, 1), opts = [opts0, opts0])[0]
         return temp
 
     def gaussian_source(self, xs, t):

@@ -59,7 +59,7 @@ def line_source(t, npnts):
     bench_class.plot(fign)
     
     
-def do_all(npnts = [5000, 5000, 5000, 5000, 5000, 250, 500]):
+def do_all(npnts = [5000, 5000, 10000, 5000, 5000, 250, 500]):
     plane_IC(1, npnts[0])
     plane_IC(5, npnts[0])
     plane_IC(10, npnts[0])

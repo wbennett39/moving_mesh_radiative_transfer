@@ -11,7 +11,9 @@ import h5py
 from pathlib import Path
 from ..load_bench import load_bench
 import numpy as np
-from .show import show
+from .plot_functions.show import show
+from .plot_functions.show_loglog import show_loglog
+from .plot_functions.sn_labels import logplot_sn_labels
 
 class rms_plotter:
     
@@ -68,11 +70,16 @@ class rms_plotter:
         plt.figure(fign)
         if clear == True:
             plt.clf()
+        if self.uncollided == True and self.moving == True or self.source_name == "MMS" and self.M == 4:
+            logplot_sn_labels(self.cells, self.RMS, self.angles, 1e-7, fign )
         plt.xlabel("cells")
         plt.ylabel("RMSE")
         plt.title(f"{self.source_name} t = {self.tfinal}")
         plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
-        plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
+        
+        # plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
+        file_path_string = str(self.plot_file_path) + '/' + f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells"
+        show_loglog(file_path_string)
         plt.show(block = False)
         
     def plot_RMS_vs_times(self, fign = 1, clear = False):
