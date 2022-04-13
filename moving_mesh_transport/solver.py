@@ -157,10 +157,10 @@ def run_MMS(uncollided = False, moving = True):
     plt.show(block = False)
     
 def run_all():
-    # run_plane_IC(True, True)
-    # run_plane_IC(True, False)
-    # run_plane_IC(False, True)        # this doesn't converge
-    # run_plane_IC(False, False)
+    run_plane_IC(True, True)
+    run_plane_IC(True, False)
+    run_plane_IC(False, True)        # this doesn't converge
+    run_plane_IC(False, False)
     
     run_square_IC(True, True)
     run_square_IC(True, False)
@@ -228,12 +228,14 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     print("---  ---  ---  ---  ---  ---  ---")
     for nr in range(N_runs):
         for count, N_space in enumerate(N_spaces):
+            if source_type[3] == 1 and N_space >= 32:
+                x0 += 1
             sigma_t = np.ones(N_space)
             sigma_s = np.ones(N_space)
             M = Ms[0]
             N_ang = N_angles[count]
-            if source_type[0] == 1 and uncollided == False and moving == True:
-                x0 = x0s[count]/N_space
+            # if source_type[0] == 1 and uncollided == False and moving == True:
+            #     x0 = x0s[count]/N_space
             mus = quadpy.c1.gauss_lobatto(N_ang).points
             ws = quadpy.c1.gauss_lobatto(N_ang).weights
             xs_quad = quadpy.c1.gauss_legendre(M+2).points
@@ -261,6 +263,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             r_times[nr] += (end-start)/N_runs
             sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
             mesh.move(tfinal)
+            print(mesh.edges)
             edges = mesh.edges
             
             xs = find_nodes(edges, M)

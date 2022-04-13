@@ -55,7 +55,7 @@ class uncollided_class:
         sqrtpi = math.sqrt(math.pi)
         for ix in range(xs.size):
             xx = xs[ix]
-            temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t-2*xx) + math.erf(2*t+2*xx))/(8.0 * t + 1e-12)
+            temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t-2*xx) + math.erf(2*t+2*xx))/(8.0 * t + 1e-14)
         return temp 
     
     def gaussian_source(self, xs, t):

@@ -204,14 +204,14 @@ def F1(args):
         q = (1+eta)/(1-eta)
         zz = np.tan(u/2)
         xi = (np.log(q) + u*1j)/(eta + zz*1j)
-        if abs(xi.real) < 1e-15:
-            xi = 0.0 + xi.imag
-        if abs(xi.imag) < 1e-15:
-            xi = xi.real + 0.0*1j
+        # if abs(xi.real) < 1e-16:
+        #     xi = 0.0 + xi.imag
+        # if abs(xi.imag) < 1e-16:
+        #     xi = xi.real + 0.0*1j
         
         complex_term = np.exp(tp*((1 - eta**2)*xi/2.))*xi**2
 
-        res = (1/np.cos(u/2.0))**2*complex_term.real * (1/math.pi/8) * (1 - eta**2) * math.exp(-tp) * source(s, source_type)
+        res = (1/np.cos(u/2.0))**2*complex_term.real * (1/math.pi/8.0) * (1 - eta**2) * math.exp(-tp) * source(s, source_type)
     
         return res
     

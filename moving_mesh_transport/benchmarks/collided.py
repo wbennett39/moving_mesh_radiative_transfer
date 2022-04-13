@@ -15,7 +15,7 @@ import numpy as np
 ###############################################################################
 
 def opts0(*args, **kwargs):
-       return {'limit':100000000, 'epsabs':1.5e-12, 'epsrel':1.5e-12}
+       return {'limit':100000000, 'epsabs':1.5e-8, 'epsrel':1.5e-8}
 def opts1(*args, **kwargs):
        return {'limit':10000000}
 def opts2(*args, **kwargs):
