@@ -158,20 +158,20 @@ def run_MMS(uncollided = False, moving = True):
     plt.show(block = False)
     
 def run_all():
-    # run_plane_IC(True, True)
-    # run_plane_IC(True, False)
+    run_plane_IC(True, True)
+    run_plane_IC(True, False)
     # run_plane_IC(False, True)        # this doesn't converge
-    # run_plane_IC(False, False)
+    run_plane_IC(False, False)
     
-    # run_square_IC(True, True)
-    # run_square_IC(True, False)
-    # run_square_IC(False, True)
-    # run_square_IC(False, False)
+    run_square_IC(True, True)
+    run_square_IC(True, False)
+    run_square_IC(False, True)
+    run_square_IC(False, False)
     
-    # run_square_source(True, True)
-    # run_square_source(True, False)
-    # run_square_source(False, True)
-    # run_square_source(False, False)
+    run_square_source(True, True)
+    run_square_source(True, False)
+    run_square_source(False, True)
+    run_square_source(False, False)
     
     run_gaussian_IC(True, True)
     run_gaussian_IC(True, False)
@@ -208,7 +208,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     
     
     r_times = np.zeros(len(N_angles))
-    RMS_list = []
+    RMS_list = np.zeros(len(N_angles))
     x0s = np.ones(4)*x0
     
     saving = save_output(tfinal, Ms[0], source_type, moving, uncollided)
@@ -272,7 +272,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             
             benchmark_solution = benchmark(np.abs(xs))[0]
             RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
-            RMS_list.append(RMS)
+            RMS_list[count] = RMS
             
             print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")
             print("RMSE", RMS)

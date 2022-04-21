@@ -13,7 +13,7 @@ from ..load_bench import load_bench
 import numpy as np
 from .plot_functions.show import show
 from .plot_functions.show_loglog import show_loglog
-from .plot_functions.sn_labels import logplot_sn_labels
+from .plot_functions.sn_labels import logplot_sn_labels,logplot_sn_labels_2
 from scipy.stats import linregress 
 from .plot_functions.order_triangle import order_triangle
 
@@ -149,8 +149,8 @@ class rms_plotter:
         
         if  (self.source_name != 'gaussian_IC' and self.source_name != 'gaussian_s') and (self.uncollided == False and self.moving == False or self.source_name == "MMS" and self.M == 4):
             logplot_sn_labels(self.cells, self.RMS, self.angles, 0.3, fign )
-            
-        
+        elif (self.source_name == 'gaussian_IC' or self.source_name == 'gaussian_s') and (self.uncollided == False and self.moving == False):     
+            logplot_sn_labels_2(self.cells, self.RMS, self.angles, 0.5, fign )
         # plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
         file_path_string = str(self.plot_file_path) + '/' + f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells"
         show_loglog(file_path_string, xlimleft, xlimright)
@@ -173,7 +173,7 @@ class rms_plotter:
         plt.title(f"{self.source_name} t = {self.tfinal}")
         print(self.times)
         plt.loglog(self.times, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
-        plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_times_vs_cells.pdf")
+        plt.savefig(self.plot_file_path / f"{self.source_name}_t={self.tfinal}_times_vs_cells.pdf")
         plt.show(block = False)
         
     def plot_bench(self, tfinal, source_name, fign):

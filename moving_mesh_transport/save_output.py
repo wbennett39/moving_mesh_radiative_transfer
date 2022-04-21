@@ -43,12 +43,11 @@ class save_output:
         
     def save_RMS(self, RMS_list, N_spaces, N_angles, r_times):
         print("###############")
-        print("saving", self.source_name )
         print("###############")
-        if self.tfinal == any(self.tlist):
+        if self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10:
+            print("saving", self.tfinal)
             f = h5py.File(self.config_file_path, 'a')
             dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
-            print(dest_str)
             destination = f[dest_str]
             rms_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.M)
             if destination.__contains__(rms_str):

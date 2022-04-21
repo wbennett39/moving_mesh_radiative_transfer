@@ -14,7 +14,9 @@ def plot_all_rms_cells(tfinal, M):
     case_list_2 = [True, False, True, False]
     
     for count1, source in enumerate(source_type_list):
+        print(source)
         plotter = rms_plotter(tfinal, M, source)
+        print("loaded")
         for count2, uncollided in enumerate(case_list_1):
             moving = case_list_2[count2]
             plotter.load_RMS_data(uncollided, moving)
