@@ -12,5 +12,5 @@ def logplot_sn_labels(xdata, ydata, angles_list, dy, fign):
     for count, angle in enumerate(angles_list):
         sn = "$S_{" + str(int(angle)) + "}$"
         xcoord = (xdata[count])
-        ycoord = (ydata[count]) - math.exp(math.log(ydata[count]) - 0.5)
+        ycoord = (ydata[count]) - math.exp(math.log(ydata[count]) - 0.3)
         plt.text(xcoord, ycoord, sn)        

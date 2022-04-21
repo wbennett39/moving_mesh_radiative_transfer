@@ -36,8 +36,8 @@ class goals:
 [] fix time saving 
 [x] plot bench last
 [x] pytest
-[] better convergence triangle
-[] Sn labels on plot?
+[x] better convergence triangle
+[x] Sn labels on plot?
 [] update README
 
 [x] no-uncollided plane source doesnt converge -- take it out
@@ -159,7 +159,7 @@ def run_MMS(uncollided = False, moving = True):
 def run_all():
     run_plane_IC(True, True)
     run_plane_IC(True, False)
-    run_plane_IC(False, True)        # this doesn't converge
+    # run_plane_IC(False, True)        # this doesn't converge
     run_plane_IC(False, False)
     
     run_square_IC(True, True)
@@ -172,17 +172,17 @@ def run_all():
     run_square_source(False, True)
     run_square_source(False, False)
     
-    run_gaussian_IC(True, True)
-    run_gaussian_IC(True, False)
-    run_gaussian_IC(False, True)
-    run_gaussian_IC(False, False)
+    # run_gaussian_IC(True, True)
+    # run_gaussian_IC(True, False)
+    # run_gaussian_IC(False, True)
+    # run_gaussian_IC(False, False)
     
-    run_gaussian_source(True, True)
-    run_gaussian_source(True, False)
-    run_gaussian_source(False, True)
-    run_gaussian_source(False, False)
+    # run_gaussian_source(True, True)
+    # run_gaussian_source(True, False)
+    # run_gaussian_source(False, True)
+    # run_gaussian_source(False, False)
     
-    run_MMS(False, True)            # only one case is possible for the MMS
+    # run_MMS(False, True)            # only one case is possible for the MMS
     
      
 def main(source_name = "plane_IC", uncollided = True, moving = True):
@@ -263,7 +263,6 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             r_times[nr] += (end-start)/N_runs
             sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
             mesh.move(tfinal)
-            print(mesh.edges)
             edges = mesh.edges
             
             xs = find_nodes(edges, M)

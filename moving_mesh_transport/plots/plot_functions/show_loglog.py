@@ -35,7 +35,7 @@ from matplotlib.ticker import StrMethodFormatter, NullFormatter
 
 # font = fm.FontProperties(family = 'Gill Sans', fname = '/users/wbenn/Anaconda3/Library/Fonts/GillSans.ttc', size = 20)
 # axisfont = fm.FontProperties(family = 'Gill Sans', fname = '/users/wbenn/Anaconda3/Library/Fonts/GillSans.ttc', size = 14)
-axisfont = fm.FontProperties(size = 30)
+axisfont = fm.FontProperties(size = 20)
 font = fm.FontProperties(size = 18)
 
 
@@ -80,11 +80,11 @@ def hide_spines(intx=False,inty=False):
                 ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%d'))
             if (intx):
                 ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%d'))
-def show_loglog(nm,a=0,b=0):
+def show_loglog(nm,xlimleft,xlimright,a=0,b=0):
     hide_spines(a,b)
     # plt.locator_params(axis = 'x', nbins=4)
     # plt.locator_params(axis = 'y', nbins=4)
-    
+    plt.xlim(xlimleft,xlimright)
     
     # ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("10$^{%d}$" % math.log(v,10)) ))
     # plt.yticks([1,1e-2,1e-4,1e-6,1e-8,1e-10,1e-12], labels)
@@ -93,7 +93,7 @@ def show_loglog(nm,a=0,b=0):
         plt.savefig(nm+".pdf",bbox_inches='tight');
     plt.show()
     
-    
+
     
     
     
