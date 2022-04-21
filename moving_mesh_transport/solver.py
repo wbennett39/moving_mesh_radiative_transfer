@@ -41,13 +41,14 @@ class goals:
 [] update README
 
 [x] no-uncollided plane source doesnt converge -- take it out
-[] write report 
-[] pull request for report and code
+[x] write report 
+[x] pull request for report and code
+
+[] fix timing 
 
 
-
-[] save benchmarks plots in the right place
-[] save uncol and col solutions for benchmark
+[x] save benchmarks plots in the right place
+[x] save uncol and col solutions for benchmark
 [] save solution somewhere
 square source:
     -solve uncollided equation vs uncollided bench to see if it converges and confirm the uncollided solution is correct
@@ -157,32 +158,32 @@ def run_MMS(uncollided = False, moving = True):
     plt.show(block = False)
     
 def run_all():
-    run_plane_IC(True, True)
-    run_plane_IC(True, False)
+    # run_plane_IC(True, True)
+    # run_plane_IC(True, False)
     # run_plane_IC(False, True)        # this doesn't converge
-    run_plane_IC(False, False)
+    # run_plane_IC(False, False)
     
-    run_square_IC(True, True)
-    run_square_IC(True, False)
-    run_square_IC(False, True)
-    run_square_IC(False, False)
+    # run_square_IC(True, True)
+    # run_square_IC(True, False)
+    # run_square_IC(False, True)
+    # run_square_IC(False, False)
     
-    run_square_source(True, True)
-    run_square_source(True, False)
-    run_square_source(False, True)
-    run_square_source(False, False)
+    # run_square_source(True, True)
+    # run_square_source(True, False)
+    # run_square_source(False, True)
+    # run_square_source(False, False)
     
-    # run_gaussian_IC(True, True)
-    # run_gaussian_IC(True, False)
-    # run_gaussian_IC(False, True)
-    # run_gaussian_IC(False, False)
+    run_gaussian_IC(True, True)
+    run_gaussian_IC(True, False)
+    run_gaussian_IC(False, True)
+    run_gaussian_IC(False, False)
     
-    # run_gaussian_source(True, True)
-    # run_gaussian_source(True, False)
-    # run_gaussian_source(False, True)
-    # run_gaussian_source(False, False)
+    run_gaussian_source(True, True)
+    run_gaussian_source(True, False)
+    run_gaussian_source(False, True)
+    run_gaussian_source(False, False)
     
-    # run_MMS(False, True)            # only one case is possible for the MMS
+    run_MMS(False, True)            # only one case is possible for the MMS
     
      
 def main(source_name = "plane_IC", uncollided = True, moving = True):
@@ -260,7 +261,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             start = timer()
             sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(N_ang*N_space*(M+1)), method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
             end = timer()
-            r_times[nr] += (end-start)/N_runs
+            r_times[count] += (end-start)/N_runs
             sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
             mesh.move(tfinal)
             edges = mesh.edges

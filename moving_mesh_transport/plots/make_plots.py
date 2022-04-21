@@ -147,8 +147,8 @@ class rms_plotter:
         
 
         
-        if self.uncollided == False and self.moving == False or self.source_name == "MMS" and self.M == 4:
-            logplot_sn_labels(self.cells, self.RMS, self.angles, 1e-5, fign )
+        if  (self.source_name != 'gaussian_IC' and self.source_name != 'gaussian_s') and (self.uncollided == False and self.moving == False or self.source_name == "MMS" and self.M == 4):
+            logplot_sn_labels(self.cells, self.RMS, self.angles, 0.3, fign )
             
         
         # plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
