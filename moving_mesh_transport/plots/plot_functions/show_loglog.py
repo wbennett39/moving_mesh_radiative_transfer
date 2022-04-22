@@ -3,7 +3,7 @@
 """
 Created on Wed Apr 13 07:18:13 2022
 
-@author: bennett
+@author: Ryan McClarren
 """
 
 #!/usr/bin/env python3

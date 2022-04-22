@@ -19,12 +19,13 @@ def plot_all_rms_cells(tfinal, M):
         print("loaded")
         for count2, uncollided in enumerate(case_list_1):
             moving = case_list_2[count2]
-            plotter.load_RMS_data(uncollided, moving)
-            if count2 == 0:
-                clear = False
             if source == "plane_IC" and uncollided == False and moving == True:
                 print("skipping no-uncol moving case for plane IC")
             else:
+                
+                plotter.load_RMS_data(uncollided, moving)
+                if count2 == 0:
+                    clear = False
                 plotter.plot_RMS_vs_cells(count1+1, clear)
                 
     plotter = rms_plotter(tfinal, 2, "MMS")

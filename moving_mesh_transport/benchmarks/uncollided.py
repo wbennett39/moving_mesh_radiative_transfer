@@ -10,7 +10,7 @@ import scipy.integrate as integrate
 from .benchmark_functions import uncollided_square_source, uncollided_square_IC, gaussian_source_integrand, uncollided_gauss_2D_integrand
 import numpy as np
 def opts0(*args, **kwargs):
-       return {'limit':10000000}
+       return {'limit':10000000, 'epsabs':1.5e-10, 'epsrel':1.5e-10}
    
 ###############################################################################
 

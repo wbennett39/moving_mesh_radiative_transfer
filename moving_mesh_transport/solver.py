@@ -158,8 +158,8 @@ def run_MMS(uncollided = False, moving = True):
     plt.show(block = False)
     
 def run_all():
-    run_plane_IC(True, True)
-    run_plane_IC(True, False)
+    # run_plane_IC(True, True)
+    # run_plane_IC(True, False)
     # run_plane_IC(False, True)        # this doesn't converge
     run_plane_IC(False, False)
     

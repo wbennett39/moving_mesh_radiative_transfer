@@ -15,11 +15,11 @@ import numpy as np
 ###############################################################################
 
 def opts0(*args, **kwargs):
-       return {'limit':100000000, 'epsabs':1.5e-8, 'epsrel':1.5e-8}
+       return {'limit':100000000, 'epsabs':1.5e-13, 'epsrel':1.5e-13}
 def opts1(*args, **kwargs):
-       return {'limit':10000000}
+       return {'limit':10000000, 'epsabs':1.5e-13, 'epsrel':1.5e-13}
 def opts2(*args, **kwargs):
-       return {'limit':10000000}
+       return {'limit':10000000, 'epsabs':1.5e-13, 'epsrel':1.5e-13}  # used for sources 
 
 class collided_class:
     def __init__(self, source_type, x0, t0):
@@ -35,8 +35,13 @@ class collided_class:
     
     def square_IC(self, xs, t):
         temp = xs*0
+        counter = 0 
         for ix in range(xs.size):
-            temp[ix] = integrate.nquad(F1, [[0, math.pi], [-self.x0, self.x0]], args =  (0.0, xs[ix], t, 0), opts = [opts0, opts1])[0]
+            if counter == 100:
+                print("x=", xs[ix])
+                counter = 0 
+            temp[ix] = integrate.nquad(F1, [[0, math.pi], [-self.x0, self.x0]], args =  (0.0, xs[ix], t, 0), opts = [opts0, opts0])[0]
+            counter += 1
         return temp
     
     def source_double_integral_time(self, s, x, t, t0, source):
@@ -48,8 +53,13 @@ class collided_class:
         
     def square_source(self, xs, t):
         temp = xs*0
+        counter = 0 
         for ix in range(xs.size):
+            if counter == 1000:
+                print('x=', xs[ix])
+                counter = 0
             temp[ix] = integrate.nquad(self.source_double_integral_time, [[-self.x0, self.x0]], args = (xs[ix], t, self.t0, 0), opts = [opts2])[0]
+            counter += 1
         return temp
     
     def gaussian_IC(self, xs, t):
