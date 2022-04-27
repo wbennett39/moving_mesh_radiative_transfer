@@ -9,5 +9,5 @@ Created on Wed Apr 20 21:05:57 2022
 import h5py 
 
 f = h5py.File("run_data_RMS.h5", "r")
-print(f["plane_IC"]['t=10']['RMS'].keys())
+print(f["square_s"]['t=10']['RMS'].keys())
 f.close()

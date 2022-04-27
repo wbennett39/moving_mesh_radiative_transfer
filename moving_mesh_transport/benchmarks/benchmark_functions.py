@@ -204,7 +204,7 @@ def F1(args):
         ## find xi ##
         q = (1+eta)/(1-eta)
         zz = math.tan(u/2)
-        xi = (math.log(q) + u*1j)/(eta + zz*1j)
+        xi = (math.log(q) + u*1j)/(eta + zz * np.complex128(1.0j))
         # if abs(xi.real) < 1e-16:
         #     xi = 0.0 + xi.imag
         # if abs(xi.imag) < 1e-16:
@@ -240,7 +240,7 @@ def F1_spacefirst(args):
         ## find xi ##
         q = (1+eta)/(1-eta)
         zz = math.tan(u/2)
-        xi = (math.log(q) + u*1j)/(eta + zz*1j)
+        xi = (math.log(q) + u*1j)/(eta + zz * np.complex128(1.0j))
         # if abs(xi.real) < 1e-15:
         #     xi = 0.0 + xi.imag
         # if abs(xi.imag) < 1e-15:

@@ -9,13 +9,14 @@ import matplotlib.pyplot as plt
 from .make_plots import rms_plotter
 
 def plot_all_rms_cells(tfinal, M):
+    major = 'cells'
     source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s"]
     case_list_1 = [True, True, False, False]
     case_list_2 = [True, False, True, False]
     
     for count1, source in enumerate(source_type_list):
         print(source)
-        plotter = rms_plotter(tfinal, M, source)
+        plotter = rms_plotter(tfinal, M, source, major)
         print("loaded")
         for count2, uncollided in enumerate(case_list_1):
             moving = case_list_2[count2]
@@ -28,25 +29,52 @@ def plot_all_rms_cells(tfinal, M):
                     clear = False
                 plotter.plot_RMS_vs_cells(count1+1, clear)
                 
-    plotter = rms_plotter(tfinal, 2, "MMS")
+    plotter = rms_plotter(tfinal, 2, "MMS", major)
     plotter.load_RMS_data(uncollided = False, moving = True)
     plotter.plot_RMS_vs_cells(6, clear)
     
-    plotter = rms_plotter(tfinal, 4, "MMS")
+    plotter = rms_plotter(tfinal, 4, "MMS", major)
     plotter.load_RMS_data(uncollided = False, moving = True)
     plotter.plot_RMS_vs_cells(6, clear)
     
-    plotter = rms_plotter(tfinal, 6, "MMS")
+    plotter = rms_plotter(tfinal, 6, "MMS", major)
     plotter.load_RMS_data(uncollided = False, moving = True)
     plotter.plot_RMS_vs_cells(6, clear)
+
+def plot_rms_Ms(tfinal, source_name, fign):
+    major = 'Ms'
+    case_list_1 = [True, True, False, False]
+    case_list_2 = [True, False, True, False]
     
-def plot_all_rms_times(tfinal, M):
+    plotter = rms_plotter(tfinal, 1,  source_name, major)
+    if source_name != "MMS":
+        for count2, uncollided in enumerate(case_list_1):
+            moving = case_list_2[count2]
+            plotter.load_RMS_data(uncollided, moving)
+            plotter.plot_RMS_vs_Ms(source_name, fign, False)
+    else:
+        plotter.load_RMS_data(False, True)
+        plotter.plot_RMS_vs_Ms(source_name, 1, False)
+        
+        
+def plot_all_rms_Ms(tfinal):
+    # plot_rms_Ms(tfinal, "plane_IC")
+    plot_rms_Ms(tfinal, "square_IC", 1)
+    plot_rms_Ms(tfinal, "square_s", 2)
+    plot_rms_Ms(tfinal, "gaussian_IC", 3)
+    plot_rms_Ms(tfinal, "gaussian_s", 4)
+    
+    
+    
+    
+    
+def plot_all_rms_times(tfinal, M, major):
     source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s"]
     case_list_1 = [True, True, False, False]
     case_list_2 = [True, False, True, False]
     
     for count1, source in enumerate(source_type_list):
-        plotter = rms_plotter(tfinal, M, source)
+        plotter = rms_plotter(tfinal, M, source, major)
         for count2, uncollided in enumerate(case_list_1):
             moving = case_list_2[count2]
             plotter.load_RMS_data(uncollided, moving)
@@ -68,6 +96,21 @@ def plot_all_rms_times(tfinal, M):
     plotter = rms_plotter(tfinal, 6, "MMS")
     plotter.load_RMS_data(uncollided = False, moving = True)
     plotter.plot_RMS_vs_times(6, clear)
+    
+def plot_rms_Ms_times(tfinal, source_name, fign):
+    major = 'Ms'
+    case_list_1 = [True, True, False, False]
+    case_list_2 = [True, False, True, False]
+    
+    plotter = rms_plotter(tfinal, 1,  source_name, major)
+    if source_name != "MMS":
+        for count2, uncollided in enumerate(case_list_1):
+            moving = case_list_2[count2]
+            plotter.load_RMS_data(uncollided, moving)
+            plotter.plot_RMS_vs_times()
+    else:
+        plotter.load_RMS_data(False, True)
+        plotter.plot_RMS_vs_Ms(source_name, 1, False)
     
 def compare_rms(tfinal, M):
     source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s"]

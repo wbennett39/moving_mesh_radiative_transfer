@@ -85,7 +85,7 @@ def show_loglog(nm,xlimleft,xlimright,a=0,b=0):
     # plt.locator_params(axis = 'x', nbins=4)
     # plt.locator_params(axis = 'y', nbins=4)
     plt.xlim(xlimleft,xlimright)
-    
+    plt.minorticks_off()
     # ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("10$^{%d}$" % math.log(v,10)) ))
     # plt.yticks([1,1e-2,1e-4,1e-6,1e-8,1e-10,1e-12], labels)
     #ax.yaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("10$^{%d}$" % math.log(v,10)) ))

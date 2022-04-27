@@ -15,11 +15,11 @@ import numpy as np
 ###############################################################################
 
 def opts0(*args, **kwargs):
-       return {'limit':100000000, 'epsabs':1.5e-13, 'epsrel':1.5e-13}
+       return {'limit':1000000000, 'epsabs':1.5e-12, 'epsrel':1.5e-12}
 def opts1(*args, **kwargs):
-       return {'limit':10000000, 'epsabs':1.5e-13, 'epsrel':1.5e-13}
+       return {'limit':1000, 'epsabs':1.5e-8, 'epsrel':1.5e-8}
 def opts2(*args, **kwargs):
-       return {'limit':10000000, 'epsabs':1.5e-13, 'epsrel':1.5e-13}  # used for sources 
+       return {'limit':1000, 'epsabs':1.5e-8, 'epsrel':1.5e-8}  # used for sources 
 
 class collided_class:
     def __init__(self, source_type, x0, t0):
@@ -48,14 +48,14 @@ class collided_class:
         """ source function for the gaussian source and the square source (1-gaussian, 0-square)
         """
         ab = find_intervals_time(t, t0, x, s)
-        solution = integrate.nquad(F1_spacefirst, [[0, math.pi], [ab[0],ab[1]]], args =  (s, x, t, source), opts = [opts0, opts0])[0]
+        solution = integrate.nquad(F1_spacefirst, [[0, math.pi], [ab[0],ab[1]]], args =  (s, x, t, source), opts = [opts1, opts1])[0]
         return solution
         
     def square_source(self, xs, t):
         temp = xs*0
         counter = 0 
         for ix in range(xs.size):
-            if counter == 1000:
+            if counter == 5:
                 print('x=', xs[ix])
                 counter = 0
             temp[ix] = integrate.nquad(self.source_double_integral_time, [[-self.x0, self.x0]], args = (xs[ix], t, self.t0, 0), opts = [opts2])[0]
