@@ -15,6 +15,7 @@ from .solver_classes.phi_class import scalar_flux
 from .solver_classes.mesh import mesh_class
 from .solver_classes.rhs_class import rhs_class
 from .solver_classes.make_phi import make_output
+from .solver_classes.radiative_transfer import T_function
 from .solver_classes.functions import find_nodes, convergence
 from .save_output import save_output
 from .load_bench import load_bench
@@ -28,9 +29,9 @@ to do:
 
 [] either s or source, pick one
 [] save solution somewhere
-[] variable c 
+[x] variable c 
 [] plot all problems on same graph
-[] function to find curvefits for spectral plots
+[] combine Ms and cells with solve function
 
 
 ideas for tests:
@@ -222,50 +223,15 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                 M = Ms[0]
                 print("M = ", M)
                 N_ang = N_angles[count]
-                # if source_type[0] == 1 and uncollided == False and moving == True:
-                #     x0 = x0s[count]/N_space
-                mus = quadpy.c1.gauss_lobatto(N_ang).points
-                ws = quadpy.c1.gauss_lobatto(N_ang).weights
-                xs_quad = quadpy.c1.gauss_legendre(M+2).points
-                ws_quad = quadpy.c1.gauss_legendre(M+2).weights
-                t_quad = quadpy.c1.gauss_legendre(t_nodes).points
-                t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
-                initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
-                                   ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
-                                   thermal_couple, temp_function)
-                initialize.make_IC()
-                IC = initialize.IC
-                if thermal_couple == 0:
-                    deg_freedom = N_ang*N_space*(M+1)
-                elif thermal_couple == 1:
-                    deg_freedom = (N_ang+1)*N_space*(M+1)
-                mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
-                matrices = G_L(initialize)
-                num_flux = LU_surf(initialize)
-                source = source_class(initialize)
-                uncollided_sol = uncollided_solution(initialize)
-                flux = scalar_flux(initialize)
-                rhs = rhs_class(initialize)
+                xs, phi, time = solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
+                          uncollided, moving, move_type, thermal_couple, temp_function, rt, at)
                 
-                def RHS(t, V):
-                    return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux)
                 
-                start = timer()
-                sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(deg_freedom), method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
-                end = timer()
-                r_times[count] += (end-start)/N_runs
-                sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
-                mesh.move(tfinal)
-                edges = mesh.edges
-                
-                xs = find_nodes(edges, M)
-                output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
-                phi = output.make_phi(uncollided_sol)
-                
+                r_times[count] += (time)/N_runs
                 benchmark_solution = benchmark(np.abs(xs))[0]
                 RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
                 RMS_list[count] = RMS
-                print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")
+                print(N_space, "spaces", "    ", "%.4f" % (time), "time elapsed")
                 print("RMSE", RMS)
                 if count > 0:
                     print("Order", "%.2f" % convergence(RMS_list[count-1], N_spaces[count-1], RMS, N_space))
@@ -284,52 +250,19 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                 sigma_t = np.ones(N_space)
                 sigma_s = np.ones(N_space)
                 N_ang = N_angles[count]
-                # if source_type[0] == 1 and uncollided == False and moving == True:
-                #     x0 = x0s[count]/N_space
-                mus = quadpy.c1.gauss_lobatto(N_ang).points
-                ws = quadpy.c1.gauss_lobatto(N_ang).weights
-                xs_quad = quadpy.c1.gauss_legendre(M+2).points
-                ws_quad = quadpy.c1.gauss_legendre(M+2).weights
-                t_quad = quadpy.c1.gauss_legendre(t_nodes).points
-                t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
-                initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
-                                   ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
-                                   thermal_couple, temp_function)
-                initialize.make_IC()
-                IC = initialize.IC
-                if thermal_couple == 0:
-                    deg_freedom = N_ang*N_space*(M+1)
-                elif thermal_couple == 1:
-                    deg_freedom = (N_ang+1)*N_space*(M+1)
-                mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
-                matrices = G_L(initialize)
-                num_flux = LU_surf(initialize)
-                source = source_class(initialize)
-                uncollided_sol = uncollided_solution(initialize)
-                flux = scalar_flux(initialize)
-                rhs = rhs_class(initialize)
-                
-                def RHS(t, V):
-                    return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux)
-                
-                start = timer()
-                sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(deg_freedom), method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
-                end = timer()
-                r_times[count] += (end-start)/N_runs
-                sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
-                mesh.move(tfinal)
-                edges = mesh.edges
-                
-                xs = find_nodes(edges, M)
-                output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
-                phi = output.make_phi(uncollided_sol)
+               
+                xs, phi, time = solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
+                          uncollided, moving, move_type, thermal_couple, temp_function, rt, at)
+               
+                r_times[count] += (time)/N_runs
+
                 
                 benchmark_solution = benchmark(np.abs(xs))[0]
                 RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
                 RMS_list[count] = RMS
                 
                 if major == 'Ms':
-                    print(M, "M", "    ", "%.4f" % (end-start), "time elapsed")
+                    print(M, "M", "    ", "%.4f" % (time), "time elapsed")
                     print("RMSE", RMS)
                 # if count >0:
                 #     print("Order", "%.2f" % convergence(RMS_list[count-1], Ms[count-1], RMS, N_space))
@@ -352,6 +285,51 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     plt.plot(-xsb, bench, "k-")
 # run_plane()       
         
+
+
+def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
+          uncollided, moving, move_type, thermal_couple, temp_function, rt, at):
+    mus = quadpy.c1.gauss_lobatto(N_ang).points
+    ws = quadpy.c1.gauss_lobatto(N_ang).weights
+    xs_quad = quadpy.c1.gauss_legendre(M+2).points
+    ws_quad = quadpy.c1.gauss_legendre(M+2).weights
+    t_quad = quadpy.c1.gauss_legendre(t_nodes).points
+    t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
+    initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
+                       ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
+                       thermal_couple, temp_function)
+    initialize.make_IC()
+    IC = initialize.IC
+    if thermal_couple == 0:
+        deg_freedom = N_ang*N_space*(M+1)
+    elif thermal_couple == 1:
+        deg_freedom = (N_ang+1)*N_space*(M+1)
+    mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
+    matrices = G_L(initialize)
+    num_flux = LU_surf(initialize)
+    source = source_class(initialize)
+    uncollided_sol = uncollided_solution(initialize)
+    flux = scalar_flux(initialize)
+    rhs = rhs_class(initialize)
+    transfer = T_function(initialize)
+    
+    def RHS(t, V):
+        return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer)
+    
+    start = timer()
+    sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(deg_freedom), method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
+    end = timer()
+    sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
+    mesh.move(tfinal)
+    edges = mesh.edges
+    
+    xs = find_nodes(edges, M)
+    output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
+    phi = output.make_phi(uncollided_sol)
+    
+    computation_time = start-end
+    
+    return xs, phi, computation_time
     
     
     

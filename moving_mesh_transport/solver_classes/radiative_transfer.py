@@ -18,12 +18,15 @@ build_type.define(build.class_type.instance_type)
 
 
 
-data = [('temp_function', int64[:])
+data = [('temp_function', int64[:]),
         ('e_vec', float64[:]),
+        ('e', float64),
         ('H', float64[:]),
         ('alpha', float64),
         ('a', float64),
-        ('M', int64)
+        ('M', int64),
+        ("xs_quad", float64[:]),
+        ("ws_quad", float64[:])
         ]
 ###############################################################################
 
@@ -37,15 +40,18 @@ class T_function(object):
         self.a = 0.0137225 # GJ/cm$^3$/keV$^4
         self.alpha = 4 * self.a
         
+        self.xs_quad = build.xs_quad
+        self.ws_quad = build.ws_quad
+        
         
     def integrate_quad(self, a, b, j, func):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
         self.H[j] = (b-a)/2 * np.sum(self.ws_quad * self.a * func(argument, a, b)**4)
             
-    def make_e(self, x, a, b):
-        temp = 0
+    def make_e(self, xs, a, b):
+        temp = xs*0
         for j in range(self.M+1):
-            temp += normPn(j, x, a, b) * self.e_vec[j]
+            temp += normPn(j, xs, a, b) * self.e_vec[j]
         return temp 
     
     def su_olson_source(self, x, xL, xR):
