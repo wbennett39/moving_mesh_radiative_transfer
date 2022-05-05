@@ -28,7 +28,7 @@ class uncollided_class:
         temp = xs*0
         for ix in range(xs.size):
             if (-t <= xs[ix] <= t):
-                temp[ix] = math.exp(-t)/(2*t+1e-12)
+                temp[ix] = math.exp(-t)/(2*t)
         return temp
         
     def square_IC(self, xs, t):
@@ -55,7 +55,7 @@ class uncollided_class:
         sqrtpi = math.sqrt(math.pi)
         for ix in range(xs.size):
             xx = xs[ix]
-            temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t-2*xx) + math.erf(2*t+2*xx))/(8.0 * t + 1e-14)
+            temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t-2*xx) + math.erf(2*t+2*xx))/(8.0 * t)
         return temp 
     
     def gaussian_source(self, xs, t):

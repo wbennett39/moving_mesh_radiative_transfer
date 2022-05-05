@@ -10,7 +10,7 @@ import h5py
 from pathlib import Path
 
 class save_output:
-    def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major):
+    def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major, thermal_couple, temp_function):
         data_folder = Path("moving_mesh_transport")
         self.config_file_path = data_folder / 'run_data_RMS.h5'
         self.Ms = Ms
@@ -22,7 +22,7 @@ class save_output:
         source_name_list = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "MMS", "gaussian_s"]
         index_of_source_name = np.argmin(np.abs(np.array(source_type)-1))
         self.source_name = source_name_list[index_of_source_name]  
-        if self.major == 'spaces':
+        if self.major == 'cells':
             if self.Ms[0] == 2:
                 self.mkr = "o"
             elif self.Ms[0] == 4:
@@ -44,14 +44,23 @@ class save_output:
         self.mkr_string = self.line_mkr + self.mkr
         self.tlist = [1,5,10]
         
+        self.thermal_couple = thermal_couple
+        self.temp_function = temp_function
+        
         
         
     def save_RMS(self, RMS_list, N_angles, r_times):
         print("###############")
         print("###############")
+        if (self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10) and (self.thermal_couple == 0):
+            print(self.thermal_couple)
+            saving_condition = True
+        else:
+            saving_condition = False
+            
         if self.major == 'spaces':
-            if self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10:
-                print("saving", self.tfinal)
+            if saving_condition == True:
+                print("saving")
                 f = h5py.File(self.config_file_path, 'a')
                 dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
                 destination = f[dest_str]
@@ -67,8 +76,8 @@ class save_output:
                 f.close()
                 
         elif self.major == 'Ms':
-            if self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10:
-                print("saving", self.tfinal)
+            if saving_condition == True :
+                print("saving")
                 f = h5py.File(self.config_file_path, 'a')
                 dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
                 destination = f[dest_str]

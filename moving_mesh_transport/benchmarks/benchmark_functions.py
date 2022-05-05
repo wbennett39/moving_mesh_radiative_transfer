@@ -204,15 +204,15 @@ def F1(args):
         ## find xi ##
         q = (1+eta)/(1-eta)
         zz = math.tan(u/2)
-        xi = (math.log(q) + u*1j)/(eta + zz * np.complex128(1.0j))
+        xi = (math.log(q) + u * np.complex128(1.0j))/(eta + zz * np.complex128(1.0j))
         # if abs(xi.real) < 1e-16:
         #     xi = 0.0 + xi.imag
         # if abs(xi.imag) < 1e-16:
         #     xi = xi.real + 0.0*1j
         
-        complex_term = cmath.exp(tp*((1 - eta**2)*xi/2.))*xi**2
+        complex_term = cmath.exp(tp*((1. - eta**2)*xi/2.))*xi**2
 
-        res = (1/math.cos(u/2.0))**2*complex_term.real * (1/math.pi/8.0) * (1 - eta**2) * math.exp(-tp) * source(s, source_type)
+        res = (1./math.cos(u/2.0))**2*complex_term.real * (1./math.pi/8.0) * (1. - eta**2) * math.exp(-tp) * source(s, source_type)
     
         return res
     
@@ -233,14 +233,14 @@ def F1_spacefirst(args):
     ## define new variables  ##
     xp = x-s
     tp = t-tau
-    if abs(xp) < tp and tp > 0:
+    if abs(xp) <= tp and tp > 0:
         
         eta = xp/tp
         
         ## find xi ##
         q = (1+eta)/(1-eta)
         zz = math.tan(u/2)
-        xi = (math.log(q) + u*1j)/(eta + zz * np.complex128(1.0j))
+        xi = (math.log(q) + u * np.complex128(1.0j))/(eta + zz * np.complex128(1.0j))
         # if abs(xi.real) < 1e-15:
         #     xi = 0.0 + xi.imag
         # if abs(xi.imag) < 1e-15:

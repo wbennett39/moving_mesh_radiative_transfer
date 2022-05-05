@@ -20,43 +20,18 @@ from .save_output import save_output
 from .load_bench import load_bench
 ###############################################################################
 """ 
+to do:
 
-class goals:
-
-[x] license
-[x] write benchmarking module that evaluates and saves at t = 1, t = 5, and t = 10, renames the experimental scripts
-    [x] run the benchmark maker
-[x] write plotting function that reads RMS data and makes plots for paper and lives in a \plots folder
-    [x] err vs space
-    [x] err vs computation time
-    [x] err vs best case avg
-    [x] benchmark solution 
-[x] write plotting function that plots results from run_plane, run_square_IC etc.
-[x] find best parameters for each problem type, put into input file 
-[] fix time saving 
-[x] plot bench last
-[x] pytest
-[x] better convergence triangle
-[x] Sn labels on plot?
 [] update README
 
 [x] no-uncollided plane source doesnt converge -- take it out
-[x] write report 
-[x] pull request for report and code
 
-[x] fix timing 
 [] either s or source, pick one
-
-
-[x] save benchmarks plots in the right place
-[x] save uncol and col solutions for benchmark
 [] save solution somewhere
-[
-square source:
-    -solve uncollided equation vs uncollided bench to see if it converges and confirm the uncollided solution is correct
-    -check if the triple integral can be simplified at all
-    -maybe <= instead of < in F1
-    -cancellation in F1 integrand
+[] variable c 
+[] plot all problems on same graph
+[] function to find curvefits for spectral plots
+
 
 ideas for tests:
     source - check if integrator returns analytic integral of plane uncollided for x inside t 
@@ -165,25 +140,25 @@ def run_all():
     # # # run_plane_IC(False, True)        # this doesn't converge
     # run_plane_IC(False, False)
     
-    run_square_IC(True, True)
-    run_square_IC(True, False)
-    run_square_IC(False, True)
-    run_square_IC(False, False)
+    # run_square_IC(True, True)
+    # run_square_IC(True, False)
+    # run_square_IC(False, True)
+    # run_square_IC(False, False)
     
-    run_square_source(True, True)
-    run_square_source(True, False)
-    run_square_source(False, True)
-    run_square_source(False, False)
+    # run_square_source(True, True)
+    # run_square_source(True, False)
+    # run_square_source(False, True)
+    # run_square_source(False, False)
     
-    # run_gaussian_IC(True, True)
-    # run_gaussian_IC(True, False)
-    # run_gaussian_IC(False, True)
-    # run_gaussian_IC(False, False)
+    run_gaussian_IC(True, True)
+    run_gaussian_IC(True, False)
+    run_gaussian_IC(False, True)
+    run_gaussian_IC(False, False)
     
-    # run_gaussian_source(True, True)
-    # run_gaussian_source(True, False)
-    # run_gaussian_source(False, True)
-    # run_gaussian_source(False, False)
+    run_gaussian_source(True, True)
+    run_gaussian_source(True, False)
+    run_gaussian_source(False, True)
+    run_gaussian_source(False, False)
     
     # run_MMS(False, True)            # only one case is possible for the MMS
     
@@ -202,7 +177,10 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     rt = float(parameters['all']['rt'])
     at = float(parameters['all']['at'])
     t0 = float(parameters['all']['t0'])
+    scattering_ratio = float(parameters['all']['c'])
     major = str(parameters['all']['major'])
+    thermal_couple = int(parameters['all']['radiative_transfer'])
+    temp_function = np.array(parameters['all']['temperature_dependence'])
     
     N_angles = np.array(parameters[source_name]['N_angles'])
     x0 = float(parameters[source_name]['x0'])
@@ -214,7 +192,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     RMS_list = np.zeros(len(N_angles))
     x0s = np.ones(4)*x0
     
-    saving = save_output(tfinal, N_spaces, Ms, source_type, moving, uncollided, major)
+    saving = save_output(tfinal, N_spaces, Ms, source_type, moving, uncollided, major, thermal_couple, temp_function)
     benchmark = load_bench(source_type, tfinal, x0)
     
     
@@ -235,13 +213,14 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     print("moving mesh = ", moving)
     print("---  ---  ---  ---  ---  ---  ---")
     for nr in range(N_runs):
-        if major == 'spaces':
+        if major == 'cells':
             for count, N_space in enumerate(N_spaces):
                 if source_type[3] == 1 and N_space >= 32:
                     x0 += 1
                 sigma_t = np.ones(N_space)
                 sigma_s = np.ones(N_space)
                 M = Ms[0]
+                print("M = ", M)
                 N_ang = N_angles[count]
                 # if source_type[0] == 1 and uncollided == False and moving == True:
                 #     x0 = x0s[count]/N_space
@@ -251,10 +230,15 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                 ws_quad = quadpy.c1.gauss_legendre(M+2).weights
                 t_quad = quadpy.c1.gauss_legendre(t_nodes).points
                 t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
-                initialize = build(N_ang, N_space, M, tfinal, x0, t0, mus, ws, xs_quad,
-                                   ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws)
+                initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
+                                   ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
+                                   thermal_couple, temp_function)
                 initialize.make_IC()
                 IC = initialize.IC
+                if thermal_couple == 0:
+                    deg_freedom = N_ang*N_space*(M+1)
+                elif thermal_couple == 1:
+                    deg_freedom = (N_ang+1)*N_space*(M+1)
                 mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
                 matrices = G_L(initialize)
                 num_flux = LU_surf(initialize)
@@ -267,7 +251,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                     return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux)
                 
                 start = timer()
-                sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(N_ang*N_space*(M+1)), method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
+                sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(deg_freedom), method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
                 end = timer()
                 r_times[count] += (end-start)/N_runs
                 sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
@@ -281,12 +265,14 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                 benchmark_solution = benchmark(np.abs(xs))[0]
                 RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
                 RMS_list[count] = RMS
-                if major == 'spaces':
-                    print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")
-                    print("RMSE", RMS)
+                print(N_space, "spaces", "    ", "%.4f" % (end-start), "time elapsed")
+                print("RMSE", RMS)
                 if count > 0:
-                    if major == 'spaces':
-                        print("Order", "%.2f" % convergence(RMS_list[count-1], N_spaces[count-1], RMS, N_space))
+                    print("Order", "%.2f" % convergence(RMS_list[count-1], N_spaces[count-1], RMS, N_space))
+                plt.xlabel("x")
+                plt.ylabel("scalar flux")
+                
+                plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
                    
             
         elif major == 'Ms':
@@ -306,10 +292,15 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                 ws_quad = quadpy.c1.gauss_legendre(M+2).weights
                 t_quad = quadpy.c1.gauss_legendre(t_nodes).points
                 t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
-                initialize = build(N_ang, N_space, M, tfinal, x0, t0, mus, ws, xs_quad,
-                                   ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws)
+                initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
+                                   ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
+                                   thermal_couple, temp_function)
                 initialize.make_IC()
                 IC = initialize.IC
+                if thermal_couple == 0:
+                    deg_freedom = N_ang*N_space*(M+1)
+                elif thermal_couple == 1:
+                    deg_freedom = (N_ang+1)*N_space*(M+1)
                 mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
                 matrices = G_L(initialize)
                 num_flux = LU_surf(initialize)
@@ -322,7 +313,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                     return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux)
                 
                 start = timer()
-                sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(N_ang*N_space*(M+1)), method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
+                sol = integrate.solve_ivp(RHS, [0.0,tfinal], IC.reshape(deg_freedom), method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
                 end = timer()
                 r_times[count] += (end-start)/N_runs
                 sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))

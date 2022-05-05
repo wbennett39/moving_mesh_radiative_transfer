@@ -13,6 +13,7 @@ from .sources import source_class
 from .phi_class import scalar_flux
 from .uncollided_solutions import uncollided_solution
 from .numerical_flux import LU_surf
+from .radiative_transfer import T_function
 
 from numba.experimental import jitclass
 from numba import int64, float64, deferred_type, prange
@@ -29,6 +30,8 @@ flux_type = deferred_type()
 flux_type.define(scalar_flux.class_type.instance_type)
 uncollided_solution_type = deferred_type()
 uncollided_solution_type.define(uncollided_solution.class_type.instance_type)
+transfer_class_type = deferred_type()
+transfer_class_type.define(T_function.class_type.instance_type)
 
 
 data = [('N_ang', int64), 
@@ -52,11 +55,13 @@ data = [('N_ang', int64),
         ("S", float64[:]),
         ("LU", float64[:]),
         ("U", float64[:]),
+        ("H", float64[:]),
         ("V_new", float64[:,:,:]),
         ("V", float64[:,:,:]),
         ("V_old", float64[:,:,:]),
-        
-        
+        ('c', float64),
+        ('uncollided', int64),
+        ('thermal_couple', int64),
         ]
 ##############################################################################
 @jitclass(data)
@@ -68,8 +73,12 @@ class rhs_class():
         self.mus = build.mus
         self.ws = build.ws
         self.source_type = build.source_type
-    # def __call__(self,t, V, mesh, matrices, num_flux, source, flux):
-    def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux):
+        self.c = build.scattering_ratio
+        self.thermal_couple = build.thermal_couple
+        # self.temperature_function = build.temperature_function
+        self.uncollided = build.uncollided
+        
+    def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer_class):
         
         V_new = V.copy().reshape((self.N_ang, self.N_space, self.M+1))
         V_old = V_new.copy()
@@ -88,21 +97,48 @@ class rhs_class():
             G = matrices.G
             flux.make_P(V_old[:,space,:])
             P = flux.P
-            if self.source_type[4] != 1:
+            if self.source_type[4] != 1: # MMS source 
                 source.make_source(t, xL, xR, uncollided_sol)
+            if self.thermal_couple == 1:
+                H =  np.zeros(self.M+1) #T_function.H
             S = source.S
+            ########## Loop over angle ############
             for angle in range(self.N_ang):
                 mul = self.mus[angle]
-                if self.source_type[4] == 1:
+        
+                if self.source_type[4] == 1: # Make MMS source
                     source.make_source_not_isotropic(t, mul, xL, xR)
+                    
                 num_flux.make_LU(t, mesh, V_old[angle,:,:], space, mul)
                 LU = num_flux.LU
-                # LU = np.zeros(self.M+1).transpose()
-                # LU = LU_surf_func(V_old[angle,:,:],space,self.N_space,mul,self.M,xL,xR,dxL,dxR)
+                
                 U = np.zeros(self.M+1).transpose()
                 U[:] = V_old[angle,space,:]
-                RHS = np.dot(G,U) + -LU + mul*np.dot(L,U) - U + P + S/2
-                V_new[angle,space,:] = RHS
-        return V_new.reshape(self.N_ang*self.N_space*(self.M+1))
+                
+                if self.thermal_couple == 0:
+                    deg_freedom = self.N_ang * self.N_space * (self.M+1)
+                    RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * P + 0.5*S
+                    V_new[angle,space,:] = RHS
+                    
             
+                elif self.thermal_couple == 1:
+                    deg_freedom = (self.N_ang + 1) * self.N_space * (self.M+1)
+                    RHS_transport = np.dot(G,U) + -LU + mul*np.dot(L,U) - U + self.c*P + 0.5*S + 0.5*H
+                    
+                    V_new[angle,space,:] = RHS_transport
+            
+            ########## solve thermal couple ############
+            if self.thermal_couple == 1:
+                U[:] = V_old[self.N_ang+1,space,:]
+                
+                num_flux.make_LU(t, mesh, V_old[self.N_ang+1,:,:], space, 0)
+                RU = num_flux.LU
+                RHS_energy = U*0
+                RHS_energy += np.dot(G,U) - RU + 2.0 * self.P + H 
+                if self.uncollided == 1:
+                    RHS_energy += source.S
+                
+                V_new[self.N_ang + 1,space,:] = RHS_energy
+                    
+        return V_new.reshape(deg_freedom)
        

@@ -83,7 +83,7 @@ class source_class(object):
     def square_source(self, xs, t):
         temp = xs*0
         for ix in range(xs.size):
-            if abs(xs[ix]) <= self.x0 and t <= self.t0:
+            if abs(xs[ix]) <= self.x0 and t < self.t0:
                 temp[ix] = 1.0
         return temp
             

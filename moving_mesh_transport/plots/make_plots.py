@@ -39,6 +39,8 @@ class rms_plotter:
         x = np.log(self.cells[1:])
         y = np.log(self.RMS[1:])
         slope, intercept, r, p, se = linregress(x, y)
+        print(slope, 'slope')
+        print(np.exp(slope), 'exp slope')
         return np.exp(intercept)
         
         
@@ -141,9 +143,15 @@ class rms_plotter:
                         order_triangle(9, 15, 2, intercept, 2, 1.5)
             elif self.source_name == 'plane_IC':
                 plt.ylim(1e-6, 1)
+                print(self.RMS[0:2])
                 if self.uncollided == True and self.moving == True:
                     
                     intercept = self.find_c()
+                    ######## test line ##############
+                    plt.plot(self.cells, intercept * self.cells**(-1.16))
+                    
+                    ################################
+                 
                     if self.M == 6:
                         order_triangle(9, 15, 1, intercept, 2, 1.7)
                     elif self. M == 4:
@@ -217,7 +225,7 @@ class rms_plotter:
         
     def plot_RMS_vs_Ms(self, source_type, fign = 1, clear = False):
         xlimleft = 1.5
-        xlimright = 35
+        xlimright = 18
         
         plt.ion()
         plt.figure(fign)
@@ -230,15 +238,15 @@ class rms_plotter:
         #######################################################################
         
         if self.source_name == 'MMS':
-            self.Ms = self.Ms[:3]
-            self.RMS = self.RMS[:3]
-            self.angles = self.angles[:3]
+            self.Ms = self.Ms[:]
+            self.RMS = self.RMS[:]
+            self.angles = self.angles[:]
             xlimright = 10
             plt.ylim(10e-14, 10e-3,)
         elif self.source_name == "gaussian_IC" or self.source_name == "gaussian_s":
-            self.Ms = self.Ms[:4]
-            self.RMS = self.RMS[:4]
-            self.angles = self.angles[:4]
+            self.Ms = self.Ms[:]
+            self.RMS = self.RMS[:]
+            self.angles = self.angles[:]
             plt.ylim = 10e-10
             if (self.uncollided == False) and (self.moving == False):
                 logplot_sn_labels_2(self.Ms, self.RMS, self.angles, 0.02, fign )
@@ -246,8 +254,7 @@ class rms_plotter:
             if self.source_name == 'square_IC' or self.source_name == 'square_s':
                 if (self.uncollided == False) and (self.moving == False):
                     logplot_sn_labels(self.cells, self.RMS, self.angles, 0.1, fign )
-   
-        plt.loglog(self.Ms, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
+        plt.semilogy(self.Ms, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
 
         
    
@@ -296,6 +303,50 @@ class rms_plotter:
         xlimright = 10e3
         show_loglog_time(file_path_string, xlimleft, xlimright)
         plt.show(block = False)
+        
+    def plot_best(self, mkr, clr):
+        plt.ion()
+        plt.figure(1)
+        
+        plt.xlabel("cells", fontsize = 20)
+        plt.ylabel("RMSE", fontsize = 20)
+        
+        if self.source_name == 'plane_IC':
+            name = 'plane pulse'
+        elif self.source_name == 'square_IC':
+            name = 'square pulse'
+        elif self.source_name == 'square_s':
+            self.cells = self.cells[1:]
+            self.RMS = self.RMS[1:]
+            self.angles = self.angles[1:]
+            
+            name = 'square source'
+        elif self.source_name =='gaussian_IC':
+            name = 'Gaussian pulse'
+        elif self.source_name == 'gaussian_s':
+            name = 'Gaussian source'
+            intercept = self.find_c()
+            order_triangle(3, 6, 6, intercept, 2, 1.7)
+        elif self.source_name == 'MMS':
+            name = 'MMS'
+
+            
+        plt.loglog(self.cells, self.RMS, mkr, c = clr, label = name)
+        
+        file_path_string = str(self.plot_file_path) + '/' + f"all_bestt={self.tfinal}_cells_vs_RMSE"
+        xlimleft = 1
+        xlimright = 33
+
+        
+        plt.ylim(10e-8, 10e-3)
+        
+        if self.source_name == 'gaussian_s':
+            plt.legend()
+            
+        show_loglog(file_path_string, xlimleft, xlimright)
+        plt.show(block = False)
+        
+        
         
     def plot_bench(self, tfinal, source_name, fign):
         plt.figure(fign)

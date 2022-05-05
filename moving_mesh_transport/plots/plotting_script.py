@@ -65,6 +65,36 @@ def plot_all_rms_Ms(tfinal):
     plot_rms_Ms(tfinal, "gaussian_s", 4)
     
     
+def plot_best():
+    tfinal = 1
+    M = 6
+    major = 'cells'
+    plotter = rms_plotter(tfinal, M, 'plane_IC', major)
+    plotter.load_RMS_data(True, True)
+    plotter.plot_best('--o', 'darkorange')
+    
+    plotter = rms_plotter(tfinal, M, 'square_IC', major)
+    plotter.load_RMS_data(True, True)
+    plotter.plot_best('--s', 'r')
+    
+    plotter = rms_plotter(tfinal, M, 'square_s', major)
+    plotter.load_RMS_data(True, True)
+    plotter.plot_best('-s', 'r')
+    
+    plotter = rms_plotter(tfinal, M, 'gaussian_IC', major)
+    plotter.load_RMS_data(True, True)
+    plotter.plot_best('--p', 'b')
+    
+    plotter = rms_plotter(tfinal, M, 'gaussian_s', major)
+    plotter.load_RMS_data(True, True)
+    plotter.plot_best('-p', 'b')
+    
+    # plotter = rms_plotter(tfinal, M, 'MMS', major)
+    # plotter.load_RMS_data(False, True)
+    # plotter.plot_best('-^', 'm')
+    
+    
+    
     
     
     
