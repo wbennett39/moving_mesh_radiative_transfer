@@ -8,6 +8,8 @@ Created on Thu Jan 27 15:34:07 2022
 from numba import njit, jit, int64, float64
 from numba.experimental import jitclass
 import numpy as np
+
+
 ###############################################################################
 data = [('N_ang', int64), 
         ('N_space', int64),
@@ -26,6 +28,8 @@ class IC_func(object):
         self.source_type = source_type
         self.uncollided = uncollided
         self.x0 = x0
+        
+
         
     def function(self, x):
         if self.uncollided == True:

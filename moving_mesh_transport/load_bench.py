@@ -17,12 +17,13 @@ from pathlib import Path
 ###############################################################################
 
 class load_bench:
-    def __init__(self, source_type, tfinal, x0):
+    def __init__(self, source_type, tfinal, x0, radiative_transfer):
         data_folder = Path("moving_mesh_transport/benchmarks")
         benchmark_file_path = data_folder / "benchmarks.hdf5"
         self.ask_for_bench = True
         self.source_type = source_type
         self.tfinal = tfinal
+        su_olson_1 = np.loadtxt(data_folder / 'su_olson_1.txt')
         f = h5py.File(benchmark_file_path, "r")
         self.source_type_str = ["plane_IC", "square_IC", "square_source", "gaussian_IC", "MMS", "gaussian_source", "gaussian_IC_2D", "line_source"]
         self.t_eval_str = ["t = 1", "t = 5", "t = 10"]
@@ -41,7 +42,7 @@ class load_bench:
         else:
             self.ask_for_bench = False
             
-        if self.ask_for_bench == True:
+        if self.ask_for_bench == True :
             tstring = self.t_eval_str[self.t_string_index]
             self.solution_dataset = f[source_name][tstring]
             self.xs = self.solution_dataset[0]
@@ -50,6 +51,8 @@ class load_bench:
             
             self.interpolated_solution = interp1d(self.xs, self.phi, kind = "cubic")
             self.interpolated_uncollided_solution = interp1d(self.xs, self.phi_u, kind = "cubic")
+        
+        self.e_sol = su_olson_1
             
         f.close()
     def stich_solution(self, xs):
@@ -93,7 +96,7 @@ class load_bench:
             else:
                 beyond_solution_domain = False
             if (beyond_solution_domain == False):
-                return [self.interpolated_solution(xs), self.interpolated_uncollided_solution(xs)]
+                return [self.interpolated_solution(xs), self.interpolated_uncollided_solution(xs), self.e_sol]
             elif (beyond_solution_domain == True):
                 return self.stich_solution(xs)
         elif self.ask_for_bench == False and self.source_type[4] == 1:

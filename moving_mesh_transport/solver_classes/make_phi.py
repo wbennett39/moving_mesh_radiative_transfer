@@ -34,3 +34,15 @@ class make_output:
         if self.uncollided == True:
             output += uncollided_solution.uncollided_solution(self.xs, self.t)
         return output
+    
+    def make_e(self):
+        e = np.zeros((self.xs.size))
+        for count in range(self.xs.size):
+            idx = np.searchsorted(self.edges[:], self.xs[count])
+            if (idx == 0):
+                idx = 1
+            if (idx >= self.edges.size):
+                idx = self.edges.size - 1
+            for i in range(self.M+1):
+                e[count] += self.u[self.N_ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
+        return e

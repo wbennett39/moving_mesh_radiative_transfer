@@ -79,14 +79,14 @@ class rhs_class():
         self.uncollided = build.uncollided
         
     def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer_class):
-        
-        V_new = V.copy().reshape((self.N_ang, self.N_space, self.M+1))
+        if self. thermal_couple == 0:
+            V_new = V.copy().reshape((self.N_ang, self.N_space, self.M+1))
+        elif self.thermal_couple == 1:
+            V_new = V.copy().reshape((self.N_ang + 1, self.N_space, self.M+1))
         V_old = V_new.copy()
-        
         mesh.move(t)
 
-        for space in prange(self.N_space):
-            
+        for space in prange(self.N_space):            
             xR = mesh.edges[space+1]
             xL = mesh.edges[space]
             dxR = mesh.Dedges[space+1]
@@ -100,8 +100,31 @@ class rhs_class():
             if self.source_type[4] != 1: # MMS source 
                 source.make_source(t, xL, xR, uncollided_sol)
             if self.thermal_couple == 1:
-                H = transfer_class.make_H(xL, xR, V_old[self.N_ang+1, space, :])
+                transfer_class.make_H(xL, xR, V_old[self.N_ang, space, :])
+                H = transfer_class.H
+                
+            else: 
+                H = np.zeros(self.M+1)
             S = source.S
+            
+            if self.uncollided == True:
+                c2 = self.c
+            else:
+                c2 = 1
+            ######### solve thermal couple ############
+            if self.thermal_couple == 1:
+                sigma_a = 1-self.c
+                U = np.zeros(self.M+1).transpose()
+                U[:] = V_old[self.N_ang,space,:]
+                num_flux.make_LU(t, mesh, V_old[self.N_ang,:,:], space, 0.0)
+                RU = num_flux.LU
+
+                # RHS_energy = U*0
+                RHS_energy = np.dot(G,U) - RU + sigma_a * (2.0 * P - H)
+                if self.uncollided == True:
+                    RHS_energy += sigma_a * source.S 
+                V_new[self.N_ang ,space,:] = RHS_energy
+                
             ########## Loop over angle ############
             for angle in range(self.N_ang):
                 mul = self.mus[angle]
@@ -114,31 +137,15 @@ class rhs_class():
                 
                 U = np.zeros(self.M+1).transpose()
                 U[:] = V_old[angle,space,:]
-                
                 if self.thermal_couple == 0:
                     deg_freedom = self.N_ang * self.N_space * (self.M+1)
-                    RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * P + 0.5*S
+                    RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * P + c2*0.5*S 
                     V_new[angle,space,:] = RHS
-                    
-            
                 elif self.thermal_couple == 1:
                     deg_freedom = (self.N_ang + 1) * self.N_space * (self.M+1)
-                    RHS_transport = np.dot(G,U) + -LU + mul*np.dot(L,U) - U + self.c*P + 0.5*S #+ 0.5*H
-                    
-                    V_new[angle,space,:] = RHS_transport
-            
-            ########## solve thermal couple ############
-            if self.thermal_couple == 1:
-                U[:] = V_old[self.N_ang+1,space,:]
-                
-                num_flux.make_LU(t, mesh, V_old[self.N_ang+1,:,:], space, 0)
-                RU = num_flux.LU
-                RHS_energy = U*0
-                RHS_energy += np.dot(G,U) - RU + 2.0 * self.P #+ H 
-                if self.uncollided == 1:
-                    RHS_energy += source.S
-                
-                V_new[self.N_ang + 1,space,:] = RHS_energy
-                    
+                    RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c*P + c2*0.5*S + sigma_a*0.5*H
+                    V_new[angle,space,:] = RHS_transport 
         return V_new.reshape(deg_freedom)
+           
+
        

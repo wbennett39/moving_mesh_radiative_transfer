@@ -41,9 +41,9 @@ data = [("M", int64),
         ("hm", float64),
         ("xL_minus", float64),
         ("xR_plus", float64),
-        
-        
-        
+        ('thermal_couple', int64),
+        ('moving', int64),
+        ('e_init', float64)
         ]
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
@@ -63,6 +63,9 @@ class LU_surf(object):
         self.v3 = 0.0
         self.xL_minus = 0.0
         self.xR_plus = 0.0
+        self.thermal_couple = build.thermal_couple
+        self.moving = build.moving
+        self.e_init = build.e_init
 
     def integrate_quad(self, t, a, b, j, side):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
@@ -85,6 +88,8 @@ class LU_surf(object):
         temp = xs*0
         if self.source_type[4] == 1:
             temp = np.exp(-xs*xs/2)/(t + 1)/2.0
+        elif (self.thermal_couple == 1) and (self.moving == 1):
+            temp = np.ones(xs.size) * self.e_init
         return temp
     
     def make_h(self, space):
@@ -119,7 +124,7 @@ class LU_surf(object):
                 if space != 0:
                     self.v0 += self.B_LR_func(j, self.hm)[1]*(u[space-1,j])
                     
-                elif space == 0 and self.source_type[4] == 1:
+                elif space == 0 and (self.source_type[4] == 1 or self.moving == True and self.thermal_couple == 1):
                     self.v0 += self.integrate_quad(t, self.xL_minus, self.edges[space], j, "l") * self.B_LR_func(j, self.h)[1] 
                     
                 self.v1 += self.B_LR_func(j, self.h)[0]*(u[space, j])
@@ -128,7 +133,7 @@ class LU_surf(object):
                 if space != self.N_space - 1:
                     self.v3 += self.B_LR_func(j, self.hp)[0]*(u[space+1,j])
                     
-                elif space == self.N_space - 1 and self.source_type[4] == 1:
+                elif space == self.N_space - 1 and (self.source_type[4] == 1 or self.moving == True and self.thermal_couple == 1):
                     self.v3 += self.integrate_quad(t, self.edges[space+1], self.xR_plus, j, "r") * self.B_LR_func(j, self.h)[0] 
             
     
