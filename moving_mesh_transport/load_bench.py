@@ -23,10 +23,14 @@ class load_bench:
         self.ask_for_bench = True
         self.source_type = source_type
         self.tfinal = tfinal
-        su_olson_1 = np.loadtxt(data_folder / 'su_olson_1.txt')
+        if self.tfinal == 1:
+            su_olson = np.loadtxt(data_folder / 'su_olson_1.txt')
+        elif self.tfinal == 31.6228:
+            su_olson = np.loadtxt(data_folder / 'su_olson_31.txt')
+        
         f = h5py.File(benchmark_file_path, "r")
         self.source_type_str = ["plane_IC", "square_IC", "square_source", "gaussian_IC", "MMS", "gaussian_source", "gaussian_IC_2D", "line_source"]
-        self.t_eval_str = ["t = 1", "t = 5", "t = 10"]
+        self.t_eval_str = ["t = 1", "t = 5", "t = 10", "t = 31.6228"]
         index_of_source_name = np.argmin(np.abs(np.array(self.source_type)-1))
         source_name = self.source_type_str[index_of_source_name]
         self.x0 = x0
@@ -39,10 +43,13 @@ class load_bench:
             self.t_string_index = 1
         elif tfinal == 10.0:
             self.t_string_index = 2
+        elif tfinal == 31.6228:
+            self.t_string_index = 2
+            self.ask_for_bench == False
         else:
             self.ask_for_bench = False
             
-        if self.ask_for_bench == True :
+        if self.ask_for_bench == True:
             tstring = self.t_eval_str[self.t_string_index]
             self.solution_dataset = f[source_name][tstring]
             self.xs = self.solution_dataset[0]
@@ -52,7 +59,7 @@ class load_bench:
             self.interpolated_solution = interp1d(self.xs, self.phi, kind = "cubic")
             self.interpolated_uncollided_solution = interp1d(self.xs, self.phi_u, kind = "cubic")
         
-        self.e_sol = su_olson_1
+        self.e_sol = su_olson
             
         f.close()
     def stich_solution(self, xs):
@@ -98,7 +105,7 @@ class load_bench:
             if (beyond_solution_domain == False):
                 return [self.interpolated_solution(xs), self.interpolated_uncollided_solution(xs), self.e_sol]
             elif (beyond_solution_domain == True):
-                return self.stich_solution(xs)
+                return [self.stich_solution(xs), 0, self.e_sol]
         elif self.ask_for_bench == False and self.source_type[4] == 1:
             return [np.exp(-xs*xs/2)/(1+self.tfinal) * np.heaviside(self.tfinal - np.abs(xs) + self.x0, 1),0]
         else:

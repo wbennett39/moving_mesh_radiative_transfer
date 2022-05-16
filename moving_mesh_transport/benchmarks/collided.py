@@ -9,6 +9,7 @@ from .benchmark_functions import F1, F1_spacefirst, find_intervals_time
 from .benchmark_functions import F1_2D_gaussian_pulse,F2_2D_gaussian_pulse
 from .benchmark_functions import find_intervals_2D_gaussian_s
 from .benchmark_functions import F_line_source_1,  F_line_source_2
+from .benchmark_functions import P1_su_olson_integrand
 import scipy.integrate as integrate
 import math
 import numpy as np
@@ -153,6 +154,18 @@ class collided_class:
             temp[ix] = self.collided_line_source(rho, t)
         return temp
     
+    
+    def P1_su_olson(self, xs, t):
+        temp = xs* 0 
+        if t <= 10.0: 
+            trange = [0, t]
+        else:
+            trange = [t-10, t]
+            
+        for ix in range(xs.size):
+                temp[ix] = integrate.nquad(P1_su_olson_integrand, [[-self.x0, self.x0], trange], args = (xs[ix], t), opts = [opts0, opts0])[0]
+        return temp 
+    
     def __call__(self, xs, t):
         if self.source_type == 'plane_IC':
             return self.plane_IC(xs, t)
@@ -168,4 +181,6 @@ class collided_class:
             return self.gaussian_IC_2D(xs, t)
         elif self.source_type == "line_source":
             return self.line_source(xs, t)
+        elif self.source_type == "P1_su_olson":
+            return self.P1_su_olson(xs, t)
         

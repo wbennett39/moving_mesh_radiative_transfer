@@ -23,14 +23,23 @@ class rms_plotter:
     def __init__(self, tfinal, M, source_name, major):
         data_folder = Path("moving_mesh_transport")
         self.data_file_path = data_folder / 'run_data_RMS.h5'
+        
         self.plot_file_path = data_folder / "plots" 
         # self.case_list = ["uncol_mov", "no_uncol_stat", "uncol_stat", "no_uncol_stat"]
         self.tfinal = tfinal
-        self.source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "MMS", "gaussian_s"]
+        self.source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "MMS", "gaussian_s", "su_olson"]
         self.source_name = source_name
         self.major = major 
         self.M = M
-
+        self.su_olson_data_file_path = data_folder / "run_data_radiative_transfer_RMS.h5"
+        if self.M == 2:
+            self.mkr = "o"
+        elif self.M == 4:
+            self.mkr = "^"
+        elif self.M == 6:
+            self.mkr = "s"
+        else:
+            self.mkr = "p"
         
     def find_c(self):
         """
@@ -48,9 +57,6 @@ class rms_plotter:
 
         self.uncollided = uncollided 
         self.moving = moving
-        
-   
-            
         if self.moving == True:
             self.line_mkr = "-"
         elif self.moving == False:
@@ -63,37 +69,47 @@ class rms_plotter:
             self.mfc = "none"
             
         f = h5py.File(self.data_file_path, 'r')
+        
         # f = h5py.File("run_data_RMS.h5", 'r')
         
         self.dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
+        if self.source_name =='su_olson' or self.source_name == "su_olson_energy":
+            self.dest_str = str('square_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
         if self.major == 'cells':
             data_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.M)
         elif self.major == 'Ms':
             data_str = 'Ms_' + self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving") + (not(self.moving)) * ("static") 
         
-        data = f[self.dest_str + '/' + data_str]
+        if self.source_name != "su_olson" and self.source_name != "su_olson_energy":
+            data = f[self.dest_str + '/' + data_str]
+    
+            if self.major == 'cells':
+                self.cells = data[0]
+                # self.Ms = data[4]x
+                # self.M = self.Ms[0]
+            elif self.major == 'Ms':
+                self.Ms = data[0]
+                self.cells = data[4]
+                self.N_spaces = self.cells[0]
+            self.RMS = data[1]
+            self.angles = data[2]
+            self.times = data[3]
+    
+            f.close()
         
-        if self.major == 'cells':
-            self.cells = data[0]
-            # self.Ms = data[4]x
-            # self.M = self.Ms[0]
-        elif self.major == 'Ms':
-            self.Ms = data[0]
-            self.cells = data[4]
-            self.N_spaces = self.cells[0]
-        self.RMS = data[1]
-        self.angles = data[2]
-        self.times = data[3]
-        
-        if self.M == 2:
-            self.mkr = "o"
-        elif self.M == 4:
-            self.mkr = "^"
-        elif self.M == 6:
-            self.mkr = "s"
-        else:
-            self.mkr = "p"
-        f.close()
+        if self.source_name == "su_olson" or self.source_name == "su_olson_energy":
+            f_rad = h5py.File(self.su_olson_data_file_path, 'r')
+            rad_data = f_rad[self.dest_str + '/' + data_str]
+            if self.major == 'cells':
+                self.cells = rad_data[0]
+            elif self.major == 'Ms':
+                self.Ms = rad_data[0]
+                self.cells = rad_data[4]
+                self.N_spaces = self.cells[0]
+            self.RMS = rad_data[1]
+            self.angles = rad_data[2]
+            self.times = rad_data[3]
+            self.energy_RMS = rad_data[5]
     
     def plot_RMS_vs_cells(self, fign = 1, clear = False):
         plt.ion()
@@ -180,12 +196,15 @@ class rms_plotter:
                         order_triangle(5, 9, 6, intercept, 2, 1.7)
                     if self.M == 4:
                         order_triangle(5, 9, 4, intercept, 2, 1.7)
-            # elif self.source_name == 'gaussian_s':
-            #      self.cells = self.cells[1:4]
-            #      self.RMS = self.RMS[1:4]
-                
-            # plt.xlim(4,20)
-            plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
+            elif self.source_name == 'su_olson' or self.source_name == "su_olson_energy":
+                intercept = self.find_c()
+                xlimright = 65
+
+            if self.source_name !="su_olson_energy":
+                plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
+            
+            if self.source_name == "su_olson_energy":
+                plt.loglog(self.cells, self.energy_RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
             
             if  (self.source_name != 'gaussian_IC' and self.source_name != 'gaussian_s') and (self.uncollided == False and self.moving == False or self.source_name == "MMS" and self.M == 4):
                 logplot_sn_labels(self.cells, self.RMS, self.angles, 0.3, fign )

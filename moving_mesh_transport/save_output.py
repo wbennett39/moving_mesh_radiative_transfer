@@ -12,7 +12,10 @@ from pathlib import Path
 class save_output:
     def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major, thermal_couple, temp_function):
         data_folder = Path("moving_mesh_transport")
-        self.config_file_path = data_folder / 'run_data_RMS.h5'
+        if thermal_couple == 0:
+            self.config_file_path = data_folder / 'run_data_RMS.h5'
+        elif thermal_couple == 1:
+            self.config_file_path = data_folder / 'run_data_radiative_transfer_RMS.h5'
         self.Ms = Ms
         self.tfinal = int(tfinal)
         self.moving = moving
@@ -49,16 +52,15 @@ class save_output:
         
         
         
-    def save_RMS(self, RMS_list, N_angles, r_times):
+    def save_RMS(self, RMS_list, energy_RMS_list, N_angles, r_times):
         print("###############")
         print("###############")
-        if (self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10) and (self.thermal_couple == 0):
-            print(self.thermal_couple)
+        if (self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10) or (self.thermal_couple == 1 and self.tfinal == 31.6228) :
             saving_condition = True
         else:
             saving_condition = False
             
-        if self.major == 'spaces':
+        if self.major == 'cells':
             if saving_condition == True:
                 print("saving")
                 f = h5py.File(self.config_file_path, 'a')
@@ -67,12 +69,13 @@ class save_output:
                 rms_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.Ms[0])
                 if destination.__contains__(rms_str):
                     del destination[rms_str]
-                dset = destination.create_dataset(rms_str, (4, len(self.N_spaces)) )
+                dset = destination.create_dataset(rms_str, (6, len(self.N_spaces)) )
                 dset[0] = self.N_spaces
                 dset[1] = RMS_list
                 dset[2] = N_angles
                 dset[3] = r_times
                 dset[4] = self.Ms
+                dset[5] = energy_RMS_list
                 f.close()
                 
         elif self.major == 'Ms':
@@ -90,6 +93,7 @@ class save_output:
                 dset[2] = N_angles
                 dset[3] = r_times
                 dset[4] = self.N_spaces
+                dset[5] = energy_RMS_list
                 f.close()
         
             

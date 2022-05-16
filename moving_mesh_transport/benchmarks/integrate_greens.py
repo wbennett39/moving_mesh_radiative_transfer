@@ -57,6 +57,13 @@ def line_source(t, npnts):
     bench_class.integrate(t, npnts)
     bench_class.save()
     bench_class.plot(fign)
+
+def P1_su_olson(t, npnts):
+    fign = 7
+    bench_class = make_benchmark("P1_su_olson", 0.5, 10.0)
+    bench_class.integrate(t, npnts)
+    bench_class.save()
+    bench_class.plot(fign)
     
     
 def do_all(npnts = [5000, 5000, 10000, 5000, 5000, 250, 500]):

@@ -16,6 +16,8 @@ from scipy import LowLevelCallable
 import h5py
 from pathlib import Path
 import cmath
+import ctypes
+from numba.extending import get_cython_function_address
 
 
 ###############################################################################
@@ -118,7 +120,7 @@ def gaussian_source_integrand(tau, t, x):
     if tp != 0:
         erf1 = math.erf(2*(tp - abx)) 
         erf2 = math.erf(2*(tp + abx))
-        temp = math.exp(-tp)* (erf1 + erf2) / tp
+        temp = math.exp(-tp) * (erf1 + erf2) / tp
     else:
         temp = 0.0
     return temp
@@ -429,6 +431,46 @@ def find_intervals_2D_gaussian_s(r, t, theta, thetap):
         if b < 0:
             b = 0
     return [a,b]
+######################## P1 SU-OLSON functions ################################
+_dble = ctypes.c_double
+addr = get_cython_function_address("scipy.special.cython_special", "__pyx_fuse_0iv")
+functype = ctypes.CFUNCTYPE(_dble, _dble, _dble)
+iv_fn = functype(addr)
+
+@njit
+def bessel_first(n, z):
+    return iv_fn(n, z)
+
+@jit_F1
+def P1_su_olson_integrand(args):
+    s = args[0]
+    tau = args[1]
+    x = args[2]
+    t = args[3]
+    
+    temp = 0.0
+    temp1 = 0.0
+    temp2 = 0.0
+    sqrt3 = math.sqrt(3)
+    if t <= 10:
+        if (t - sqrt3 * abs(x-s) > 0):
+            temp1 = math.exp(-sqrt3 * abs(x-s)) * bessel_first(0.0, 0.0) 
+            
+        if (tau - sqrt3 * abs(x-s) > 0.0):
+            arg_t = math.sqrt(tau**2 - 3 * (x-s)**2)
+            if arg_t != 0:
+                temp2 = tau * bessel_first(1, arg_t) / arg_t
+        
+    elif t > 10:
+        if (t- sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s)):
+            temp1 = math.exp(-sqrt3 * abs(x-s))
+        if (t- sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s)):
+            arg_t = math.sqrt(tau**2 - 3*(x-s)**2)
+            temp2 = math.exp(-tau) * tau * bessel_first(1, arg_t) / arg_t
+            
+    temp = sqrt3/2 * (temp1 + temp2)
+    
+    return temp
 
 ######################saving solution##########################################
 def make_benchmark_file_structure():
@@ -454,3 +496,5 @@ def write_to_file(xs, phi, uncol, tfinal, source_name, npnts):
             del f[source_name + f'/t = {tfinal}'] 
         f.create_dataset(source_name + f'/t = {tfinal}', (3, npnts), dtype = "f", data=(xs, phi, uncol))
     f.close()
+    
+    
