@@ -21,6 +21,7 @@ from .save_output import save_output
 from .load_bench import load_bench
 
 from .main_functions import parameter_function
+from .main_functions import plot_p1_su_olson_mathematica
 ###############################################################################
 """ 
 to do:
@@ -84,6 +85,8 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     thermal_couple = int(parameters['all']['radiative_transfer'])
     temp_function = np.array(parameters['all']['temperature_dependence'])
     e_initial = float(parameters['all']['e_initial'])
+    weights = str(parameters['all']['weights'])
+    
     
     N_angles = np.array(parameters[source_name]['N_angles'])
     x0 = float(parameters[source_name]['x0'])
@@ -98,6 +101,11 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     
     saving = save_output(tfinal, N_spaces, Ms, source_type, moving, uncollided, major, thermal_couple, temp_function)
     benchmark = load_bench(source_type, tfinal, x0, thermal_couple)
+    
+    if (weights == "gauss_legendre") and (thermal_couple == 1):
+        benchmark = load_bench([0,0,0,0,0,0,0,0,1,0], tfinal, x0, thermal_couple)
+        benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,1], tfinal, x0, thermal_couple)
+        
     
     
     print("--- --- --- --- --- --- ")
@@ -123,6 +131,7 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             
             print("M = ", M)
             print(N_space, "cells")
+            print(N_ang, "angles")
             print("---  ---  ---  ---  ---  ---  ---")
             
             if source_type[3] == 1 and N_space >= 32:
@@ -130,14 +139,14 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             sigma_t = np.ones(N_space)
             sigma_s = np.ones(N_space)
             
-            if thermal_couple == 1:
+            if thermal_couple == 1 and weights == "gauss_lobatto":
                 choose_xs = True
                 specified_xs = benchmark(np.abs(np.linspace(0, tfinal + x0)))[2][:,0]
             else:
                 choose_xs = False
                 specified_xs = 0.0
             xs, phi, e, time = solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
-                      uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs)
+                      uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, weights)
             
             
             r_times[count] += (time)/N_runs
@@ -146,9 +155,27 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                 benchmark_solution = benchmark(np.abs(xs))[0]
                 RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
             elif thermal_couple == 1:
-                e_xs = benchmark(np.abs(xs))[2][:,0]
-                phi_bench = benchmark(np.abs(xs))[2][:,1]
-                e_bench = benchmark(np.abs(xs))[2][:,2]
+                if  weights == "gauss_lobatto":
+                    e_xs = benchmark(np.abs(xs))[2][:,0]
+                    phi_bench = benchmark(np.abs(xs))[2][:,1]
+                    e_bench = benchmark(np.abs(xs))[2][:,2]
+
+                    plt.plot(e_xs,phi_bench, "-k")
+                    plt.plot(-e_xs,phi_bench, "-k")
+                    plt.plot(e_xs,e_bench, "--k")
+                    plt.plot(-e_xs,e_bench, "--k")
+
+                elif weights == "gauss_legendre":
+                    phi_bench = benchmark(np.abs(xs))[0]
+                    e_bench = benchmark_mat(np.abs(xs))[0]
+                    
+                    if count == len(N_angles)-1:
+                        plt.plot(xs, phi_bench, "-k")
+                        plt.plot(-xs,phi_bench, "-k")
+                        plt.plot(xs,e_bench, "--k")
+                        plt.plot(-xs,e_bench, "--k")
+                        plot_p1_su_olson_mathematica()
+                                    
                 RMS = np.sqrt(np.mean((phi - phi_bench)**2))
                 RMS_energy = np.sqrt(np.mean((e - e_bench)**2))
                 RMS_list_energy[count] = RMS_energy
@@ -166,9 +193,8 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             plt.xlabel("x")
             plt.ylabel("scalar flux")
             
-            plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
-            if thermal_couple == 1:
-                plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
+            # plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+
                 
             
             print("---  ---  ---  ---  ---  ---  ---")
@@ -176,29 +202,28 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             plt.xlabel("x")
             plt.ylabel("scalar flux")
             
-            plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
-            if thermal_couple == 1:
-                plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
+            # plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+            # if thermal_couple == 1:
+            #     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
             
             
     saving.save_RMS(RMS_list, RMS_list_energy, N_angles, r_times)
     if ((tfinal == 1 or tfinal == 5 or tfinal == 10) and thermal_couple == 0):
         plt.plot(xsb, bench, "k-", label = "benchmark")
         plt.plot(-xsb, bench, "k-")
-    if thermal_couple == 1:
-        e_xs = benchmark(np.abs(xs))[2][:,0]
-        phi_bench = benchmark(np.abs(xs))[2][:,1]
-        e_bench = benchmark(np.abs(xs))[2][:,2]
-        plt.plot(e_xs,phi_bench, "-k")
-        plt.plot(-e_xs,phi_bench, "-k")
-        plt.plot(e_xs,e_bench, "--k")
-        plt.plot(-e_xs,e_bench, "--k")
+
         
         
 def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
-          uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs):
-    mus = quadpy.c1.gauss_lobatto(N_ang).points
-    ws = quadpy.c1.gauss_lobatto(N_ang).weights
+          uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, weights):
+    if weights == "gauss_lobatto":
+        mus = quadpy.c1.gauss_lobatto(N_ang).points
+        ws = quadpy.c1.gauss_lobatto(N_ang).weights
+    elif weights == "gauss_legendre":
+        mus = quadpy.c1.gauss_legendre(N_ang).points
+        ws = quadpy.c1.gauss_legendre(N_ang).weights
+        print(mus)
+        
     xs_quad = quadpy.c1.gauss_legendre(M+2).points
     ws_quad = quadpy.c1.gauss_legendre(M+2).weights
     t_quad = quadpy.c1.gauss_legendre(t_nodes).points

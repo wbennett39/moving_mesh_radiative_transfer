@@ -117,7 +117,7 @@ class uncollided_class:
             return self.gaussian_IC_2D(xs, t)
         elif self.source_type == "line_source":
             return self.line_source(xs, t)
-        elif self.source_type == "P1_su_olson":
+        elif self.source_type == "P1_su_olson_rad" or self.source_type == "P1_su_olson_mat":
             return xs*0
         
         

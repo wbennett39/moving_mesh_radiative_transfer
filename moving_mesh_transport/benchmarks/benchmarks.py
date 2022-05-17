@@ -14,6 +14,8 @@ from .benchmark_functions import check_gaussian_tail
 from .uncollided import uncollided_class
 from .collided import collided_class
 
+from ..main_functions import plot_p1_su_olson_mathematica
+
 ###############################################################################
 
 class make_benchmark:
@@ -69,6 +71,8 @@ class make_benchmark:
         plt.figure(fign)
         plt.plot(self.xs, self.uncollided_sol, "--k")
         plt.plot(self.xs, self.uncollided_sol + self.collided_sol, "-k")
+        if self.source_type == "P1_su_olson_mat":
+                plot_p1_su_olson_mathematica()
         plt.show()
     
         

@@ -29,10 +29,14 @@ class load_bench:
             su_olson = np.loadtxt(data_folder / 'su_olson_31.txt')
         
         f = h5py.File(benchmark_file_path, "r")
-        self.source_type_str = ["plane_IC", "square_IC", "square_source", "gaussian_IC", "MMS", "gaussian_source", "gaussian_IC_2D", "line_source"]
+        self.source_type_str = ["plane_IC", "square_IC", "square_source", 
+                                "gaussian_IC", "MMS", "gaussian_source",
+                                "gaussian_IC_2D", "line_source", "P1_su_olson_rad",
+                                "P1_su_olson_mat"]
         self.t_eval_str = ["t = 1", "t = 5", "t = 10", "t = 31.6228"]
         index_of_source_name = np.argmin(np.abs(np.array(self.source_type)-1))
         source_name = self.source_type_str[index_of_source_name]
+        print("loading", source_name)
         self.x0 = x0
         if source_name == "MMS":
             self.ask_for_bench = False

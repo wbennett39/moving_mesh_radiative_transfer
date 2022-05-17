@@ -9,16 +9,18 @@ from .benchmark_functions import F1, F1_spacefirst, find_intervals_time
 from .benchmark_functions import F1_2D_gaussian_pulse,F2_2D_gaussian_pulse
 from .benchmark_functions import find_intervals_2D_gaussian_s
 from .benchmark_functions import F_line_source_1,  F_line_source_2
-from .benchmark_functions import P1_su_olson_integrand
+from .benchmark_functions import  P1_su_olson_mat_integrand
+from .benchmark_functions import  P1_su_olson_term1_integrand, P1_su_olson_term2_integrand
 import scipy.integrate as integrate
 import math
 import numpy as np
+from numba import prange
 ###############################################################################
 
 def opts0(*args, **kwargs):
        return {'limit':1000000000, 'epsabs':1.5e-12, 'epsrel':1.5e-12}
 def opts1(*args, **kwargs):
-       return {'limit':1000, 'epsabs':1.5e-8, 'epsrel':1.5e-8}
+       return {'limit':10000, 'epsabs':1.5e-8, 'epsrel':1.5e-8}
 def opts2(*args, **kwargs):
        return {'limit':1000, 'epsabs':1.5e-8, 'epsrel':1.5e-8}  # used for sources 
 
@@ -155,15 +157,29 @@ class collided_class:
         return temp
     
     
-    def P1_su_olson(self, xs, t):
-        temp = xs* 0 
+    def P1_su_olson_rad(self, xs, t):
+        temp = xs * 0 
         if t <= 10.0: 
             trange = [0, t]
         else:
             trange = [t-10, t]
             
-        for ix in range(xs.size):
-                temp[ix] = integrate.nquad(P1_su_olson_integrand, [[-self.x0, self.x0], trange], args = (xs[ix], t), opts = [opts0, opts0])[0]
+        for ix in prange(xs.size):
+            term1 = integrate.nquad(P1_su_olson_term1_integrand, [[-self.x0, self.x0]], args = (xs[ix], t), opts = [opts1])[0]
+            term2 = integrate.nquad(P1_su_olson_term2_integrand, [[-self.x0, self.x0], trange], args = (xs[ix], t), opts = [opts1, opts1])[0]
+            
+            temp[ix] = term1 + term2
+        return temp 
+    
+    def P1_su_olson_mat(self, xs, t):
+        temp = xs * 0 
+        if t <= 10.0: 
+            trange = [0, t]
+        else:
+            trange = [t-10, t]
+            
+        for ix in prange(xs.size):
+                temp[ix] = integrate.nquad(P1_su_olson_mat_integrand, [[-self.x0, self.x0], trange], args = (xs[ix], t), opts = [opts1, opts1])[0]
         return temp 
     
     def __call__(self, xs, t):
@@ -181,6 +197,9 @@ class collided_class:
             return self.gaussian_IC_2D(xs, t)
         elif self.source_type == "line_source":
             return self.line_source(xs, t)
-        elif self.source_type == "P1_su_olson":
-            return self.P1_su_olson(xs, t)
+        elif self.source_type == "P1_su_olson_rad":
+            return self.P1_su_olson_rad(xs, t)
+        elif self.source_type == "P1_su_olson_mat":
+            return self.P1_su_olson_mat(xs, t)
+            
         

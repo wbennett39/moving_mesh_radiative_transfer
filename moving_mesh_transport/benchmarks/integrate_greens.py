@@ -8,6 +8,8 @@ Created on Wed Mar 23 20:25:02 2022
 
 from .benchmarks import make_benchmark
 
+
+
 def plane_IC(t, npnts):
     fign = 1
     bench_class = make_benchmark('plane_IC', 1e-16, 1e-16)
@@ -59,11 +61,23 @@ def line_source(t, npnts):
     bench_class.plot(fign)
 
 def P1_su_olson(t, npnts):
+    print("radiation energy density")
     fign = 7
-    bench_class = make_benchmark("P1_su_olson", 0.5, 10.0)
+    bench_class = make_benchmark("P1_su_olson_rad", 0.5, 10.0)
     bench_class.integrate(t, npnts)
     bench_class.save()
     bench_class.plot(fign)
+    
+    print("material energy density")
+    bench_class = make_benchmark("P1_su_olson_mat", 0.5, 10.0)
+    bench_class.integrate(t, npnts)
+    bench_class.save()
+    bench_class.plot(fign)
+    
+    
+    
+    
+    
     
     
 def do_all(npnts = [5000, 5000, 10000, 5000, 5000, 250, 500]):

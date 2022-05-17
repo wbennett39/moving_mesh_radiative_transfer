@@ -10,7 +10,7 @@ import math
 import numba 
 from scipy.special import expi
 from numba import njit
-from numba import cfunc,carray
+from numba import cfunc, carray
 from numba.types import intc, CPointer, float64
 from scipy import LowLevelCallable
 import h5py
@@ -180,7 +180,7 @@ def source(s, source_type):
     
 @njit 
 def heaviside(arg):
-    if arg >= 0.0:
+    if arg > 0.0:
         return 1.0
     else:
         return 0.0
@@ -433,42 +433,85 @@ def find_intervals_2D_gaussian_s(r, t, theta, thetap):
     return [a,b]
 ######################## P1 SU-OLSON functions ################################
 _dble = ctypes.c_double
-addr = get_cython_function_address("scipy.special.cython_special", "__pyx_fuse_0iv")
+addr = get_cython_function_address("scipy.special.cython_special", "__pyx_fuse_1iv")
 functype = ctypes.CFUNCTYPE(_dble, _dble, _dble)
 iv_fn = functype(addr)
 
-@njit
+_dble = ctypes.c_double
+addr = get_cython_function_address("scipy.special.cython_special", "__pyx_fuse_0iv")
+functype = ctypes.CFUNCTYPE(_dble, _dble, _dble)
+iv_fn_imag = functype(addr)
+
+# @njit("float64(int64, complex128)")
+# def bessel_first_imag(n, z):
+#     return iv_fn_imag(n, z)
+
+@njit("float64(int64, float64)")
 def bessel_first(n, z):
     return iv_fn(n, z)
 
 @jit_F1
-def P1_su_olson_integrand(args):
+def P1_su_olson_term2_integrand(args):
     s = args[0]
     tau = args[1]
     x = args[2]
     t = args[3]
     
     temp = 0.0
-    temp1 = 0.0
     temp2 = 0.0
     sqrt3 = math.sqrt(3)
-    if t <= 10:
-        if (t - sqrt3 * abs(x-s) > 0):
-            temp1 = math.exp(-sqrt3 * abs(x-s)) * bessel_first(0.0, 0.0) 
-            
-        if (tau - sqrt3 * abs(x-s) > 0.0):
+    if t <= 10:            
+        if (tau - sqrt3 * abs(x-s)) > 0.0:
             arg_t = math.sqrt(tau**2 - 3 * (x-s)**2)
             if arg_t != 0:
-                temp2 = tau * bessel_first(1, arg_t) / arg_t
-        
-    elif t > 10:
-        if (t- sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s)):
-            temp1 = math.exp(-sqrt3 * abs(x-s))
+                temp2 = math.exp(-tau) * tau * bessel_first(1, arg_t) / arg_t
+    
+    elif t > 10:    
         if (t- sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s)):
             arg_t = math.sqrt(tau**2 - 3*(x-s)**2)
             temp2 = math.exp(-tau) * tau * bessel_first(1, arg_t) / arg_t
             
-    temp = sqrt3/2 * (temp1 + temp2)
+    temp = sqrt3/2 * (temp2)
+    
+    return temp
+
+@jit_F1
+def P1_su_olson_term1_integrand(args):
+     s = args[0]
+     x = args[1]
+     t = args[2]
+     
+     temp_rad = 0.0
+     temp1 = 0.0
+     sqrt3 = math.sqrt(3)
+     if t <= 10:
+         if (t - sqrt3 * abs(x-s)) > 0:
+             temp1 = math.exp(-sqrt3 * abs(x-s)) * bessel_first(0.0, 0.0) 
+             
+     elif t > 10:
+         if (t - sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s)):
+             temp1 = math.exp(-sqrt3 * abs(x-s))
+             
+     temp_rad = sqrt3/2 * (temp1)
+     
+     return temp_rad
+
+@jit_F1
+def P1_su_olson_mat_integrand(args):
+    s = args[0]
+    tau = args[1]
+    x = args[2]
+    t = args[3]
+    
+    temp = 0.0
+    temp2 = 0.0
+    sqrt3 = math.sqrt(3)
+
+    arg_t = math.sqrt(tau**2 - 3 * (x-s)**2)
+    if (tau - sqrt3 * abs(x-s)) > 0:
+        temp2 = math.exp(-tau) * bessel_first(0, arg_t) 
+            
+    temp = sqrt3/2 * (temp2)
     
     return temp
 
