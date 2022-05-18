@@ -19,7 +19,7 @@
 'plane_IC':
     'x0': 1e-10                         # source initial width/2
     'source_type': [1,0,0,0,0,0,0,0,0]
-    'N_angles': [512, 512]    # corresponds to N_spaces
+    'N_angles': [2, 2, 2]    # corresponds to N_spaces
     'move_type': [1,0,0,0]              # moving mesh function selector
     
 # square pulse source

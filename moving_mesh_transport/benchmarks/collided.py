@@ -11,6 +11,7 @@ from .benchmark_functions import find_intervals_2D_gaussian_s
 from .benchmark_functions import F_line_source_1,  F_line_source_2
 from .benchmark_functions import  P1_su_olson_mat_integrand
 from .benchmark_functions import  P1_su_olson_term1_integrand, P1_su_olson_term2_integrand
+from .benchmark_functions import  find_su_olson_interval
 import scipy.integrate as integrate
 import math
 import numpy as np
@@ -128,7 +129,7 @@ class collided_class:
         eta = rho/t
         res = 0.0
         if eta <1:
-            omega_b = omega_b = math.sqrt(1-eta**2)
+            omega_b = math.sqrt(1-eta**2)
             res = integrate.nquad(F_line_source_2, [[0, omega_b]], args = (u, rho, t), opts = [opts0])[0]
         return res
     
@@ -156,6 +157,12 @@ class collided_class:
             temp[ix] = self.collided_line_source(rho, t)
         return temp
     
+    ########## su olson problem ########################################
+    
+    def P1_su_olson_rad_first_interval(self, tau, x, t):
+        s_range = find_su_olson_interval(self.x0, tau, x)
+        res = integrate.nquad(P1_su_olson_term2_integrand, [s_range], args = (tau, x, t), opts = [opts1, opts1])[0]
+        return res
     
     def P1_su_olson_rad(self, xs, t):
         temp = xs * 0 
@@ -165,12 +172,19 @@ class collided_class:
             trange = [t-10, t]
             
         for ix in prange(xs.size):
-            term1 = integrate.nquad(P1_su_olson_term1_integrand, [[-self.x0, self.x0]], args = (xs[ix], t), opts = [opts1])[0]
-            term2 = integrate.nquad(P1_su_olson_term2_integrand, [[-self.x0, self.x0], trange], args = (xs[ix], t), opts = [opts1, opts1])[0]
+            s_range = find_su_olson_interval(self.x0, t, xs[ix])
+            term1 = integrate.nquad(P1_su_olson_term1_integrand, [s_range], args = (xs[ix], t), opts = [opts1])[0]
+            term2 = integrate.nquad(self.P1_su_olson_rad_first_interval, [trange], args = (xs[ix], t))[0]
             
             temp[ix] = term1 + term2
         return temp 
     
+    
+    def P1_su_olson_mat_first_integral(self, tau, x, t):
+        s_range = find_su_olson_interval(self.x0, tau, x)
+        res = integrate.nquad(P1_su_olson_mat_integrand, [s_range], args = (tau, x, t), opts = [opts1])[0]
+        return res
+        
     def P1_su_olson_mat(self, xs, t):
         temp = xs * 0 
         if t <= 10.0: 
@@ -179,7 +193,7 @@ class collided_class:
             trange = [t-10, t]
             
         for ix in prange(xs.size):
-                temp[ix] = integrate.nquad(P1_su_olson_mat_integrand, [[-self.x0, self.x0], trange], args = (xs[ix], t), opts = [opts1, opts1])[0]
+                temp[ix] = integrate.nquad(self.P1_su_olson_mat_first_integral, [trange], args = (xs[ix], t), opts = [opts1])[0]
         return temp 
     
     def __call__(self, xs, t):

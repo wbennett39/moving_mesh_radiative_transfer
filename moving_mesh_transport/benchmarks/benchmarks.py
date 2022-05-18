@@ -15,6 +15,7 @@ from .uncollided import uncollided_class
 from .collided import collided_class
 
 from ..main_functions import plot_p1_su_olson_mathematica
+from .test_benchmarks import test_P1_against_mathematica
 
 ###############################################################################
 
@@ -71,8 +72,11 @@ class make_benchmark:
         plt.figure(fign)
         plt.plot(self.xs, self.uncollided_sol, "--k")
         plt.plot(self.xs, self.uncollided_sol + self.collided_sol, "-k")
-        if self.source_type == "P1_su_olson_mat":
-                plot_p1_su_olson_mathematica()
+        if self.source_type == "P1_su_olson_rad":
+                test_P1_against_mathematica(self.t, self.xs, self.collided_sol, "rad")
+        elif self.source_type == "P1_su_olson_mat":
+            test_P1_against_mathematica(self.t, self.xs, self.collided_sol, "mat")
+            
         plt.show()
     
         

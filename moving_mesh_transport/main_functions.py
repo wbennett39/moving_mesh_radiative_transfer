@@ -33,3 +33,5 @@ def plot_p1_su_olson_mathematica():
     su_olson_mat = np.loadtxt(benchmark_mat_file_path)
     plt.plot(su_olson_rad[:,0],su_olson_rad[:,1], "xk" )
     plt.plot(su_olson_mat[:,0],su_olson_mat[:,1], "xk" )
+    
+    return [su_olson_rad, su_olson_mat]

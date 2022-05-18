@@ -202,9 +202,9 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             plt.xlabel("x")
             plt.ylabel("scalar flux")
             
-            # plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
-            # if thermal_couple == 1:
-            #     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
+            plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+            if thermal_couple == 1:
+                plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
             
             
     saving.save_RMS(RMS_list, RMS_list_energy, N_angles, r_times)
@@ -222,8 +222,8 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     elif weights == "gauss_legendre":
         mus = quadpy.c1.gauss_legendre(N_ang).points
         ws = quadpy.c1.gauss_legendre(N_ang).weights
-        print(mus)
-        
+    if N_ang == 2:
+        print("mus =", mus)
     xs_quad = quadpy.c1.gauss_legendre(M+2).points
     ws_quad = quadpy.c1.gauss_legendre(M+2).weights
     t_quad = quadpy.c1.gauss_legendre(t_nodes).points

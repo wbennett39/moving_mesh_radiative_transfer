@@ -515,6 +515,11 @@ def P1_su_olson_mat_integrand(args):
     
     return temp
 
+def find_su_olson_interval(x0, t, x):
+    left = max(-x0, (-math.sqrt(3) * t + 3 * x)/3)
+    right = min(x0, (math.sqrt(3) * t + 3 * x)/3)
+    return [left, right]
+
 ######################saving solution##########################################
 def make_benchmark_file_structure():
     data_folder = Path("moving_mesh_transport/benchmarks")
@@ -540,4 +545,5 @@ def write_to_file(xs, phi, uncol, tfinal, source_name, npnts):
         f.create_dataset(source_name + f'/t = {tfinal}', (3, npnts), dtype = "f", data=(xs, phi, uncol))
     f.close()
     
+
     
