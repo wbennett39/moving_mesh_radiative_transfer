@@ -10,7 +10,8 @@ from .make_plots import rms_plotter
 
 def plot_all_rms_cells(tfinal, M):
     major = 'cells'
-    source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s", "su_olson", "su_olson_energy"]
+    source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s",
+                         "su_olson", "su_olson_energy", "su_olson_s2", "su_olson_energy_s2"]
     case_list_1 = [True, True, False, False]
     case_list_2 = [True, False, True, False]
     
@@ -31,15 +32,15 @@ def plot_all_rms_cells(tfinal, M):
                 
     plotter = rms_plotter(tfinal, 2, "MMS", major)
     plotter.load_RMS_data(uncollided = False, moving = True)
-    plotter.plot_RMS_vs_cells(8, clear)
+    plotter.plot_RMS_vs_cells(10, clear)
     
     plotter = rms_plotter(tfinal, 4, "MMS", major)
     plotter.load_RMS_data(uncollided = False, moving = True)
-    plotter.plot_RMS_vs_cells(8, clear)
+    plotter.plot_RMS_vs_cells(10, clear)
     
     plotter = rms_plotter(tfinal, 6, "MMS", major)
     plotter.load_RMS_data(uncollided = False, moving = True)
-    plotter.plot_RMS_vs_cells(8, clear)
+    plotter.plot_RMS_vs_cells(10, clear)
 
 def plot_rms_Ms(tfinal, source_name, fign):
     major = 'Ms'

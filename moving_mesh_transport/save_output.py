@@ -59,7 +59,7 @@ class save_output:
             saving_condition = True
         else:
             saving_condition = False
-            
+
         if self.major == 'cells':
             if saving_condition == True:
                 print("saving")
@@ -95,7 +95,47 @@ class save_output:
                 dset[4] = self.N_spaces
                 dset[5] = energy_RMS_list
                 f.close()
-        
+            
+    def save_RMS_P1_su_olson(self, RMS_list, energy_RMS_list, N_angles, r_times):
+        if ((self.thermal_couple == 1) and (self.tfinal == 31.6228) or (self.tfinal == 1)):
+            saving_condition = True
+       
+        if saving_condition == True :
+            if self.major == 'cells':
+                print("saving")
+                f = h5py.File(self.config_file_path, 'a')
+                
+                dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
+                destination = f[dest_str]
+                rms_str =  self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.Ms[0])
+                if destination.__contains__(rms_str):
+                    del destination[rms_str]
+                dset = destination.create_dataset(rms_str, (6, len(self.N_spaces)) )
+                dset[0] = self.N_spaces
+                dset[1] = RMS_list
+                dset[2] = N_angles
+                dset[3] = r_times
+                dset[4] = self.Ms
+                dset[5] = energy_RMS_list
+                f.close()
+            
+            elif self.major == 'Ms':
+                print("saving")
+                f = h5py.File(self.config_file_path, 'a')
+                dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
+                destination = f[dest_str]
+                rms_str = 'Ms_' + self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving") + (not(self.moving)) * ("static")
+                if destination.__contains__(rms_str):
+                    del destination[rms_str]
+                dset = destination.create_dataset(rms_str, (5, len(self.N_spaces)) )
+                dset[0] = self.Ms
+                dset[1] = RMS_list
+                dset[2] = N_angles
+                dset[3] = r_times
+                dset[4] = self.N_spaces
+                dset[5] = energy_RMS_list
+                f.close()
+            
             
             
             

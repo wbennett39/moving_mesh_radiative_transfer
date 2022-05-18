@@ -73,14 +73,18 @@ class rms_plotter:
         # f = h5py.File("run_data_RMS.h5", 'r')
         
         self.dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
+        
         if self.source_name =='su_olson' or self.source_name == "su_olson_energy":
             self.dest_str = str('square_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
+        if self.source_name =='su_olson_s2' or self.source_name == "su_olson_energy_s2":
+            self.dest_str = str('square_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
+            
         if self.major == 'cells':
             data_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.M)
         elif self.major == 'Ms':
             data_str = 'Ms_' + self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving") + (not(self.moving)) * ("static") 
         
-        if self.source_name != "su_olson" and self.source_name != "su_olson_energy":
+        if self.source_name != "su_olson" and self.source_name != "su_olson_energy" and self.source_name != "su_olson_energy_s2" and self.source_name != "su_olson_s2":
             data = f[self.dest_str + '/' + data_str]
     
             if self.major == 'cells':
@@ -97,7 +101,7 @@ class rms_plotter:
     
             f.close()
         
-        if self.source_name == "su_olson" or self.source_name == "su_olson_energy":
+        if self.source_name == "su_olson" or self.source_name == "su_olson_energy" or self.source_name == "su_olson_energy_s2" or self.source_name == "su_olson_s2":
             f_rad = h5py.File(self.su_olson_data_file_path, 'r')
             rad_data = f_rad[self.dest_str + '/' + data_str]
             if self.major == 'cells':
@@ -197,7 +201,6 @@ class rms_plotter:
                     if self.M == 4:
                         order_triangle(5, 9, 4, intercept, 2, 1.7)
             elif self.source_name == 'su_olson' or self.source_name == "su_olson_energy":
-                intercept = self.find_c()
                 xlimright = 65
 
             if self.source_name !="su_olson_energy":
@@ -216,7 +219,7 @@ class rms_plotter:
             print(self.source_name)
             print('uncollided', self.uncollided)
             print('moving', self.moving)
-            print('intercept', self.find_c())
+            # print('intercept', self.find_c())
             print("--- --- --- --- --- ")
             
     

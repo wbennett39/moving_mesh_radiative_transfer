@@ -206,8 +206,11 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
             if thermal_couple == 1:
                 plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
             
-            
-    saving.save_RMS(RMS_list, RMS_list_energy, N_angles, r_times)
+    if (weights == "gauss_legendre") and (thermal_couple == 1):
+        saving.save_RMS_P1_su_olson(RMS_list, RMS_list_energy, N_angles, r_times)
+    else:
+        saving.save_RMS(RMS_list, RMS_list_energy, N_angles, r_times)
+        
     if ((tfinal == 1 or tfinal == 5 or tfinal == 10) and thermal_couple == 0):
         plt.plot(xsb, bench, "k-", label = "benchmark")
         plt.plot(-xsb, bench, "k-")
@@ -355,32 +358,32 @@ def run_MMS(uncollided = False, moving = True):
     plt.show(block = False)
     
 def run_all():
-    run_plane_IC(True, True)
-    run_plane_IC(True, False)
-    # # run_plane_IC(False, True)        # this doesn't converge
-    run_plane_IC(False, False)
+    # run_plane_IC(True, True)
+    # run_plane_IC(True, False)
+    # # # run_plane_IC(False, True)        # this doesn't converge
+    # run_plane_IC(False, False)
     
-    run_square_IC(True, True)
-    run_square_IC(True, False)
-    run_square_IC(False, True)
-    run_square_IC(False, False)
+    # run_square_IC(True, True)
+    # run_square_IC(True, False)
+    # run_square_IC(False, True)
+    # run_square_IC(False, False)
     
     run_square_source(True, True)
     run_square_source(True, False)
     run_square_source(False, True)
     run_square_source(False, False)
     
-    run_gaussian_IC(True, True)
-    run_gaussian_IC(True, False)
-    run_gaussian_IC(False, True)
-    run_gaussian_IC(False, False)
+    # run_gaussian_IC(True, True)
+    # run_gaussian_IC(True, False)
+    # run_gaussian_IC(False, True)
+    # run_gaussian_IC(False, False)
     
-    run_gaussian_source(True, True)
-    run_gaussian_source(True, False)
-    run_gaussian_source(False, True)
-    run_gaussian_source(False, False)
+    # run_gaussian_source(True, True)
+    # run_gaussian_source(True, False)
+    # run_gaussian_source(False, True)
+    # run_gaussian_source(False, False)
     
-    run_MMS(False, True)            # only one case is possible for the MMS
+    # run_MMS(False, True)            # only one case is possible for the MMS
         
     
     

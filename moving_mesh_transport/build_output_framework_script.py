@@ -48,7 +48,12 @@ square_s = f.create_group("square_s")
 square_s.create_group("t=1/RMS")
 square_s.create_group("t=5/RMS")
 square_s.create_group("t=10/RMS")
+square_s.create_group("t=31.6228/RMS")
 
+square_s.create_group("t=1/RMS/S2")
+square_s.create_group("t=5/RMS/S2")
+square_s.create_group("t=10/RMS/S2")
+square_s.create_group("t=31.6228/RMS/S2")
 
 
 
