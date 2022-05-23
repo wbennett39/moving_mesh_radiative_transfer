@@ -17,7 +17,7 @@ class save_output:
         elif thermal_couple == 1:
             self.config_file_path = data_folder / 'run_data_radiative_transfer_RMS.h5'
         self.Ms = Ms
-        self.tfinal = int(tfinal)
+        self.tfinal = tfinal
         self.moving = moving
         self.uncollided = uncollided
         self.major = major
@@ -99,13 +99,15 @@ class save_output:
     def save_RMS_P1_su_olson(self, RMS_list, energy_RMS_list, N_angles, r_times):
         if ((self.thermal_couple == 1) and (self.tfinal == 31.6228) or (self.tfinal == 1)):
             saving_condition = True
-       
+        print(self.source_name)
         if saving_condition == True :
             if self.major == 'cells':
                 print("saving")
                 f = h5py.File(self.config_file_path, 'a')
-                
+                if self.tfinal != 31.6228:
+                    self.tfinal = int(self.tfinal)
                 dest_str = str(self.source_name + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
+                print(dest_str)
                 destination = f[dest_str]
                 rms_str =  self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.Ms[0])
                 if destination.__contains__(rms_str):

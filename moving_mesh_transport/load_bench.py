@@ -36,7 +36,6 @@ class load_bench:
         self.t_eval_str = ["t = 1", "t = 5", "t = 10", "t = 31.6228"]
         index_of_source_name = np.argmin(np.abs(np.array(self.source_type)-1))
         source_name = self.source_type_str[index_of_source_name]
-        print("loading", source_name)
         self.x0 = x0
         if source_name == "MMS":
             self.ask_for_bench = False
@@ -48,8 +47,7 @@ class load_bench:
         elif tfinal == 10.0:
             self.t_string_index = 2
         elif tfinal == 31.6228:
-            self.t_string_index = 2
-            self.ask_for_bench == False
+            self.t_string_index = 3
         else:
             self.ask_for_bench = False
             
@@ -58,6 +56,7 @@ class load_bench:
             self.solution_dataset = f[source_name][tstring]
             self.xs = self.solution_dataset[0]
             self.phi = self.solution_dataset[1]
+            print(self.phi, "loaded solution")
             self.phi_u = self.solution_dataset[2]
             
             self.interpolated_solution = interp1d(self.xs, self.phi, kind = "cubic")

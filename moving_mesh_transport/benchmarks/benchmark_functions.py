@@ -467,7 +467,7 @@ def P1_su_olson_term2_integrand(args):
                 temp2 = math.exp(-tau) * tau * bessel_first(1, arg_t) / arg_t
     
     elif t > 10:    
-        if (t- sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s)):
+        if (t- sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s) > 0):
             arg_t = math.sqrt(tau**2 - 3*(x-s)**2)
             temp2 = math.exp(-tau) * tau * bessel_first(1, arg_t) / arg_t
             
@@ -489,7 +489,7 @@ def P1_su_olson_term1_integrand(args):
              temp1 = math.exp(-sqrt3 * abs(x-s)) * bessel_first(0.0, 0.0) 
              
      elif t > 10:
-         if (t - sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s)):
+         if (t - sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s) > 0):
              temp1 = math.exp(-sqrt3 * abs(x-s))
              
      temp_rad = sqrt3/2 * (temp1)
@@ -524,7 +524,9 @@ def find_su_olson_interval(x0, t, x):
 def make_benchmark_file_structure():
     data_folder = Path("moving_mesh_transport/benchmarks")
     bench_file_path = data_folder / 'benchmarks.hdf5'
-    source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 'gaussian_source', 'gaussian_IC_2D', 'line_source']
+    source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 
+                        'gaussian_source', 'gaussian_IC_2D', 'line_source', 
+                        "P1_su_olson_rad", "P1_su_olson_mat"]
     
     f = h5py.File(bench_file_path, "a")
     

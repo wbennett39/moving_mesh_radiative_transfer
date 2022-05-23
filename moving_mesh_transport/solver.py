@@ -100,9 +100,11 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     x0s = np.ones(4)*x0
     
     saving = save_output(tfinal, N_spaces, Ms, source_type, moving, uncollided, major, thermal_couple, temp_function)
-    benchmark = load_bench(source_type, tfinal, x0, thermal_couple)
     
-    if (weights == "gauss_legendre") and (thermal_couple == 1):
+    if (weights != "gauss_legendre"):
+        benchmark = load_bench(source_type, tfinal, x0, thermal_couple)
+    
+    elif (weights == "gauss_legendre") and (thermal_couple == 1):
         benchmark = load_bench([0,0,0,0,0,0,0,0,1,0], tfinal, x0, thermal_couple)
         benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,1], tfinal, x0, thermal_couple)
         
@@ -168,13 +170,14 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                 elif weights == "gauss_legendre":
                     phi_bench = benchmark(np.abs(xs))[0]
                     e_bench = benchmark_mat(np.abs(xs))[0]
+                    print(phi_bench)
                     
                     if count == len(N_angles)-1:
                         plt.plot(xs, phi_bench, "-k")
                         plt.plot(-xs,phi_bench, "-k")
                         plt.plot(xs,e_bench, "--k")
                         plt.plot(-xs,e_bench, "--k")
-                        plot_p1_su_olson_mathematica()
+                        # plot_p1_su_olson_mathematica()
                                     
                 RMS = np.sqrt(np.mean((phi - phi_bench)**2))
                 RMS_energy = np.sqrt(np.mean((e - e_bench)**2))

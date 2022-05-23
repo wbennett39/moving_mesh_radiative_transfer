@@ -58,7 +58,9 @@ class make_benchmark:
             tol = 1e-12
             index_of_zero_phi = check_gaussian_tail(self.uncollided_sol + self.collided_sol, tol)
             print(f"solution goes to {tol} at", self.xs[index_of_zero_phi])
-            
+        
+        if self.source_type == "P1_su_olson_rad":
+            print(self.collided_sol, "collided solution")
         
     def save(self):
         phi = self.uncollided_sol + self.collided_sol
@@ -72,9 +74,9 @@ class make_benchmark:
         plt.figure(fign)
         plt.plot(self.xs, self.uncollided_sol, "--k")
         plt.plot(self.xs, self.uncollided_sol + self.collided_sol, "-k")
-        if self.source_type == "P1_su_olson_rad":
+        if self.source_type == "P1_su_olson_rad" and self.t == 1:
                 test_P1_against_mathematica(self.t, self.xs, self.collided_sol, "rad")
-        elif self.source_type == "P1_su_olson_mat":
+        elif self.source_type == "P1_su_olson_mat" and self.t == 1:
             test_P1_against_mathematica(self.t, self.xs, self.collided_sol, "mat")
             
         plt.show()

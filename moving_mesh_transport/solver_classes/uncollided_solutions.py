@@ -9,12 +9,18 @@ import numpy as np
 import math
 
 from .build_problem import build
-from .functions import normPn, numba_expi, uncollided_square_s2
+from .functions import normPn, numba_expi, uncollided_square_s2, uncollided_su_olson_s2
 # from scipy.special import expi as expi2
 
 from numba import float64, int64, deferred_type
 from numba.experimental import jitclass
 ###############################################################################
+"""
+I wonder if it would be faster for this function and other source functions to
+make temp a self. variable and call it instead of returning it 
+"""
+###############################################################################
+
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
 
@@ -34,7 +40,8 @@ data = [("S", float64[:]),
         ("sqs_interval_3", float64),
         ("sqs_interval_4", float64),
         ("t_quad", float64[:]),
-        ("t_ws", float64[:])
+        ("t_ws", float64[:]),
+        ("N_ang", int64)
         ]
 ###############################################################################
 @jitclass(data)
@@ -55,6 +62,7 @@ class uncollided_solution(object):
         self.sqs_interval_4 = 0.0
         self.t_quad = build.t_quad
         self.t_ws = build.t_ws
+        self.N_ang = build.N_ang
         
 ###############################################################################
         
@@ -180,7 +188,16 @@ class uncollided_solution(object):
         return temp
     
     def plane_IC_uncollided_solution_integrated(self, t, xL, xR):
+        #since the solution is piecewise constant, it is easy to integrate over
+        # a cell
         return  (math.exp(-t)/(2*t+self.x0)*math.sqrt(xR-xL))
+    
+    def su_olson_s2_uncollided_solution(self, xs, t):
+        temp = xs*0
+        for ix in range(xs.size):
+            temp[ix] = uncollided_su_olson_s2(xs[ix], t, self.x0, self.t0)
+        return temp
+        
         
     def uncollided_solution(self, xs, t):
         if self.uncollided == True:
@@ -189,12 +206,15 @@ class uncollided_solution(object):
             elif self.source_type[1] == 1:
                 return self.square_IC_uncollided_solution(xs, t)
             elif self.source_type[2] == 1:
-                return self.square_source_uncollided_solution(xs, t)
+                if self.N_ang == 2:
+                    return self.su_olson_s2_uncollided_solution(xs, t)
+                else:
+                    return self.square_source_uncollided_solution(xs, t)
             elif self.source_type[3] == 1:                
                 return self.gaussian_IC_uncollided_solution(xs, t)
             elif self.source_type[5] == 1:
                 return self.gaussian_source_uncollided_solution(xs, t)
-
+            
         else:
             return xs*0
         
