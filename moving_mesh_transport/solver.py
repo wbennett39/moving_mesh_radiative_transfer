@@ -36,6 +36,10 @@ to do:
 [x] plot all problems on same graph
 [x] combine Ms and cells with solve function
 [x] make a parameter function to merge major ms and major cells 
+[x] clean up constants in rhs
+[] s2 uncollided- have edge track discontinuities in the uncollided?
+[] clean loading and saving scripts
+[] fix s2 RMS plots
 
 
 ideas for tests:
@@ -102,11 +106,11 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
     saving = save_output(tfinal, N_spaces, Ms, source_type, moving, uncollided, major, thermal_couple, temp_function)
     
     if (weights != "gauss_legendre"):
-        benchmark = load_bench(source_type, tfinal, x0, thermal_couple)
+        benchmark = load_bench(source_type, tfinal, x0)
     
     elif (weights == "gauss_legendre") and (thermal_couple == 1):
-        benchmark = load_bench([0,0,0,0,0,0,0,0,1,0], tfinal, x0, thermal_couple)
-        benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,1], tfinal, x0, thermal_couple)
+        benchmark = load_bench([0,0,0,0,0,0,0,0,1,0], tfinal, x0)
+        benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,1], tfinal, x0)
         
     
     
@@ -170,7 +174,6 @@ def main(source_name = "plane_IC", uncollided = True, moving = True):
                 elif weights == "gauss_legendre":
                     phi_bench = benchmark(np.abs(xs))[0]
                     e_bench = benchmark_mat(np.abs(xs))[0]
-                    print(phi_bench)
                     
                     if count == len(N_angles)-1:
                         plt.plot(xs, phi_bench, "-k")
@@ -287,106 +290,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
 
 
 
-def run_plane_IC(uncollided = True, moving = True):
-    plt.ion()
-    plt.figure(1)
-    source_name = "plane_IC"
-    print("---  ---  ---  ---  ---  ---  ---")
-    print("running plane IC")
-    print("---  ---  ---  ---  ---  ---  ---")
-    
-    main(source_name, uncollided, moving)
-    plt.title("plane IC")
-    plt.legend()
-    plt.show(block = False)
-    
-def run_square_IC(uncollided = True, moving = True):
-    plt.ion()
-    plt.figure(2)
-    source_name = "square_IC"
-    print("---  ---  ---  ---  ---  ---  ---")
-    print("running square IC")
-    print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
-    plt.title("square IC")
-    plt.legend()
-    plt.show(block = False)
-    
-def run_square_source(uncollided = True, moving = True):
-    plt.ion()
-    plt.figure(3)
-    source_name = "square_source"
-    print("---  ---  ---  ---  ---  ---  ---")
-    print("running square source")
-    print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
-    plt.title("square source")
-    plt.legend()
-    plt.show(block = False)
-    
-def run_gaussian_IC(uncollided = True, moving = True):
-    plt.ion()
-    plt.figure(4)
-    source_name = "gaussian_IC"
-    print("---  ---  ---  ---  ---  ---  ---")
-    print("running Gaussian IC")
-    print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
-    plt.title("Gaussian IC")
-    plt.legend()
-    plt.show(block = False)
-    
-def run_gaussian_source(uncollided = True, moving = True):
-    plt.ion()
-    plt.figure(5)
-    source_name = "gaussian_source"
-    print("---  ---  ---  ---  ---  ---  ---")
-    print("running Gaussian source")
-    print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
-    plt.title("Gaussian source")
-    plt.legend()
-    plt.show(block = False)
-    
-def run_MMS(uncollided = False, moving = True):
-    plt.ion()
-    plt.figure(6)
-    source_name = "MMS"
-    print("---  ---  ---  ---  ---  ---  ---")
-    print("running MMS problem")
-    print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
-    plt.title("MMS")
-    plt.legend()
-    plt.show(block = False)
-    
-def run_all():
-    # run_plane_IC(True, True)
-    # run_plane_IC(True, False)
-    # # # run_plane_IC(False, True)        # this doesn't converge
-    # run_plane_IC(False, False)
-    
-    # run_square_IC(True, True)
-    # run_square_IC(True, False)
-    # run_square_IC(False, True)
-    # run_square_IC(False, False)
-    
-    run_square_source(True, True)
-    run_square_source(True, False)
-    run_square_source(False, True)
-    run_square_source(False, False)
-    
-    # run_gaussian_IC(True, True)
-    # run_gaussian_IC(True, False)
-    # run_gaussian_IC(False, True)
-    # run_gaussian_IC(False, False)
-    
-    # run_gaussian_source(True, True)
-    # run_gaussian_source(True, False)
-    # run_gaussian_source(False, True)
-    # run_gaussian_source(False, False)
-    
-    # run_MMS(False, True)            # only one case is possible for the MMS
+
         
     
     

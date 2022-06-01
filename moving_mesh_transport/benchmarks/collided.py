@@ -174,7 +174,7 @@ class collided_class:
         for ix in prange(xs.size):
             s_range = find_su_olson_interval(self.x0, t, xs[ix])
             term1 = integrate.nquad(P1_su_olson_term1_integrand, [s_range], args = (xs[ix], t), opts = [opts1])[0]
-            term2 = integrate.nquad(self.P1_su_olson_rad_first_interval, [trange], args = (xs[ix], t))[0]
+            term2 = integrate.nquad(self.P1_su_olson_rad_first_interval, [trange], args = (xs[ix], t), opts = [opts1])[0]
             
             temp[ix] = term1 + term2
         return temp 

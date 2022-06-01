@@ -3,17 +3,17 @@
     'tfinal': 1.0 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     't0': 10.0                           # time the source is turned off
-    'N_spaces': [8]         # number of cells
+    'N_spaces': [4,8,16,32]                     # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [8]                           # number of basis functions -1
+    'Ms': [6]                           # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
     'major': 'cells'                       # whether the solver iterates over spaces or M's
-    'radiative_transfer': 1           # material temperature feedback. 1-True, 0 - False
+    'radiative_transfer': 0           # material temperature feedback. 1-True, 0 - False
     'temperature_dependence': [1,0,0,0] # first slot is Su-Olson problem
     'e_initial': 0.0000000001
-    'weights': 'gauss_legendre'
+    'weights': 'gauss_lobatto'
     
 # plane pulse source
 'plane_IC':
@@ -34,7 +34,7 @@
 'square_source':
     'x0': 0.5
     'source_type': [0,0,1,0,0,0,0,0,0]
-    'N_angles': [2]
+    'N_angles': [64,256,256,512]
     'move_type': [0,1,1,0]
     
 # gaussian pulse source

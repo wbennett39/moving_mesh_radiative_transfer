@@ -10,8 +10,11 @@ from .make_plots import rms_plotter
 
 def plot_all_rms_cells(tfinal, M):
     major = 'cells'
-    source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s",
-                         "su_olson", "su_olson_energy", "su_olson_s2", "su_olson_energy_s2"]
+    # source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s",
+    #                      "su_olson", "su_olson_energy", "su_olson_s2", "su_olson_energy_s2"]
+    source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "gaussian_s"
+          , "su_olson_s2", "su_olson_energy_s2"]
+    
     case_list_1 = [True, True, False, False]
     case_list_2 = [True, False, True, False]
     
@@ -183,6 +186,6 @@ def plot_all_benchmarks(tfinal):
     source_list = ["plane_IC", "square_IC", "square_source", "gaussian_IC", "gaussian_source", "MMS", "gaussian_IC_2D", "line_source"]
     for count, source in enumerate(source_list):
         print(source)
-        plotter = rms_plotter(tfinal, M, source)
+        plotter = rms_plotter(tfinal, M, source, "cells")
         plotter.plot_bench(tfinal, source, count)
         

@@ -73,9 +73,7 @@ def P1_su_olson(t, npnts):
     bench_class_mat.integrate(t, npnts)
     bench_class_mat.save()
     bench_class_mat.plot(fign)
-    
-    
-    
+
     
     
     

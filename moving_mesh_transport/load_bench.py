@@ -17,12 +17,13 @@ from pathlib import Path
 ###############################################################################
 
 class load_bench:
-    def __init__(self, source_type, tfinal, x0, radiative_transfer):
+    def __init__(self, source_type, tfinal, x0):
         data_folder = Path("moving_mesh_transport/benchmarks")
         benchmark_file_path = data_folder / "benchmarks.hdf5"
         self.ask_for_bench = True
         self.source_type = source_type
         self.tfinal = tfinal
+        su_olson = 0
         if self.tfinal == 1:
             su_olson = np.loadtxt(data_folder / 'su_olson_1.txt')
         elif self.tfinal == 31.6228:

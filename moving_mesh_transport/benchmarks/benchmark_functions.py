@@ -467,7 +467,7 @@ def P1_su_olson_term2_integrand(args):
                 temp2 = math.exp(-tau) * tau * bessel_first(1, arg_t) / arg_t
     
     elif t > 10:    
-        if (t- sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s) > 0):
+        if (tau- sqrt3 * abs(x-s) > 0.0):
             arg_t = math.sqrt(tau**2 - 3*(x-s)**2)
             temp2 = math.exp(-tau) * tau * bessel_first(1, arg_t) / arg_t
             

@@ -485,13 +485,14 @@ class rms_plotter:
             plt.plot(xs, interp_bench, "-k")
             show(file_path_string + f"/line_source_t_{tfinal}_benchmark")
         elif source_name == "MMS":
-            plt.xlabel("r", fontsize = fntsize)
+            plt.xlabel("x", fontsize = fntsize)
             source_type = np.array([0,0,0,0,1,0,0,0])
             x0 = 0.1
             xs = np.linspace(0, tfinal + x0, npnts)
             bench = load_bench(source_type, tfinal, x0)
             interp_bench = bench(xs)[0]
             plt.plot(xs, interp_bench, "-k")
+            plt.plot(-xs, interp_bench, "-k")
             show(file_path_string + f"/MMS_t_{tfinal}_benchmark")
 
 
