@@ -6,7 +6,7 @@ Created on Tue May 24 13:42:55 2022
 @author: bennett
 """
 import matplotlib.pyplot as plt
-from .solver import main
+from .solver import main_class
 
 def run_plane_IC(uncollided = True, moving = True):
     plt.ion()
@@ -15,8 +15,8 @@ def run_plane_IC(uncollided = True, moving = True):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running plane IC")
     print("---  ---  ---  ---  ---  ---  ---")
-    
-    main(source_name, uncollided, moving)
+    solver = main_class(source_name) 
+    solver.main(uncollided, moving)
     plt.title("plane IC")
     plt.legend()
     plt.show(block = False)
@@ -28,7 +28,8 @@ def run_square_IC(uncollided = True, moving = True):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running square IC")
     print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
+    solver = main_class(source_name) 
+    solver.main(uncollided, moving)
     plt.title("square IC")
     plt.legend()
     plt.show(block = False)
@@ -40,7 +41,8 @@ def run_square_source(uncollided = True, moving = True):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running square source")
     print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
+    solver = main_class(source_name) 
+    solver.main(uncollided, moving)
     plt.title("square source")
     plt.legend()
     plt.show(block = False)
@@ -52,7 +54,8 @@ def run_gaussian_IC(uncollided = True, moving = True):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running Gaussian IC")
     print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
+    solver = main_class(source_name) 
+    solver.main(uncollided, moving)
     plt.title("Gaussian IC")
     plt.legend()
     plt.show(block = False)
@@ -64,7 +67,8 @@ def run_gaussian_source(uncollided = True, moving = True):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running Gaussian source")
     print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
+    solver = main_class(source_name) 
+    solver.main(uncollided, moving)
     plt.title("Gaussian source")
     plt.legend()
     plt.show(block = False)
@@ -76,7 +80,8 @@ def run_MMS(uncollided = False, moving = True):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running MMS problem")
     print("---  ---  ---  ---  ---  ---  ---")
-    main(source_name, uncollided, moving)
+    solver = main_class(source_name) 
+    solver.main(uncollided, moving)
     plt.title("MMS")
     plt.legend()
     plt.show(block = False)
@@ -87,15 +92,15 @@ def run_all():
     # # # run_plane_IC(False, True)        # this doesn't converge
     # run_plane_IC(False, False)
     
-    # run_square_IC(True, True)
-    # run_square_IC(True, False)
-    # run_square_IC(False, True)
-    # run_square_IC(False, False)
+    run_square_IC(True, True)
+    run_square_IC(True, False)
+    run_square_IC(False, True)
+    run_square_IC(False, False)
     
-    run_square_source(True, True)
-    run_square_source(True, False)
-    run_square_source(False, True)
-    run_square_source(False, False)
+    # run_square_source(True, True)
+    # run_square_source(True, False)
+    # run_square_source(False, True)
+    # run_square_source(False, False)
     
     # run_gaussian_IC(True, True)
     # run_gaussian_IC(True, False)

@@ -10,6 +10,7 @@ import math
 
 from .build_problem import build
 from .functions import normPn, numba_expi, uncollided_square_s2, uncollided_su_olson_s2
+from .functions import uncollided_s2_gaussian
 # from scipy.special import expi as expi2
 
 from numba import float64, int64, deferred_type
@@ -41,7 +42,8 @@ data = [("S", float64[:]),
         ("sqs_interval_4", float64),
         ("t_quad", float64[:]),
         ("t_ws", float64[:]),
-        ("N_ang", int64)
+        ("N_ang", int64),
+        ("sigma", float64)
         ]
 ###############################################################################
 @jitclass(data)
@@ -63,6 +65,7 @@ class uncollided_solution(object):
         self.t_quad = build.t_quad
         self.t_ws = build.t_ws
         self.N_ang = build.N_ang
+        self.sigma = build.sigma
         
 ###############################################################################
         
@@ -79,9 +82,9 @@ class uncollided_solution(object):
             tp = t - tau[i]
             
             if tp != 0:
-                erf1 = math.erf(2*(tp - abx)) 
-                erf2 = math.erf(2*(tp + abx))
-                temp[i] = math.exp(-tp)* (erf1 + erf2) / tp
+                erf1 = math.erf((tp - abx)/self.sigma) 
+                erf2 = math.erf((tp + abx)/self.sigma)
+                temp[i] = math.exp(-tp) * (erf1 + erf2) / tp / 4.0
             else:
                 temp[i] = 0.0
         return temp
@@ -94,7 +97,7 @@ class uncollided_solution(object):
             x = xs[ix]
             result = self.integrate_quad_gaussian_source(t, x, 0.0, t_ceiling, self.gaussian_source_integrand)
             temp[ix] = result
-        return temp*sqrtpi/8.0  
+        return temp * sqrtpi * self.sigma   
     
     
     
@@ -197,23 +200,36 @@ class uncollided_solution(object):
         for ix in range(xs.size):
             temp[ix] = uncollided_su_olson_s2(xs[ix], t, self.x0, self.t0)
         return temp
+    
+    def gaussian_s2(self, xs, t):
+        temp = xs*0
+        for ix in range(xs.size):
+            temp[ix] = uncollided_s2_gaussian(xs[ix], t, self.sigma, self.t0)
+        return temp
         
         
     def uncollided_solution(self, xs, t):
         if self.uncollided == True:
             if self.source_type[0] == 1:
                 return self.plane_IC_uncollided_solution(xs, t)
+            
             elif self.source_type[1] == 1:
                 return self.square_IC_uncollided_solution(xs, t)
+            
             elif self.source_type[2] == 1:
                 if self.N_ang == 2:
                     return self.su_olson_s2_uncollided_solution(xs, t)
                 else:
                     return self.square_source_uncollided_solution(xs, t)
+                
             elif self.source_type[3] == 1:                
                 return self.gaussian_IC_uncollided_solution(xs, t)
+            
             elif self.source_type[5] == 1:
-                return self.gaussian_source_uncollided_solution(xs, t)
+                if self.N_ang == 2:
+                    return self.gaussian_s2(xs,t)
+                else:
+                    return self.gaussian_source_uncollided_solution(xs, t)
             
         else:
             return xs*0

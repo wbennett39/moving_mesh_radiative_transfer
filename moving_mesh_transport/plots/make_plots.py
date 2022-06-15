@@ -34,7 +34,7 @@ class rms_plotter:
         self.su_olson_data_file_path = data_folder / "run_data_radiative_transfer_RMS.h5"
         if self.M == 2:
             self.mkr = "o"
-        elif self.M == 4:
+        elif self.M == 4:        
             self.mkr = "^"
         elif self.M == 6:
             self.mkr = "s"
@@ -51,6 +51,16 @@ class rms_plotter:
         print(slope, 'slope')
         print(np.exp(slope), 'exp slope')
         return np.exp(intercept)
+    
+    def find_c_semilog(self):
+        """
+        Finds the intercept from log log data. Skips the first data point
+        """
+        x = self.Ms[1:]
+        y = np.log(self.RMS[1:])
+        slope, intercept, r, p, se = linregress(x, y)
+        print(slope, 'slope - c1')
+        return slope
         
         
     def load_RMS_data(self, uncollided = True, moving = True):
@@ -78,13 +88,15 @@ class rms_plotter:
             self.dest_str = str('square_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
         if self.source_name =='su_olson_s2' or self.source_name == "su_olson_energy_s2":
             self.dest_str = str('square_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
+        elif self.source_name =='gaussian_s2' or self.source_name == "gaussian_energy_s2":
+            self.dest_str = str('gaussian_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
             
         if self.major == 'cells':
             data_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.M)
         elif self.major == 'Ms':
             data_str = 'Ms_' + self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving") + (not(self.moving)) * ("static") 
         
-        if self.source_name != "su_olson" and self.source_name != "su_olson_energy" and self.source_name != "su_olson_energy_s2" and self.source_name != "su_olson_s2":
+        if self.source_name != "su_olson" and self.source_name != "su_olson_energy" and self.source_name != "su_olson_energy_s2" and self.source_name != "su_olson_s2" and self.source_name != "gaussian_s2" and self.source_name != "gaussian_energy_s2":
             data = f[self.dest_str + '/' + data_str]
     
             if self.major == 'cells':
@@ -101,7 +113,8 @@ class rms_plotter:
     
             f.close()
         
-        if self.source_name == "su_olson" or self.source_name == "su_olson_energy" or self.source_name == "su_olson_energy_s2" or self.source_name == "su_olson_s2":
+        if self.source_name == "su_olson" or self.source_name == "su_olson_energy" or self.source_name == "su_olson_energy_s2" or self.source_name == "su_olson_s2" or self.source_name == "gaussian_s2" or self.source_name == "gaussian_energy_s2":
+            print("loading s2 RMS data")
             f_rad = h5py.File(self.su_olson_data_file_path, 'r')
             rad_data = f_rad[self.dest_str + '/' + data_str]
             if self.major == 'cells':
@@ -128,18 +141,20 @@ class rms_plotter:
         if self.tfinal == 1:
             xlimleft = 1.5
             xlimright = 40
+            
             if self.source_name == "MMS":
-                plt.ylim(10e-12,10e-3)
+                plt.ylim(5e-12,10e-3)
                 if self.M == 6:
                     self.cells = self.cells[:3]
                     self.RMS = self.RMS[:3]
                     intercept = self.find_c()
-                    order_triangle(3, 5, 6, intercept, 2, 5)
+                    order_triangle(3, 5, 7, intercept, 2, 1.5)
                 if self.M == 2:
                     self.cells = self.cells[:5]
                     self.RMS = self.RMS[:5]
                     intercept = self.find_c()
-                    order_triangle(9, 15, 2, intercept, 2, 1.05)
+                    order_triangle(9, 15, 3, intercept, 2, 1.05)
+                    
             elif self.source_name == "square_s":
                 if self.uncollided == True and self.moving == True:
                     intercept = self.find_c()
@@ -152,6 +167,7 @@ class rms_plotter:
                 self.angles = self.angles[1:5]
                 plt.ylim(1e-8,1e-1)
                 xlimleft = 3.5
+                
             elif self.source_name =='square_IC':
                 plt.ylim(1e-8,1e-1)
                 xlimright = 70
@@ -161,9 +177,9 @@ class rms_plotter:
                         order_triangle(9, 15, 2, intercept, 2, 1.5)
                     elif self.M == 4:
                         order_triangle(9, 15, 2, intercept, 2, 1.5)
+                        
             elif self.source_name == 'plane_IC':
                 plt.ylim(1e-6, 1)
-                print(self.RMS[0:2])
                 if self.uncollided == True and self.moving == True:
                     
                     intercept = self.find_c()
@@ -176,37 +192,73 @@ class rms_plotter:
                         order_triangle(9, 15, 1, intercept, 2, 1.7)
                     elif self. M == 4:
                         order_triangle(9, 15, 1, intercept, 2, 1.7)
+                        
             elif self.source_name == 'gaussian_IC':
-                self.cells = self.cells[:4]
-                self.RMS = self.RMS[:4]
-                self.angles = self.angles[:4]
-                xlimright = 24
-                plt.ylim(1e-9,1e-2)
+              
+                xlimright = 67
+                if self.M == 6:
+                    if self.M == 6:
+                        xlimright = 18
+                        self.cells = self.cells[:4]
+                        self.RMS = self.RMS[:4]
+                        self.angles = self.angles[:4]
+                        
+                elif self.M == 3:
+                    xlimright = 67
+                        
+                        
                 if self.uncollided == True and self.moving == True:
                     intercept = self.find_c()
+                    
                     if self.M == 6:
-                        order_triangle(5, 9, 6, intercept, 2, 1.7)
+                        order_triangle(3, 5, 6, intercept, 2, 1.7)
+                        plt.ylim(1e-8,1e-2)
+                        
                     elif self.M == 4:
                         order_triangle(5, 9, 4, intercept, 2, 1.7)
+                        plt.ylim(1e-8,1e-1)
+                        
+                    elif self.M == 3:
+                        order_triangle(5, 12, 4, intercept, 2, 1.7)
+                        plt.ylim(1e-8,1e-1)
+                        
             elif self.source_name == 'gaussian_s':
-                self.cells = self.cells[:4]
-                self.RMS = self.RMS[:4]
-                self.angles = self.angles[:4]
-                xlimright = 24
-                plt.ylim(1e-9,1e-1)
+                self.cells = self.cells[:]
+                self.RMS = self.RMS[:]
+                self.angles = self.angles[:]
+                
+                
+                if self.M == 6:
+                   self.cells = self.cells[:4]
+                   self.RMS = self.RMS[:4]
+                   self.angles = self.angles[:4]
+                   xlimright = 18
+                
+                elif self.M == 3:
+                    xlimright = 67
+                   
+                   
                 if self.uncollided == True and self.moving == True:
                     intercept = self.find_c()
                     if self.M == 6:
-                        order_triangle(5, 9, 6, intercept, 2, 1.7)
+                        order_triangle(3, 5, 6, intercept, 2, 1.3)
+                        order_triangle(7, 11, 7, intercept, 2, 2.2)
+                        plt.ylim(1e-8,1e-1)
+                        xlimright = 18
                     if self.M == 4:
                         order_triangle(5, 9, 4, intercept, 2, 1.7)
-            elif self.source_name == 'su_olson' or self.source_name == "su_olson_energy":
+                        plt.ylim(1e-9,1e-1)
+                    elif self.M == 3:
+                        order_triangle(5, 9, 4, intercept, 2, 1.7)
+                        plt.ylim(1e-8,1e-1)
+                        
+            elif self.source_name == 'su_olson' or self.source_name == "su_olson_energy" or self.source_name == "gaussian_s2" or self.source_name == "gaussian_energy_s2":
                 xlimright = 65
 
-            if self.source_name !="su_olson_energy":
+            if self.source_name !="su_olson_energy" and self.source_name !="gaussian_energy_s2":
                 plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
             
-            if self.source_name == "su_olson_energy":
+            if self.source_name == "su_olson_energy" or self.source_name == "gaussian_energy_s2":
                 plt.loglog(self.cells, self.energy_RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
             
             if  (self.source_name != 'gaussian_IC' and self.source_name != 'gaussian_s') and (self.uncollided == False and self.moving == False or self.source_name == "MMS" and self.M == 4):
@@ -264,7 +316,9 @@ class rms_plotter:
             self.RMS = self.RMS[:]
             self.angles = self.angles[:]
             xlimright = 10
-            plt.ylim(10e-14, 10e-3,)
+            plt.ylim = 10e-14
+            self.find_c_semilog()
+            
         elif self.source_name == "gaussian_IC" or self.source_name == "gaussian_s":
             self.Ms = self.Ms[:]
             self.RMS = self.RMS[:]
@@ -272,15 +326,15 @@ class rms_plotter:
             plt.ylim = 10e-10
             if (self.uncollided == False) and (self.moving == False):
                 logplot_sn_labels_2(self.Ms, self.RMS, self.angles, 0.02, fign )
+            self.find_c_semilog()
             
-            if self.source_name == 'square_IC' or self.source_name == 'square_s':
-                if (self.uncollided == False) and (self.moving == False):
-                    logplot_sn_labels(self.cells, self.RMS, self.angles, 0.1, fign )
+        elif self.source_name == 'square_IC' or self.source_name == 'square_s':
+            if (self.uncollided == False) and (self.moving == False):
+                logplot_sn_labels(self.cells, self.RMS, self.angles, 0.1, fign )
         plt.semilogy(self.Ms, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
-
         
-   
-            
+        
+        
        
         # plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
         file_path_string = str(self.plot_file_path) + '/' "RMS_plots" '/' + f"{self.source_name}_t={self.tfinal}_RMSE_vs_Ms"
@@ -355,7 +409,7 @@ class rms_plotter:
             
         plt.loglog(self.cells, self.RMS, mkr, c = clr, label = name)
         
-        file_path_string = str(self.plot_file_path) + '/' + f"all_bestt={self.tfinal}_cells_vs_RMSE"
+        file_path_string = str(self.plot_file_path) + '/' + "all_bestt={self.tfinal}_cells_vs_RMSE"
         xlimleft = 1
         xlimright = 33
 
@@ -367,6 +421,48 @@ class rms_plotter:
             
         show_loglog(file_path_string, xlimleft, xlimright)
         plt.show(block = False)
+     
+    def plot_best_static(self, mkr, clr):
+         plt.ion()
+         plt.figure(1)
+         
+         plt.xlabel("cells", fontsize = 20)
+         plt.ylabel("RMSE", fontsize = 20)
+         
+         if self.source_name == 'plane_IC':
+             name = 'plane pulse'
+         elif self.source_name == 'square_IC':
+             name = 'square pulse'
+         elif self.source_name == 'square_s':
+             self.cells = self.cells[1:]
+             self.RMS = self.RMS[1:]
+             self.angles = self.angles[1:]
+             
+             name = 'square source'
+         elif self.source_name =='gaussian_IC':
+             name = 'Gaussian pulse'
+         elif self.source_name == 'gaussian_s':
+             name = 'Gaussian source'
+             intercept = self.find_c()
+             order_triangle(3, 6, 6, intercept, 2, 500)
+         elif self.source_name == 'MMS':
+             name = 'MMS'
+
+             
+         plt.loglog(self.cells, self.RMS, mkr, c = clr, label = name)
+         
+         file_path_string = str(self.plot_file_path) + '/' + "all_best_static_t={self.tfinal}_cells_vs_RMSE"
+         xlimleft = 1
+         xlimright = 33
+
+         
+         plt.ylim(10e-8, 10e-3)
+         
+         if self.source_name == 'gaussian_s':
+             plt.legend(loc='lower right')
+             
+         show_loglog(file_path_string, xlimleft, xlimright)
+         plt.show(block = False)
         
         
         
@@ -391,8 +487,8 @@ class rms_plotter:
             plt.plot(xs2, interp_bench2, "-k")
             plt.plot(-xs2, interp_bench2, "-k")
             if tfinal == 1:
-                plt.plot(xs2, uncol2, "--k")
-                plt.plot(-xs2, uncol2, "--k")
+                plt.plot(xs2, uncol2, "-.k")
+                plt.plot(-xs2, uncol2, "-.k")
             
             show(file_path_string + f"/plane_IC_t_{tfinal}_benchmark")
             plt.show(block = False)
@@ -406,8 +502,8 @@ class rms_plotter:
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
             if tfinal == 1:
-                plt.plot(xs, uncol, "--k")
-                plt.plot(-xs, uncol, "--k")
+                plt.plot(xs, uncol, "-.k")
+                plt.plot(-xs, uncol, "-.k")
             show(file_path_string + f"/square_IC_t_{tfinal}_benchmark")
             plt.show()
         elif source_name == "square_source":
@@ -420,8 +516,8 @@ class rms_plotter:
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
             if tfinal == 1 or tfinal == 5:
-                plt.plot(xs, uncol, "--k")
-                plt.plot(-xs, uncol, "--k")
+                plt.plot(xs, uncol, "-.k")
+                plt.plot(-xs, uncol, "-.k")
             show(file_path_string + f"/square_source_t_{tfinal}_benchmark")
             plt.show()
         elif source_name == "gaussian_IC":
@@ -437,8 +533,8 @@ class rms_plotter:
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
             if tfinal == 1:
-                plt.plot(xs, uncol, "--k")
-                plt.plot(-xs, uncol, "--k")
+                plt.plot(xs, uncol, "-.k")
+                plt.plot(-xs, uncol, "-.k")
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
             show(file_path_string + f"/gaussian_IC_t_{tfinal}_benchmark")
@@ -455,8 +551,8 @@ class rms_plotter:
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
             if tfinal == 1 or tfinal == 5:
-                plt.plot(xs, uncol, "--k")
-                plt.plot(-xs, uncol, "--k")
+                plt.plot(xs, uncol, "-.k")
+                plt.plot(-xs, uncol, "-.k")
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
             show(file_path_string + f"/gaussian_source_t_{tfinal}_benchmark")

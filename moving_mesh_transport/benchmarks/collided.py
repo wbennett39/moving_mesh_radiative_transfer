@@ -10,7 +10,9 @@ from .benchmark_functions import F1_2D_gaussian_pulse,F2_2D_gaussian_pulse
 from .benchmark_functions import find_intervals_2D_gaussian_s
 from .benchmark_functions import F_line_source_1,  F_line_source_2
 from .benchmark_functions import  P1_su_olson_mat_integrand
+from .benchmark_functions import  P1_gaussian_mat_integrand
 from .benchmark_functions import  P1_su_olson_term1_integrand, P1_su_olson_term2_integrand
+from .benchmark_functions import  P1_gaussian_term1_integrand, P1_gaussian_term2_integrand
 from .benchmark_functions import  find_su_olson_interval
 import scipy.integrate as integrate
 import math
@@ -26,10 +28,12 @@ def opts2(*args, **kwargs):
        return {'limit':1000, 'epsabs':1.5e-8, 'epsrel':1.5e-8}  # used for sources 
 
 class collided_class:
-    def __init__(self, source_type, x0, t0):
+    def __init__(self, source_type, x0, t0, sigma):
         self.x0 = x0
         self.t0 = t0
         self.source_type = source_type
+        self.sigma = sigma
+        
     
     def plane_IC(self, xs,t):
         temp = xs*0
@@ -113,7 +117,7 @@ class collided_class:
         # b = rho + t
         # interval = [a, b]
         interval = find_intervals_2D_gaussian_s(rho, t, theta, thetap)
-        res = integrate.nquad(self.gaussian_pulse_2D_double_integral, [interval], args = (thetap, rho, t, theta, x0), opts = [opts0])[0]
+        res = integrate.nquad(self.gaussian_pulse_2D_double_integral, [interval], args = (thetap, rho, t, theta, x0), opts = [opts1])[0]
         
         return res
 
@@ -121,7 +125,7 @@ class collided_class:
         """ integrates over thetap
         """
 
-        res = integrate.nquad(self.collided_gauss_2D_s, [[0, math.pi*2]], args = (rho, t, x0), opts = [opts0])[0]
+        res = integrate.nquad(self.collided_gauss_2D_s, [[0, math.pi*2]], args = (rho, t, x0), opts = [opts1])[0]
         
         return res
     
@@ -130,13 +134,13 @@ class collided_class:
         res = 0.0
         if eta <1:
             omega_b = math.sqrt(1-eta**2)
-            res = integrate.nquad(F_line_source_2, [[0, omega_b]], args = (u, rho, t), opts = [opts0])[0]
+            res = integrate.nquad(F_line_source_2, [[0, omega_b]], args = (u, rho, t), opts = [opts1])[0]
         return res
     
     def collided_line_source(self, rho, t):
         
         res1  = integrate.nquad(self.F_line_source_2_first_integral, [[0, math.pi]], args = (rho, t), opts = [opts0])[0]
-        res2 = integrate.nquad(F_line_source_1, [[0, math.pi]], args = (rho, t), opts = [opts0])[0]
+        res2 = integrate.nquad(F_line_source_1, [[0, math.pi]], args = (rho, t), opts = [opts1])[0]
         
         return res1 + res2
     
@@ -180,6 +184,7 @@ class collided_class:
         return temp 
     
     
+    
     def P1_su_olson_mat_first_integral(self, tau, x, t):
         s_range = find_su_olson_interval(self.x0, tau, x)
         res = integrate.nquad(P1_su_olson_mat_integrand, [s_range], args = (tau, x, t), opts = [opts1])[0]
@@ -195,6 +200,44 @@ class collided_class:
         for ix in prange(xs.size):
                 temp[ix] = integrate.nquad(self.P1_su_olson_mat_first_integral, [trange], args = (xs[ix], t), opts = [opts1])[0]
         return temp 
+    
+    def P1_gaussian_rad_first_interval(self, tau, x, t, sigma):
+        s_range = [(-math.sqrt(3)*tau + 3*x)/3,(math.sqrt(3)*tau + 3*x)/3]
+        res = integrate.nquad(P1_gaussian_term2_integrand, [s_range], args = (tau, x, t, sigma), opts = [opts1, opts1])[0]
+        return res
+    
+    def P1_gaussian_rad(self, xs, t, sigma):
+        temp = xs * 0 
+        if t <= 10.0: 
+            trange = [0, t]
+        else:
+            trange = [t-10, t]
+            
+        for ix in prange(xs.size):
+            s_range = [(-math.sqrt(3)*t + 3*xs[ix])/3,(math.sqrt(3)*t + 3*xs[ix])/3]
+            term1 = integrate.nquad(P1_gaussian_term1_integrand, [s_range], args = (xs[ix], t, sigma), opts = [opts1])[0]
+            term2 = integrate.nquad(self.P1_gaussian_rad_first_interval, [trange], args = (xs[ix], t, sigma), opts = [opts1])[0]
+            # term1 = 0
+            # term2 = 0
+            temp[ix] = term1 + term2
+        return temp 
+    
+    def P1_gaussian_mat_first_integral(self, tau, x, t, sigma):
+        s_range = [(-math.sqrt(3)*tau + 3*x)/3,(math.sqrt(3)*tau + 3*x)/3]
+        res = integrate.nquad(P1_gaussian_mat_integrand, [s_range], args = (tau, x, t, sigma), opts = [opts1])[0]
+        return res
+
+    def P1_gaussian_mat(self, xs, t, sigma):
+        temp = xs * 0 
+        if t <= 10.0: 
+            trange = [0, t]
+        else:
+            trange = [t-10, t]
+            
+        for ix in prange(xs.size):
+                temp[ix] = integrate.nquad(self.P1_gaussian_mat_first_integral, [trange], args = (xs[ix], t, sigma), opts = [opts1])[0]
+        return temp 
+    
     
     def __call__(self, xs, t):
         if self.source_type == 'plane_IC':
@@ -215,5 +258,9 @@ class collided_class:
             return self.P1_su_olson_rad(xs, t)
         elif self.source_type == "P1_su_olson_mat":
             return self.P1_su_olson_mat(xs, t)
+        elif self.source_type == "P1_gaussian_rad":
+            return self.P1_gaussian_rad(xs, t, self.sigma)
+        elif self.source_type == "P1_gaussian_mat":
+            return self.P1_gaussian_mat(xs, t, self.sigma)
             
         

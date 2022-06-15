@@ -490,7 +490,7 @@ def P1_su_olson_term1_integrand(args):
              
      elif t > 10:
          if (t - sqrt3 * abs(x-s) > 0.0) and (10 - t + sqrt3 * abs(x-s) > 0):
-             temp1 = math.exp(-sqrt3 * abs(x-s))
+             temp1 = math.exp(-sqrt3 * abs(x-s)) 
              
      temp_rad = sqrt3/2 * (temp1)
      
@@ -520,13 +520,73 @@ def find_su_olson_interval(x0, t, x):
     right = min(x0, (math.sqrt(3) * t + 3 * x)/3)
     return [left, right]
 
+
+@jit_F1
+def P1_gaussian_term1_integrand(args):
+    s = args[0]
+    x = args[1]
+    t = args[2]
+    sigma = args[3]
+    
+    temp = 0.0
+    if t <= 10:
+        temp = bessel_first(0,0) * math.exp(-s**2/sigma**2) * math.exp(-math.sqrt(3)*abs(x-s))
+    elif t > 10:
+       if  (10 - t + math.sqrt(3) * abs(x-s) > 0):
+            temp = bessel_first(0,0) * math.exp(-s**2/sigma**2) * math.exp(-math.sqrt(3)*abs(x-s))
+           
+    return math.sqrt(3)/2 * temp
+
+@jit_F1
+def P1_gaussian_term2_integrand(args):
+    s = args[0]
+    tau = args[1]
+    x = args[2]
+    t = args[3]
+    sigma = args[4]
+    
+    temp = 0.0
+    temp2 = 0.0
+    sqrt3 = math.sqrt(3)    
+    if (tau - sqrt3 * abs(x-s)) > 0.0:
+        arg_t = math.sqrt(tau**2 - 3 * (x-s)**2)
+        if arg_t != 0:
+            temp2 = math.exp(-tau) * tau * bessel_first(1, arg_t) * math.exp(-s**2/sigma**2) / arg_t 
+            
+    temp = sqrt3/2 * (temp2)
+    
+    return temp
+
+@jit_F1
+def P1_gaussian_mat_integrand(args):
+    s = args[0]
+    tau = args[1]
+    x = args[2]
+    t = args[3]
+    sigma = args[4]
+    
+    temp = 0.0
+    temp2 = 0.0
+    sqrt3 = math.sqrt(3)
+
+    arg_t = math.sqrt(tau**2 - 3 * (x-s)**2)
+    if (tau - sqrt3 * abs(x-s)) > 0:
+        temp2 = math.exp(-tau) * bessel_first(0, arg_t) * math.exp(-s**2/sigma**2)
+            
+    temp = sqrt3/2 * (temp2)
+    return temp
+        
+    
+    
+
 ######################saving solution##########################################
 def make_benchmark_file_structure():
     data_folder = Path("moving_mesh_transport/benchmarks")
     bench_file_path = data_folder / 'benchmarks.hdf5'
     source_name_list = ['plane_IC', 'square_IC', 'square_source', 'gaussian_IC', 
                         'gaussian_source', 'gaussian_IC_2D', 'line_source', 
-                        "P1_su_olson_rad", "P1_su_olson_mat"]
+                        "P1_su_olson_rad", "P1_su_olson_mat", "P1_gaussian_rad_thick", 
+                        "P1_gaussian_mat_thick"]
     
     f = h5py.File(bench_file_path, "a")
     
@@ -537,15 +597,22 @@ def make_benchmark_file_structure():
     
     f.close()
 
-def write_to_file(xs, phi, uncol, tfinal, source_name, npnts):
+def write_to_file(xs, phi, uncol, tfinal, source_name, npnts, x0_or_sigma):
     data_folder = Path("moving_mesh_transport/benchmarks")
     bench_file_path = data_folder / 'benchmarks.hdf5'
+    
+    if x0_or_sigma == 300:
+        if source_name == 'P1_gaussian_rad':
+            source_name = 'P1_gaussian_rad_thick'
+        elif source_name == 'P1_gaussian_mat':
+            source_name = 'P1_gaussian_mat_thick'
     
     with h5py.File(bench_file_path,'r+') as f:
         if f.__contains__(source_name + f'/t = {tfinal}'):
             del f[source_name + f'/t = {tfinal}'] 
         f.create_dataset(source_name + f'/t = {tfinal}', (3, npnts), dtype = "f", data=(xs, phi, uncol))
     f.close()
+
     
 
     

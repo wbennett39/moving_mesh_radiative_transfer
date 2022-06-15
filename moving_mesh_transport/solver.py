@@ -6,29 +6,32 @@ from timeit import default_timer as timer
 import yaml
 from pathlib import Path
 
-from .solver_classes.build_problem import build
-from .solver_classes.matrices import G_L
-from .solver_classes.numerical_flux import LU_surf
-from .solver_classes.sources import source_class
-from .solver_classes.uncollided_solutions import uncollided_solution
-from .solver_classes.phi_class import scalar_flux
-from .solver_classes.mesh import mesh_class
-from .solver_classes.rhs_class import rhs_class
-from .solver_classes.make_phi import make_output
-from .solver_classes.radiative_transfer import T_function
+# from .solver_classes.build_problem import build
+# from .solver_classes.matrices import G_L
+# from .solver_classes.numerical_flux import LU_surf
+# from .solver_classes.sources import source_class
+# from .solver_classes.uncollided_solutions import uncollided_solution
+# from .solver_classes.phi_class import scalar_flux
+# from .solver_classes.mesh import mesh_class
+# from .solver_classes.rhs_class import rhs_class
+# from .solver_classes.make_phi import make_output
+# from .solver_classes.radiative_transfer import T_function
 from .solver_classes.functions import find_nodes, convergence
 from .save_output import save_output
 from .load_bench import load_bench
 
 from .main_functions import parameter_function
-from .main_functions import plot_p1_su_olson_mathematica
+# from .main_functions import plot_p1_su_olson_mathematica
+
+from .load_parameters import parameter_load_class
+
+from .main_functions import solve
 ###############################################################################
 """ 
 to do:
 
 [] update README
 
-[x] no-uncollided plane source doesnt converge -- take it out
 
 [] either s or source, pick one
 [] save solution somewhere
@@ -37,9 +40,10 @@ to do:
 [x] combine Ms and cells with solve function
 [x] make a parameter function to merge major ms and major cells 
 [x] clean up constants in rhs
-[] s2 uncollided- have edge track discontinuities in the uncollided?
 [] clean loading and saving scripts
 [] fix s2 RMS plots
+[] get source type array under control 
+[] variable sigma 
 
 
 ideas for tests:
@@ -64,229 +68,211 @@ long term goals:
 [] finite domain for ganapol? 
 
 """
-###############################################################################
-data_folder = Path("moving_mesh_transport")
-config_file_path = data_folder / "config.yaml"
-###############################################################################
+# ###############################################################################
+# data_folder = Path("moving_mesh_transport")
+# config_file_path = data_folder / "config.yaml"
+# ###############################################################################
 
 
-def main(source_name = "plane_IC", uncollided = True, moving = True):
+
+class main_class(parameter_load_class):
     
-    with open(config_file_path, 'r') as file:
-       parameters = yaml.safe_load(file)
-    file.close()
-    #'C:/users/bennett/Documents/GitHub/MovingMesh/moving_mesh_radiative_transfer/src/package/
-    tfinal = float(parameters['all']['tfinal'])
-    N_spaces = np.array(parameters['all']['N_spaces'])
-    Ms = np.array(parameters['all']['Ms'])
-    N_runs = int(parameters['all']['N_runs'])
-    t_nodes = int(parameters['all']['tnodes'])
-    rt = float(parameters['all']['rt'])
-    at = float(parameters['all']['at'])
-    t0 = float(parameters['all']['t0'])
-    scattering_ratio = float(parameters['all']['c'])
-    major = str(parameters['all']['major'])
-    thermal_couple = int(parameters['all']['radiative_transfer'])
-    temp_function = np.array(parameters['all']['temperature_dependence'])
-    e_initial = float(parameters['all']['e_initial'])
-    weights = str(parameters['all']['weights'])
+    pass
+
     
     
-    N_angles = np.array(parameters[source_name]['N_angles'])
-    x0 = float(parameters[source_name]['x0'])
-    source_type = np.array(parameters[source_name]['source_type'])
-    move_type = np.array(parameters[source_name]['move_type'])
+#     with open(config_file_path, 'r') as file:
+#        parameters = yaml.safe_load(file)
+#     file.close()
+#     #'C:/users/bennett/Documents/GitHub/MovingMesh/moving_mesh_radiative_transfer/src/package/
+#     tfinal = float(parameters['all']['tfinal'])
+#     N_spaces = np.array(parameters['all']['N_spaces'])
+#     Ms = np.array(parameters['all']['Ms'])
+#     N_runs = int(parameters['all']['N_runs'])
+#     t_nodes = int(parameters['all']['tnodes'])
+#     rt = float(parameters['all']['rt'])
+#     at = float(parameters['all']['at'])
+#     t0 = float(parameters['all']['t0'])
+#     scattering_ratio = float(parameters['all']['c'])
+#     major = str(parameters['all']['major'])
+#     thermal_couple = int(parameters['all']['radiative_transfer'])
+#     temp_function = np.array(parameters['all']['temperature_dependence'])
+#     e_initial = float(parameters['all']['e_initial'])
+#     weights = str(parameters['all']['weights'])
+#     benchmarking = int(parameters['all']['benchmarking'])
+#     saving = int(parameters['all']['save_solution'])
     
     
-    r_times = np.zeros(len(N_angles))
-    RMS_list = np.zeros(len(N_angles))
-    RMS_list_energy = np.zeros(len(N_angles))
-    x0s = np.ones(4)*x0
+#     N_angles = np.array(parameters[source_name]['N_angles'])
+#     x0 = np.array(parameters[source_name]['x0'])
+#     source_type = np.array(parameters[source_name]['source_type'])
+#     move_type = np.array(parameters[source_name]['move_type'])
     
-    saving = save_output(tfinal, N_spaces, Ms, source_type, moving, uncollided, major, thermal_couple, temp_function)
+
+#     r_times = np.zeros(len(N_angles))
+#     RMS_list = np.zeros(len(N_angles))
+#     RMS_list_energy = np.zeros(len(N_angles))
     
-    if (weights != "gauss_legendre"):
-        benchmark = load_bench(source_type, tfinal, x0)
     
-    elif (weights == "gauss_legendre") and (thermal_couple == 1):
-        benchmark = load_bench([0,0,0,0,0,0,0,0,1,0], tfinal, x0)
-        benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,1], tfinal, x0)
+#     if source_name in ["gaussian_IC", "gaussian_source"]:
+#         sigma = float(parameters[source_name]['sigma'])
+#         x0_or_sigma = sigma
+#     else:
+#         x0_or_sigma = x0
+#         sigma = 0
+    def main(self, uncollided = True, moving = True):  
+        saving = save_output(self.tfinal, self.N_spaces, self.Ms, self.source_type, 
+                             moving, uncollided, self.major, self.thermal_couple, 
+                             self.temp_function, self.scattering_ratio, self.sigma)
         
-    
-    
-    print("--- --- --- --- --- --- ")
-    print("tfinal = ", tfinal )
-    print("c = ", scattering_ratio)
-    print("--- --- --- --- --- --- ")
-    if source_type[0] == 1:
-        xsb2 = np.linspace(0, tfinal , 1000)
-        xsb = np.concatenate((xsb2, np.ones(1)*1.0000001))
-        bench = np.concatenate((benchmark(xsb2)[0],np.zeros(1)))
-    else:
-        xsb = np.linspace(0, tfinal + x0, 100000)
-        bench = benchmark(xsb)[0]
+        if (self.weights != "gauss_legendre") and self.sigma != 300:
+            benchmark = load_bench(self.source_type, self.tfinal, self.x0_or_sigma)
+            
+        elif (self.weights != "gauss_legendre") and self.sigma == 300:
+            benchmark = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,1,0], self.tfinal, self.x0_or_sigma)
+            benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,0,1], self.tfinal, self.x0_or_sigma)
         
-
-    
-    print("uncollided  = ", uncollided)
-    print("moving mesh = ", moving)
-    print("---  ---  ---  ---  ---  ---  ---")
-    for nr in range(N_runs):
-        for count, N_ang in enumerate(N_angles):
-            N_space, M = parameter_function(major, N_spaces, Ms, count)
-            
-            print("M = ", M)
-            print(N_space, "cells")
-            print(N_ang, "angles")
-            print("---  ---  ---  ---  ---  ---  ---")
-            
-            if source_type[3] == 1 and N_space >= 32:
-                x0 += 1
-            sigma_t = np.ones(N_space)
-            sigma_s = np.ones(N_space)
-            
-            if thermal_couple == 1 and weights == "gauss_lobatto":
-                choose_xs = True
-                specified_xs = benchmark(np.abs(np.linspace(0, tfinal + x0)))[2][:,0]
+        elif (self.weights == "gauss_legendre") and (self.thermal_couple == 1):
+            if self.source_type[2] == 1:
+                    benchmark = load_bench([0,0,0,0,0,0,0,0,0,1,0,0,0,0], self.tfinal, self.x0_or_sigma)
+                    benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,0,1,0,0,0], self.tfinal, self.x0_or_sigma)
+            elif self.source_type[5] == 1 and self.sigma == 0.5 :
+                 benchmark = load_bench([0,0,0,0,0,0,0,0,0,0,0,1,0,0], self.tfinal, self.x0_or_sigma)
+                 benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,1,0], self.tfinal, self.x0_or_sigma)
+            elif self.source_type[5] == 1 and self.sigma == 300 :
+                 benchmark = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,1,0], self.tfinal, self.x0_or_sigma)
+                 benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,0,1], self.tfinal, self.x0_or_sigma)
+                
+        
+        print("--- --- --- --- --- --- ")
+        print("tfinal = ", self.tfinal )
+        print("c = ", self.scattering_ratio)
+        print("x0s", self.x0)
+        print("--- --- --- --- --- --- ")
+        if self.benchmarking == True:
+            print("verifying with benchmark solution")
+        
+        #benchmark for plotting
+        if self.benchmarking == True:
+            if self.source_type[0] == 1:
+                xsb2 = np.linspace(0, self.tfinal , 1000)
+                xsb = np.concatenate((xsb2, np.ones(1)*1.0000001))
+                bench = np.concatenate((benchmark(xsb2)[0],np.zeros(1)))
             else:
-                choose_xs = False
-                specified_xs = 0.0
-            xs, phi, e, time = solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
-                      uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, weights)
+                xsb = np.linspace(0, self.tfinal + self.x0[0], 100000)
+                bench = benchmark(xsb)[0] 
             
-            
-            r_times[count] += (time)/N_runs
-            
-            if thermal_couple == 0:
-                benchmark_solution = benchmark(np.abs(xs))[0]
-                RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
-            elif thermal_couple == 1:
-                if  weights == "gauss_lobatto":
-                    e_xs = benchmark(np.abs(xs))[2][:,0]
-                    phi_bench = benchmark(np.abs(xs))[2][:,1]
-                    e_bench = benchmark(np.abs(xs))[2][:,2]
-
-                    plt.plot(e_xs,phi_bench, "-k")
-                    plt.plot(-e_xs,phi_bench, "-k")
-                    plt.plot(e_xs,e_bench, "--k")
-                    plt.plot(-e_xs,e_bench, "--k")
-
-                elif weights == "gauss_legendre":
-                    phi_bench = benchmark(np.abs(xs))[0]
-                    e_bench = benchmark_mat(np.abs(xs))[0]
+        print("uncollided  = ", uncollided)
+        print("moving mesh = ", moving)
+        print("---  ---  ---  ---  ---  ---  ---")
+    
+        
+        for nr in range(self.N_runs):
+            for count, N_ang in enumerate(self.N_angles):
+                N_space, M = parameter_function(self.major, self.N_spaces, self.Ms, count)
+                
+                if self.source_type[3] or self.source_type[4] == 1:
+                    x0_new = self.x0[count]
+                    print("x0 = ", x0_new)
+                else:
+                    x0_new = self.x0[0]
                     
-                    if count == len(N_angles)-1:
-                        plt.plot(xs, phi_bench, "-k")
-                        plt.plot(-xs,phi_bench, "-k")
-                        plt.plot(xs,e_bench, "--k")
-                        plt.plot(-xs,e_bench, "--k")
-                        # plot_p1_su_olson_mathematica()
-                                    
-                RMS = np.sqrt(np.mean((phi - phi_bench)**2))
-                RMS_energy = np.sqrt(np.mean((e - e_bench)**2))
-                RMS_list_energy[count] = RMS_energy
+                print("M = ", M)
+                print(N_space, "cells")
+                print(N_ang, "angles")
+                print("---  ---  ---  ---  ---  ---  ---")
+    
+                sigma_t = np.ones(N_space)
+                sigma_s = np.ones(N_space)
                 
-            RMS_list[count] = RMS
-            
-            print(N_space, "spaces", "    ", "%.4f" % (time), "time elapsed")
-            print("RMSE", RMS)
-            if thermal_couple == 1:
-                print("energy RMSE", RMS_energy)
-                if count > 0:
-                    print("material energy order", "%.2f" % convergence(RMS_list_energy[count-1], N_spaces[count-1], RMS_energy, N_space))
-            if count > 0:
-                print("Order", "%.2f" % convergence(RMS_list[count-1], N_spaces[count-1], RMS, N_space))
-            plt.xlabel("x")
-            plt.ylabel("scalar flux")
-            
-            # plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
-
+                if self.benchmarking == True and self.thermal_couple == 1 and self.weights == "gauss_lobatto" and self.sigma != 300:
+                    choose_xs = True
+                    specified_xs = benchmark(np.abs(np.linspace(0, self.tfinal + self.x0)))[2][:,0]
+                else:
+                    choose_xs = False
+                    specified_xs = 0.0
+                    
+                xs, phi, e, time = solve(self.tfinal, N_space, N_ang, M, x0_new, 
+                                         self.t0, sigma_t, sigma_s, self.t_nodes, 
+                                         self.scattering_ratio, self.source_type, 
+                                         uncollided, moving, self.move_type, self.thermal_couple,
+                                         self.temp_function, self.rt, self.at, self.e_initial, 
+                                         choose_xs, specified_xs, self.weights, self.sigma)
                 
-            
-            print("---  ---  ---  ---  ---  ---  ---")
+                
+                self.r_times[count] += (time)/self.N_runs
+                
+                plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+                
+                if self.thermal_couple == 1:
+                    plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
+                    
+                plt.xlabel("x")
+                plt.ylabel("scalar flux")
+                    
+                if self.benchmarking == True:
+                    if self.thermal_couple == 0:
+                        benchmark_solution = benchmark(np.abs(xs))[0] #benchmark for RMS
+                    
+                        RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
+                    
+                    elif self.thermal_couple == 1:
+                        if  self.weights == "gauss_lobatto" and self.sigma != 300:
+                            e_xs = benchmark(np.abs(xs))[2][:,0]
+                            phi_bench = benchmark(np.abs(xs))[2][:,1]
+                            e_bench = benchmark(np.abs(xs))[2][:,2]
+        
+                            plt.plot(e_xs,phi_bench, "-k")
+                            plt.plot(-e_xs,phi_bench, "-k")
+                            plt.plot(e_xs,e_bench, "--k")
+                            plt.plot(-e_xs,e_bench, "--k")
+        
+                        elif self.weights == "gauss_legendre" or self.sigma ==300:
+                            phi_bench = benchmark(np.abs(xs))[0]
+                            e_bench = benchmark_mat(np.abs(xs))[0]
+                            
+                            if count == len(self.N_angles)-1:
+                                plt.plot(xs, phi_bench, "-k")
+                                plt.plot(-xs,phi_bench, "-k")
+                                plt.plot(xs,e_bench, "--k")
+                                plt.plot(-xs,e_bench, "--k")
+                                # plot_p1_su_olson_mathematica()
+                                            
+                        RMS = np.sqrt(np.mean((phi - phi_bench)**2))
+                        RMS_energy = np.sqrt(np.mean((e - e_bench)**2))
+                        self.RMS_list_energy[count] = RMS_energy
+                        
+                    self.RMS_list[count] = RMS
+                
+                print(N_space, "spaces", "    ", "%.4f" % (time), "time elapsed")
+                
+                if self.benchmarking == True:
+                    print("RMSE", RMS)
+                    if self.major == 'cells':
+                        if self.thermal_couple == 1:
+                            print("energy RMSE", RMS_energy)
+                            if count > 0:
+                                print("material energy order", "%.2f" % convergence(self.RMS_list_energy[count-1], self.N_spaces[count-1], RMS_energy, N_space))
+                        if count > 0:
+                            print("Order", "%.2f" % convergence(self.RMS_list[count-1], self.N_spaces[count-1], RMS, N_space))
+    
+                
+                print("---  ---  ---  ---  ---  ---  ---")
+    
+    
+    
+        if self.benchmarking == True:
+            if (self.weights == "gauss_legendre") and (self.thermal_couple == 1):
+                saving.save_RMS_P1_su_olson(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times)
+            else:
+                saving.save_RMS(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times)
+                
+            if ((self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10) and self.thermal_couple == 0):
+                plt.plot(xsb, bench, "k-", label = "benchmark")
+                plt.plot(-xsb, bench, "k-")
 
-            plt.xlabel("x")
-            plt.ylabel("scalar flux")
-            
-            plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
-            if thermal_couple == 1:
-                plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
-            
-    if (weights == "gauss_legendre") and (thermal_couple == 1):
-        saving.save_RMS_P1_su_olson(RMS_list, RMS_list_energy, N_angles, r_times)
-    else:
-        saving.save_RMS(RMS_list, RMS_list_energy, N_angles, r_times)
-        
-    if ((tfinal == 1 or tfinal == 5 or tfinal == 10) and thermal_couple == 0):
-        plt.plot(xsb, bench, "k-", label = "benchmark")
-        plt.plot(-xsb, bench, "k-")
-
         
         
-def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
-          uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, weights):
-    if weights == "gauss_lobatto":
-        mus = quadpy.c1.gauss_lobatto(N_ang).points
-        ws = quadpy.c1.gauss_lobatto(N_ang).weights
-    elif weights == "gauss_legendre":
-        mus = quadpy.c1.gauss_legendre(N_ang).points
-        ws = quadpy.c1.gauss_legendre(N_ang).weights
-    if N_ang == 2:
-        print("mus =", mus)
-    xs_quad = quadpy.c1.gauss_legendre(M+2).points
-    ws_quad = quadpy.c1.gauss_legendre(M+2).weights
-    t_quad = quadpy.c1.gauss_legendre(t_nodes).points
-    t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
-    initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
-                       ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
-                       thermal_couple, temp_function, e_initial)
-    initialize.make_IC()
-    IC = initialize.IC
-
-    if thermal_couple == 0:
-        deg_freedom = N_ang*N_space*(M+1)
-    elif thermal_couple == 1:
-        deg_freedom = (N_ang+1)*N_space*(M+1)
-    mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
-    matrices = G_L(initialize)
-    num_flux = LU_surf(initialize)
-    source = source_class(initialize)
-    uncollided_sol = uncollided_solution(initialize)
-    flux = scalar_flux(initialize)
-    rhs = rhs_class(initialize)
-    transfer = T_function(initialize)
-    
-    def RHS(t, V):
-        return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer)
-    
-    start = timer()
-    reshaped_IC = IC.reshape(deg_freedom)
-    sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
-    end = timer()
-    if thermal_couple == 0:
-        sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
-    elif thermal_couple == 1:
-        sol_last = sol.y[:,-1].reshape((N_ang+1,N_space,M+1))
-    
-    mesh.move(tfinal)
-    edges = mesh.edges
-    
-    if choose_xs == False:
-        xs = find_nodes(edges, M)
-        
-    elif choose_xs == True:
-        xs = specified_xs
-        
-    output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
-    phi = output.make_phi(uncollided_sol)
-    if thermal_couple == 1:
-        e = output.make_e()
-    else:
-        e = phi*0
-    
-    computation_time = end-start
-    
-    return xs, phi, e, computation_time
 
 
 

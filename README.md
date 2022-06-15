@@ -108,4 +108,5 @@ make_benchmarks.make_all()
 will integrate the Greens function solution for the plane pulse and produce benchmark results for all of the sources run by the ``solver`` except for the MMS source at times 1, 5, and 10. For this reason, running the ``solver`` at other final times will return results but the benchmark solution will be 0 for all x. 
 
 ### Final notes
-In ``config.yaml`` certain parameters may be easily changed, such as the final evaluation time, number of basis functions, number of cells in the mesh, and number of discrete angles. 
+In ``config.yaml`` certain parameters may be easily changed, such as the final evaluation time, number of basis functions, number of cells in the mesh, and number of discrete angles. Please ensure that the lengths of the  `N_spaces`, `Ms`, and `N_angles` lists are all the same, or the program will complain. 
+

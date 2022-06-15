@@ -46,7 +46,8 @@ data = [("S", float64[:]),
         ("t1", float64),
         ("t2", float64), 
         ("t3", float64),
-        ("tau", float64)
+        ("tau", float64),
+        ("sigma", float64)
         
         ]
 ###############################################################################
@@ -63,6 +64,7 @@ class source_class(object):
         self.moving = build.moving
         self.tfinal = build.tfinal
         self.t0 = build.t0
+        self.sigma = build.sigma
     
     def integrate_quad(self, t, a, b, j, func):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
@@ -92,7 +94,7 @@ class source_class(object):
         for ix in range(xs.size):
             x = xs[ix]
             if t <= self.t0:
-                temp[ix] = math.exp(-4.0*x*x)
+                temp[ix] = math.exp(-x*x/self.sigma**2)
         return temp
         
         
