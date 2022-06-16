@@ -56,3 +56,9 @@ class parameter_load_class:
         else:
             self.x0_or_sigma = self.x0
             self.sigma = 0
+            
+        if source_name in ["square_source", "gaussian_source"]:
+            self.bench_type = str(parameters[source_name]['bench_type'])
+        else:
+            self.bench_type == 'full'
+            

@@ -48,8 +48,6 @@ class rms_plotter:
         x = np.log(self.cells[1:])
         y = np.log(self.RMS[1:])
         slope, intercept, r, p, se = linregress(x, y)
-        print(slope, 'slope')
-        print(np.exp(slope), 'exp slope')
         return np.exp(intercept)
     
     def find_c_semilog(self):
@@ -86,17 +84,35 @@ class rms_plotter:
         
         if self.source_name =='su_olson' or self.source_name == "su_olson_energy":
             self.dest_str = str('square_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS")
+            
         if self.source_name =='su_olson_s2' or self.source_name == "su_olson_energy_s2":
             self.dest_str = str('square_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
-        elif self.source_name =='gaussian_s2' or self.source_name == "gaussian_energy_s2":
+            
+        elif self.source_name in ['gaussian_s2', "gaussian_energy_s2"]:
             self.dest_str = str('gaussian_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
+            
+        elif self.source_name in ['gaussian_s_thick_s2']:
+            self.dest_str = str("gaussian_s_thick" + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
+            
+        elif self.source_name in ['gaussian_s_thick_s8']:
+            self.dest_str = str('gaussian_s_thick' + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S8")
+        
+        elif self.source_name in ['su_olson_thick_s2']:
+            self.dest_str = str("su_olson_thick" + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
+            
+        elif self.source_name in ['su_olson_thick_s8']:
+            self.dest_str = str("su_olson_thick" + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S8")
             
         if self.major == 'cells':
             data_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.M)
         elif self.major == 'Ms':
             data_str = 'Ms_' + self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving") + (not(self.moving)) * ("static") 
         
-        if self.source_name != "su_olson" and self.source_name != "su_olson_energy" and self.source_name != "su_olson_energy_s2" and self.source_name != "su_olson_s2" and self.source_name != "gaussian_s2" and self.source_name != "gaussian_energy_s2":
+        if self.source_name not in ["su_olson", "su_olson_energy", "su_olson_energy_s2",
+                                    "su_olson_s2", "gaussian_s2", "gaussian_energy_s2", 
+                                    'gaussian_s_thick_s2', 'gaussian_s_thick_s8', 'su_olson_thick_s2',
+                                    'su_olson_thick_s8']:
+            
             data = f[self.dest_str + '/' + data_str]
     
             if self.major == 'cells':
@@ -113,7 +129,10 @@ class rms_plotter:
     
             f.close()
         
-        if self.source_name == "su_olson" or self.source_name == "su_olson_energy" or self.source_name == "su_olson_energy_s2" or self.source_name == "su_olson_s2" or self.source_name == "gaussian_s2" or self.source_name == "gaussian_energy_s2":
+        if self.source_name in ["su_olson", "su_olson_energy", "su_olson_energy_s2",
+                                    "su_olson_s2", "gaussian_s2", "gaussian_energy_s2", 
+                                    'gaussian_s_thick_s2', 'gaussian_s_thick_s8', 'su_olson_thick_s2',
+                                    'su_olson_thick_s8']:
             print("loading s2 RMS data")
             f_rad = h5py.File(self.su_olson_data_file_path, 'r')
             rad_data = f_rad[self.dest_str + '/' + data_str]
@@ -128,7 +147,7 @@ class rms_plotter:
             self.times = rad_data[3]
             self.energy_RMS = rad_data[5]
     
-    def plot_RMS_vs_cells(self, fign = 1, clear = False):
+    def plot_RMS_vs_cells(self, fign = 1, clear = False, xlimright = 134):
         plt.ion()
         plt.figure(fign)
         if clear == True:
@@ -140,7 +159,6 @@ class rms_plotter:
         #######################################################################
         if self.tfinal == 1:
             xlimleft = 1.5
-            xlimright = 40
             
             if self.source_name == "MMS":
                 plt.ylim(5e-12,10e-3)

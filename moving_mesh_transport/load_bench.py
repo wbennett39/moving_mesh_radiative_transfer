@@ -37,7 +37,8 @@ class load_bench:
                                 "gaussian_IC", "MMS", "gaussian_source",
                                 "gaussian_IC_2D", "line_source", "P1_su_olson_rad",
                                 "P1_su_olson_mat", "P1_gaussian_rad", "P1_gaussian_mat", 
-                                "P1_gaussian_rad_thick", "P1_gaussian_mat_thick"]
+                                "P1_gaussian_rad_thick", "P1_gaussian_mat_thick",
+                                "P1_su_olson_rad_thick", "P1_su_olson_mat_thick"]
         self.t_eval_str = ["t = 1", "t = 5", "t = 10", "t = 31.6228"]
         index_of_source_name = np.argmin(np.abs(np.array(self.source_type)-1))
         source_name = self.source_type_str[index_of_source_name]
@@ -57,16 +58,16 @@ class load_bench:
             self.ask_for_bench = False
             
         if self.ask_for_bench == True:
+            print("loading bench for ", source_name)
             tstring = self.t_eval_str[self.t_string_index]
             
-            if (source_name == "P1_gaussian_rad") or (source_name == "P1_gaussian_mat"):
-                # sigma_str = "sigma = 0.5"
-                self.solution_dataset = f[source_name][tstring]
-            else:
-
-                source_file = f[source_name]
+            # if (source_name == "P1_gaussian_rad") or (source_name == "P1_gaussian_mat"):
+            #     # sigma_str = "sigma = 0.5"
+            self.solution_dataset = f[source_name][tstring]
+            # else:
+                # source_file = f[source_name]
                 
-                self.solution_dataset = source_file[tstring]
+                # self.solution_dataset = source_file[tstring]
                 
             self.xs = self.solution_dataset[0]
             self.phi = self.solution_dataset[1]
@@ -78,6 +79,7 @@ class load_bench:
         self.e_sol = su_olson
             
         f.close()
+        
     def stich_solution(self, xs):
         """ if an answer is requested outside of the solution interval, adds 
             zeros to the edge of the interpolated solution
@@ -112,6 +114,7 @@ class load_bench:
     
     def __call__(self, xs):
         if self.ask_for_bench == True:
+            
             original_xs = self.xs
             if xs[-1] > original_xs[-1]:
                 beyond_solution_domain = True

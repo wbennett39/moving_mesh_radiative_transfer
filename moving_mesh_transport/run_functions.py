@@ -8,20 +8,27 @@ Created on Tue May 24 13:42:55 2022
 import matplotlib.pyplot as plt
 from .solver import main_class
 
-def run_plane_IC(uncollided = True, moving = True):
+def run_plane_IC(uncollided = True, moving = True, All = False):
     plt.ion()
     plt.figure(1)
     source_name = "plane_IC"
     print("---  ---  ---  ---  ---  ---  ---")
     print("running plane IC")
     print("---  ---  ---  ---  ---  ---  ---")
+    
     solver = main_class(source_name) 
-    solver.main(uncollided, moving)
+    if All == True:
+        solver.main(True, True)
+        solver.main(False, True)
+        solver.main(True, False)
+        solver.main(False, False)
+    else:
+        solver.main(uncollided, moving)
     plt.title("plane IC")
     plt.legend()
     plt.show(block = False)
     
-def run_square_IC(uncollided = True, moving = True):
+def run_square_IC(uncollided = True, moving = True, All = False):
     plt.ion()
     plt.figure(2)
     source_name = "square_IC"
@@ -29,12 +36,18 @@ def run_square_IC(uncollided = True, moving = True):
     print("running square IC")
     print("---  ---  ---  ---  ---  ---  ---")
     solver = main_class(source_name) 
-    solver.main(uncollided, moving)
+    if All == True:
+        solver.main(True, True)
+        solver.main(False, True)
+        solver.main(True, False)
+        solver.main(False, False)
+    else:
+        solver.main(uncollided, moving)
     plt.title("square IC")
     plt.legend()
     plt.show(block = False)
     
-def run_square_source(uncollided = True, moving = True):
+def run_square_source(uncollided = True, moving = True, All = False):
     plt.ion()
     plt.figure(3)
     source_name = "square_source"
@@ -42,12 +55,18 @@ def run_square_source(uncollided = True, moving = True):
     print("running square source")
     print("---  ---  ---  ---  ---  ---  ---")
     solver = main_class(source_name) 
-    solver.main(uncollided, moving)
+    if All == True:
+        solver.main(True, True)
+        solver.main(False, True)
+        solver.main(True, False)
+        solver.main(False, False)
+    else:
+        solver.main(uncollided, moving)
     plt.title("square source")
     plt.legend()
     plt.show(block = False)
     
-def run_gaussian_IC(uncollided = True, moving = True):
+def run_gaussian_IC(uncollided = True, moving = True, All = False):
     plt.ion()
     plt.figure(4)
     source_name = "gaussian_IC"
@@ -55,12 +74,18 @@ def run_gaussian_IC(uncollided = True, moving = True):
     print("running Gaussian IC")
     print("---  ---  ---  ---  ---  ---  ---")
     solver = main_class(source_name) 
-    solver.main(uncollided, moving)
+    if All == True:
+        solver.main(True, True)
+        solver.main(False, True)
+        solver.main(True, False)
+        solver.main(False, False)
+    else:
+        solver.main(uncollided, moving)
     plt.title("Gaussian IC")
     plt.legend()
     plt.show(block = False)
     
-def run_gaussian_source(uncollided = True, moving = True):
+def run_gaussian_source(uncollided = True, moving = True, All = False):
     plt.ion()
     plt.figure(5)
     source_name = "gaussian_source"
@@ -68,12 +93,18 @@ def run_gaussian_source(uncollided = True, moving = True):
     print("running Gaussian source")
     print("---  ---  ---  ---  ---  ---  ---")
     solver = main_class(source_name) 
-    solver.main(uncollided, moving)
+    if All == True:
+        solver.main(True, True)
+        solver.main(False, True)
+        solver.main(True, False)
+        solver.main(False, False)
+    else:
+        solver.main(uncollided, moving)
     plt.title("Gaussian source")
     plt.legend()
     plt.show(block = False)
     
-def run_MMS(uncollided = False, moving = True):
+def run_MMS(uncollided = False, moving = True, All = False):
     plt.ion()
     plt.figure(6)
     source_name = "MMS"
@@ -81,7 +112,13 @@ def run_MMS(uncollided = False, moving = True):
     print("running MMS problem")
     print("---  ---  ---  ---  ---  ---  ---")
     solver = main_class(source_name) 
-    solver.main(uncollided, moving)
+    if All == True:
+        solver.main(True, True)
+        solver.main(False, True)
+        solver.main(True, False)
+        solver.main(False, False)
+    else:
+        solver.main(uncollided, moving)
     plt.title("MMS")
     plt.legend()
     plt.show(block = False)

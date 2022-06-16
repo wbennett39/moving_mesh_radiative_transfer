@@ -170,10 +170,10 @@ class collided_class:
     
     def P1_su_olson_rad(self, xs, t):
         temp = xs * 0 
-        if t <= 10.0: 
+        if t <= self.t0: 
             trange = [0, t]
         else:
-            trange = [t-10, t]
+            trange = [t-self.t0, t]
             
         for ix in prange(xs.size):
             s_range = find_su_olson_interval(self.x0, t, xs[ix])
@@ -192,10 +192,10 @@ class collided_class:
         
     def P1_su_olson_mat(self, xs, t):
         temp = xs * 0 
-        if t <= 10.0: 
+        if t <= self.t0: 
             trange = [0, t]
         else:
-            trange = [t-10, t]
+            trange = [t-self.t0, t]
             
         for ix in prange(xs.size):
                 temp[ix] = integrate.nquad(self.P1_su_olson_mat_first_integral, [trange], args = (xs[ix], t), opts = [opts1])[0]
@@ -208,10 +208,10 @@ class collided_class:
     
     def P1_gaussian_rad(self, xs, t, sigma):
         temp = xs * 0 
-        if t <= 10.0: 
+        if t <= self.t0: 
             trange = [0, t]
         else:
-            trange = [t-10, t]
+            trange = [t-self.t0, t]
             
         for ix in prange(xs.size):
             s_range = [(-math.sqrt(3)*t + 3*xs[ix])/3,(math.sqrt(3)*t + 3*xs[ix])/3]
@@ -229,10 +229,10 @@ class collided_class:
 
     def P1_gaussian_mat(self, xs, t, sigma):
         temp = xs * 0 
-        if t <= 10.0: 
+        if t <= self.t0: 
             trange = [0, t]
         else:
-            trange = [t-10, t]
+            trange = [t-self.t0, t]
             
         for ix in prange(xs.size):
                 temp[ix] = integrate.nquad(self.P1_gaussian_mat_first_integral, [trange], args = (xs[ix], t, sigma), opts = [opts1])[0]

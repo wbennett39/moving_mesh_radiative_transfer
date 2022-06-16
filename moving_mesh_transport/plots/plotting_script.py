@@ -47,7 +47,7 @@ def plot_all_rms_cells(tfinal, M):
     plotter.load_RMS_data(uncollided = False, moving = True)
     plotter.plot_RMS_vs_cells(12, clear)
 
-def plot_rms_Ms(tfinal, source_name, fign):
+def plot_rms_Ms(tfinal, source_name, fign = 1):
     major = 'Ms'
     case_list_1 = [True, True, False, False]
     case_list_2 = [True, False, True, False]
@@ -61,6 +61,21 @@ def plot_rms_Ms(tfinal, source_name, fign):
     else:
         plotter.load_RMS_data(False, True)
         plotter.plot_RMS_vs_Ms(source_name, 1, False)
+        
+def plot_rms_cells(tfinal, source_name, M, fign = 1):
+    major = 'cells'
+    case_list_1 = [True, True, False, False]
+    case_list_2 = [True, False, True, False]
+    
+    plotter = rms_plotter(tfinal, M,  source_name, major)
+    if source_name != "MMS":
+        for count2, uncollided in enumerate(case_list_1):
+            moving = case_list_2[count2]
+            plotter.load_RMS_data(uncollided, moving)
+            plotter.plot_RMS_vs_cells()
+    else:
+        plotter.load_RMS_data(False, True)
+        plotter.plot_RMS_vs_cells()
         
         
 def plot_all_rms_Ms(tfinal):

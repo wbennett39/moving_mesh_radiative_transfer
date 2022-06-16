@@ -61,9 +61,9 @@ class make_benchmark:
         
         elif self.source_type == "P1_gaussian_rad" or self.source_type == "P1_gaussian_mat" and self.sigma == 300:
             if t == 1:
-                self.xs = np.linspace(0.0, 1500, npnts)
-            elif t == 5:
                 self.xs = np.linspace(0.0, 1600, npnts)
+            elif t == 5:
+                self.xs = np.linspace(0.0, 1700, npnts)
             elif t == 10:
                 self.xs = np.linspace(0.0, 1800, npnts)
             

@@ -41,6 +41,7 @@ class uncollided_class:
         return temp
     
     def square_source(self, xs, t):
+        
         """ uncollided scalar flux for 1D square source
         """
         temp = xs*0

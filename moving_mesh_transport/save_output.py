@@ -10,7 +10,8 @@ import h5py
 from pathlib import Path
 
 class save_output:
-    def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major, thermal_couple, temp_function, c, sigma):
+    def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major,
+                 thermal_couple, temp_function, c, sigma, x0):
         data_folder = Path("moving_mesh_transport")
         self.solution_file_path = data_folder / 'run_data.h5'
         
@@ -24,6 +25,7 @@ class save_output:
         self.uncollided = uncollided
         self.major = major
         self.N_spaces = N_spaces
+        self.x0 = x0
         source_name_list = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "MMS", "gaussian_s"]
         gaussian_sources = ["gaussian_IC", "gaussian_s"]
         index_of_source_name = np.argmin(np.abs(np.array(source_type)-1))
@@ -64,7 +66,8 @@ class save_output:
             saving_condition = True
         else:
             saving_condition = False
-            
+        
+        
         if self.sigma == 300:
             self.source_name == 'gaussian_s_thick'
             
@@ -91,6 +94,11 @@ class save_output:
                 print("saving")
                 f = h5py.File(self.config_file_path, 'a')
                 dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS")
+                
+                if not f.__contains__(dest_str):
+                    f.create_group(dest_str)
+                destination = f[dest_str]
+                
                 destination = f[dest_str]
                 rms_str = 'Ms_' + self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving") + (not(self.moving)) * ("static")
                 if destination.__contains__(rms_str):
@@ -104,20 +112,26 @@ class save_output:
                 dset[5] = energy_RMS_list
                 f.close()
             
-    def save_RMS_P1_su_olson(self, RMS_list, energy_RMS_list, N_angles, r_times):
+    def save_RMS_P1_su_olson(self, RMS_list, energy_RMS_list, N_angles, r_times, ang):
         if ((self.thermal_couple == 1) and (self.tfinal == 31.6228) or (self.tfinal == 1)):
             saving_condition = True
-        if self.sigma == 300:
-            self.source_name == 'gaussian_s_thick' 
-        print(self.source_name)
+        if int(self.sigma) == 300:
+            self.source_name = 'gaussian_s_thick' 
+        elif self.x0 == 400.0:
+            self.source_name = 'su_olson_thick'
+        print("saving source name", self.source_name)
         if saving_condition == True :
             if self.major == 'cells':
-                print("saving")
+                print("saving RMSE")
                 f = h5py.File(self.config_file_path, 'a')
                 if self.tfinal != 31.6228:
                     self.tfinal = int(self.tfinal)
-                dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS" + "/" + "S2")
+                dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS" + "/" + f"S{ang}")
+                
+                if not f.__contains__(dest_str):
+                    f.create_group(dest_str)
                 destination = f[dest_str]
+                
                 rms_str =  self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.Ms[0])
                 if destination.__contains__(rms_str):
                     del destination[rms_str]
@@ -131,10 +145,15 @@ class save_output:
                 f.close()
             
             elif self.major == 'Ms':
-                print("saving")
+                print("saving RMSE")
                 f = h5py.File(self.config_file_path, 'a')
-                dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS" + "/" + "S2")
+                dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS" + "/" + f"S{ang}")
                 print(dest_str)
+                
+                if not f.__contains__(dest_str):
+                    f.create_group(dest_str)
+                destination = f[dest_str]
+                
                 destination = f[dest_str]
                 rms_str = 'Ms_' + self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving") + (not(self.moving)) * ("static")
                 if destination.__contains__(rms_str):
@@ -181,6 +200,7 @@ class save_output:
         
         dset = folder_5.create_dataset((3, len(self.N_spaces)) )
         
+        print("saving solution")
         dset[0] = xs
         dset[1] = phi
 

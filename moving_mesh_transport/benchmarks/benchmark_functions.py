@@ -606,6 +606,11 @@ def write_to_file(xs, phi, uncol, tfinal, source_name, npnts, x0_or_sigma):
             source_name = 'P1_gaussian_rad_thick'
         elif source_name == 'P1_gaussian_mat':
             source_name = 'P1_gaussian_mat_thick'
+    elif x0_or_sigma == 400:
+        if source_name == 'P1_su_olson_rad':
+            source_name = 'P1_su_olson_rad_thick'
+        elif source_name == 'P1_su_olson_mat':
+            source_name = 'P1_su_olson_mat_thick'
     
     with h5py.File(bench_file_path,'r+') as f:
         if f.__contains__(source_name + f'/t = {tfinal}'):

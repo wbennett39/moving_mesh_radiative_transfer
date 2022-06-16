@@ -102,6 +102,20 @@ def P1_gaussian_thick(t, npnts):
     bench_class_mat.save()
     bench_class_mat.plot(fign)
 
+def P1_su_olson_thick(t, npnts):
+    print("radiation energy density")
+    fign = 8
+    bench_class = make_benchmark("P1_su_olson_rad", 400, 10, 0)
+    bench_class.integrate(t, npnts)
+    bench_class.save()
+    bench_class.plot(fign)
+    
+    print("material energy density")
+    bench_class_mat = make_benchmark("P1_su_olson_mat", 400, 10, 0)
+    bench_class_mat.integrate(t, npnts)
+    bench_class_mat.save()
+    bench_class_mat.plot(fign)
+
     
     
 def do_all(npnts = [5000, 5000, 10000, 5000, 5000, 250, 500]):
