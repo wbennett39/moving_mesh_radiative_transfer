@@ -2,7 +2,14 @@
 ## An accurate and fast moving mesh Discontinuous Galerkin package for solving the 1D isotropic transport equation for the purpose of coupling to rad-transfer problems
 ### Quick start guide
 ### Installation 
-Download the file ``moving_mesh_radiative_transfer`` and open the file. Invoke python via ``python3``.
+Download the file ``moving_mesh_radiative_transfer`` and open the file. 
+
+Invoke python via ``python3 -i imports.py``.
+
+The program will prompt the user to choose a problem type from the list `[transport','rad_transfer','s2_rad_transfer',
+                                        'rad_transfer_thick','config']`. `transport` runs scattering transport problems with $c=1$
+
+
 
 ### Testing
 before invoking python, run ``pytest`` in the top level folder.
