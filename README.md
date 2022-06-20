@@ -7,9 +7,9 @@ Download the file ``moving_mesh_radiative_transfer`` and open the file.
 Invoke python via ``python3 -i imports.py``.
 
 The program will prompt the user to choose a problem type from the list `[transport','rad_transfer','s2_rad_transfer',
-                                        'rad_transfer_thick','config']`. `transport` runs scattering transport problems with $c=1$
+                                        'rad_transfer_thick','config']`. `transport` runs scattering transport problems with $c=1$ where benchmarks are available for all sources. 'rad_transfer' will run absorbing radiative transfer problems. There are no benchmarks for these problems, but convergence tests are (not yet) built in. 's2_rad_transfer' runs linear absorbing thin radiative transfer problems where benchmarks are available for the square source and the Gaussian source. `rad_transfer_thick` runs optically thick absorbing radiative transfer problems for $S_2$ or $S_8$ where benchmarks are available for the Gaussian and square sources. 
 
-
+## Everything below this line is in need of revision
 
 ### Testing
 before invoking python, run ``pytest`` in the top level folder.
