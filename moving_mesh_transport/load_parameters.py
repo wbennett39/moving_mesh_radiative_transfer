@@ -5,22 +5,15 @@ Created on Wed Jun 15 10:49:08 2022
 
 @author: bennett
 """
-import yaml
-from pathlib import Path
+
 import numpy as np
-
-###############################################################################
-data_folder = Path("moving_mesh_transport")
-config_file_path = data_folder / "config.yaml"
-###############################################################################
-
 
 
 class parameter_load_class:
-    def __init__(self, source_name):
-        with open(config_file_path, 'r') as file:
-           parameters = yaml.safe_load(file)
-        file.close()
+    def __init__(self, source_name, parameters):
+        # with open(config_file_path, 'r') as file:
+        #    parameters = yaml.safe_load(file)
+        # file.close()
         #'C:/users/bennett/Documents/GitHub/MovingMesh/moving_mesh_radiative_transfer/src/package/
         self.tfinal = float(parameters['all']['tfinal'])
         self.N_spaces = np.array(parameters['all']['N_spaces'])
@@ -60,5 +53,5 @@ class parameter_load_class:
         if source_name in ["square_source", "gaussian_source"]:
             self.bench_type = str(parameters[source_name]['bench_type'])
         else:
-            self.bench_type == 'full'
+            self.bench_type = 'full'
             

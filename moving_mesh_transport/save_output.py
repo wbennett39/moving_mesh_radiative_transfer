@@ -113,7 +113,8 @@ class save_output:
                 f.close()
             
     def save_RMS_P1_su_olson(self, RMS_list, energy_RMS_list, N_angles, r_times, ang):
-        if ((self.thermal_couple == 1) and (self.tfinal == 31.6228) or (self.tfinal == 1)):
+        saving_condition = False
+        if ((self.thermal_couple == 1) and (self.tfinal == 31.6228) or (self.tfinal == 1)) or (self.tfinal == 5) or self.tfinal ==10:
             saving_condition = True
         if int(self.sigma) == 300:
             self.source_name = 'gaussian_s_thick' 
@@ -158,7 +159,7 @@ class save_output:
                 rms_str = 'Ms_' + self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving") + (not(self.moving)) * ("static")
                 if destination.__contains__(rms_str):
                     del destination[rms_str]
-                dset = destination.create_dataset(rms_str, (6, len(self.N_spaces)) )
+                dset = destination.create_dataset(rms_str, (6, len(self.N_spaces)))
                 dset[0] = self.Ms
                 dset[1] = RMS_list
                 dset[2] = N_angles
@@ -167,44 +168,68 @@ class save_output:
                 dset[5] = energy_RMS_list
                 f.close()
                 
-    def save_solution(self, xs, phi, x0_or_sigma):
+    def save_solution(self, xs, phi, sol_matrix, x0_or_sigma, ws, N_space):
         "transport or transfer/source_name/t = {tfinal}/c = {c}/ x0(or sigma) = {val}"
         
         f = h5py.File(self.solution_file_path, 'a')
         
         if self.thermal_couple == 0:
             folder_1 = f["transport"]
+            full_str = 'transport'
         elif self.thermal_couple == 1:
             folder_1 = f["transfer"]
+            full_str = 'transfer'
         
-        if not folder_1.__contains__(self.source_name):
-            folder_1.create_group(self.source_name)
+        # if not folder_1.__contains__(self.source_name):
+        #     folder_1.create_group(self.source_name)
             
-        folder_2 = folder_1[self.source_name]
+        # folder_2 = folder_1[self.source_name]
         
-        if not folder_1.__contains__("t = " + str(self.tfinal)):
-            folder_1.create_group("t = " + str(self.tfinal))
+        # if not folder_2.__contains__("t = " + str(int(self.tfinal))):
+        #     folder_2.create_group("t = " + str(int(self.tfinal)))
 
-        folder_3 = folder_2["t = " + str(self.tfinal)]
+        # folder_3 = folder_2["t = " + str(int(self.tfinal))]
         
             
-        if not folder_3.__contains__("c = " + str(self.c)):
-            folder_3.create_group("t = " + str(self.c))
+        # if not folder_3.__contains__("c = " + str(self.c)):
+        #     folder_3.create_group("c = " + str(self.c))
             
-        folder_4 = folder_3["c = " + str(self.tfinal)]
+        # folder_4 = folder_3["c = " + str(self.c)]
         
-        if not folder_4.__contains__("x0_or_sigma = " + str(x0_or_sigma)):
-            folder_3.create_group("x0_or_sigma = " + str(x0_or_sigma))
+        # if not folder_4.__contains__("x0_or_sigma = " + str(x0_or_sigma)):
+        #     folder_4.create_group("x0_or_sigma = " + str(x0_or_sigma))
             
-        folder_5 = folder_4["x0_or_sigma = " + str(x0_or_sigma)]
+        # folder_5 = folder_4["x0_or_sigma = " + str(x0_or_sigma)]
         
-        dset = folder_5.create_dataset((3, len(self.N_spaces)) )
+        full_str += '/N_space = ' + str(N_space) + '_t = ' + str(int(self.tfinal)) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
+        
+        if f.__contains__(full_str):
+            del f[full_str]
+        
+        dset = f.create_dataset(full_str, (4, len(xs)))
         
         print("saving solution")
         dset[0] = xs
         dset[1] = phi
+        # dset[2] = self.ws
+        # dset[3] = sol_matrix
+        
+        if f.__contains__('coefficients/' + full_str):
+            del f['coefficients/' + full_str]
+        
+        size = np.shape(sol_matrix)
+        dset2  = f.create_dataset('coefficients/' + full_str, data = sol_matrix)
+        
+        if f.__contains__('weights/' + full_str):
+            del f['weights/' + full_str]
+            
+        dset3  = f.create_dataset('weights/' + full_str, data = ws) 
 
+     
+        
         f.close()        
+     
+   
         
     
         

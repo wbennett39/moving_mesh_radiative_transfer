@@ -10,7 +10,7 @@ import math
 
 from .build_problem import build
 from .functions import normPn, numba_expi, uncollided_square_s2, uncollided_su_olson_s2
-from .functions import uncollided_s2_gaussian
+from .functions import uncollided_s2_gaussian, uncollided_s2_gaussian_thick
 # from scipy.special import expi as expi2
 
 from numba import float64, int64, deferred_type
@@ -88,6 +88,7 @@ class uncollided_solution(object):
             else:
                 temp[i] = 0.0
         return temp
+    
         
     def gaussian_source_uncollided_solution(self, xs, t):
         temp = xs*0
@@ -201,10 +202,20 @@ class uncollided_solution(object):
             temp[ix] = uncollided_su_olson_s2(xs[ix], t, self.x0, self.t0)
         return temp
     
+    def gaussian_s2_thick_integrand(self, taus, t, x):
+        temp = taus*0
+        for it in range(taus.size):
+            tau = taus[it]
+            temp[it] = (math.exp(-t + tau)*(math.exp(-(math.sqrt(3)*t + 3*x - math.sqrt(3)*tau)**2/(9.*self.sigma**2)) + math.exp(-(-(math.sqrt(3)*t) + 3*x + math.sqrt(3)*tau)**2/(9.*self.sigma**2))))/2.
+        return temp
+    
     def gaussian_s2(self, xs, t):
         temp = xs*0
         for ix in range(xs.size):
-            temp[ix] = uncollided_s2_gaussian(xs[ix], t, self.sigma, self.t0)
+            if self.sigma <= 5:
+                temp[ix] = uncollided_s2_gaussian(xs[ix], t, self.sigma, self.t0)
+            else:
+                temp[ix] = self.integrate_quad_gaussian_source(t, xs[ix], 0.0, min(t,self.t0), self.gaussian_s2_thick_integrand)
         return temp
         
         

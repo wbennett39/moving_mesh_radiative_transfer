@@ -148,12 +148,21 @@ class main_class(parameter_load_class):
                     choose_xs = False
                     specified_xs = 0.0
                     
-                xs, phi, e, time = solve(self.tfinal, N_space, N_ang, M, x0_new, 
+                xs, phi, e, time, sol_matrix, ws = solve(self.tfinal, N_space, N_ang, M, x0_new, 
                                          self.t0, sigma_t, sigma_s, self.t_nodes, 
                                          self.scattering_ratio, self.source_type, 
                                          uncollided, moving, self.move_type, self.thermal_couple,
                                          self.temp_function, self.rt, self.at, self.e_initial, 
                                          choose_xs, specified_xs, self.weights, self.sigma)
+                if self.sigma == 0:
+                    x0_or_sigma = self.x0
+                else:
+                    x0_or_sigma = self.sigma
+                    
+                if self.saving == True:                                         # saves phi and coefficient matrix
+                    saving.save_solution(xs, phi, sol_matrix, x0_or_sigma, ws, N_space)
+                
+                
                 
                 self.r_times[count] += (time)/self.N_runs
                 
@@ -225,6 +234,8 @@ class main_class(parameter_load_class):
             if ((self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10) and self.thermal_couple == 0):
                 plt.plot(xsb, bench, "k-", label = "benchmark")
                 plt.plot(-xsb, bench, "k-")
+                
+
 
         
         

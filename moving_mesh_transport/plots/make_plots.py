@@ -91,16 +91,16 @@ class rms_plotter:
         elif self.source_name in ['gaussian_s2', "gaussian_energy_s2"]:
             self.dest_str = str('gaussian_s' + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
             
-        elif self.source_name in ['gaussian_s_thick_s2']:
+        elif self.source_name in ['gaussian_s_thick_s2', 'gaussian_s_thick_s2_energy']:
             self.dest_str = str("gaussian_s_thick" + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
             
-        elif self.source_name in ['gaussian_s_thick_s8']:
+        elif self.source_name in ['gaussian_s_thick_s8', 'gaussian_s_thick_s8_energy']:
             self.dest_str = str('gaussian_s_thick' + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S8")
         
-        elif self.source_name in ['su_olson_thick_s2']:
+        elif self.source_name in ['su_olson_thick_s2', 'su_olson_thick_s2_energy']:
             self.dest_str = str("su_olson_thick" + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S2")
             
-        elif self.source_name in ['su_olson_thick_s8']:
+        elif self.source_name in ['su_olson_thick_s8', 'su_olson_thick_s8_energy' ]:
             self.dest_str = str("su_olson_thick" + "/" + "t="  + str(self.tfinal) + "/" + "RMS" + "/" + "S8")
             
         if self.major == 'cells':
@@ -108,10 +108,12 @@ class rms_plotter:
         elif self.major == 'Ms':
             data_str = 'Ms_' + self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving") + (not(self.moving)) * ("static") 
         
+        
         if self.source_name not in ["su_olson", "su_olson_energy", "su_olson_energy_s2",
                                     "su_olson_s2", "gaussian_s2", "gaussian_energy_s2", 
                                     'gaussian_s_thick_s2', 'gaussian_s_thick_s8', 'su_olson_thick_s2',
-                                    'su_olson_thick_s8']:
+                                    'su_olson_thick_s8', 'gaussian_s_thick_s2_energy', 'gaussian_s_thick_s8_energy',
+                                    'su_olson_thick_s2_energy','su_olson_thick_s8_energy']:
             
             data = f[self.dest_str + '/' + data_str]
     
@@ -132,7 +134,8 @@ class rms_plotter:
         if self.source_name in ["su_olson", "su_olson_energy", "su_olson_energy_s2",
                                     "su_olson_s2", "gaussian_s2", "gaussian_energy_s2", 
                                     'gaussian_s_thick_s2', 'gaussian_s_thick_s8', 'su_olson_thick_s2',
-                                    'su_olson_thick_s8']:
+                                    'su_olson_thick_s8', 'gaussian_s_thick_s2_energy', 'gaussian_s_thick_s8_energy',
+                                    'su_olson_thick_s2_energy','su_olson_thick_s8_energy']:
             print("loading s2 RMS data")
             f_rad = h5py.File(self.su_olson_data_file_path, 'r')
             rad_data = f_rad[self.dest_str + '/' + data_str]
@@ -147,7 +150,7 @@ class rms_plotter:
             self.times = rad_data[3]
             self.energy_RMS = rad_data[5]
     
-    def plot_RMS_vs_cells(self, fign = 1, clear = False, xlimright = 134):
+    def plot_RMS_vs_cells(self, fign = 1, clear = False, xlimright = 260):
         plt.ion()
         plt.figure(fign)
         if clear == True:
@@ -272,11 +275,17 @@ class rms_plotter:
                         
             elif self.source_name == 'su_olson' or self.source_name == "su_olson_energy" or self.source_name == "gaussian_s2" or self.source_name == "gaussian_energy_s2":
                 xlimright = 65
-
-            if self.source_name !="su_olson_energy" and self.source_name !="gaussian_energy_s2":
+                
+            energy_list = ["su_olson_energy", "gaussian_energy_s2", 'gaussian_s_thick_s2_energy', 
+                               'gaussian_s_thick_s8_energy','su_olson_thick_s2_energy','su_olson_thick_s8_energy' ]
+            
+            if self.source_name not in energy_list:
                 plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
             
-            if self.source_name == "su_olson_energy" or self.source_name == "gaussian_energy_s2":
+            
+
+            
+            if self.source_name in energy_list:
                 plt.loglog(self.cells, self.energy_RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
             
             if  (self.source_name != 'gaussian_IC' and self.source_name != 'gaussian_s') and (self.uncollided == False and self.moving == False or self.source_name == "MMS" and self.M == 4):

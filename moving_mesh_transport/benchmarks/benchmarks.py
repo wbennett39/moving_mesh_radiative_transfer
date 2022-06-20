@@ -66,6 +66,15 @@ class make_benchmark:
                 self.xs = np.linspace(0.0, 1700, npnts)
             elif t == 10:
                 self.xs = np.linspace(0.0, 1800, npnts)
+        elif self.source_type == 'P1_su_olson_mat' or self.source_type == 'P1_su_olson_rad' and self.x0 == 400:
+            if t == 100:
+                self.xs = np.linspace(0.0, 423, npnts)
+            if t == 500:
+                self.xs = np.linspace(0.0, 460, npnts)
+            if t == 1000:
+                self.xs = np.linspace(0.0, 473, npnts)
+                
+            
             
         self.uncollided_sol = self.call_uncollided(self.xs, t)
         self.collided_sol = self.call_collided(self.xs, t)

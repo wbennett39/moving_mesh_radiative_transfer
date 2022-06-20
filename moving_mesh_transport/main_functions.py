@@ -113,5 +113,5 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     
     computation_time = end-start
     
-    return xs, phi, e, computation_time
+    return xs, phi, e, computation_time, sol_last, ws
 

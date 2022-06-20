@@ -7,6 +7,43 @@ Created on Tue May 24 13:42:55 2022
 """
 import matplotlib.pyplot as plt
 from .solver import main_class
+from pathlib import Path
+import yaml
+
+import argparse
+parser = argparse.ArgumentParser(prog='PROG', description='description')
+parser.add_argument('cmd', choices=['transport','rad_transfer','s2_rad_transfer',
+                                    'rad_transfer_thick','config', 'help','quit'])
+
+print('choose problem type: [transport, rad_transfer, s2_rad_transfer, rad_transfer_thick, config]')
+while True:
+    astr = input('$: ')
+    # print astr
+    try:
+        args = parser.parse_args(astr.split())
+    except SystemExit:
+        # trap argparse error message
+        print('error')
+        continue
+    if args.cmd in ['transport','rad_transfer','s2_rad_transfer',
+                                        'rad_transfer_thick','config']:
+        print('loading', args.cmd)
+        data_folder = Path("moving_mesh_transport")
+        config_file_path = data_folder / f"{args.cmd}.yaml"
+        with open(config_file_path, 'r') as file:
+            parameters = yaml.safe_load(file)
+            file.close()
+        break
+    elif args.cmd == 'help':
+        parser.print_help()
+    else:
+        print('error')
+        break
+    
+
+###############################################################################
+
+###############################################################################
 
 def run_plane_IC(uncollided = True, moving = True, All = False):
     plt.ion()
@@ -16,7 +53,7 @@ def run_plane_IC(uncollided = True, moving = True, All = False):
     print("running plane IC")
     print("---  ---  ---  ---  ---  ---  ---")
     
-    solver = main_class(source_name) 
+    solver = main_class(source_name, parameters) 
     if All == True:
         solver.main(True, True)
         solver.main(False, True)
@@ -35,7 +72,7 @@ def run_square_IC(uncollided = True, moving = True, All = False):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running square IC")
     print("---  ---  ---  ---  ---  ---  ---")
-    solver = main_class(source_name) 
+    solver = main_class(source_name, parameters) 
     if All == True:
         solver.main(True, True)
         solver.main(False, True)
@@ -54,7 +91,7 @@ def run_square_source(uncollided = True, moving = True, All = False):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running square source")
     print("---  ---  ---  ---  ---  ---  ---")
-    solver = main_class(source_name) 
+    solver = main_class(source_name, parameters) 
     if All == True:
         solver.main(True, True)
         solver.main(False, True)
@@ -73,7 +110,7 @@ def run_gaussian_IC(uncollided = True, moving = True, All = False):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running Gaussian IC")
     print("---  ---  ---  ---  ---  ---  ---")
-    solver = main_class(source_name) 
+    solver = main_class(source_name, parameters) 
     if All == True:
         solver.main(True, True)
         solver.main(False, True)
@@ -92,7 +129,7 @@ def run_gaussian_source(uncollided = True, moving = True, All = False):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running Gaussian source")
     print("---  ---  ---  ---  ---  ---  ---")
-    solver = main_class(source_name) 
+    solver = main_class(source_name, parameters) 
     if All == True:
         solver.main(True, True)
         solver.main(False, True)
@@ -111,7 +148,7 @@ def run_MMS(uncollided = False, moving = True, All = False):
     print("---  ---  ---  ---  ---  ---  ---")
     print("running MMS problem")
     print("---  ---  ---  ---  ---  ---  ---")
-    solver = main_class(source_name) 
+    solver = main_class(source_name, parameters) 
     if All == True:
         solver.main(True, True)
         solver.main(False, True)

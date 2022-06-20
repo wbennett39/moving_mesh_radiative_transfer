@@ -70,6 +70,7 @@ class load_bench:
                 # self.solution_dataset = source_file[tstring]
                 
             self.xs = self.solution_dataset[0]
+            
             self.phi = self.solution_dataset[1]
             self.phi_u = self.solution_dataset[2]
             
