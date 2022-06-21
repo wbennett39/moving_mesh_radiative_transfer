@@ -29,7 +29,7 @@ class parameter_load_class:
         self.temp_function = np.array(parameters['all']['temperature_dependence'])
         self.e_initial = float(parameters['all']['e_initial'])
         self.weights = str(parameters['all']['weights'])
-        self.benchmarking = int(parameters['all']['benchmarking'])
+
         self.saving = int(parameters['all']['save_solution'])
         
         
@@ -37,7 +37,7 @@ class parameter_load_class:
         self.x0 = np.array(parameters[source_name]['x0'])
         self.source_type = np.array(parameters[source_name]['source_type'])
         self.move_type = np.array(parameters[source_name]['move_type'])
-        
+        self.benchmarking = int(parameters[source_name]['benchmarking'])
         self.r_times = np.zeros(len(self.N_angles))
         self.RMS_list = np.zeros(len(self.N_angles))
         self.RMS_list_energy = np.zeros(len(self.N_angles))

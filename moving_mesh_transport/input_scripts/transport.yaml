@@ -1,46 +1,45 @@
 # parameters shared by all source types
 'all':
     'tfinal': 1 #31.6228                       # evaluation time
-    'c': 0.0                            # scattering ratio
-    't0': 10.0                           # time the source is turned off
-    'N_spaces': [4,8,16,32,64]                   # number of cells
+    'c': 1.0                            # scattering ratio
+    't0': 5.0                           # time the source is turned off
+    'N_spaces': [2,4,8,16]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [4,4,4,4,4]                         # number of basis functions -1
+    'Ms': [4,4,4,4]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
     'major': 'cells'                       # whether the solver iterates over spaces or M's
-    'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
+    'radiative_transfer': 0             # material temperature feedback. 1-True, 0 - False
     'temperature_dependence': [1,0,0,0] # first slot is Su-Olson problem
     'e_initial': 0.0000000001
-    'weights': 'gauss_legendre'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
+    'weights': 'gauss_lobatto'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
     'save_solution': True
     
 # plane pulse source
 'plane_IC':
     'x0': 1e-10                         # source initial width/2
     'source_type': [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [2, 2, 2]    # corresponds to N_spaces
+    'N_angles': [256, 512, 1024,2048]    # corresponds to N_spaces
     'move_type': [1,0,0,0,0]              # moving mesh function selector
-    'benchmarking': False                # If 'True', will attempt to load benchmark and calculate RMSE
+    'benchmarking': True                # If 'True', will attempt to load benchmark and calculate RMSE
     
 # square pulse source
 'square_IC':
     'x0': [0.5]
     'source_type': [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [128,256,256]
-#    'N_angles': [128]
+    'N_angles': [128,256,256, 512]
     'move_type': [0,1,0,0,0]      # [standard, square source, s2, square IC, thick square]
-    
+    'benchmarking': True
     
 # square source
 'square_source':
     'x0': [0.5]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [8,8,8,8,8,8,8]
-    'move_type': [0,0,1,0,0]      # [standard, square source, s2, square IC]
-    'bench_type': 'S2'          # 'S2' or 'full'
-    'benchmarking': False
+    'N_angles': [128,256,256,512]
+    'move_type': [0,1,0,0,0]      #  [standard, square source, s2, square IC, thick square]
+    'bench_type': 'full'          # 'S2' or 'full'
+    'benchmarking': True
     
 # gaussian pulse source
 'gaussian_IC':
@@ -48,22 +47,28 @@
 #    'x0': [, 3.6, 1.5, 1.5, 1.5]
     'x0': [2.9, 2.9, 2.9, 2.9, 3.0, 2.8]
     'source_type': [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [64,256,256]
-    'move_type': [1,0,0,1,0]
-    'benchmarking': False
-    
+    'N_angles': [64,256,256,512]
+    'move_type': [1,0,0,0,0]
+    'benchmarking': True
     
 # gaussian  source
 'gaussian_source':
-    'sigma': 300
+    'sigma': 0.5
     'x0': [1700, 1700, 1700, 1700, 1700]
 #    'x0': [3,3,3,3,3]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
     'N_angles': [2,2,2]
-    'move_type': [0,0,1,0,0]
-    'bench_type': 'S2'          # 'S2' or 'full'
+    'move_type': [1,0,0,0,0]
+    'bench_type': 'full'          # 'S2' or 'full'
     'benchmarking': True
 
+# manufactured problem
+'MMS':
+    'x0': [0.1]
+    'source_type': [0,0,0,0,1,0,0,0,0,0,0,0,0,0,0]
+    'N_angles': [64, 64, 64]
+    'move_type': [1,0,0,0,0]
+    'benchmarking': True
 
     
     

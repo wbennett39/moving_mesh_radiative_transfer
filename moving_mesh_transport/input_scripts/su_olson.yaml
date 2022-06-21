@@ -3,9 +3,9 @@
     'tfinal': 1 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     't0': 10.0                           # time the source is turned off
-    'N_spaces': [4,8,16,32,64]                   # number of cells
+    'N_spaces': [4,8,16]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [4,4,4,4,4]                         # number of basis functions -1
+    'Ms': [4,4,4]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
@@ -13,7 +13,7 @@
     'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
     'temperature_dependence': [1,0,0,0] # first slot is Su-Olson problem
     'e_initial': 0.0000000001
-    'weights': 'gauss_legendre'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
+    'weights': 'gauss_lobatto'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
     'save_solution': True
     
 # plane pulse source
@@ -31,6 +31,8 @@
     'N_angles': [128,256,256]
 #    'N_angles': [128]
     'move_type': [0,1,0,0,0]      # [standard, square source, s2, square IC, thick square]
+    'benchmarking': False
+    
     
     
 # square source
@@ -39,8 +41,8 @@
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [8,8,8,8,8,8,8]
     'move_type': [0,0,1,0,0]      # [standard, square source, s2, square IC]
-    'bench_type': 'S2'          # 'S2' or 'full'
-    'benchmarking': False
+    'bench_type': 'full'          # 'S2' or 'full'
+    'benchmarking': True
     
 # gaussian pulse source
 'gaussian_IC':
@@ -52,12 +54,10 @@
     'move_type': [1,0,0,1,0]
     'benchmarking': False
     
-    
 # gaussian  source
 'gaussian_source':
-    'sigma': 300
-    'x0': [1700, 1700, 1700, 1700, 1700]
-#    'x0': [3,3,3,3,3]
+    'sigma': 0.5
+    'x0': [3,3,3,3,3]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
     'N_angles': [2,2,2]
     'move_type': [0,0,1,0,0]
