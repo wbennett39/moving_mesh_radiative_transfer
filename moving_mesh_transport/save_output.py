@@ -118,7 +118,7 @@ class save_output:
             saving_condition = True
         if int(self.sigma) == 300:
             self.source_name = 'gaussian_s_thick' 
-        elif self.x0 == 400.0:
+        elif self.x0[0] == 400.0:
             self.source_name = 'su_olson_thick'
         print("saving source name", self.source_name)
         if saving_condition == True :
@@ -168,7 +168,7 @@ class save_output:
                 dset[5] = energy_RMS_list
                 f.close()
                 
-    def save_solution(self, xs, phi, sol_matrix, x0_or_sigma, ws, N_space):
+    def save_solution(self, xs, phi, e, sol_matrix, x0_or_sigma, ws, N_space, s2):
         "transport or transfer/source_name/t = {tfinal}/c = {c}/ x0(or sigma) = {val}"
         
         f = h5py.File(self.solution_file_path, 'a')
@@ -179,6 +179,8 @@ class save_output:
         elif self.thermal_couple == 1:
             folder_1 = f["transfer"]
             full_str = 'transfer'
+        if s2 == True:
+            full_str += '_s2'
         
         # if not folder_1.__contains__(self.source_name):
         #     folder_1.create_group(self.source_name)
@@ -211,6 +213,7 @@ class save_output:
         print("saving solution")
         dset[0] = xs
         dset[1] = phi
+        dset[2] = e
         # dset[2] = self.ws
         # dset[3] = sol_matrix
         

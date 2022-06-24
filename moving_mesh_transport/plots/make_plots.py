@@ -17,21 +17,22 @@ from .plot_functions.sn_labels import logplot_sn_labels,logplot_sn_labels_2
 from .plot_functions.show_loglog_timeplots import show_loglog_time
 from scipy.stats import linregress 
 from .plot_functions.order_triangle import order_triangle
-
+from .plot_functions.coeff_con import coeff_con
+from .load_solution import load_sol
 class rms_plotter:
     
     def __init__(self, tfinal, M, source_name, major):
-        data_folder = Path("moving_mesh_transport")
-        self.data_file_path = data_folder / 'run_data_RMS.h5'
+        self.data_folder = Path("moving_mesh_transport")
+        self.data_file_path = self.data_folder / 'run_data_RMS.h5'
         
-        self.plot_file_path = data_folder / "plots" 
+        self.plot_file_path = self.data_folder / "plots" 
         # self.case_list = ["uncol_mov", "no_uncol_stat", "uncol_stat", "no_uncol_stat"]
         self.tfinal = tfinal
         self.source_type_list  = ["plane_IC", "square_IC", "square_s", "gaussian_IC", "MMS", "gaussian_s", "su_olson"]
         self.source_name = source_name
         self.major = major 
         self.M = M
-        self.su_olson_data_file_path = data_folder / "run_data_radiative_transfer_RMS.h5"
+        self.su_olson_data_file_path = self.data_folder / "run_data_radiative_transfer_RMS.h5"
         if self.M == 2:
             self.mkr = "o"
         elif self.M == 4:        
@@ -283,8 +284,6 @@ class rms_plotter:
                 plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
             
             
-
-            
             if self.source_name in energy_list:
                 plt.loglog(self.cells, self.energy_RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
             
@@ -306,7 +305,7 @@ class rms_plotter:
         #######################################################################
         elif self.tfinal == 10:
             xlimleft = 1
-            xlimright = 35
+            xlimright = 256
             plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
             
             if self.source_name == "plane_IC":
@@ -490,6 +489,39 @@ class rms_plotter:
              
          show_loglog(file_path_string, xlimleft, xlimright)
          plt.show(block = False)
+        
+    def plot_coefficients(self, tfinal = 1, source_name = 'gaussian_source', M = 6, x0_or_sigma = 0.5, 
+                          rad_or_transport ='transfer', c = 0.0, N_spaces = [2,4,8,16,32], s2 = True, mat_or_rad = 'rad', fign = 1):
+        
+        data = load_sol(source_name, rad_or_transport, c, s2)
+        
+        j_matrix = np.zeros((len(N_spaces), (M+1)))
+        
+        for count, N_space in enumerate(N_spaces):
+    
+            data.call_sol(tfinal, M, x0_or_sigma, N_space, mat_or_rad)
+            N_ang = np.shape(data.coeff_mat)[0]
+            
+            for k in range(N_space):
+                coeff_data = coeff_con(data.ws, data.coeff_mat, N_ang, M, k)
+                j_matrix[count] += np.abs(coeff_data)/N_space
+            
+        
+        for j in range(M+1):
+            plt.ion()
+            plt.figure(fign)  
+            xdata = np.array(N_spaces)
+            ydata = np.array(j_matrix[:,j])
+
+            plt.loglog(xdata, np.abs(ydata), "-o", mfc = 'none', label =f"j={j}")
+        file_path_string = str(self.plot_file_path) + '/' + "coefficient_convergence" + "/" + rad_or_transport +"_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
+        show_loglog(file_path_string, N_spaces[0]-1, N_spaces[-1] + 2)
+        plt.show()
+        
+        
+        plt.legend()
+        plt.show()
+    
         
         
         

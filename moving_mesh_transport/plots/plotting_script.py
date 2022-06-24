@@ -236,36 +236,10 @@ def plot_all_benchmarks(tfinal):
         plotter = rms_plotter(tfinal, M, source, "cells")
         plotter.plot_bench(tfinal, source, count)
         
-def plot_coefficients(tfinal = 1, source_name = 'gaussian_IC', M = 4, x0_or_sigma = 0.5, 
-                      rad_or_transport ='transport', c = 1.0, N_spaces = [4,8,16], fign = 1):
+def plot_coefficients(tfinal = 1, M=6, source = 'gaussian_source'):
     
-    data = load_sol(source_name, rad_or_transport, c)
-    
-
-    j_matrix = np.zeros((len(N_spaces), (M+1)))
-    
-    for count, N_space in enumerate(N_spaces):
-
-        data.call_sol(tfinal, M, x0_or_sigma, N_space)
-        N_ang = np.shape(data.coeff_mat)[0]
-        
-        for k in range(N_space):
-            coeff_data = coeff_con(data.ws, data.coeff_mat, N_ang, M, k)
-            j_matrix[count] += coeff_data/N_space
-        
-        
-        
-    plt.ion()
-    plt.figure(fign)  
-    for j in range(M+1):
-        plt.semilogy(np.array(N_spaces), j_matrix[:, j], "-o", mfc = 'none', label =f"j={j}")
-        
-    
-    plt.plot()
-        
-    
-    plt.legend()
-    plt.show()
+    plotter = rms_plotter(tfinal, M, source, 'cells')
+    plotter.plot_coefficients()
     
     
     

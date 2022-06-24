@@ -20,14 +20,14 @@ to do:
 
 
 [] either s or source, pick one
-[] save solution somewhere
+[x] save solution somewhere
 [x] variable c 
 [x] plot all problems on same graph
 [x] combine Ms and cells with solve function
 [x] make a parameter function to merge major ms and major cells 
 [x] clean up constants in rhs
 [] clean loading and saving scripts
-[] fix s2 RMS plots
+[x] fix s2 RMS plots
 [] get source type array under control 
 [] variable sigma 
 
@@ -89,7 +89,6 @@ class main_class(parameter_load_class):
             if self.source_type[2] == 1 and self.x0 == 400:
                     benchmark = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0], self.tfinal, self.x0_or_sigma)
                     benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1], self.tfinal, self.x0_or_sigma)
-                    print("working so far")
                     
             elif self.source_type[5] == 1 and self.sigma == 0.5 :
                  benchmark = load_bench([0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0], self.tfinal, self.x0_or_sigma)
@@ -154,13 +153,19 @@ class main_class(parameter_load_class):
                                          uncollided, moving, self.move_type, self.thermal_couple,
                                          self.temp_function, self.rt, self.at, self.e_initial, 
                                          choose_xs, specified_xs, self.weights, self.sigma)
+               
                 if self.sigma == 0:
                     x0_or_sigma = self.x0
                 else:
                     x0_or_sigma = self.sigma
                     
                 if self.saving == True:                                         # saves phi and coefficient matrix
-                    saving.save_solution(xs, phi, sol_matrix, x0_or_sigma, ws, N_space)
+                    if N_ang == 2:
+                        s2 = True
+                    else:
+                        s2 = False
+                        
+                    saving.save_solution(xs, phi, e, sol_matrix, x0_or_sigma, ws, N_space, s2)
                 
                 
                 
@@ -190,16 +195,14 @@ class main_class(parameter_load_class):
                             plt.plot(-e_xs,phi_bench, "-k")
                             plt.plot(e_xs,e_bench, "--k")
                             plt.plot(-e_xs,e_bench, "--k")
+                            
+       
         
                         elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0 == 400:
                             phi_bench = benchmark(np.abs(xs))[0]
                             e_bench = benchmark_mat(np.abs(xs))[0]
                             
-                            if count == len(self.N_angles)-1:
-                                plt.plot(xs, phi_bench, "-k")
-                                plt.plot(-xs,phi_bench, "-k")
-                                plt.plot(xs,e_bench, "--k")
-                                plt.plot(-xs,e_bench, "--k")
+
                                 # plot_p1_su_olson_mathematica()
                                             
                         RMS = np.sqrt(np.mean((phi - phi_bench)**2))
@@ -234,6 +237,19 @@ class main_class(parameter_load_class):
             if ((self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10) and self.thermal_couple == 0):
                 plt.plot(xsb, bench, "k-", label = "benchmark")
                 plt.plot(-xsb, bench, "k-")
+                plt.show()
+                
+            elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0 == 400:
+                phi_bench = benchmark(np.abs(xsb))[0]
+                e_bench = benchmark_mat(np.abs(xsb))[0]
+                
+                plt.plot(xsb, phi_bench, "-k")
+                plt.plot(-xsb,phi_bench, "-k")
+                plt.plot(xsb,e_bench, "--k")
+                plt.plot(-xsb,e_bench, "--k")
+                if self.x0[0] == 400:
+                    plt.xlim(self.x0-10, self.x0 + self.tfinal + 10)
+                    
                 
 
 

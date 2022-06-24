@@ -1,11 +1,11 @@
 # parameters shared by all source types
 'all':
-    'tfinal': 1 #31.6228                       # evaluation time
+    'tfinal': 10 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     't0': 10.0                           # time the source is turned off
-    'N_spaces': [4,8,16,32,64]                   # number of cells
+    'N_spaces': [4,8,16,32,64,128,256]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [10,10,10,10,10]                         # number of basis functions -1
+    'Ms': [10,10,10,10,10,10,10]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
@@ -38,7 +38,7 @@
 'square_source':
     'x0': [400]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [8,8,8,8,8]
+    'N_angles': [8,8,8,8,8,8,8]
     'move_type': [1,0,0,0,1]      # [standard, square source, s2, square IC, thick square]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': True
@@ -59,7 +59,7 @@
     'x0': [1700, 1700, 1700, 1700, 1700]
 #    'x0': [3,3,3,3,3]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
-    'N_angles': [8,8,8,8,8]
+    'N_angles': [8,8,8,8]
     'move_type': [0,0,1,0,0]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': True

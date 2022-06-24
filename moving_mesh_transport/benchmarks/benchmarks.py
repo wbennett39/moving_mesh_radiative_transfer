@@ -7,6 +7,7 @@ Created on Wed Mar 23 11:58:28 2022
 """
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 
 from .benchmark_functions import make_benchmark_file_structure, write_to_file
 from .benchmark_functions import check_gaussian_tail
@@ -16,6 +17,8 @@ from .collided import collided_class
 
 from ..main_functions import plot_p1_su_olson_mathematica
 from .test_benchmarks import test_P1_against_mathematica
+
+
 
 ###############################################################################
 
@@ -67,12 +70,8 @@ class make_benchmark:
             elif t == 10:
                 self.xs = np.linspace(0.0, 1800, npnts)
         elif self.source_type == 'P1_su_olson_mat' or self.source_type == 'P1_su_olson_rad' and self.x0 == 400:
-            if t == 100:
-                self.xs = np.linspace(0.0, 423, npnts)
-            if t == 500:
-                self.xs = np.linspace(0.0, 460, npnts)
-            if t == 1000:
-                self.xs = np.linspace(0.0, 473, npnts)
+            self.xs = np.linspace(0.0,self.x0 + 4 * math.sqrt(t)/math.sqrt(3), npnts)
+
                 
             
             

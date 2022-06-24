@@ -38,6 +38,14 @@ def parameter_function(major, N_spaces, Ms, count):
         M = Ms[count]
     return N_space, M
 
+def time_step_function(t_array):
+    N = len(t_array)
+    print(N)
+    res = np.zeros(N-1)
+    for i in range(N-1):
+        res[i] = t_array[i+1]-t_array[i]
+    return res
+
 def plot_p1_su_olson_mathematica():
     data_folder = Path("moving_mesh_transport/benchmarks")
     benchmark_mat_file_path = data_folder / "S2SuOlMat_t_1..txt"
@@ -88,12 +96,16 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     
     start = timer()
     reshaped_IC = IC.reshape(deg_freedom)
-    sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = [tfinal], rtol = rt, atol = at)
+    sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = [tfinal], rtol = rt, atol = at, max_step = 100)
     end = timer()
     if thermal_couple == 0:
         sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
     elif thermal_couple == 1:
         sol_last = sol.y[:,-1].reshape((N_ang+1,N_space,M+1))
+        
+    # timesteps = time_step_function(sol.t)
+    # print(timesteps)
+    # print(np.max(timesteps), "max time step")
     
     mesh.move(tfinal)
     edges = mesh.edges
