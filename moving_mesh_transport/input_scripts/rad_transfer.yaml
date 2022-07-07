@@ -15,6 +15,8 @@
     'e_initial': 0.0000000001
     'weights': 'gauss_lobatto'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
     'save_solution': True
+    'particle_v': 'one'
+    'edge_v': 'one'
     
 # plane pulse source
 'plane_IC':
@@ -39,9 +41,9 @@
 'square_source':
     'x0': [0.5]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [8,8,8,8,8,8,8]
+    'N_angles': [8,8,8]
     'move_type': [0,0,1,0,0]      # [standard, square source, s2, square IC]
-    'bench_type': 'full'          # 'S2' or 'full'
+    'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': False
     
 # gaussian pulse source

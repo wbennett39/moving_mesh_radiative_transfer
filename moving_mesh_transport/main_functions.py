@@ -25,7 +25,9 @@ from .solver_classes.make_phi import make_output
 from .solver_classes.radiative_transfer import T_function
 from timeit import default_timer as timer
 
-
+"""
+This file contains functions used by solver
+"""
 
 
 
@@ -37,6 +39,30 @@ def parameter_function(major, N_spaces, Ms, count):
         N_space = N_spaces[1]
         M = Ms[count]
     return N_space, M
+
+
+def s2_source_type_selector(sigma, x0, thermal_couple, source_type, weights):
+    """ 
+    changes the name of the source type in order to select the correct 
+    benchmark. For S2 benchmarks 
+    """
+    # thick source s8 
+    if source_type[5] == 1:
+        if sigma == 300:
+            source_array_rad = [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0]
+            source_array_mat = [0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0]
+        elif sigma == 0.5:
+            source_array_rad = [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0]
+            source_array_mat = [0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
+    elif source_type[2] == 1:
+        if x0 == 400:
+            source_array_rad = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0]
+            source_array_mat = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+        elif x0 == 0.5:
+            source_array_rad = [0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+            source_array_mat = [0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0]
+    return source_array_rad, source_array_mat
+    
 
 def time_step_function(t_array):
     N = len(t_array)
@@ -59,7 +85,8 @@ def plot_p1_su_olson_mathematica():
     return [su_olson_rad, su_olson_mat]
 
 def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
-          uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, weights, sigma):
+          uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, weights, sigma,
+          particle_v, edge_v):
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
         ws = quadpy.c1.gauss_lobatto(N_ang).weights
@@ -74,7 +101,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
     initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
-                       thermal_couple, temp_function, e_initial, sigma)
+                       thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v)
     initialize.make_IC()
     IC = initialize.IC
 
@@ -82,7 +109,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         deg_freedom = N_ang*N_space*(M+1)
     elif thermal_couple == 1:
         deg_freedom = (N_ang+1)*N_space*(M+1)
-    mesh = mesh_class(N_space, x0, tfinal, moving, move_type) 
+    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v) 
     matrices = G_L(initialize)
     num_flux = LU_surf(initialize)
     source = source_class(initialize)
@@ -96,16 +123,16 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     
     start = timer()
     reshaped_IC = IC.reshape(deg_freedom)
-    sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = [tfinal], rtol = rt, atol = at, max_step = 100)
+    sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = None , rtol = rt, atol = at, max_step = 0.01)
     end = timer()
     if thermal_couple == 0:
         sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
     elif thermal_couple == 1:
         sol_last = sol.y[:,-1].reshape((N_ang+1,N_space,M+1))
         
-    # timesteps = time_step_function(sol.t)
+    timesteps = time_step_function(sol.t)
     # print(timesteps)
-    # print(np.max(timesteps), "max time step")
+    print(np.max(timesteps), "max time step")
     
     mesh.move(tfinal)
     edges = mesh.edges

@@ -11,7 +11,8 @@ from .main_functions import parameter_function
 
 from .load_parameters import parameter_load_class
 
-from .main_functions import solve
+from .main_functions import solve, s2_source_type_selector
+import math
 ###############################################################################
 """ 
 to do:
@@ -29,7 +30,9 @@ to do:
 [] clean loading and saving scripts
 [x] fix s2 RMS plots
 [] get source type array under control 
-[] variable sigma 
+[x] variable sigma 
+[] simplify if statements in solver
+[] plot final edges
 
 
 ideas for tests:
@@ -67,6 +70,7 @@ class main_class(parameter_load_class):
 
 
     def main(self, uncollided = True, moving = True):  
+
         
         saving = save_output(self.tfinal, self.N_spaces, self.Ms, self.source_type, 
                              moving, uncollided, self.major, self.thermal_couple, 
@@ -75,28 +79,11 @@ class main_class(parameter_load_class):
         
         if self.bench_type == 'full':
             benchmark = load_bench(self.source_type, self.tfinal, self.x0_or_sigma)
-            
-        elif (self.weights != "gauss_legendre") and self.sigma == 300:
-            benchmark = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,1,0], self.tfinal, self.x0_or_sigma)
-            benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,0,1], self.tfinal, self.x0_or_sigma)
         
-        elif (self.weights == "gauss_legendre") and (self.thermal_couple == 1) or self.bench_type == 'S2':
-            
-            if self.source_type[2] == 1 and self.x0 == 0.5:
-                    benchmark = load_bench([0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0], self.tfinal, self.x0_or_sigma)
-                    benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,1,0,0,0,0,0,0], self.tfinal, self.x0_or_sigma)
-                    
-            if self.source_type[2] == 1 and self.x0 == 400:
-                    benchmark = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0], self.tfinal, self.x0_or_sigma)
-                    benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1], self.tfinal, self.x0_or_sigma)
-                    
-            elif self.source_type[5] == 1 and self.sigma == 0.5 :
-                 benchmark = load_bench([0,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0], self.tfinal, self.x0_or_sigma)
-                 benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,0,0,1,0,0,0,0], self.tfinal, self.x0_or_sigma)
-                  
-            elif self.source_type[5] == 1 and self.sigma == 300 :
-                 benchmark = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0], self.tfinal, self.x0_or_sigma)
-                 benchmark_mat = load_bench([0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0], self.tfinal, self.x0_or_sigma)
+        elif self.bench_type == 'S2':
+            s2_source_res = s2_source_type_selector(self.sigma, self.x0[0], self.thermal_couple, self.source_type, self.weights)
+            benchmark = load_bench(s2_source_res[0], self.tfinal, self.x0_or_sigma)
+            benchmark_mat = load_bench(s2_source_res[1], self.tfinal, self.x0_or_sigma)
                 
         
         print("---  ---  ---  ---  ---  ---  ---")
@@ -152,8 +139,9 @@ class main_class(parameter_load_class):
                                          self.scattering_ratio, self.source_type, 
                                          uncollided, moving, self.move_type, self.thermal_couple,
                                          self.temp_function, self.rt, self.at, self.e_initial, 
-                                         choose_xs, specified_xs, self.weights, self.sigma)
-               
+                                         choose_xs, specified_xs, self.weights, self.sigma, 
+                                         self.particle_v, self.edge_v)
+                print(xs[0], xs[-1], 'edges')
                 if self.sigma == 0:
                     x0_or_sigma = self.x0
                 else:
@@ -186,7 +174,7 @@ class main_class(parameter_load_class):
                         RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
                     
                     elif self.thermal_couple == 1:
-                        if  self.weights == "gauss_lobatto" and self.sigma != 300 and self.x0 !=400:
+                        if  (self.weights == "gauss_lobatto" and (self.sigma != 300 and self.x0[0] != 400)):
                             e_xs = benchmark(np.abs(xs))[2][:,0]
                             phi_bench = benchmark(np.abs(xs))[2][:,1]
                             e_bench = benchmark(np.abs(xs))[2][:,2]
@@ -196,13 +184,12 @@ class main_class(parameter_load_class):
                             plt.plot(e_xs,e_bench, "--k")
                             plt.plot(-e_xs,e_bench, "--k")
                             
+                            
        
-        
-                        elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0 == 400:
+                        elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0[0] == 400:
+                            print("loading s2 bench")
                             phi_bench = benchmark(np.abs(xs))[0]
                             e_bench = benchmark_mat(np.abs(xs))[0]
-                            
-
                                 # plot_p1_su_olson_mathematica()
                                             
                         RMS = np.sqrt(np.mean((phi - phi_bench)**2))
@@ -239,16 +226,17 @@ class main_class(parameter_load_class):
                 plt.plot(-xsb, bench, "k-")
                 plt.show()
                 
-            elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0 == 400:
-                phi_bench = benchmark(np.abs(xsb))[0]
-                e_bench = benchmark_mat(np.abs(xsb))[0]
+            elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0[0] == 400:
+                phi_bench_plot = benchmark(np.abs(xsb))[0]
+                e_bench_plot = benchmark_mat(np.abs(xsb))[0]
                 
-                plt.plot(xsb, phi_bench, "-k")
-                plt.plot(-xsb,phi_bench, "-k")
-                plt.plot(xsb,e_bench, "--k")
-                plt.plot(-xsb,e_bench, "--k")
-                if self.x0[0] == 400:
-                    plt.xlim(self.x0-10, self.x0 + self.tfinal + 10)
+                
+                plt.plot(xsb, phi_bench_plot, "-k")
+                plt.plot(-xsb, phi_bench_plot, "-k")
+                plt.plot(xsb, e_bench_plot, "--k")
+                plt.plot(-xsb, e_bench_plot, "--k")
+                # if int(self.x0[0]) == 400:
+                #     plt.xlim(self.x0[0]-10, self.x0[0] + 4 * math.sqrt(self.tfinal) /math.sqrt(3) + 10)
                     
                 
 

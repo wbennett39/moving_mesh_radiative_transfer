@@ -113,9 +113,7 @@ class save_output:
                 f.close()
             
     def save_RMS_P1_su_olson(self, RMS_list, energy_RMS_list, N_angles, r_times, ang):
-        saving_condition = False
-        if ((self.thermal_couple == 1) and (self.tfinal == 31.6228) or (self.tfinal == 1)) or (self.tfinal == 5) or self.tfinal ==10:
-            saving_condition = True
+        saving_condition = True
         if int(self.sigma) == 300:
             self.source_name = 'gaussian_s_thick' 
         elif self.x0[0] == 400.0:

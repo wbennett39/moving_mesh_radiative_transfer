@@ -85,8 +85,8 @@ def plot_rms_cells(tfinal, source_name, M, fign = 1):
         
 def plot_all_rms_Ms(tfinal):
     # plot_rms_Ms(tfinal, "plane_IC")
-    plot_rms_Ms(tfinal, "square_IC", 1)
-    plot_rms_Ms(tfinal, "square_s", 2)
+    # plot_rms_Ms(tfinal, "square_IC", 1)
+    # plot_rms_Ms(tfinal, "square_s", 2)
     plot_rms_Ms(tfinal, "gaussian_IC", 3)
     plot_rms_Ms(tfinal, "gaussian_s", 4)
     plot_rms_Ms(tfinal, "MMS", 5)
@@ -240,6 +240,11 @@ def plot_coefficients(tfinal = 1, M=6, source = 'gaussian_source'):
     
     plotter = rms_plotter(tfinal, M, source, 'cells')
     plotter.plot_coefficients()
+    plotter.plot_coeff_boyd()
+
+
+
+    
     
     
     

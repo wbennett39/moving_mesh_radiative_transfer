@@ -338,10 +338,10 @@ class rms_plotter:
         #######################################################################
         
         if self.source_name == 'MMS':
-            self.Ms = self.Ms[:]
-            self.RMS = self.RMS[:]
-            self.angles = self.angles[:]
-            xlimright = 10
+            self.Ms = self.Ms[:4]
+            self.RMS = self.RMS[:4]
+            self.angles = self.angles[:4]
+            xlimright = 12
             plt.ylim = 10e-14
             self.find_c_semilog()
             
@@ -358,10 +358,7 @@ class rms_plotter:
             if (self.uncollided == False) and (self.moving == False):
                 logplot_sn_labels(self.cells, self.RMS, self.angles, 0.1, fign )
         plt.semilogy(self.Ms, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
-        
-        
-        
-       
+               
         # plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
         file_path_string = str(self.plot_file_path) + '/' "RMS_plots" '/' + f"{self.source_name}_t={self.tfinal}_RMSE_vs_Ms"
         show_loglog(file_path_string, xlimleft, xlimright)
@@ -490,39 +487,52 @@ class rms_plotter:
          show_loglog(file_path_string, xlimleft, xlimright)
          plt.show(block = False)
         
-    def plot_coefficients(self, tfinal = 1, source_name = 'gaussian_source', M = 6, x0_or_sigma = 0.5, 
-                          rad_or_transport ='transfer', c = 0.0, N_spaces = [2,4,8,16,32], s2 = True, mat_or_rad = 'rad', fign = 1):
-        
+    def plot_coefficients(self, rad_or_transport ='transport', M=12, tfinal = 1, source_name = 'gaussian_source', x0_or_sigma = 0.5 , c = 1.0, N_spaces = [2,4,8,16,32], s2 = False, mat_or_rad = 'rad', fign = 1):
         data = load_sol(source_name, rad_or_transport, c, s2)
-        
-        j_matrix = np.zeros((len(N_spaces), (M+1)))
+
+        self.M_coeff = M
+        self.j_matrix = np.zeros((len(N_spaces), (M+1)))
         
         for count, N_space in enumerate(N_spaces):
     
             data.call_sol(tfinal, M, x0_or_sigma, N_space, mat_or_rad)
             N_ang = np.shape(data.coeff_mat)[0]
+
             
             for k in range(N_space):
                 coeff_data = coeff_con(data.ws, data.coeff_mat, N_ang, M, k)
-                j_matrix[count] += np.abs(coeff_data)/N_space
+                self.j_matrix[count] += np.abs(coeff_data)/N_space
             
         
         for j in range(M+1):
             plt.ion()
             plt.figure(fign)  
             xdata = np.array(N_spaces)
-            ydata = np.array(j_matrix[:,j])
+            ydata = np.array(self.j_matrix[:,j])
 
             plt.loglog(xdata, np.abs(ydata), "-o", mfc = 'none', label =f"j={j}")
-        file_path_string = str(self.plot_file_path) + '/' + "coefficient_convergence" + "/" + rad_or_transport +"_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
-        show_loglog(file_path_string, N_spaces[0]-1, N_spaces[-1] + 2)
+        self.file_path_string = str(self.plot_file_path) + '/' + "coefficient_convergence" + "/" + rad_or_transport +"_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
+        show_loglog(self.file_path_string, N_spaces[0]-1, N_spaces[-1] + 2)
         plt.show()
         
         
         plt.legend()
         plt.show()
     
+    def plot_coeff_boyd(self):
+        plt.figure(2)
+        xdata = np.linspace(0,self.M_coeff, self.M_coeff+1)
+        plt.semilogy(xdata, self.j_matrix[2], "-o", label = "8 spaces")
+        plt.semilogy(xdata, self.j_matrix[3], "-o", label = "16 spaces")
+        plt.semilogy(xdata, self.j_matrix[4], "-o", label = "32 spaces")
         
+        plt.legend()
+
+        print(self.M_coeff)
+
+        show_loglog(self.file_path_string + "_boyd" ,0, 5)
+        plt.show()
+
         
         
     def plot_bench(self, tfinal, source_name, fign):

@@ -7,6 +7,7 @@ Created on Wed Jun 15 10:49:08 2022
 """
 
 import numpy as np
+import math
 
 
 class parameter_load_class:
@@ -29,10 +30,20 @@ class parameter_load_class:
         self.temp_function = np.array(parameters['all']['temperature_dependence'])
         self.e_initial = float(parameters['all']['e_initial'])
         self.weights = str(parameters['all']['weights'])
+        self.particle_v = str(parameters['all']['particle_v'])
+        self.edge_v = str(parameters['all']['edge_v'])
+        if self.edge_v == 'one':
+            self.edge_v = 1.0
+        elif self.edge_v == 'sqrt_3':
+            self.edge_v = 1.0/math.sqrt(3)
+        if self.particle_v == 'one':
+            self.particle_v = 1.0
+        elif self.particle_v == 'sqrt_3':
+            self.particle_v = 1.0/math.sqrt(3)
+        
 
         self.saving = int(parameters['all']['save_solution'])
-        
-        
+    
         self.N_angles = np.array(parameters[source_name]['N_angles'])
         self.x0 = np.array(parameters[source_name]['x0'])
         self.source_type = np.array(parameters[source_name]['source_type'])

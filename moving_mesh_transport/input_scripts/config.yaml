@@ -16,6 +16,8 @@
     'weights': 'gauss_legendre'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
     'benchmarking': True                # If 'True', will attempt to load benchmark and calculate RMSE
     'save_solution': True
+    'particle_v': 'one'
+    'edge_v': 'one'
     
 # plane pulse source
 'plane_IC':

@@ -23,9 +23,9 @@ class load_bench:
 
         self.ask_for_bench = True
         self.source_type = source_type
-        self.tfinal = tfinal
+        self.tfinal = float(tfinal)
         su_olson = 0
-        if self.tfinal == 1:
+        if self.tfinal == 1.0:
             su_olson = np.loadtxt(data_folder / 'su_olson_1.txt')
         elif self.tfinal == 31.6228:
             su_olson = np.loadtxt(data_folder / 'su_olson_31.txt')
@@ -44,22 +44,27 @@ class load_bench:
         source_name = self.source_type_str[index_of_source_name]
         self.x0 = x0_or_sigma
         if source_name == "MMS":
-            self.ask_for_bench = False
+            # self.ask_for_bench = False
             self.xs = np.linspace(0, tfinal + 1/10)
-        if tfinal == 1.0:
-            self.t_string_index = 0
-        elif tfinal == 5.0:
-            self.t_string_index = 1
-        elif tfinal == 10.0:
-            self.t_string_index = 2
-        elif tfinal == 31.6228:
-            self.t_string_index = 3
-        else:
-            self.ask_for_bench = False
+        # if tfinal == 1.0:
+        #     self.t_string_index = 0
+        # elif tfinal == 5.0:
+        #     self.t_string_index = 1
+        # elif tfinal == 10.0:
+        #     self.t_string_index = 2
+        # elif tfinal == 31.6228:
+        #     self.t_string_index = 3
+        # else:
+        #     self.ask_for_bench = False
             
         if self.ask_for_bench == True:
             print("loading bench for ", source_name)
-            tstring = self.t_eval_str[self.t_string_index]
+            # tstring = self.t_eval_str[self.t_string_index]
+            if tfinal != 31.6228:
+                tstring = "t = " + str(int(tfinal))
+            elif tfinal == 31.6228:
+                tstring = "t = " + str(float(tfinal))
+                
             
             # if (source_name == "P1_gaussian_rad") or (source_name == "P1_gaussian_mat"):
             #     # sigma_str = "sigma = 0.5"
@@ -126,7 +131,7 @@ class load_bench:
             elif (beyond_solution_domain == True):
                 return [self.stich_solution(xs)[0], self.stich_solution(xs)[1], self.e_sol]
         elif self.ask_for_bench == False and self.source_type[4] == 1:
-            return [np.exp(-xs*xs/2)/(1+self.tfinal) * np.heaviside(self.tfinal - np.abs(xs) + self.x0, 1),0]
+            return [np.exp(-xs*xs/2)/(1+self.tfinal) * np.heaviside(self.tfinal - np.abs(xs) + self.x0, 1),0,0]
         else:
             return xs * 0
         

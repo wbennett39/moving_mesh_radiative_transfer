@@ -1,11 +1,11 @@
 # parameters shared by all source types
 'all':
-    'tfinal': 1 #31.6228                       # evaluation time
+    'tfinal': 1.0 #31.6228                       # evaluation time
     'c': 1.0                            # scattering ratio
     't0': 5.0                           # time the source is turned off
-    'N_spaces': [2,4,8,16]                   # number of cells
+    'N_spaces': [2,4,8,16,32]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [4,4,4,4]                         # number of basis functions -1
+    'Ms': [12,12,12,12,12]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
@@ -15,7 +15,8 @@
     'e_initial': 0.0000000001
     'weights': 'gauss_lobatto'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
     'save_solution': True
-    
+    'particle_v': 'one'
+    'edge_v': 'one'
 # plane pulse source
 'plane_IC':
     'x0': 1e-10                         # source initial width/2
@@ -47,7 +48,7 @@
 #    'x0': [, 3.6, 1.5, 1.5, 1.5]
     'x0': [2.9, 2.9, 2.9, 2.9, 3.0, 2.8]
     'source_type': [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [64,256,256,512]
+    'N_angles': [64,256,256,512,512]
     'move_type': [1,0,0,0,0]
     'benchmarking': True
     
