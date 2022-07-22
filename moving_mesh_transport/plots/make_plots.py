@@ -487,15 +487,16 @@ class rms_plotter:
          show_loglog(file_path_string, xlimleft, xlimright)
          plt.show(block = False)
         
-    def plot_coefficients(self, rad_or_transport ='transport', M=12, tfinal = 1, source_name = 'gaussian_source', x0_or_sigma = 0.5 , c = 1.0, N_spaces = [2,4,8,16,32], s2 = False, mat_or_rad = 'rad', fign = 1):
-        data = load_sol(source_name, rad_or_transport, c, s2)
+    def plot_coefficients(self, tfinal = 1,  M=16, source_name = 'square_s', problem_name = 'transfer_const_cv=0.1', rad_or_transport ='transfer',
+     x0_or_sigma = 0.5 , c = 0.0, N_spaces = [8,16,32, 64, 128], s2 = False, mat_or_rad = 'rad', uncollided = True, moving = True, fign = 1):
+        data = load_sol(problem_name, source_name, rad_or_transport, c, s2)
 
         self.M_coeff = M
         self.j_matrix = np.zeros((len(N_spaces), (M+1)))
         
         for count, N_space in enumerate(N_spaces):
     
-            data.call_sol(tfinal, M, x0_or_sigma, N_space, mat_or_rad)
+            data.call_sol(tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving)
             N_ang = np.shape(data.coeff_mat)[0]
 
             
@@ -511,7 +512,7 @@ class rms_plotter:
             ydata = np.array(self.j_matrix[:,j])
 
             plt.loglog(xdata, np.abs(ydata), "-o", mfc = 'none', label =f"j={j}")
-        self.file_path_string = str(self.plot_file_path) + '/' + "coefficient_convergence" + "/" + rad_or_transport +"_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
+        self.file_path_string = str(self.plot_file_path) + '/' + "coefficient_convergence" + "/" + problem_name +"_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
         show_loglog(self.file_path_string, N_spaces[0]-1, N_spaces[-1] + 2)
         plt.show()
         
@@ -522,15 +523,20 @@ class rms_plotter:
     def plot_coeff_boyd(self):
         plt.figure(2)
         xdata = np.linspace(0,self.M_coeff, self.M_coeff+1)
-        plt.semilogy(xdata, self.j_matrix[2], "-o", label = "8 spaces")
-        plt.semilogy(xdata, self.j_matrix[3], "-o", label = "16 spaces")
-        plt.semilogy(xdata, self.j_matrix[4], "-o", label = "32 spaces")
+        plt.semilogy(xdata, self.j_matrix[0], "-o", label = "8 cells")
+        plt.semilogy(xdata, self.j_matrix[1], "-o", label = "16 cells")
+        plt.semilogy(xdata, self.j_matrix[2], "-o", label = "32 cells")
+        plt.semilogy(xdata, self.j_matrix[3], "-o", label = "64 cells")
+        plt.semilogy(xdata, self.j_matrix[4], "-o", label = "128 cells")
         
+    
+        plt.xlabel("M", fontsize = 20)
+        plt.ylabel("RMSE", fontsize = 20)
+
         plt.legend()
 
-        print(self.M_coeff)
 
-        show_loglog(self.file_path_string + "_boyd" ,0, 5)
+        show_loglog(self.file_path_string + "_boyd" ,0, self.M_coeff + 4)
         plt.show()
 
         

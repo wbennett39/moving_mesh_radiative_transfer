@@ -85,8 +85,8 @@ def plot_p1_su_olson_mathematica():
     return [su_olson_rad, su_olson_mat]
 
 def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
-          uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, weights, sigma,
-          particle_v, edge_v):
+          uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, 
+          weights, sigma, particle_v, edge_v, cv0):
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
         ws = quadpy.c1.gauss_lobatto(N_ang).weights
@@ -101,7 +101,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
     initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
-                       thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v)
+                       thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0)
     initialize.make_IC()
     IC = initialize.IC
 
@@ -123,7 +123,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     
     start = timer()
     reshaped_IC = IC.reshape(deg_freedom)
-    sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = None , rtol = rt, atol = at, max_step = 0.01)
+    sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = None , rtol = rt, atol = at, max_step = 1)
     end = timer()
     if thermal_couple == 0:
         sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
@@ -154,3 +154,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     
     return xs, phi, e, computation_time, sol_last, ws
 
+
+
+def problem_identifier():
+    name_array = []

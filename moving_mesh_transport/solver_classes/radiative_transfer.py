@@ -30,7 +30,8 @@ data = [('temp_function', int64[:]),
         ('M', int64),
         ("xs_quad", float64[:]),
         ("ws_quad", float64[:]),
-        ("T", float64[:])
+        ("T", float64[:]),
+        ('cv0', float64)
         ]
 ###############################################################################
 
@@ -46,6 +47,8 @@ class T_function(object):
         
         self.xs_quad = build.xs_quad
         self.ws_quad = build.ws_quad
+        self.cv0 = build.cv0
+
         
         
     def make_e(self, xs, a, b):
@@ -63,8 +66,12 @@ class T_function(object):
         if self.temp_function[0] == 1:
             T = self.su_olson_source(argument, a, b)
             return self.a * np.power(T,4)
+        elif self.temp_function[1] == 1:
+            e = self.make_e(argument,a,b)
+            T =  e / self.cv0
+            return self.a * np.power(T,4)
         else:
-            print("not calling T ")
+            assert(0)
         
     def su_olson_source(self, x, a, b):
         e = self.make_e(x, a, b)

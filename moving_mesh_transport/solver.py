@@ -19,20 +19,12 @@ to do:
 
 [] update README
 
-
+[] make functions to plot all of the graphs in a paper?
 [] either s or source, pick one
-[x] save solution somewhere
-[x] variable c 
-[x] plot all problems on same graph
-[x] combine Ms and cells with solve function
-[x] make a parameter function to merge major ms and major cells 
-[x] clean up constants in rhs
-[] clean loading and saving scripts
-[x] fix s2 RMS plots
 [] get source type array under control 
-[x] variable sigma 
 [] simplify if statements in solver
 [] plot final edges
+[] problem identifier
 
 
 ideas for tests:
@@ -65,17 +57,15 @@ long term goals:
 
 
 class main_class(parameter_load_class):
-    
-    pass
 
+    pass
 
     def main(self, uncollided = True, moving = True):  
 
-        
         saving = save_output(self.tfinal, self.N_spaces, self.Ms, self.source_type, 
                              moving, uncollided, self.major, self.thermal_couple, 
                              self.temp_function, self.scattering_ratio, self.sigma,
-                             self.x0)
+                             self.x0, self.cv0, self.problem_type)
         
         if self.bench_type == 'full':
             benchmark = load_bench(self.source_type, self.tfinal, self.x0_or_sigma)
@@ -85,7 +75,6 @@ class main_class(parameter_load_class):
             benchmark = load_bench(s2_source_res[0], self.tfinal, self.x0_or_sigma)
             benchmark_mat = load_bench(s2_source_res[1], self.tfinal, self.x0_or_sigma)
                 
-        
         print("---  ---  ---  ---  ---  ---  ---")
         print("tfinal = ", self.tfinal )
         print("c = ", self.scattering_ratio)
@@ -93,7 +82,6 @@ class main_class(parameter_load_class):
         print("---  ---  ---  ---  ---  ---  ---")
         if self.benchmarking == True:
             print("verifying with benchmark solution")
-        
         #benchmark for plotting
         if self.benchmarking == True:
             if self.source_type[0] == 1:
@@ -140,10 +128,9 @@ class main_class(parameter_load_class):
                                          uncollided, moving, self.move_type, self.thermal_couple,
                                          self.temp_function, self.rt, self.at, self.e_initial, 
                                          choose_xs, specified_xs, self.weights, self.sigma, 
-                                         self.particle_v, self.edge_v)
-                print(xs[0], xs[-1], 'edges')
+                                         self.particle_v, self.edge_v, self.cv0)
                 if self.sigma == 0:
-                    x0_or_sigma = self.x0
+                    x0_or_sigma = self.x0[0]
                 else:
                     x0_or_sigma = self.sigma
                     
@@ -154,7 +141,6 @@ class main_class(parameter_load_class):
                         s2 = False
                         
                     saving.save_solution(xs, phi, e, sol_matrix, x0_or_sigma, ws, N_space, s2)
-                
                 
                 
                 self.r_times[count] += (time)/self.N_runs

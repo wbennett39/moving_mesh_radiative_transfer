@@ -1,5 +1,6 @@
 # parameters shared by all source types
 'all':
+    'problem_name': 'su_olson'
     'tfinal': 1 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     't0': 10.0                           # time the source is turned off
@@ -17,6 +18,8 @@
     'save_solution': True
     'particle_v': 'one'
     'edge_v': 'one'
+    'cv_const': 0.0
+
     
 # plane pulse source
 'plane_IC':
@@ -41,10 +44,10 @@
 'square_source':
     'x0': [0.5]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [8,8,8,8,8,8,8]
+    'N_angles': [8,8,8]
     'move_type': [0,0,1,0,0]      # [standard, square source, s2, square IC]
     'bench_type': 'full'          # 'S2' or 'full'
-    'benchmarking': True
+    'benchmarking': False
     
 # gaussian pulse source
 'gaussian_IC':

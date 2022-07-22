@@ -49,14 +49,16 @@ data = [('N_ang', int64),
         ('e_init', float64),
         ('sigma', float64),
         ('particle_v', float64),
-        ('edge_v', float64)
+        ('edge_v', float64),
+        ('cv0', float64)
         ]
 ###############################################################################
 
 @jitclass(data)
 class build(object):
-    def __init__(self, N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, source_type,
-                 uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v):
+    def __init__(self, N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, 
+    source_type, uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, 
+    edge_v, cv0):
         self.N_ang = N_ang
         self.N_space = N_space
         self.M = M
@@ -82,6 +84,7 @@ class build(object):
         self.sigma = sigma
         self.particle_v = particle_v
         self.edge_v = edge_v
+        self.cv0 = cv0
         
         
         if self.thermal_couple == 0:

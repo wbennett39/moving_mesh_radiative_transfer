@@ -175,7 +175,6 @@ class mesh_class(object):
                 self.Dedges_const = self.Dedges
                 
             elif self.move_type[1] == 1 and self.edges.size !=3: # square source function
-                print('square source mesh function')
                 self.square_source_init_func()
                 self.Dedges_const = self.Dedges
             

@@ -32,6 +32,9 @@ class parameter_load_class:
         self.weights = str(parameters['all']['weights'])
         self.particle_v = str(parameters['all']['particle_v'])
         self.edge_v = str(parameters['all']['edge_v'])
+        self.cv0 = float(parameters['all']['cv_const'])
+        self.problem_type = str(parameters['all']['problem_name'])
+
         if self.edge_v == 'one':
             self.edge_v = 1.0
         elif self.edge_v == 'sqrt_3':
@@ -65,4 +68,7 @@ class parameter_load_class:
             self.bench_type = str(parameters[source_name]['bench_type'])
         else:
             self.bench_type = 'full'
+
+
+
             

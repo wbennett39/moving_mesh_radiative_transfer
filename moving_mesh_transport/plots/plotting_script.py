@@ -236,10 +236,10 @@ def plot_all_benchmarks(tfinal):
         plotter = rms_plotter(tfinal, M, source, "cells")
         plotter.plot_bench(tfinal, source, count)
         
-def plot_coefficients(tfinal = 1, M=6, source = 'gaussian_source'):
+def plot_coefficients(tfinal = 1, M=6, source = 'gaussian_s'):
     
     plotter = rms_plotter(tfinal, M, source, 'cells')
-    plotter.plot_coefficients()
+    plotter.plot_coefficients(tfinal, M, source)
     plotter.plot_coeff_boyd()
 
 
