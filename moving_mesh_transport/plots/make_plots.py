@@ -59,6 +59,9 @@ class rms_plotter:
         y = np.log(self.RMS[1:])
         slope, intercept, r, p, se = linregress(x, y)
         print(slope, 'slope - c1')
+        if abs(r) < 0.9:
+            print('bad correlation')
+            print(r, 'r')
         return slope
         
         
@@ -487,8 +490,8 @@ class rms_plotter:
          show_loglog(file_path_string, xlimleft, xlimright)
          plt.show(block = False)
         
-    def plot_coefficients(self, tfinal = 1,  M=16, source_name = 'square_s', problem_name = 'transfer_const_cv=0.1', rad_or_transport ='transfer',
-     x0_or_sigma = 0.5 , c = 0.0, N_spaces = [8,16,32, 64, 128], s2 = False, mat_or_rad = 'rad', uncollided = True, moving = True, fign = 1):
+    def plot_coefficients(self, tfinal = 1,  M=16, source_name = 'square_s',  N_spaces = [8,16,32,64,128], problem_name = 'transfer_const_cv=0.1', rad_or_transport ='transfer',
+     x0_or_sigma = 0.5 , c = 0.0, s2 = False, mat_or_rad = 'rad', uncollided = True, moving = True, fign = 1):
         data = load_sol(problem_name, source_name, rad_or_transport, c, s2)
 
         self.M_coeff = M
@@ -523,13 +526,17 @@ class rms_plotter:
     def plot_coeff_boyd(self):
         plt.figure(2)
         xdata = np.linspace(0,self.M_coeff, self.M_coeff+1)
-        plt.semilogy(xdata, self.j_matrix[0], "-o", label = "8 cells")
-        plt.semilogy(xdata, self.j_matrix[1], "-o", label = "16 cells")
-        plt.semilogy(xdata, self.j_matrix[2], "-o", label = "32 cells")
-        plt.semilogy(xdata, self.j_matrix[3], "-o", label = "64 cells")
-        plt.semilogy(xdata, self.j_matrix[4], "-o", label = "128 cells")
+
+        label_list = ['8', '16', '32', '64', '128', '256']
+        mkr_list = ['-o', '-^', '-s', '-p', '-*', '-x']
         
-    
+        self.Ms = xdata
+        
+        for ij in range(len(self.j_matrix[:,0])):
+            plt.semilogy(xdata, self.j_matrix[ij], mkr_list[ij], label = label_list[ij] + ' cells', mfc = 'none', c = 'b')
+            self.RMS = self.j_matrix[ij]
+            self.find_c_semilog()
+
         plt.xlabel("M", fontsize = 20)
         plt.ylabel("RMSE", fontsize = 20)
 

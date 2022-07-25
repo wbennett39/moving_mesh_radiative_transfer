@@ -148,6 +148,8 @@ class save_output:
             folder_name = "transport"
         elif self.problem_type == 'rad_transfer_constant_cv':
             folder_name =  f"transfer_const_cv={self.cv_const}"
+        elif self.problem_type == 'rad_transfer_constant_cv_thick':
+            folder_name =  f"transfer_const_cv={self.cv_const}_thick"
         elif self.problem_type == "su_olson_s2":
             folder_name = "su_olson_s2"
         elif self.problem_type == "su_olson_thick_s2":

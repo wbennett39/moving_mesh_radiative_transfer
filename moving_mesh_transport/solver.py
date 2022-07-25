@@ -12,6 +12,7 @@ from .main_functions import parameter_function
 from .load_parameters import parameter_load_class
 
 from .main_functions import solve, s2_source_type_selector
+from .main_functions import plot_edges
 import math
 ###############################################################################
 """ 
@@ -122,7 +123,7 @@ class main_class(parameter_load_class):
                     choose_xs = False
                     specified_xs = 0.0
                     
-                xs, phi, e, time, sol_matrix, ws = solve(self.tfinal, N_space, N_ang, M, x0_new, 
+                xs, phi, e, time, sol_matrix, ws, edges = solve(self.tfinal, N_space, N_ang, M, x0_new, 
                                          self.t0, sigma_t, sigma_s, self.t_nodes, 
                                          self.scattering_ratio, self.source_type, 
                                          uncollided, moving, self.move_type, self.thermal_couple,
@@ -146,6 +147,9 @@ class main_class(parameter_load_class):
                 self.r_times[count] += (time)/self.N_runs
                 
                 plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+
+                if count == len(self.N_angles)-1:
+                    plot_edges(edges, 3)
                 
                 if self.thermal_couple == 1:
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")

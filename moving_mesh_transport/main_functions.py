@@ -152,9 +152,14 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     
     computation_time = end-start
     
-    return xs, phi, e, computation_time, sol_last, ws
+    return xs, phi, e, computation_time, sol_last, ws, edges
 
 
 
 def problem_identifier():
     name_array = []
+
+def plot_edges(edges, fign):
+    plt.figure(fign)
+    for ed in range(edges.size):
+        plt.scatter(edges[ed], 0.0, s=32, c = 'k', marker = "|")
