@@ -9,7 +9,7 @@ Created on Wed Feb 23 15:40:39 2022
 import matplotlib.pyplot as plt
 import h5py 
 from pathlib import Path
-from ..load_bench import load_bench
+from ..loading_and_saving.load_bench import load_bench
 import numpy as np
 from .plot_functions.show import show
 from .plot_functions.show_loglog import show_loglog
@@ -18,7 +18,7 @@ from .plot_functions.show_loglog_timeplots import show_loglog_time
 from scipy.stats import linregress 
 from .plot_functions.order_triangle import order_triangle
 from .plot_functions.coeff_con import coeff_con
-from .load_solution import load_sol
+from ..loading_and_saving.load_solution import load_sol
 class rms_plotter:
     
     def __init__(self, tfinal, M, source_name, major):

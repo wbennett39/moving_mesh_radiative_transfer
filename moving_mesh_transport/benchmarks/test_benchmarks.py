@@ -9,7 +9,7 @@ Created on Tue May 17 10:06:21 2022
 import numpy as np
 import scipy.interpolate as interpolate
 
-from ..main_functions import plot_p1_su_olson_mathematica
+from ..solver_functions.main_functions import plot_p1_su_olson_mathematica
 
 def test_P1_against_mathematica(tfinal, xs, phi_sol, rad_or_mat):
     mathematica_rad = plot_p1_su_olson_mathematica()[0]

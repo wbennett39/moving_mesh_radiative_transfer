@@ -1,12 +1,12 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson_thick_s2'
-    'tfinal': 1 #31.6228                       # evaluation time
+    'tfinal': 10 #31.6228               # evaluation time
     'c': 0.0                            # scattering ratio
-    't0': 10.0                           # time the source is turned off
-    'N_spaces': [4,8]                   # number of cells
+    't0': 10.0                          # time the source is turned off
+    'N_spaces': [8]                     # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [3,3]                         # number of basis functions -1
+    'Ms': [8]                           # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
@@ -19,8 +19,11 @@
     'particle_v': 'sqrt_3'
     'edge_v': 'sqrt_3'
     'cv_const': 0.0
+    'estimate_wavespeed': True
+    'thick': True            # optically thick or thin
     
 # plane pulse source
+# Actually a thin source until I change sigma
 'plane_IC':
     'x0': 1e-10                         # source initial width/2
     'source_type': [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -42,8 +45,8 @@
 'square_source':
     'x0': [400]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [2,2]
-    'move_type': [0,0,1,0,1]      # [standard, square source, s2, square IC, thick square]
+    'N_angles': [2]
+    'move_type': [0,1]      # [standard, square source, s2, square IC, thick square]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': True
     

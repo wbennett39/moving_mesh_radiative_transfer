@@ -3,16 +3,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from .solver_classes.functions import  convergence
-from .save_output import save_output
-from .load_bench import load_bench
+from .loading_and_saving.save_output import save_output
+from .loading_and_saving.load_bench import load_bench
 
-from .main_functions import parameter_function
+from .solver_functions.main_functions import parameter_function
 # from .main_functions import plot_p1_su_olson_mathematica
 
-from .load_parameters import parameter_load_class
+from .loading_and_saving.load_parameters import parameter_load_class
 
-from .main_functions import solve, s2_source_type_selector
-from .main_functions import plot_edges
+from .solver_functions.main_functions import solve, s2_source_type_selector
+from .solver_functions.main_functions import plot_edges, x0_function
 import math
 ###############################################################################
 """ 
@@ -20,12 +20,20 @@ to do:
 
 [] update README
 
+[] write a new mesh notebook
+[] plotting class to clean up solver
+[] have benchmarks load in the same shape 
+
+
+
+
+
 [] make functions to plot all of the graphs in a paper?
 [] either s or source, pick one
 [] get source type array under control 
-[] simplify if statements in solver
-[] plot final edges
-[] problem identifier
+[x] plot final edges
+[x] problem identifier
+
 
 
 ideas for tests:
@@ -102,11 +110,7 @@ class main_class(parameter_load_class):
             for count, N_ang in enumerate(self.N_angles):
                 N_space, M = parameter_function(self.major, self.N_spaces, self.Ms, count)
                 
-                if self.source_type[3] or self.source_type[4] == 1:
-                    x0_new = self.x0[count]
-                    print("x0 = ", x0_new)
-                else:
-                    x0_new = self.x0[0]
+                x0_new = x0_function(self.x0, self.source_type, count)
                     
                 print("M = ", M)
                 print(N_space, "cells")
@@ -123,13 +127,12 @@ class main_class(parameter_load_class):
                     choose_xs = False
                     specified_xs = 0.0
                     
-                xs, phi, e, time, sol_matrix, ws, edges = solve(self.tfinal, N_space, N_ang, M, x0_new, 
-                                         self.t0, sigma_t, sigma_s, self.t_nodes, 
-                                         self.scattering_ratio, self.source_type, 
-                                         uncollided, moving, self.move_type, self.thermal_couple,
-                                         self.temp_function, self.rt, self.at, self.e_initial, 
-                                         choose_xs, specified_xs, self.weights, self.sigma, 
-                                         self.particle_v, self.edge_v, self.cv0)
+                xs, phi, e, time, sol_matrix, ws, edges, wavespeed_array, tpnts = solve(self.tfinal,
+                 N_space, N_ang, M, x0_new, self.t0, sigma_t, sigma_s, self.t_nodes, self.scattering_ratio, 
+                self.source_type, uncollided, moving, self.move_type, self.thermal_couple,self.temp_function, 
+                self.rt, self.at, self.e_initial, choose_xs, specified_xs, self.weights, self.sigma, self.particle_v, 
+                self.edge_v, self.cv0, self.estimate_wavespeed, self.thick)
+
                 if self.sigma == 0:
                     x0_or_sigma = self.x0[0]
                 else:
@@ -146,16 +149,28 @@ class main_class(parameter_load_class):
                 
                 self.r_times[count] += (time)/self.N_runs
                 
-                plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
 
-                if count == len(self.N_angles)-1:
-                    plot_edges(edges, 3)
-                
-                if self.thermal_couple == 1:
-                    plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
-                    
+                ##################################################################
+                plt.figure(1)
+                plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
                 plt.xlabel("x")
                 plt.ylabel("scalar flux")
+                if count == len(self.N_angles)-1:
+                    plot_edges(edges, 1)
+                if self.thermal_couple == 1:
+                    plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
+                plt.show()
+                plt.figure(3)
+                plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+                plt.xlabel("x")
+                plt.ylabel("scalar flux")
+                plt.xlim(380,420)
+                if count == len(self.N_angles)-1:
+                    plot_edges(edges, 1)
+                if self.thermal_couple == 1:
+                    plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
+                plt.show()
+                ##################################################################
                     
                 if self.benchmarking == True:
                     if self.thermal_couple == 0:
@@ -168,11 +183,15 @@ class main_class(parameter_load_class):
                             e_xs = benchmark(np.abs(xs))[2][:,0]
                             phi_bench = benchmark(np.abs(xs))[2][:,1]
                             e_bench = benchmark(np.abs(xs))[2][:,2]
-        
-                            plt.plot(e_xs,phi_bench, "-k")
-                            plt.plot(-e_xs,phi_bench, "-k")
-                            plt.plot(e_xs,e_bench, "--k")
-                            plt.plot(-e_xs,e_bench, "--k")
+                            
+                            ##################################################################
+                            plt.figure(1)
+                            plt.plot(e_xs, phi_bench, "-k")
+                            plt.plot(-e_xs, phi_bench, "-k")
+                            plt.plot(e_xs, e_bench, "--k")
+                            plt.plot(-e_xs, e_bench, "--k")
+                            plt.show()
+                            ##################################################################
                             
                             
        
@@ -185,8 +204,19 @@ class main_class(parameter_load_class):
                         RMS = np.sqrt(np.mean((phi - phi_bench)**2))
                         RMS_energy = np.sqrt(np.mean((e - e_bench)**2))
                         self.RMS_list_energy[count] = RMS_energy
-                        
+                    
                     self.RMS_list[count] = RMS
+
+                ##################################################################
+                if self.estimate_wavespeed == True:
+                    plt.figure(2)
+                    plt.plot(tpnts, wavespeed_array, '-o')
+                    plt.plot(tpnts,  8/np.sqrt(tpnts)/math.sqrt(3), label = "8/sqrt(t)/sqrt(3)")
+                    # plt.plot(tpnts,  4/np.sqrt(tpnts)/math.sqrt(3))
+                    plt.ylim(0,150)
+                    plt.legend()
+                    plt.show()
+                ##################################################################
                 
                 print(N_space, "spaces", "    ", "%.4f" % (time), "time elapsed")
                 
@@ -212,19 +242,21 @@ class main_class(parameter_load_class):
                 saving.save_RMS(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times)
                 
             if ((self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10) and self.thermal_couple == 0):
+                plt.figure(1)
                 plt.plot(xsb, bench, "k-", label = "benchmark")
                 plt.plot(-xsb, bench, "k-")
                 plt.show()
                 
             elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0[0] == 400:
+                plt.figure(1)
                 phi_bench_plot = benchmark(np.abs(xsb))[0]
                 e_bench_plot = benchmark_mat(np.abs(xsb))[0]
-                
                 
                 plt.plot(xsb, phi_bench_plot, "-k")
                 plt.plot(-xsb, phi_bench_plot, "-k")
                 plt.plot(xsb, e_bench_plot, "--k")
                 plt.plot(-xsb, e_bench_plot, "--k")
+                plt.show()
                 # if int(self.x0[0]) == 400:
                 #     plt.xlim(self.x0[0]-10, self.x0[0] + 4 * math.sqrt(self.tfinal) /math.sqrt(3) + 10)
                     

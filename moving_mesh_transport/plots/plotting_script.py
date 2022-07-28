@@ -7,7 +7,7 @@ Created on Tue Mar 22 09:14:26 2022
 """
 import matplotlib.pyplot as plt
 from .make_plots import rms_plotter
-from .load_solution import load_sol
+from ..loading_and_saving.load_solution import load_sol
 from ..solver_classes.functions import  convergence
 from .plot_functions.coeff_con import coeff_con
 import numpy as np

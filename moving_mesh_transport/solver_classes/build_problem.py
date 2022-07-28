@@ -51,6 +51,7 @@ data = [('N_ang', int64),
         ('particle_v', float64),
         ('edge_v', float64),
         ('cv0', float64)
+        ('thick', int64)
         ]
 ###############################################################################
 
@@ -58,14 +59,13 @@ data = [('N_ang', int64),
 class build(object):
     def __init__(self, N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, 
     source_type, uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, 
-    edge_v, cv0):
+    edge_v, cv0, thick):
         self.N_ang = N_ang
         self.N_space = N_space
         self.M = M
         self.tfinal = tfinal
         self.sigma_t = sigma_t
         self.sigma_s = sigma_s
-        
         self.mus = mus
         self.ws = ws/np.sum(ws)
         self.xs_quad = xs_quad
@@ -85,6 +85,7 @@ class build(object):
         self.particle_v = particle_v
         self.edge_v = edge_v
         self.cv0 = cv0
+        self.thick = thick
         
         
         if self.thermal_couple == 0:

@@ -15,7 +15,7 @@ from .benchmark_functions import check_gaussian_tail
 from .uncollided import uncollided_class
 from .collided import collided_class
 
-from ..main_functions import plot_p1_su_olson_mathematica
+from ..solver_functions.main_functions import plot_p1_su_olson_mathematica
 from .test_benchmarks import test_P1_against_mathematica
 
 

@@ -19,6 +19,7 @@
     'particle_v': 'sqrt_3'
     'edge_v': 'sqrt_3'
     'cv_const': 0.0
+    'estimate_wavespeed': False
     
 # plane pulse source
 'plane_IC':

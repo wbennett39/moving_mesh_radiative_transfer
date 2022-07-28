@@ -19,6 +19,7 @@
     'particle_v': 'one'
     'edge_v': 'one'
     'cv_const': 0.0
+    'estimate_wavespeed': False
 # plane pulse source
 'plane_IC':
     'x0': 1e-10                         # source initial width/2
