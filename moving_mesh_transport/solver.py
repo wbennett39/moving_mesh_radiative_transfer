@@ -160,15 +160,17 @@ class main_class(parameter_load_class):
                 if self.thermal_couple == 1:
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
                 plt.show()
+                
                 plt.figure(3)
                 plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
                 plt.xlabel("x")
                 plt.ylabel("scalar flux")
-                plt.xlim(380,420)
+                
                 if count == len(self.N_angles)-1:
-                    plot_edges(edges, 1)
+                    plot_edges(edges, 3)
                 if self.thermal_couple == 1:
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
+                plt.xlim(380,420)
                 plt.show()
                 ##################################################################
                     

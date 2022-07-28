@@ -110,7 +110,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         deg_freedom = N_ang*N_space*(M+1)
     elif thermal_couple == 1:
         deg_freedom = (N_ang+1)*N_space*(M+1)
-    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v) 
+    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick) 
     matrices = G_L(initialize)
     num_flux = LU_surf(initialize)
     source = source_class(initialize)

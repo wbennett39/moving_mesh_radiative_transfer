@@ -206,7 +206,7 @@ def uncollided_s2_gaussian_thick(x,t,sigma,t0):
 
 @njit        
 def problem_identifier(source_array):
-        if source_type[0] == 1:
+    if source_type[0] == 1:
         problem_type = 'plane_IC'
     elif source_type[1] == 1:
         problem_type = 'square_IC'
@@ -216,6 +216,7 @@ def problem_identifier(source_array):
         problem_type = 'gaussian_IC'
     elif source_type[4] == 1:
         problem_type = 'gaussian_source'
+
     else:
         problem_type =='none'
     return problem_type

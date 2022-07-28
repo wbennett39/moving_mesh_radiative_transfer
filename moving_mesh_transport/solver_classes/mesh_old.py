@@ -200,7 +200,7 @@ class mesh_class(object):
                         middle = np.linspace(-self.x0, self.x0, int(half + 1))
                         self.edges = np.concatenate((edges_left[:-1], middle, edges_right[1:]))
                     
-                    elif self.N_space >= 4:
+                    elif self.N_space > 4:
                         half = self.N_space/2
                         left_edge = -8 * math.sqrt(self.tfinal) * self.speed - self.x0
                         right_edge = -1*left_edge 

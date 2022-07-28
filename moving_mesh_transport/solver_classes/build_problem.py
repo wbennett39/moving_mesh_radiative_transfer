@@ -50,7 +50,7 @@ data = [('N_ang', int64),
         ('sigma', float64),
         ('particle_v', float64),
         ('edge_v', float64),
-        ('cv0', float64)
+        ('cv0', float64),
         ('thick', int64)
         ]
 ###############################################################################
@@ -111,7 +111,7 @@ class build(object):
         return np.ones(x.size) * self.e_init
                 
     def make_IC(self):
-        edges = mesh_class(self.N_space, self.x0, self.tfinal, self.moving, self.move_type, self.source_type, self.edge_v)
+        edges = mesh_class(self.N_space, self.x0, self.tfinal, self.moving, self.move_type, self.source_type, self.edge_v, self.thick)
         edges_init = edges.edges
         
         if self.moving == False and self.source_type[0] == 1 and self.uncollided == False and self.N_space%2 == 0:
