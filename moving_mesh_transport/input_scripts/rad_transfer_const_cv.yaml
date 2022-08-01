@@ -20,6 +20,7 @@
     'edge_v': 'one'
     'cv_const': 0.1
     'estimate_wavespeed': True
+    'thick': False            # optically thick or thin
     
 # plane pulse source
 'plane_IC':

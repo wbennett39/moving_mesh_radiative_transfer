@@ -20,12 +20,13 @@
     'edge_v': 'one'
     'cv_const': 0.0
     'estimate_wavespeed': False
+    'thick': False            # optically thick or thin
 # plane pulse source
 'plane_IC':
-    'x0': 1e-10                         # source initial width/2
+    'x0': [1e-10]                         # source initial width/2
     'source_type': [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [256, 512, 1024,2048]    # corresponds to N_spaces
-    'move_type': [1,0,0,0,0]              # moving mesh function selector
+    'move_type': [1,0]              # moving mesh function selector
     'benchmarking': True                # If 'True', will attempt to load benchmark and calculate RMSE
     
 # square pulse source

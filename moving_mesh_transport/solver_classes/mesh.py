@@ -79,27 +79,21 @@ class mesh_class(object):
                 """
                 This mode has the wavefront tracking edges moving at a constant speed
                 and interior edges tracking the diffusive wave
-        
                 """
-                if t > 1e-10:
-                        sqrt_t = math.sqrt(t)
-                else:
-                    sqrt_t = math.sqrt(1e-10)
-                # move the interior edges
-                self.Dedges[1:-1] = self.Dedges_const[1:-1] * 2.0 * 0.5 / sqrt_t
-                self.edges[1:-1] = self.edges0[1:-1] + self.Dedges_const[1:-1] * 2.0 * sqrt_t
-                # move the wavefront edges
-                self.Dedges[0] = self.Dedges_const[0]
-                self.Dedges[-1] = self.Dedges_const[-1]
-                self.edges[0] = self.edges0[0] + self.Dedges[0]*t
-                self.edges[-1] = self.edges0[-1] + self.Dedges[-1]*t
+                self.sqrt_t_moving_func(t)
+            else:
+                print("no move function selected")
+                assert(0)
+                
 
 
 
     def initialize_mesh(self):
         """
-        Initializes initial mesh edges and initial edge derivatives
+        Initializes initial mesh edges and initial edge derivatives. This function determines
+        how the mesh will move
         """
+        print(self.source_type, "source array")
         # if self.problem_type in ['plane_IC']:
         if self.source_type[0] == 1:
             self.simple_moving_init_func()
@@ -107,7 +101,7 @@ class mesh_class(object):
         if self.thick == False:     # thick and thin sources have different moving functions
 
             # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
-            if self.source_type[3] == 1 or self.source_type[4] == 1:
+            if self.source_type[3] == 1 or self.source_type[5] == 1:
                 self.simple_moving_init_func()
             # elif self.problem_type in ['square_IC', 'square_source']:
             if self.source_type[1] == 1 or self.source_type[2] == 1:
@@ -115,10 +109,12 @@ class mesh_class(object):
 
         elif self.thick == True:
             # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
-            if self.source_type[3] == 1 or self.source_type[4] == 1:
+            if self.source_type[3] == 1 or self.source_type[5] == 1:
                 # self.thick_gaussian_init_func()
                 # have not yet optimized the mesh for this problem
+                print("calling initialization")
                 self.simple_moving_init_func()
+
             elif self.source_type[1] == 1 or self.source_type[2] == 1:
                 self.thick_square_init_func()
 
@@ -135,6 +131,23 @@ class mesh_class(object):
             self.move(self.tfinal)
             self.Dedges = self.Dedges*0
             self.moving = False
+            print(self.edges, "final edges")
+
+
+    def sqrt_t_moving_func(self, t):
+        if t > 1e-10:
+            sqrt_t = math.sqrt(t)
+        else:
+            sqrt_t = math.sqrt(1e-10)
+
+        # move the interior edges
+        self.Dedges[1:-1] = self.Dedges_const[1:-1] * 4.0 * 0.5 / sqrt_t
+        self.edges[1:-1] = self.edges0[1:-1] + self.Dedges_const[1:-1] * 4.0 * sqrt_t
+        # move the wavefront edges
+        self.Dedges[0] = self.Dedges_const[0]
+        self.Dedges[-1] = self.Dedges_const[-1]
+        self.edges[0] = self.edges0[0] + self.Dedges[0]*t
+        self.edges[-1] = self.edges0[-1] + self.Dedges[-1]*t
 
     ####### Initialization functions ########
 
@@ -164,7 +177,7 @@ class mesh_class(object):
     def thick_square_init_func(self):
         print("initializing thick square source")
 
-        dx = 7
+        dx = 1e-5
 
         half = int(self.N_space/2)
         self.edges = np.zeros(self.N_space+1)
@@ -173,26 +186,29 @@ class mesh_class(object):
         self.edges[half] = 0 # place center edge
         self.Dedges[half]= 0
 
-        self.edges[0] = -self.x0 # place wavefront tracking edges
-        self.edges[-1] = self.x0
+        self.edges[0] = -self.x0 - 2*dx# place wavefront tracking edges
+        self.edges[-1] = self.x0 + 2*dx
 
-        self.Dedges[0] = -self.speed
-        self.Dedges[-1] = self.speed
+        self.Dedges[0] = -1 * self.speed
+        self.Dedges[-1] = 1 * self.speed
 
         number_of_interior_edges = int(self.N_space/2 - 1)
         # print(number_of_interior_edges, "interior")
 
-        if number_of_interior_edges == 1: # deal with N=4 case
+        # don't use N=4 
+        if number_of_interior_edges == 1: # deal with N=4 case 
             self.edges[number_of_interior_edges] = -self.x0
             self.edges[number_of_interior_edges + half] = self.x0
             self.Dedges[number_of_interior_edges] = -1.0 * self.speed
             self.Dedges[number_of_interior_edges + half] = 1.0 * self.speed 
         
         else:                               # set interior edges to track the wavefront
-            self.edges[1:number_of_interior_edges+1] = np.linspace(-self.x0 + 1e-8, -self.x0 + dx/2, number_of_interior_edges )
-            self.edges[half+1:-1] = np.linspace(self.x0 - dx/2, self.x0 - 1e-8, number_of_interior_edges)
-            self.Dedges[1:half-1] = -1.0 * self.speed
-            self.Dedges[half+2:-1] = 1.0 * self.speed         
+            self.edges[1:half] = np.linspace(-self.x0-dx, -self.x0, number_of_interior_edges)
+            self.edges[half+1:-1] = np.linspace(self.x0, self.x0 + dx, number_of_interior_edges)
+            # self.Dedges[1:half-1] = - self.edges[1:half-1]/self.edges[1] * self.speed
+            # self.Dedges[half+2:-1] = self.edges[half+2:-1]/self.edges[-2] * self.speed 
+            self.Dedges[1:half] = -np.linspace(1,-1, number_of_interior_edges)* self.speed   
+            self.Dedges[half+1:-1] = np.linspace(-1,1, number_of_interior_edges)* self.speed   
 
 
 

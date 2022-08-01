@@ -70,7 +70,7 @@ class make_benchmark:
             elif t == 10:
                 self.xs = np.linspace(0.0, 1800, npnts)
         elif self.source_type == 'P1_su_olson_mat' or self.source_type == 'P1_su_olson_rad' and self.x0 == 400:
-            self.xs = np.linspace(0.0,self.x0 + 4 * math.sqrt(t)/math.sqrt(3), npnts)
+            self.xs = np.linspace(0.0, self.x0 + 4 * math.sqrt(t)/math.sqrt(3), npnts)
 
                 
             

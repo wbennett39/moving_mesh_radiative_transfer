@@ -128,7 +128,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     if estimate_wavespeed == False:
         tpnts = None
     elif estimate_wavespeed == True:
-        tpnts = np.linspace(0, tfinal, 100)
+        tpnts = np.linspace(0, tfinal, 500)
     
     sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = tpnts , rtol = rt, atol = at, max_step = 1)
     end = timer()

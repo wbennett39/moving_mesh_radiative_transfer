@@ -160,7 +160,7 @@ class main_class(parameter_load_class):
                 if self.thermal_couple == 1:
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
                 plt.show()
-                
+
                 plt.figure(3)
                 plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
                 plt.xlabel("x")
@@ -170,7 +170,8 @@ class main_class(parameter_load_class):
                     plot_edges(edges, 3)
                 if self.thermal_couple == 1:
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
-                plt.xlim(380,420)
+                if self.thick == True:
+                    plt.xlim(self.x0[0] - self.tfinal/math.sqrt(3), self.x0[0] + self.tfinal/math.sqrt(3))
                 plt.show()
                 ##################################################################
                     
@@ -212,10 +213,11 @@ class main_class(parameter_load_class):
                 ##################################################################
                 if self.estimate_wavespeed == True:
                     plt.figure(2)
-                    plt.plot(tpnts, wavespeed_array, '-o')
-                    plt.plot(tpnts,  8/np.sqrt(tpnts)/math.sqrt(3), label = "8/sqrt(t)/sqrt(3)")
+                    plt.plot(tpnts, wavespeed_array, '-o', label = "calculated wavespeed")
+                    plt.plot(tpnts,  8/np.sqrt(tpnts + 1e-12)/math.sqrt(3), label = "8/sqrt(t)/sqrt(3)")
+                    plt.plot(tpnts,  2/np.sqrt(tpnts + 1e-12)/math.sqrt(3), label = "2/sqrt(t)/sqrt(3)")
                     # plt.plot(tpnts,  4/np.sqrt(tpnts)/math.sqrt(3))
-                    plt.ylim(0,150)
+                    plt.ylim(0,30)
                     plt.legend()
                     plt.show()
                 ##################################################################

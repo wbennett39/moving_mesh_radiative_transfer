@@ -1,7 +1,7 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson_thick_s2'
-    'tfinal': 10 #31.6228               # evaluation time
+    'tfinal': 1 #31.6228               # evaluation time
     'c': 0.0                            # scattering ratio
     't0': 10.0                          # time the source is turned off
     'N_spaces': [8]                     # number of cells
@@ -19,7 +19,7 @@
     'particle_v': 'sqrt_3'
     'edge_v': 'sqrt_3'
     'cv_const': 0.0
-    'estimate_wavespeed': False
+    'estimate_wavespeed': True
     'thick': True            # optically thick or thin
     
 # plane pulse source
@@ -28,16 +28,16 @@
     'x0': 1e-10                         # source initial width/2
     'source_type': [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [2, 2, 2]    # corresponds to N_spaces
-    'move_type': [1,0,0,0,0]              # moving mesh function selector
+    'move_type': [1,0]              # moving mesh function selector
     'benchmarking': False                # If 'True', will attempt to load benchmark and calculate RMSE
     
 # square pulse source
 'square_IC':
     'x0': [400]
     'source_type': [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [2,2,2,2,2]
+    'N_angles': [2]
 #    'N_angles': [128]
-    'move_type': [0,0,1,0,1]      # [standard, square source, s2, square IC, thick square]
+    'move_type': [0,1]      # [standard, sqrt_t]
     'benchmarking': False
     
     
@@ -46,7 +46,7 @@
     'x0': [400]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [2]
-    'move_type': [0,1]      # [standard, square source, s2, square IC, thick square]
+    'move_type': [0,1]      # [standard, sqrt_t]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': True
     
@@ -56,8 +56,8 @@
 #    'x0': [, 3.6, 1.5, 1.5, 1.5]
     'x0': [1700, 1700, 1700, 1700, 1700]
     'source_type': [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [2,2,2,2,2]
-    'move_type': [1,0,0,1,0]
+    'N_angles': [2]
+    'move_type': [1,0]  # [standard, sqrt_t]
     'benchmarking': False
     
 # gaussian  source
@@ -67,7 +67,7 @@
 #    'x0': [3,3,3,3,3]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
     'N_angles': [2,2]
-    'move_type': [0,0,1,0,0]
+    'move_type': [1,0]  # [standard, sqrt_t]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': True
 
