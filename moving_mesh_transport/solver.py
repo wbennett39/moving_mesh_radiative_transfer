@@ -24,7 +24,7 @@ to do:
 [] square source N > 4 seems broken 
 [] plotting class to clean up solver
 [] have benchmarks load in the same shape 
-
+[] add debugging mode
 
 
 

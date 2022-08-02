@@ -26,6 +26,7 @@ data = [('N_ang', int64),
         ('source_type', int64[:]),
         ('thick', int64), 
         ('move_func', int64),
+        ('debugging', int64)
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -35,6 +36,8 @@ data = [('N_ang', int64),
 @jitclass(data)
 class mesh_class(object):
     def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick):
+        
+        self.debugging = False
 
         self.tfinal = tfinal
         self.N_space = N_space
@@ -93,9 +96,11 @@ class mesh_class(object):
                 print("no move function selected")
                 assert(0)
 
-        if self.edges != np.sort(self.edges):
-            print("crossed edges")
-            assert(0)
+        if self.debugging == True:
+            if self.edges.all() != np.sort(self.edges).all():
+                print("crossed edges")
+                assert(0)
+
                 
 
 
@@ -132,6 +137,10 @@ class mesh_class(object):
         self.edges0 = self.edges
         self.Dedges_const = self.Dedges
 
+
+        print(self.Dedges_const, "const edges")
+        print(self.edges0, 'edges0')
+
         # print(self.edges0, "edges")
         # print(self.Dedges_const, "Dedges")
 
@@ -154,18 +163,20 @@ class mesh_class(object):
             sqrt_t = math.sqrt(1e-10)
 
         # move the interior edges
-        self.Dedges[1:-1] = self.Dedges_const[1:-1] * move_factor * 0.5 / sqrt_t
-        self.edges[1:-1] = self.edges0[1:-1] + self.Dedges_const[1:-1] * move_factor * sqrt_t
+        self.Dedges = self.Dedges_const * move_factor * 0.5 / sqrt_t
+        self.edges = self.edges0 + self.Dedges_const * move_factor * sqrt_t
         # move the wavefront edges
         # Commented code below moves the exterior edges at constant speed. Problematic because other edges pass them
         # self.Dedges[0] = self.Dedges_const[0]
         # self.Dedges[-1] = self.Dedges_const[-1]
         # self.edges[0] = self.edges0[0] + self.Dedges[0]*t
         # self.edges[-1] = self.edges0[-1] + self.Dedges[-1]*t
-        self.Dedges[0] = self.Dedges_const[0] * move_factor * 0.5 / sqrt_t
-        self.edges[0] = self.edges0[0] + self.Dedges_const[0] * move_factor * sqrt_t
-        self.Dedges[-1] = self.Dedges_const[-1] * move_factor * 0.5 / sqrt_t
-        self.edges[-1] = self.edges0[-1] + self.Dedges_const[-1] * move_factor * sqrt_t
+        # self.Dedges[0] = self.Dedges_const[0] * move_factor * 0.5 / sqrt_t
+        # self.edges[0] = self.edges0[0] + self.Dedges_const[0] * move_factor * sqrt_t
+        # print(self.edges0[0], 'x0')
+        # print(self.Dedges_const[0]*move_factor*sqrt_t, 'f')
+        # self.Dedges[-1] = self.Dedges_const[-1] * move_factor * 0.5 / sqrt_t
+        # self.edges[-1] = self.edges0[-1] + self.Dedges_const[-1] * move_factor * sqrt_t
 
     ####### Initialization functions ########
 
