@@ -15,7 +15,7 @@ def wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, uncollided
     mesh.move(sol.t[-1])
     edges = mesh.edges
     # xs = find_nodes(edges, M)
-    xs = np.linspace(385,410, 1000 )
+    xs = np.linspace(0, tfinal + x0, 1000)
     solutions = np.zeros((sol.t.size, xs.size))
     wavespeeds = sol.t*0
 

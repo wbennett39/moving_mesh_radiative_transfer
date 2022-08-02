@@ -53,6 +53,8 @@ class parameter_load_class:
         self.N_angles = np.array(parameters[source_name]['N_angles'])
         self.x0 = np.array(parameters[source_name]['x0'])
         self.source_type = np.array(parameters[source_name]['source_type'])
+        if self.source_type[0] == 1:
+            self.x0 = np.array([1e-14])
         self.move_type = np.array(parameters[source_name]['move_type'])
         self.benchmarking = int(parameters[source_name]['benchmarking'])
         self.r_times = np.zeros(len(self.N_angles))

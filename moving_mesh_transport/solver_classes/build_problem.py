@@ -122,13 +122,13 @@ class build(object):
             # temp = (edges_init[self.N_space/2 + 1] - edges_init[self.N_space/2 - 1]) 
             
         if self.thermal_couple == 1:
-            
             for space in range(self.N_space):
                 for j in range(self.M + 1):
                     self.integrate_e(edges_init[space], edges_init[space+1], space, j)
             
             
         ic = IC_func(self.source_type, self.uncollided, self.x0)
+
         for ang in range(self.N_ang):
             for space in range(self.N_space):
                 for j in range(self.M + 1):

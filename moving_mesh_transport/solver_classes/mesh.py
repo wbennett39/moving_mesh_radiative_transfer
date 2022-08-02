@@ -60,6 +60,14 @@ class mesh_class(object):
         
         self.initialize_mesh()
 
+    def set_func(self, x_index, loc, speed):
+        """
+        This function takes an array of indexes and initializes the 
+        edges and Dedges at the indexes given to the respective speeds and locations
+        """
+        for count, index in enumerate(x_index):
+            self.edges[int(index)] = loc[count]
+            self.Dedges[int(index)] = speed[count]
 
 
     def move(self, t):
@@ -84,6 +92,10 @@ class mesh_class(object):
             else:
                 print("no move function selected")
                 assert(0)
+
+        if self.edges != np.sort(self.edges):
+            print("crossed edges")
+            assert(0)
                 
 
 
@@ -93,7 +105,6 @@ class mesh_class(object):
         Initializes initial mesh edges and initial edge derivatives. This function determines
         how the mesh will move
         """
-        print(self.source_type, "source array")
         # if self.problem_type in ['plane_IC']:
         if self.source_type[0] == 1:
             self.simple_moving_init_func()
@@ -112,7 +123,6 @@ class mesh_class(object):
             if self.source_type[3] == 1 or self.source_type[5] == 1:
                 # self.thick_gaussian_init_func()
                 # have not yet optimized the mesh for this problem
-                print("calling initialization")
                 self.simple_moving_init_func()
 
             elif self.source_type[1] == 1 or self.source_type[2] == 1:
@@ -121,8 +131,9 @@ class mesh_class(object):
 
         self.edges0 = self.edges
         self.Dedges_const = self.Dedges
-        print(self.edges0, "edges")
-        print(self.Dedges_const, "Dedges")
+
+        # print(self.edges0, "edges")
+        # print(self.Dedges_const, "Dedges")
 
         if self.moving == False:
             # static mesh -- puts the edges at the final positions that the moving mesh would occupy
@@ -135,19 +146,26 @@ class mesh_class(object):
 
 
     def sqrt_t_moving_func(self, t):
+        move_factor = 3.0
+
         if t > 1e-10:
             sqrt_t = math.sqrt(t)
         else:
             sqrt_t = math.sqrt(1e-10)
 
         # move the interior edges
-        self.Dedges[1:-1] = self.Dedges_const[1:-1] * 4.0 * 0.5 / sqrt_t
-        self.edges[1:-1] = self.edges0[1:-1] + self.Dedges_const[1:-1] * 4.0 * sqrt_t
+        self.Dedges[1:-1] = self.Dedges_const[1:-1] * move_factor * 0.5 / sqrt_t
+        self.edges[1:-1] = self.edges0[1:-1] + self.Dedges_const[1:-1] * move_factor * sqrt_t
         # move the wavefront edges
-        self.Dedges[0] = self.Dedges_const[0]
-        self.Dedges[-1] = self.Dedges_const[-1]
-        self.edges[0] = self.edges0[0] + self.Dedges[0]*t
-        self.edges[-1] = self.edges0[-1] + self.Dedges[-1]*t
+        # Commented code below moves the exterior edges at constant speed. Problematic because other edges pass them
+        # self.Dedges[0] = self.Dedges_const[0]
+        # self.Dedges[-1] = self.Dedges_const[-1]
+        # self.edges[0] = self.edges0[0] + self.Dedges[0]*t
+        # self.edges[-1] = self.edges0[-1] + self.Dedges[-1]*t
+        self.Dedges[0] = self.Dedges_const[0] * move_factor * 0.5 / sqrt_t
+        self.edges[0] = self.edges0[0] + self.Dedges_const[0] * move_factor * sqrt_t
+        self.Dedges[-1] = self.Dedges_const[-1] * move_factor * 0.5 / sqrt_t
+        self.edges[-1] = self.edges0[-1] + self.Dedges_const[-1] * move_factor * sqrt_t
 
     ####### Initialization functions ########
 
@@ -157,6 +175,9 @@ class mesh_class(object):
             self.Dedges = self.edges/self.edges[-1] * self.speed
     
     def thin_square_init_func(self):
+        if self.N_space == 2:
+            print("don't run this problem with 2 spaces")
+            assert(0)
         middlebin = int(self.N_space/2)   # edges inside the source - static
         sidebin = int(middlebin/2) # edges outside the source - moving
         dx = 1e-14
@@ -164,12 +185,13 @@ class mesh_class(object):
         right = np.linspace(self.x0, self.x0 + dx, sidebin + 1)
         middle = np.linspace(-self.x0, self.x0, middlebin + 1)
         self.edges = np.concatenate((left[:-1], middle[:-1], right[:])) # put them all together 
-
+        
         # initialize derivatives
         self.Dedges[0:sidebin] = (self.edges[0:sidebin] + self.x0 )/(self.edges[-1] - self.x0)
-        self.Dedges[sidebin:sidebin+middlebin] = 0
+        self.Dedges[sidebin:sidebin+middlebin] = 0       
         self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
         self.Dedges = self.Dedges * self.speed
+
 
     def thick_gaussian_init_func(self):
         return 0
@@ -186,11 +208,11 @@ class mesh_class(object):
         self.edges[half] = 0 # place center edge
         self.Dedges[half]= 0
 
-        self.edges[0] = -self.x0 - 2*dx# place wavefront tracking edges
-        self.edges[-1] = self.x0 + 2*dx
+        # self.edges[0] = -self.x0 - 2*dx# place wavefront tracking edges
+        # self.edges[-1] = self.x0 + 2*dx
 
-        self.Dedges[0] = -1 * self.speed
-        self.Dedges[-1] = 1 * self.speed
+        # self.Dedges[0] = -1 * self.speed
+        # self.Dedges[-1] = 1 * self.speed
 
         number_of_interior_edges = int(self.N_space/2 - 1)
         # print(number_of_interior_edges, "interior")
@@ -203,12 +225,59 @@ class mesh_class(object):
             self.Dedges[number_of_interior_edges + half] = 1.0 * self.speed 
         
         else:                               # set interior edges to track the wavefront
-            self.edges[1:half] = np.linspace(-self.x0-dx, -self.x0, number_of_interior_edges)
-            self.edges[half+1:-1] = np.linspace(self.x0, self.x0 + dx, number_of_interior_edges)
-            # self.Dedges[1:half-1] = - self.edges[1:half-1]/self.edges[1] * self.speed
-            # self.Dedges[half+2:-1] = self.edges[half+2:-1]/self.edges[-2] * self.speed 
-            self.Dedges[1:half] = -np.linspace(1,-1, number_of_interior_edges)* self.speed   
-            self.Dedges[half+1:-1] = np.linspace(-1,1, number_of_interior_edges)* self.speed   
+
+            # set one edge to travel back towards zero and one to be fixed at the source width
+            # self.set_func([half-2, half+2], [-self.x0, self.x0], [0,0])
+            # self.set_func([half-1, half+1], [-self.x0+dx, self.x0-dx], [self.speed, -self.speed])
+            # # set edges to track the wave
+            # left_xs = np.linspace(-self.x0-2*dx, -self.x0-dx, half-2)
+            # right_xs = np.linspace(self.x0+dx, self.x0+2*dx, half-2)
+            # speeds = np.linspace(half-2, 1, half-2)
+            # speeds = speeds/(half-2) * self.speed
+            # indices_left = np.linspace(0, half-2-1, half-2)
+            # indices_right = np.linspace(half+3, self.N_space, half-2)
+
+            # self.set_func(indices_left, left_xs, -speeds)
+            # self.set_func(indices_right, right_xs, np.flip(speeds))
+
+
+            indices_left = np.linspace(0, half-1, half)
+            indices_right = np.linspace(half+1, self.N_space, half)
+            xs_left = np.zeros(half)
+            xs_right = np.zeros(half)
+            speeds = np.zeros(half)
+            xs_left[int(half/2)] = -self.x0
+            # xs_right[int(half/2)] = self.x0
+            speeds[int(half/2)] = 0.0 
+            xs_left[0:int(half/2)] = np.linspace(-self.x0-2*dx, -self.x0-dx,int(half/2))
+            xs_left[int(half/2)+1:] = np.linspace(-self.x0+dx, -self.x0+2*dx, int(half/2)-1)
+            # xs_right[0:int(half/2)] = np.linspace(self.x0-2*dx, self.x0-dx, int(half/2))
+            # xs_right[int(half/2)+1:] = np.linspace(self.x0+dx, self.x0+2*dx, int(half/2)-1)
+            xs_right = -np.flip(xs_left)
+            speeds[0:int(half/2)] = np.linspace(int(half/2), 1, int(half/2))/int(half/2)
+            speeds[int(half/2)+1:] = -np.linspace(1,int(half/2), int(half/2) -1)/ int(half/2)
+            speeds = speeds * self.speed
+            # print("#   #   #   #   #   #   #   #   #   #   #   ")
+            # print(speeds, "speeds")
+            # print("#   #   #   #   #   #   #   #   #   #   #   ")
+            self.set_func(indices_left, xs_left, -speeds)
+            self.set_func(indices_right, xs_right, np.flip(speeds))
+
+
+
+
+
+
+
+
+            # self.edges[0:half-1] = np.linspace(-self.x0-dx, -self.x0 + dx, number_of_interior_edges + 1)
+            # self.edges[half+2:] = np.linspace(self.x0 - dx, self.x0 + dx, number_of_interior_edges + 1)
+            # self.edges[half-1] = -self.x0
+
+            # # self.Dedges[1:half-1] = - self.edges[1:half-1]/self.edges[1] * self.speed
+            # # self.Dedges[half+2:-1] = self.edges[half+2:-1]/self.edges[-2] * self.speed 
+            # self.Dedges[0:half] = -np.linspace(1,-1, number_of_interior_edges + 1)* self.speed   
+            # self.Dedges[half+1:] = np.linspace(-1,1, number_of_interior_edges + 1)* self.speed   
 
 
 

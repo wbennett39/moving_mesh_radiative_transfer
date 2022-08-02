@@ -20,7 +20,8 @@ to do:
 
 [] update README
 
-[] write a new mesh notebook
+[x] write a new mesh notebook
+[] square source N > 4 seems broken 
 [] plotting class to clean up solver
 [] have benchmarks load in the same shape 
 
@@ -171,7 +172,7 @@ class main_class(parameter_load_class):
                 if self.thermal_couple == 1:
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
                 if self.thick == True:
-                    plt.xlim(self.x0[0] - self.tfinal/math.sqrt(3), self.x0[0] + self.tfinal/math.sqrt(3))
+                    plt.xlim(self.x0[0] - self.tfinal/math.sqrt(3) - 5, self.x0[0] + self.tfinal/math.sqrt(3) + 5)
                 plt.show()
                 ##################################################################
                     
@@ -214,10 +215,10 @@ class main_class(parameter_load_class):
                 if self.estimate_wavespeed == True:
                     plt.figure(2)
                     plt.plot(tpnts, wavespeed_array, '-o', label = "calculated wavespeed")
-                    plt.plot(tpnts,  8/np.sqrt(tpnts + 1e-12)/math.sqrt(3), label = "8/sqrt(t)/sqrt(3)")
-                    plt.plot(tpnts,  2/np.sqrt(tpnts + 1e-12)/math.sqrt(3), label = "2/sqrt(t)/sqrt(3)")
+                    plt.plot(tpnts,  8/np.sqrt(tpnts + 1e-12), label = "8/sqrt(t)")
+                    plt.plot(tpnts,  2/np.sqrt(tpnts + 1e-12), label = "2/sqrt(t)")
                     # plt.plot(tpnts,  4/np.sqrt(tpnts)/math.sqrt(3))
-                    plt.ylim(0,30)
+                    plt.ylim(0,wavespeed_array[4])
                     plt.legend()
                     plt.show()
                 ##################################################################
