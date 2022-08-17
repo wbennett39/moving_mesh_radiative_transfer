@@ -16,6 +16,7 @@ class load_sol:
         data_folder = Path("moving_mesh_transport")
 
         self.data_file_path = data_folder / 'run_data.h5'
+        self.wavepoints_file_path = data_folder / 'wavepoints.h5'
         self.source_name = source_name
         self.rad_or_transfer = rad_or_transfer
         self.c = c 
@@ -48,6 +49,21 @@ class load_sol:
             self.coeff_mat = f[self.problem_name]['coefficients/' + full_str][:,:,:]
 
         f.close()
+    
+    def call_wavepoints(self, tfinal):
+
+        f = h5py.File(self.wavepoints_file_path, "r+")
+
+        full_str = str(self.source_name) + 't = ' + str(int(tfinal))    
+
+        self.tpnts = f[self.problem_name]['tpnts_' + full_str][:]
+        self.left = f[self.problem_name]['left_' + full_str][:]
+        self.right = f[self.problem_name]['right_' + full_str][:]
+
+
+
+        f.close()
+    
         
         
         

@@ -26,7 +26,14 @@ data = [('N_ang', int64),
         ('source_type', int64[:]),
         ('thick', int64), 
         ('move_func', int64),
-        ('debugging', int64)
+        ('debugging', int64),
+        ('wave_loc_array', float64[:,:,:]),
+        ('delta_t', float64),
+        ('tactual', float64),
+        ('told', float64),
+        ('index_old', int64),
+        ('right_speed', float64),
+        ('left_speed', float64)
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -35,9 +42,9 @@ data = [('N_ang', int64),
     
 @jitclass(data)
 class mesh_class(object):
-    def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick):
+    def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, wave_loc_array):
         
-        self.debugging = False
+        self.debugging = True
 
         self.tfinal = tfinal
         self.N_space = N_space
@@ -55,13 +62,24 @@ class mesh_class(object):
         if self.move_type[0] == True:
             self.move_func = 0 # simple linear
         elif self.move_type[1] == True:
-            self.move_func = 1 # sqrt_t
+            self.move_func = 1 # thick square source move
+            print('thick square source edge estimation mesh')
+        elif self.move_type[2] == True:
+            self.move_func = 2 # sqrt t static
         
         # self.problem_type = problem_identifier(self.source_typem, self.x0)
-        
+        pad = 0.0
         self.thick = thick
+        self.wave_loc_array = wave_loc_array 
+        self.wave_loc_array[0,2,1:] += pad
+        print(self.wave_loc_array[0,2,-1], 'wave final location')
+        self.wave_loc_array[0,1,1:] -= pad
+
         
         self.initialize_mesh()
+        self.tactual = -1.
+        self.told = 0.0
+        self.index_old = 0
 
     def set_func(self, x_index, loc, speed):
         """
@@ -74,34 +92,38 @@ class mesh_class(object):
 
 
     def move(self, t):
+        # print(self.edges)
         """
         Called each time the rhs moves the mesh. Changes edges and Dedges
         """
         # print(self.edges)
+        # if self.moving == True:
+        """
+        This mode moves all of the edges at a constant speed,
+        linearly increasing from 0 to the wavespeed
+        """
         if self.moving == True:
-            """
-            This mode moves all of the edges at a constant speed,
-            linearly increasing from 0 to the wavespeed
-            """
             if self.move_func == 0: # simple linear
                 self.edges = self.edges0 + self.Dedges*t
 
-            elif self.move_func == 1: # sqrt_tq
+            elif self.move_func == 1: 
                 """
                 This mode has the wavefront tracking edges moving at a constant speed
                 and interior edges tracking the diffusive wave
                 """
-                self.sqrt_t_moving_func(t)
+                self.thick_square_moving_func(t)
+
+            elif self.move_func == 2:
+                self.square_source_static_func_sqrt_t(t)
+
             else:
                 print("no move function selected")
                 assert(0)
 
-        if self.debugging == True:
-            if self.edges.all() != np.sort(self.edges).all():
-                print("crossed edges")
-                assert(0)
-
-                
+            if self.debugging == True:
+                if self.edges.all() != np.sort(self.edges).all():
+                    print("crossed edges")
+                    assert(0)
 
 
 
@@ -134,28 +156,82 @@ class mesh_class(object):
                 self.thick_square_init_func()
 
 
-        self.edges0 = self.edges
-        self.Dedges_const = self.Dedges
+        self.edges0 = np.copy(self.edges)
+        self.Dedges_const = np.copy(self.Dedges)
 
 
-        print(self.Dedges_const, "const edges")
-        print(self.edges0, 'edges0')
+        # print(self.Dedges_const, "const edges")
+        # print(self.edges0, 'edges0')
 
         # print(self.edges0, "edges")
         # print(self.Dedges_const, "Dedges")
 
         if self.moving == False:
+            self.tactual = 0.0
             # static mesh -- puts the edges at the final positions that the moving mesh would occupy
             # sets derivatives to 0
             self.moving = True
+            if self.thick == True:
+                self.delta_t = self.tfinal 
             self.move(self.tfinal)
             self.Dedges = self.Dedges*0
             self.moving = False
+            # self.edges[-1] = self.x0 + self.tfinal * self.speed
+            # self.edges[0] = -self.x0 + -self.tfinal * self.speed
+
+
             print(self.edges, "final edges")
 
 
-    def sqrt_t_moving_func(self, t):
-        move_factor = 3.0
+    def thick_square_moving_func(self, t):
+        # print(self.edges)
+        # print(t, "t")
+        # print("-------------------------------------")
+        half = int(self.N_space/2)
+        index = np.searchsorted(self.wave_loc_array[0,0,:], t)
+        # self.delta_t = self.wave_loc_array[0,0,index+1] - t 
+        if self.tactual == 0.0:
+            pad = 5
+            self.delta_t = self.tfinal
+            index -=1
+            self.right_speed = (-self.wave_loc_array[0,2,index+1] - self.edges[0])/self.delta_t
+            self.left_speed = (-self.wave_loc_array[0,1,index+1] + pad - self.edges[half-1])/self.delta_t
+            wave_front_array =  self.Dedges_const[0:int(half/2)]*self.right_speed/self.speed*(-1)
+            # print(wave_front_array, 'wave speeds forward')
+            wave_back_array =  self.Dedges_const[int(half/2)+1:half]*self.left_speed/self.speed
+            self.Dedges[0:int(half/2)] = wave_front_array
+            self.Dedges[int(half/2)+1:half] = wave_back_array
+            self.Dedges[half+1:half+int(half/2)] = - np.flip(wave_back_array)
+            self.Dedges[half+int(half/2)+1:] = - np.flip(wave_front_array)
+
+            self.edges = self.edges0 + self.Dedges * self.delta_t
+
+        else:
+            if index != self.index_old or index == 0:
+                self.delta_t = self.wave_loc_array[0,0,index+1] - self.wave_loc_array[0,0,index]
+                self.right_speed = (self.wave_loc_array[0,2,index+1] - self.wave_loc_array[0,2,index])/self.delta_t
+                self.left_speed = (self.wave_loc_array[0,1,index+1] - self.wave_loc_array[0,1,index])/self.delta_t
+                # print(self.wave_loc_array[0,2,index+1])
+                self.right_speed = self.right_speed*(-1)
+                self.left_speed = self.left_speed*(-1)
+            
+            wave_front_array =  self.Dedges_const[0:int(half/2)]*self.right_speed/self.speed*(-1)
+                # print(wave_front_array, 'wave speeds forward')
+            wave_back_array =  self.Dedges_const[int(half/2)+1:half]*self.left_speed/self.speed
+                # print(wave_back_array, 'wave speeds back')
+            self.Dedges[0:int(half/2)] = wave_front_array
+            self.Dedges[int(half/2)+1:half] = wave_back_array
+            self.Dedges[half+1:half+int(half/2)] = - np.flip(wave_back_array)
+            self.Dedges[half+int(half/2)+1:] = - np.flip(wave_front_array)
+
+            self.edges = self.edges0 + self.Dedges * (t-self.told)
+            self.edges0 = self.edges
+            self.told = t
+        # print(self.Dedges_const, "const")
+        # # old func
+    def square_source_static_func_sqrt_t(self, t):
+        # only to be used to estimate the wavespeed
+        move_factor = 4
 
         if t > 1e-10:
             sqrt_t = math.sqrt(t)
@@ -275,12 +351,6 @@ class mesh_class(object):
             self.set_func(indices_right, xs_right, np.flip(speeds))
 
 
-
-
-
-
-
-
             # self.edges[0:half-1] = np.linspace(-self.x0-dx, -self.x0 + dx, number_of_interior_edges + 1)
             # self.edges[half+2:] = np.linspace(self.x0 - dx, self.x0 + dx, number_of_interior_edges + 1)
             # self.edges[half-1] = -self.x0
@@ -289,6 +359,11 @@ class mesh_class(object):
             # # self.Dedges[half+2:-1] = self.edges[half+2:-1]/self.edges[-2] * self.speed 
             # self.Dedges[0:half] = -np.linspace(1,-1, number_of_interior_edges + 1)* self.speed   
             # self.Dedges[half+1:] = np.linspace(-1,1, number_of_interior_edges + 1)* self.speed   
+
+
+            self.delta_t = self.wave_loc_array[0,0,1] - self.wave_loc_array[0,0,0]
+            # print(self.delta_t, 'delta_t')
+
 
 
 

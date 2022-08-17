@@ -36,6 +36,7 @@ class parameter_load_class:
         self.problem_type = str(parameters['all']['problem_name'])
         self.estimate_wavespeed = int(parameters['all']['estimate_wavespeed'])
         self.thick = int(parameters['all']['thick'])
+        self.mxstp = float(parameters['all']['mxstp'])
 
 
         if self.edge_v == 'one':

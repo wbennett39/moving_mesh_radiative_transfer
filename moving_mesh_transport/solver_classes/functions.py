@@ -172,26 +172,29 @@ def uncollided_su_olson_s2(x,t,x0,t0):
     abx = abs(x)
     edge = min(t,t0)
     if (abx > x0):
-        arg1 = max(0,t - sqrt3 * (abx - x0))
-        arg2 = max(0,t - sqrt3 * (abx + x0))
+        arg1 = max(0,edge - sqrt3 * (abx - x0))
+        arg2 = max(0,edge - sqrt3 * (abx + x0))
         return s2_F(t, arg1) - s2_F(t, arg2)
     
     elif (abx <= x0):
-        if (t + sqrt3 * abx <= sqrt3 * x0):
+        if (edge + sqrt3 * abx <= sqrt3 * x0):
             return  2 * (s2_F(t, edge) - s2_F(t, 0))
-        elif (t + sqrt3 * abx > sqrt3 * x0) and (t - sqrt3 * (abx + x0) > 0):
-            arg2 = t - sqrt3 * (x0 - abx)
-            arg1 = t - sqrt3 * (abx + x0)
+        elif (edge + sqrt3 * abx > sqrt3 * x0) and (edge - sqrt3 * (abx + x0) > 0):
+            arg2 = edge - sqrt3 * (x0 - abx)
+            arg1 = edge - sqrt3 * (abx + x0)
             if arg1 <0 or arg2 <0:
                 print("error negative bounds")
             return s2_F(t, arg2) - s2_F(t, arg1) + 2 * (s2_F(t, edge) - s2_F(t, arg2))
-        elif (t + sqrt3 * abx > sqrt3 * x0) and (t - sqrt3 * (abx + x0) <= 0): 
-            arg1 = max(0,t - sqrt3 * (x0 - abx))
+        elif (edge + sqrt3 * abx > sqrt3 * x0) and (edge - sqrt3 * (abx + x0) <= 0): 
+            arg1 = max(0,edge - sqrt3 * (x0 - abx))
             if arg1 <0:
                 print("error negative bounds")
             return 2 * (s2_F(t, edge) - s2_F(t, arg1)) + s2_F(t, arg1) - s2_F(t, 0)
         else:
             print("missed case")
+def su_olson_s2_integrand(tau,x,t,x0,t0):
+    return  (np.exp(-t + tau)*(-np.heaviside((-3*x - 3*x0 + math.sqrt(3)*(t - tau))/(t - tau),1) - np.heaviside((3*x - 3*x0 + math.sqrt(3)*(t - tau))/(t - tau),1) + np.heaviside((-3*x + 3*x0 + math.sqrt(3)*(t - tau))/(t - tau),1) + np.heaviside((3*x + 3*x0 + math.sqrt(3)*(t - tau))/(t - tau),1)))/2.
+    
             
 @njit
 def uncollided_s2_gaussian(x,t,sigma,t0):
@@ -205,7 +208,7 @@ def uncollided_s2_gaussian_thick(x,t,sigma,t0):
     return (6*t**5 + t**6 + 12*t**3*(10 + 15*x**2 - 3*sigma**2) + 3*t**4*(10 + 15*x**2 - 3*sigma**2) +  18*t*(40 + 15*x**2*(4 + x**2) - 6*(2 + 3*x**2)*sigma**2 + 6*sigma**4) +  9*t**2*(40 + 15*x**2*(4 + x**2) - 6*(2 + 3*x**2)*sigma**2 + 6*sigma**4) - 9*(-80 - 3*x**2*(40 + 10*x**2 + x**4) + 24*sigma**2 + 9*x**2*(4 + x**2)*sigma**2 - 6*(2 + 3*x**2)*sigma**4 + 18*sigma**6) + math.exp(t0)*(-t**6 + 6*t**5*(-1 + t0) + 6*t0**5 - t0**6 + 12*t0**3*(10 + 15*x**2 - 3*sigma**2) - 3*t0**4*(10 + 15*x**2 - 3*sigma**2) - 3*t**4*(10 + 5*(-2 + t0)*t0 + 15*x**2 - 3*sigma**2) + 4*t**3*(-30 + 5*t0*(6 + (-3 + t0)*t0) + 45*(-1 + t0)*x**2 - 9*(-1 + t0)*sigma**2) + 18*t0*(40 + 15*x**2*(4 + x**2) - 6*(2 + 3*x**2)*sigma**2 + 6*sigma**4) - 9*t0**2*(40 + 15*x**2*(4 + x**2) - 6*(2 + 3*x**2)*sigma**2 + 6*sigma**4) + 9*(-80 - 3*x**2*(40 + 10*x**2 + x**4) + 24*sigma**2 + 9*x**2*(4 + x**2)*sigma**2 - 6*(2 + 3*x**2)*sigma**4 + 18*sigma**6) - 3*t**2*(5*(24 + t0*(-24 + t0*(12 + (-4 + t0)*t0))) + 45*x**4 - 18*(2 + (-2 + t0)*t0)*sigma**2 + 18*sigma**4 + 18*x**2*(10 + 5*(-2 + t0)*t0 - 3*sigma**2)) + 6*t*(-120 + t0*(120 + t0*(-60 + t0*(20 + (-5 + t0)*t0))) + 45*(-1 + t0)*x**4 - 6*(-6 + t0*(6 + (-3 + t0)*t0))*sigma**2 + 18*(-1 + t0)*sigma**4 + 6*x**2*(-30 + 5*t0*(6 + (-3 + t0)*t0) - 9*(-1 + t0)*sigma**2))))/(162.*math.exp(t)*sigma**6)
 
 @njit        
-def problem_identifier(source_array):
+def problem_identifier(source_type):
     if source_type[0] == 1:
         problem_type = 'plane_IC'
     elif source_type[1] == 1:

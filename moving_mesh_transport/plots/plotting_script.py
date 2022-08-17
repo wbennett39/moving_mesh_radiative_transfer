@@ -236,10 +236,11 @@ def plot_all_benchmarks(tfinal):
         plotter = rms_plotter(tfinal, M, source, "cells")
         plotter.plot_bench(tfinal, source, count)
         
-def plot_coefficients(tfinal = 1,  M=10, source_name = 'square_s',  N_spaces = [8,16,32,64,128]):
+def plot_coefficients(tfinal = 1,  M=10, source_name = 'square_s',  N_spaces = [8,16,32,64,128], problem_name = 'transfer_const_cv=0.1',
+rad_or_transport ='transfer', x0_or_sigma = 0.5 , c = 0.0, uncollided = True, s2 = False, mat_or_rad = 'rad', moving = True, fign = 1):
     
     plotter = rms_plotter(tfinal, M, source_name, 'cells')
-    plotter.plot_coefficients(tfinal, M, source_name, N_spaces)
+    plotter.plot_coefficients(tfinal, M, source_name, N_spaces, problem_name, rad_or_transport, x0_or_sigma, c, uncollided)
     plotter.plot_coeff_boyd()
 
 

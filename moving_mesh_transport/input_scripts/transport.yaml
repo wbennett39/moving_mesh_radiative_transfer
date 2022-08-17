@@ -4,12 +4,13 @@
     'tfinal': 1.0 #31.6228                       # evaluation time
     'c': 1.0                            # scattering ratio
     't0': 5.0                           # time the source is turned off
-    'N_spaces': [4,8]                   # number of cells
+    'N_spaces': [4,64]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [4,4]                         # number of basis functions -1
+    'Ms': [35,35]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
+    'mxstp': 1.0
     'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 0             # material temperature feedback. 1-True, 0 - False
     'temperature_dependence': [1,0,0,0] # first slot is Su-Olson problem
@@ -42,7 +43,7 @@
 'square_source':
     'x0': [0.5]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [128,256]
+    'N_angles': [256,256]
     'move_type': [1,0]              # moving mesh function selector
     'bench_type': 'full'          # 'S2' or 'full'
     'benchmarking': True

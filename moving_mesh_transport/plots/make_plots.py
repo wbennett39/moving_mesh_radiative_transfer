@@ -491,7 +491,10 @@ class rms_plotter:
          plt.show(block = False)
         
     def plot_coefficients(self, tfinal = 1,  M=16, source_name = 'square_s',  N_spaces = [8,16,32,64,128], problem_name = 'transfer_const_cv=0.1', rad_or_transport ='transfer',
-     x0_or_sigma = 0.5 , c = 0.0, s2 = False, mat_or_rad = 'rad', uncollided = True, moving = True, fign = 1):
+     x0_or_sigma = 0.5 , c = 0.0, uncollided = True, s2 = False, mat_or_rad = 'rad', moving = True, fign = 1):
+
+
+
         data = load_sol(problem_name, source_name, rad_or_transport, c, s2)
 
         self.M_coeff = M
@@ -544,6 +547,17 @@ class rms_plotter:
 
 
         show_loglog(self.file_path_string + "_boyd" ,0, self.M_coeff + 4)
+        plt.show()
+
+
+        plt.figure(3)
+        for ij in range(len(self.j_matrix[:,0])):
+            plt.loglog(xdata, self.j_matrix[ij], mkr_list[ij], label = label_list[ij] + ' cells', mfc = 'none', c = 'b')
+            self.RMS = self.j_matrix[ij]
+        plt.xlabel("M", fontsize = 20)
+        plt.ylabel("RMSE", fontsize = 20)
+        plt.legend()
+        show_loglog(self.file_path_string + "_boyd_loglog" ,0, self.M_coeff + 4)
         plt.show()
 
         

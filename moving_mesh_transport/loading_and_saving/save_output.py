@@ -14,6 +14,7 @@ class save_output:
                  thermal_couple, temp_function, c, sigma, x0, cv_const, problem_type):
         data_folder = Path("moving_mesh_transport")
         self.solution_file_path = data_folder / 'run_data.h5'
+        self.wavepoints_file_path = data_folder / 'wavepoints.h5'
         self.problem_type = problem_type              
         self.Ms = Ms
         self.tfinal = tfinal
@@ -197,6 +198,53 @@ class save_output:
         
         f.close()        
      
+
+    def save_wave_loc(self, tpnts, leftpnts, rightpnts):
+    
+        f = h5py.File(self.wavepoints_file_path, 'a')
+
+
+        if self.problem_type == 'transport':
+            folder_name = "transport"
+        elif self.problem_type == 'rad_transfer_constant_cv':
+            folder_name =  f"transfer_const_cv={self.cv_const}"
+        elif self.problem_type == 'rad_transfer_constant_cv_thick':
+            folder_name =  f"transfer_const_cv={self.cv_const}_thick"
+        elif self.problem_type == "su_olson_s2":
+            folder_name = "su_olson_s2"
+        elif self.problem_type == "su_olson_thick_s2":
+            folder_name = "su_olson_thick_s2"
+        elif self.problem_type == "su_olson_thick":
+            folder_name = "su_olson_thick"
+        elif self.problem_type == "su_olson":
+            folder_name = "su_olson"
+        else:
+            folder_name = 'none'
+
+
+        if not f.__contains__(folder_name):
+            f.create_group(folder_name)
+
+        full_str = str(self.source_name) + 't = ' + str(int(self.tfinal))
+
+        if f[folder_name].__contains__(full_str):
+            del f[folder_name][full_str]
+
+
+        if f[folder_name].__contains__('tpnts_' + full_str):
+              del f[folder_name]['tpnts_' + full_str]
+        
+        if f[folder_name].__contains__('left_' + full_str):
+              del f[folder_name]['left_' + full_str]
+        if f[folder_name].__contains__('right_' + full_str):
+              del f[folder_name]['right_' + full_str]
+
+        dset1  = f[folder_name].create_dataset('tpnts_' + full_str, data = tpnts)
+        dset2  = f[folder_name].create_dataset('left_' + full_str, data = leftpnts)
+        dset3  = f[folder_name].create_dataset('right_' + full_str, data = rightpnts)
+
+
+        f.close()
    
         
     

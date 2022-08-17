@@ -40,6 +40,7 @@ class run:
             solver.main(False, False)
         else:
             solver.main(uncollided, moving)
+            self.get_results(solver)
         plt.title("plane IC")
         plt.legend()
         plt.show(block = False)
@@ -59,6 +60,7 @@ class run:
             solver.main(False, False)
         else:
             solver.main(uncollided, moving)
+            self.get_results(solver)
         plt.title("square IC")
         plt.legend()
         plt.show(block = False)
@@ -78,6 +80,7 @@ class run:
             solver.main(False, False)
         else:
             solver.main(uncollided, moving)
+            self.get_results(solver)
         plt.title("square source")
         plt.legend()
         plt.show(block = False)
@@ -97,6 +100,7 @@ class run:
             solver.main(False, False)
         else:
             solver.main(uncollided, moving)
+            self.get_results(solver)
         plt.title("Gaussian IC")
         plt.legend()
         plt.show(block = False)
@@ -116,6 +120,7 @@ class run:
             solver.main(False, False)
         else:
             solver.main(uncollided, moving)
+            self.get_results(solver)
         plt.title("Gaussian source")
         plt.legend()
         plt.show(block = False)
@@ -135,9 +140,16 @@ class run:
             solver.main(False, False)
         else:
             solver.main(uncollided, moving)
+            self.get_results(solver)
         plt.title("MMS")
         plt.legend()
         plt.show(block = False)
+
+    def get_results(self, solver):
+        self.xs = solver.xs
+        self.phi = solver.phi
+        self.e = solver.e
+
         
     def run_all(self):
         # self.plane_IC(True, True)

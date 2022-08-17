@@ -10,6 +10,7 @@ from .solver_functions.main_functions import parameter_function
 # from .main_functions import plot_p1_su_olson_mathematica
 
 from .loading_and_saving.load_parameters import parameter_load_class
+from .loading_and_saving.load_solution import load_sol
 
 from .solver_functions.main_functions import solve, s2_source_type_selector
 from .solver_functions.main_functions import plot_edges, x0_function
@@ -93,7 +94,7 @@ class main_class(parameter_load_class):
         if self.benchmarking == True:
             print("verifying with benchmark solution")
         #benchmark for plotting
-        if self.benchmarking == True:
+        if self.benchmarking == True: # make this a separate function
             if self.source_type[0] == 1:
                 xsb2 = np.linspace(0, self.tfinal , 1000)
                 xsb = np.concatenate((xsb2, np.ones(1)*1.0000001))
@@ -105,6 +106,18 @@ class main_class(parameter_load_class):
         print("uncollided  = ", uncollided)
         print("moving mesh = ", moving)
         print("---  ---  ---  ---  ---  ---  ---")
+
+        if self.thick == True and self.source_type[2] == 1 and self.move_type[1] == 1: # make this a separate function
+            sol_loader = load_sol(self.problem_type, 'square_s','transfer', self.scattering_ratio, True )
+            sol_loader.call_wavepoints(self.tfinal)
+            self.tpnts_wave = sol_loader.tpnts
+            self.left_wave = sol_loader.left
+            self.right_wave = sol_loader.right
+            
+            self.wave_loc_array = np.array([[(self.tpnts_wave)], [(self.left_wave)], [(self.right_wave)]])
+        else:
+            self.wave_loc_array = np.zeros((1,1,1))
+
     
         
         for nr in range(self.N_runs):
@@ -128,12 +141,13 @@ class main_class(parameter_load_class):
                     choose_xs = False
                     specified_xs = 0.0
                     
-                xs, phi, e, time, sol_matrix, ws, edges, wavespeed_array, tpnts = solve(self.tfinal,
-                 N_space, N_ang, M, x0_new, self.t0, sigma_t, sigma_s, self.t_nodes, self.scattering_ratio, 
+                xs, phi, e, time, sol_matrix, ws, edges, wavespeed_array, tpnts, left_edges, right_edges = solve(self.tfinal,
+                N_space, N_ang, M, x0_new, self.t0, sigma_t, sigma_s, self.t_nodes, self.scattering_ratio, 
                 self.source_type, uncollided, moving, self.move_type, self.thermal_couple,self.temp_function, 
                 self.rt, self.at, self.e_initial, choose_xs, specified_xs, self.weights, self.sigma, self.particle_v, 
-                self.edge_v, self.cv0, self.estimate_wavespeed, self.thick)
-
+                self.edge_v, self.cv0, self.estimate_wavespeed, self.thick, self.mxstp, self.wave_loc_array)
+                print(edges, "edges")
+                
                 if self.sigma == 0:
                     x0_or_sigma = self.x0[0]
                 else:
@@ -173,7 +187,12 @@ class main_class(parameter_load_class):
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
                 if self.thick == True:
                     plt.xlim(self.x0[0] - self.tfinal/math.sqrt(3) - 5, self.x0[0] + self.tfinal/math.sqrt(3) + 5)
+         
                 plt.show()
+                if count == len(self.N_angles)-1:
+                    self.xs = xs
+                    self.phi = phi
+                    self.e = e
                 ##################################################################
                     
                 if self.benchmarking == True:
@@ -194,6 +213,8 @@ class main_class(parameter_load_class):
                             plt.plot(-e_xs, phi_bench, "-k")
                             plt.plot(e_xs, e_bench, "--k")
                             plt.plot(-e_xs, e_bench, "--k")
+                   
+
                             plt.show()
                             ##################################################################
                             
@@ -213,12 +234,27 @@ class main_class(parameter_load_class):
 
                 ##################################################################
                 if self.estimate_wavespeed == True:
+
+                    saving.save_wave_loc(tpnts, left_edges, right_edges)
+
                     plt.figure(2)
                     plt.plot(tpnts, wavespeed_array, '-o', label = "calculated wavespeed")
-                    plt.plot(tpnts,  8/np.sqrt(tpnts + 1e-12), label = "8/sqrt(t)")
                     plt.plot(tpnts,  2/np.sqrt(tpnts + 1e-12), label = "2/sqrt(t)")
+                    plt.plot(tpnts,  8/np.sqrt(tpnts + 1e-12), label = "8/sqrt(t)")
+                    plt.plot(tpnts,  16/np.sqrt(tpnts + 1e-12), label = "16/sqrt(t)")
+                    plt.plot(tpnts,  32/np.sqrt(tpnts + 1e-12), label = "32/sqrt(t)")
+                    plt.plot(tpnts,  64/np.sqrt(tpnts + 1e-12), label = "64/sqrt(t)")
+                    plt.plot(tpnts,  128/np.sqrt(tpnts + 1e-12), label = "128/sqrt(t)")
+                    plt.plot(tpnts,  256/np.sqrt(tpnts + 1e-12), label = "256/sqrt(t)")
                     # plt.plot(tpnts,  4/np.sqrt(tpnts)/math.sqrt(3))
                     plt.ylim(0,wavespeed_array[4])
+                    plt.legend()
+                    plt.show()
+
+
+                    plt.figure(5)
+                    plt.plot(tpnts, left_edges, '-o', label = 'left_edge')
+                    plt.plot(tpnts, right_edges, '-o', label = 'right_edge')
                     plt.legend()
                     plt.show()
                 ##################################################################
@@ -261,9 +297,12 @@ class main_class(parameter_load_class):
                 plt.plot(-xsb, phi_bench_plot, "-k")
                 plt.plot(xsb, e_bench_plot, "--k")
                 plt.plot(-xsb, e_bench_plot, "--k")
+                plt.xlim(self.x0[0] - self.tfinal/math.sqrt(3) - 5, self.x0[0] + self.tfinal/math.sqrt(3) + 5)
+
                 plt.show()
                 # if int(self.x0[0]) == 400:
                 #     plt.xlim(self.x0[0]-10, self.x0[0] + 4 * math.sqrt(self.tfinal) /math.sqrt(3) + 10)
+    
                     
                 
 
