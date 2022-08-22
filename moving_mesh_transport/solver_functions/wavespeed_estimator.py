@@ -8,7 +8,7 @@ import math
 
 from ..solver_classes.make_phi import make_output
 from ..solver_classes.functions import find_nodes
-from ..solver_classes.make_phi import make_output
+
 
 
 def wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, thermal_couple, tfinal, x0):
@@ -16,7 +16,7 @@ def wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, uncollided
     mesh.move(sol.t[-1])
     edges = mesh.edges
     # xs = find_nodes(edges, M)
-    xs = np.linspace(0, x0 + tfinal/(math.sqrt(3)) , 10000)
+    xs = np.linspace(0, x0 + tfinal , 1000000)
     solutions = np.zeros((sol.t.size, xs.size))
     wavespeeds = sol.t*0
 
@@ -39,10 +39,7 @@ def wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, uncollided
         phi = output.make_phi(uncollided_sol)
 
         solutions[it, :] = phi
-    #     plt.figure(3)
-    #     plt.plot(xs, phi, '-')
-    #     plt.xlim(350,423)
-    # plt.show()
+
 
     
     dx = np.zeros(sol.t.size)
@@ -52,38 +49,35 @@ def wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, uncollided
 
     left_edge_list = []
     right_edge_list = []
-
+ 
     left_edge_list.append(x0)
     right_edge_list.append(x0)
-    ir_old = phi.size-1
-    il_old = 0
+
     for it in range(1, sol.t.size):
         t = sol.t[it]
-        spatial_deriv = derivative_estimator(xs,solutions[it,:],delta_x)
-        il, ir = find_edge(t,xs, x0, spatial_deriv, il_old, ir_old)
-        il_old = il
-        ir_old = ir
-        left_edge_list.append(xs[il])
-        right_edge_list.append(xs[ir])
         for ix in range(phi.size-1):
             dt[it] += abs((solutions[it, ix] - solutions[it-1, ix])/delta_t)
             dx[it] += abs((solutions[it,ix+1]-solutions[it,ix-1])/(delta_x))
     # if right_edge_list != sol.t.size:
     #     print("mismatch")
+    
 
-
-
-    return dt/(0.5*dx), left_edge_list, right_edge_list
+    return dt/(0.5*dx)
 
 
 
 
 def derivative_estimator(xs,phi,delta_x):
     dx = phi*0
-    dxx = phi*0
     for ix in range(1,phi.size-1):
         dx[ix] = (phi[ix] - phi[ix-1])/delta_x
     return dx
+
+def second_derivative_estimator(xs,phi,delta_x):
+    dxx = phi*0
+    for ix in range(1,phi.size-2):
+        dxx[ix] = (phi[ix+1] - 2*phi[ix] + phi[ix-1])/delta_x**2
+    return dxx
         
 def find_edge(t,xs,x0, spatial_deriv, il_old, ir_old):
     x0_loc = np.argmin(np.abs(xs-x0))
@@ -92,24 +86,29 @@ def find_edge(t,xs,x0, spatial_deriv, il_old, ir_old):
     search_bounds = [left_max_loc, right_max_loc] 
     left = True
     right = True
-    il = x0_loc
-    ir = x0_loc
+    # il = x0_loc
+    # ir = x0_loc
+    il = il_old
+    ir = ir_old
     mx = max(np.abs(spatial_deriv))
     mn = min(np.abs(spatial_deriv))
-    tol = 1e-8
-
-
+    tol = 1e-13
 
     while left == True:
-        if abs(spatial_deriv[il]/mx) <= tol:
+        if abs(spatial_deriv[il]) <= 1e-16:
+            left = False
+        elif abs(spatial_deriv[il]) <= tol:
             left = False
         # elif il == search_bounds[0]:
         #     left = False
         else:
             il -= 1
     while right == True:
-        if abs(spatial_deriv[ir]/mx) <= tol:
+        if abs(spatial_deriv[ir]) <= 1e-16:
             right = False
+        elif abs(spatial_deriv[ir]) <= tol:
+            right = False
+        
         # elif ir == search_bounds[1]:
         #     right = False
         else:

@@ -22,11 +22,19 @@ e = run.e
 
 plt.figure(25)
 plt.ion()
-plt.plot(xs_mcclarren, phi_mcclarren, 'k-', label = 'phi from Dr. McClarren')
+plt.plot(xs_mcclarren, phi_mcclarren*0.01372, 'k-', label = 'phi from Dr. McClarren')
 plt.plot(xs_mcclarren, T_mcclarren, 'r--', label = 'T from Dr. McClarren')
+plt.plot(xs_mcclarren, T_mcclarren/0.3, 'r--', label = 'T from Dr. McClarren')
 plt.plot(xs, phi, '-o', mfc='none', label ='my solution phi')
-plt.plot(xs, e, '-^', mfc='none', label ='my solution e')
+plt.plot(xs, e/0.3, '-^', mfc='none', label ='my solution T')
+
 
 # plt.plot(xs, e/0.3, '-^', mfc='none', label ='my solution T')
+print(max(e/0.3)/max(T_mcclarren),  'T ratio')
+print(max(phi), 'phi max')
+print(max(e/0.3), 'my T max')
+print(max(T_mcclarren), 'McClarren T max')
+print(max(phi_mcclarren), 'McClarren T max')
+
 plt.legend()
 plt.show()

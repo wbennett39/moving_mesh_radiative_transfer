@@ -231,7 +231,7 @@ class mesh_class(object):
         # # old func
     def square_source_static_func_sqrt_t(self, t):
         # only to be used to estimate the wavespeed
-        move_factor = 4
+        move_factor = 6
 
         if t > 1e-10:
             sqrt_t = math.sqrt(t)

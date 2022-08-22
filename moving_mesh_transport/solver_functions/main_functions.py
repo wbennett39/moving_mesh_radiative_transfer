@@ -25,6 +25,7 @@ from ..solver_classes.make_phi import make_output
 from ..solver_classes.radiative_transfer import T_function
 from timeit import default_timer as timer
 from .wavespeed_estimator import wavespeed_estimator
+from .wave_loc_estimator import find_wave
 
 """
 This file contains functions used by solver
@@ -128,14 +129,16 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     if estimate_wavespeed == False:
         tpnts = None
     elif estimate_wavespeed == True:
-        tpnts = np.linspace(0, tfinal, 100)
+        tpnts = np.linspace(0, tfinal, 2)
     
     sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = tpnts , rtol = rt, atol = at, max_step = mxstp)
     end = timer()
 
     if estimate_wavespeed == True:
-        wavespeed_array, left_edges, right_edges = wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, 
+        wavespeed_array = wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, 
                           uncollided_sol, thermal_couple, tfinal, x0)
+        wave_loc_finder = find_wave(N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, thermal_couple, tfinal, x0, tpnts)
+        left_edges, right_edges = wave_loc_finder.find_wave(sol)
     else:
         wavespeed_array = np.array([0])
         left_edges =  np.array([0])

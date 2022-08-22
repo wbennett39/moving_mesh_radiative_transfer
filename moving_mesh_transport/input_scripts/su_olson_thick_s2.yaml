@@ -1,7 +1,7 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson_thick_s2'
-    'tfinal': 25 #31.6228               # evaluation time
+    'tfinal': 1. #31.6228               # evaluation time
     'c': 0.0                            # scattering ratio
     't0': 10.0                          # time the source is turned off
     'N_spaces': [8]                     # number of cells
@@ -10,7 +10,7 @@
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
-    'mxstp': 0.1
+    'mxstp': 10.
     'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
     'temperature_dependence': [1,0,0,0] # first slot is Su-Olson problem
@@ -47,7 +47,7 @@
     'x0': [400]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [2]
-    'move_type': [0,0,1]      # [standard, sqrt_t]
+    'move_type': [0,0,1]      # [standard, thick, sqrt_t]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': True
     
@@ -58,7 +58,7 @@
     'x0': [1700, 1700, 1700, 1700, 1700]
     'source_type': [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [2]
-    'move_type': [1,0]  # [standard, sqrt_t]
+    'move_type': [1,0]  # [standard,thick, sqrt_t]
     'benchmarking': False
     
 # gaussian  source
