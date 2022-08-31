@@ -17,8 +17,13 @@ class run:
     
     def load(self, problem_type = 'transport'):
         config_file_path = self.data_folder / f"{problem_type}.yaml"
+        mesh_config_file_path = self.data_folder / "mesh_parameters.yaml"
         with open(config_file_path, 'r') as file:
             self.parameters = yaml.safe_load(file)
+            file.close()
+
+        with open(mesh_config_file_path, 'r') as file:
+            self.mesh_parameters = yaml.safe_load(file)
             file.close()
    
     def h(self):
@@ -32,7 +37,7 @@ class run:
         print("running plane IC")
         print("---  ---  ---  ---  ---  ---  ---")
         
-        solver = main_class(source_name, self.parameters) 
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
         if All == True:
             solver.main(True, True)
             solver.main(False, True)
@@ -52,7 +57,7 @@ class run:
         print("---  ---  ---  ---  ---  ---  ---")
         print("running square IC")
         print("---  ---  ---  ---  ---  ---  ---")
-        solver = main_class(source_name, self.parameters) 
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
         if All == True:
             solver.main(True, True)
             solver.main(False, True)
@@ -72,7 +77,7 @@ class run:
         print("---  ---  ---  ---  ---  ---  ---")
         print("running square source")
         print("---  ---  ---  ---  ---  ---  ---")
-        solver = main_class(source_name, self.parameters) 
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
         if All == True:
             solver.main(True, True)
             solver.main(False, True)
@@ -92,7 +97,7 @@ class run:
         print("---  ---  ---  ---  ---  ---  ---")
         print("running Gaussian IC")
         print("---  ---  ---  ---  ---  ---  ---")
-        solver = main_class(source_name, self.parameters) 
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
         if All == True:
             solver.main(True, True)
             solver.main(False, True)
@@ -112,7 +117,7 @@ class run:
         print("---  ---  ---  ---  ---  ---  ---")
         print("running Gaussian source")
         print("---  ---  ---  ---  ---  ---  ---")
-        solver = main_class(source_name, self.parameters) 
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
         if All == True:
             solver.main(True, True)
             solver.main(False, True)
@@ -132,7 +137,7 @@ class run:
         print("---  ---  ---  ---  ---  ---  ---")
         print("running MMS problem")
         print("---  ---  ---  ---  ---  ---  ---")
-        solver = main_class(source_name, self.parameters) 
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
         if All == True:
             solver.main(True, True)
             solver.main(False, True)

@@ -33,7 +33,8 @@ data = [('N_ang', int64),
         ('told', float64),
         ('index_old', int64),
         ('right_speed', float64),
-        ('left_speed', float64)
+        ('left_speed', float64),
+        ('test_dimensional_rhs', int64)
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -44,7 +45,9 @@ data = [('N_ang', int64),
 class mesh_class(object):
     def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, wave_loc_array):
         
-        self.debugging = True
+        self.debugging = False
+        self.test_dimensional_rhs = False
+
 
         self.tfinal = tfinal
         self.N_space = N_space
@@ -56,6 +59,9 @@ class mesh_class(object):
         self.Dedges = np.zeros(N_space+1)
         self.N_space = N_space
         self.speed = edge_v
+        if self.test_dimensional_rhs == True:
+            self.speed = 299.98
+
         print('mesh edge velocity: ', edge_v)
         self.source_type = source_type
 
@@ -72,7 +78,7 @@ class mesh_class(object):
         self.thick = thick
         self.wave_loc_array = wave_loc_array 
         self.wave_loc_array[0,2,1:] += pad
-        print(self.wave_loc_array[0,2,-1], 'wave final location')
+        # print(self.wave_loc_array[0,2,-1], 'wave final location')
         self.wave_loc_array[0,1,1:] -= pad
 
         
@@ -80,6 +86,7 @@ class mesh_class(object):
         self.tactual = -1.
         self.told = 0.0
         self.index_old = 0
+
 
     def set_func(self, x_index, loc, speed):
         """
@@ -105,6 +112,7 @@ class mesh_class(object):
         if self.moving == True:
             if self.move_func == 0: # simple linear
                 self.edges = self.edges0 + self.Dedges*t
+              
 
             elif self.move_func == 1: 
                 """
@@ -153,7 +161,10 @@ class mesh_class(object):
                 self.simple_moving_init_func()
 
             elif self.source_type[1] == 1 or self.source_type[2] == 1:
-                self.thick_square_init_func()
+                if self.move_func == 0:
+                    self.simple_moving_init_func()
+                elif self.move_func == 1 or self.move_func == 2:
+                    self.thick_square_init_func()
 
 
         self.edges0 = np.copy(self.edges)
@@ -180,7 +191,7 @@ class mesh_class(object):
             # self.edges[0] = -self.x0 + -self.tfinal * self.speed
 
 
-            print(self.edges, "final edges")
+            # print(self.edges, "final edges")
 
 
     def thick_square_moving_func(self, t):
@@ -194,8 +205,8 @@ class mesh_class(object):
             pad = 5
             self.delta_t = self.tfinal
             index -=1
-            self.right_speed = (-self.wave_loc_array[0,2,index+1] - self.edges[0])/self.delta_t
-            self.left_speed = (-self.wave_loc_array[0,1,index+1] + pad - self.edges[half-1])/self.delta_t
+            self.right_speed = (-self.wave_loc_array[0,2,index+1] - pad - self.edges[0])/self.delta_t
+            self.left_speed = (-self.wave_loc_array[0,1,index+1]  - self.edges[half-1])/self.delta_t
             wave_front_array =  self.Dedges_const[0:int(half/2)]*self.right_speed/self.speed*(-1)
             # print(wave_front_array, 'wave speeds forward')
             wave_back_array =  self.Dedges_const[int(half/2)+1:half]*self.left_speed/self.speed
@@ -231,7 +242,7 @@ class mesh_class(object):
         # # old func
     def square_source_static_func_sqrt_t(self, t):
         # only to be used to estimate the wavespeed
-        move_factor = 6
+        move_factor = 8
 
         if t > 1e-10:
             sqrt_t = math.sqrt(t)
@@ -278,6 +289,7 @@ class mesh_class(object):
         self.Dedges[sidebin:sidebin+middlebin] = 0       
         self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
         self.Dedges = self.Dedges * self.speed
+
 
 
     def thick_gaussian_init_func(self):

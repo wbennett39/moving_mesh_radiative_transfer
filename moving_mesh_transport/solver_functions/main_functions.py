@@ -87,7 +87,7 @@ def plot_p1_su_olson_mathematica():
 
 def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
           uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, 
-          weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, thick, mxstp, wave_loc_array):
+          weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, find_edges_tol):
 
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
@@ -104,6 +104,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
                        thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, wave_loc_array)
+                       
     initialize.make_IC()
     IC = initialize.IC
 
@@ -127,9 +128,9 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     reshaped_IC = IC.reshape(deg_freedom)
 
     if estimate_wavespeed == False:
-        tpnts = None
+        tpnts = [tfinal]
     elif estimate_wavespeed == True:
-        tpnts = np.linspace(0, tfinal, 2)
+        tpnts = np.linspace(0, tfinal, 25)
     
     sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = tpnts , rtol = rt, atol = at, max_step = mxstp)
     end = timer()
@@ -137,10 +138,14 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     if estimate_wavespeed == True:
         wavespeed_array = wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, 
                           uncollided_sol, thermal_couple, tfinal, x0)
-        wave_loc_finder = find_wave(N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, thermal_couple, tfinal, x0, tpnts)
+    elif estimate_wavespeed == False:
+        wavespeed_array = np.array([[0],[0], [0]])
+
+    if find_wave_loc == True:
+        wave_loc_finder = find_wave(N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, 
+        thermal_couple, tfinal, x0, sol.t, find_edges_tol)
         left_edges, right_edges = wave_loc_finder.find_wave(sol)
-    else:
-        wavespeed_array = np.array([0])
+    elif find_wave_loc == False:
         left_edges =  np.array([0])
         right_edges = np.array([0])
 
@@ -150,9 +155,10 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     elif thermal_couple == 1:
         sol_last = sol.y[:,-1].reshape((N_ang+1,N_space,M+1))
 
-    timesteps = time_step_function(sol.t)
-    # print(timesteps)
-    print(np.max(timesteps), "max time step")
+    
+    if sol.t.size > 1:
+        timesteps = time_step_function(sol.t)
+        print(np.max(timesteps), "max time step")
     
     mesh.move(tfinal)
     edges = mesh.edges

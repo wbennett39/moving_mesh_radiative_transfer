@@ -52,20 +52,30 @@ def plot_all_rms_cells(tfinal, M):
     plotter.load_RMS_data(uncollided = False, moving = True)
     plotter.plot_RMS_vs_cells(25, clear)
 
-def plot_rms_Ms(tfinal, source_name, fign = 1):
+def plot_rms_Ms(tfinal, source_name, fign = 1 ):
     major = 'Ms'
     case_list_1 = [True, True, False, False]
     case_list_2 = [True, False, True, False]
     
     plotter = rms_plotter(tfinal, 1,  source_name, major)
-    if source_name != "MMS":
+
+    if source_name == "MMS":
+        plotter.load_RMS_data(False, True)
+        plotter.plot_RMS_vs_Ms(source_name, fign, False)
+
+    elif source_name  in [ 'su_olson_thick_s2','su_olson_thick_s8','su_olson_thick_s2_energy','su_olson_thick_s8_energy', 
+    'gaussian_s_thick_s2', 'gaussian_s_thick_s2_energy']:
+        plotter.load_RMS_data(False, False)
+        plotter.plot_RMS_vs_Ms(source_name, fign, False)
+        plotter.load_RMS_data(True, False)
+        plotter.plot_RMS_vs_Ms(source_name, fign, False)
+    else:
+
         for count2, uncollided in enumerate(case_list_1):
             moving = case_list_2[count2]
             plotter.load_RMS_data(uncollided, moving)
             plotter.plot_RMS_vs_Ms(source_name, fign, False)
-    else:
-        plotter.load_RMS_data(False, True)
-        plotter.plot_RMS_vs_Ms(source_name, 1, False)
+
         
 def plot_rms_cells(tfinal, source_name, M, fign = 1):
     major = 'cells'
@@ -73,14 +83,20 @@ def plot_rms_cells(tfinal, source_name, M, fign = 1):
     case_list_2 = [True, False, True, False]
     
     plotter = rms_plotter(tfinal, M,  source_name, major)
-    if source_name != "MMS":
+    if source_name == "MMS":
+        plotter.load_RMS_data(False, True)
+        plotter.plot_RMS_vs_cells()
+
+    elif source_name in ['su_olson_thick_s2', 'su_olson_thick', 'su_olson_thick_s2_energy']:
+        plotter.load_RMS_data(False, False)
+        plotter.plot_RMS_vs_cells()
+        plotter.load_RMS_data(True, False)
+        plotter.plot_RMS_vs_cells()
+    else:
         for count2, uncollided in enumerate(case_list_1):
             moving = case_list_2[count2]
             plotter.load_RMS_data(uncollided, moving)
             plotter.plot_RMS_vs_cells()
-    else:
-        plotter.load_RMS_data(False, True)
-        plotter.plot_RMS_vs_cells()
         
         
 def plot_all_rms_Ms(tfinal):
@@ -237,10 +253,12 @@ def plot_all_benchmarks(tfinal):
         plotter.plot_bench(tfinal, source, count)
         
 def plot_coefficients(tfinal = 1,  M=10, source_name = 'square_s',  N_spaces = [8,16,32,64,128], problem_name = 'transfer_const_cv=0.1',
-rad_or_transport ='transfer', x0_or_sigma = 0.5 , c = 0.0, uncollided = True, s2 = False, mat_or_rad = 'rad', moving = True, fign = 1):
+rad_or_transport ='transfer', x0_or_sigma = 0.5 , c = 0.0, uncollided = True, s2 = False, mat_or_rad = 'rad', moving = True, line = '-',legend = True, fign = 1):
     
     plotter = rms_plotter(tfinal, M, source_name, 'cells')
-    plotter.plot_coefficients(tfinal, M, source_name, N_spaces, problem_name, rad_or_transport, x0_or_sigma, c, uncollided)
+    plotter.plot_coefficients(tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
+    x0_or_sigma, c, uncollided, s2, mat_or_rad, moving, line, legend)
+
     plotter.plot_coeff_boyd()
 
 

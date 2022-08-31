@@ -47,7 +47,8 @@ data = [("S", float64[:]),
         ("t2", float64), 
         ("t3", float64),
         ("tau", float64),
-        ("sigma", float64)
+        ("sigma", float64),
+        ('source_strength', float64)
         
         ]
 ###############################################################################
@@ -65,6 +66,8 @@ class source_class(object):
         self.tfinal = build.tfinal
         self.t0 = build.t0
         self.sigma = build.sigma
+        # self.source_strength = 0.0137225 * 299.98
+        self.source_strength = 1.0
     
     def integrate_quad(self, t, a, b, j, func):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
@@ -86,7 +89,7 @@ class source_class(object):
         temp = xs*0
         for ix in range(xs.size):
             if abs(xs[ix]) <= self.x0 and t < self.t0:
-                temp[ix] = 1.0
+                temp[ix] = 1.0 * self.source_strength
         return temp
             
     def gaussian_source(self, xs, t):

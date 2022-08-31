@@ -22,7 +22,8 @@ to do:
 [] update README
 
 [x] write a new mesh notebook
-[] square source N > 4 seems broken 
+[] move some parameters to the mesh notebook
+[] turn solver function into a class for brevities sake 
 [] plotting class to clean up solver
 [] have benchmarks load in the same shape 
 [] add debugging mode
@@ -93,6 +94,7 @@ class main_class(parameter_load_class):
         print("---  ---  ---  ---  ---  ---  ---")
         if self.benchmarking == True:
             print("verifying with benchmark solution")
+
         #benchmark for plotting
         if self.benchmarking == True: # make this a separate function
             if self.source_type[0] == 1:
@@ -108,7 +110,7 @@ class main_class(parameter_load_class):
         print("---  ---  ---  ---  ---  ---  ---")
 
         if self.thick == True and self.source_type[2] == 1 and self.move_type[1] == 1: # make this a separate function
-            sol_loader = load_sol(self.problem_type, 'square_s','transfer', self.scattering_ratio, True )
+            sol_loader = load_sol(self.problem_type, 'square_s','transfer', self.scattering_ratio, self.N_angles[0]==2, self.cv0)
             sol_loader.call_wavepoints(self.tfinal)
             self.tpnts_wave = sol_loader.tpnts
             self.left_wave = sol_loader.left
@@ -134,9 +136,9 @@ class main_class(parameter_load_class):
                 sigma_t = np.ones(N_space)
                 sigma_s = np.ones(N_space)
                 
-                if self.benchmarking == True and self.thermal_couple == 1 and self.weights == "gauss_lobatto" and self.sigma != 300 and self.x0 != 400:
+                if self.choose_xs == True:
                     choose_xs = True
-                    specified_xs = benchmark(np.abs(np.linspace(0, self.tfinal + self.x0)))[2][:,0]
+                    specified_xs = self.specified_xs
                 else:
                     choose_xs = False
                     specified_xs = 0.0
@@ -145,8 +147,10 @@ class main_class(parameter_load_class):
                 N_space, N_ang, M, x0_new, self.t0, sigma_t, sigma_s, self.t_nodes, self.scattering_ratio, 
                 self.source_type, uncollided, moving, self.move_type, self.thermal_couple,self.temp_function, 
                 self.rt, self.at, self.e_initial, choose_xs, specified_xs, self.weights, self.sigma, self.particle_v, 
-                self.edge_v, self.cv0, self.estimate_wavespeed, self.thick, self.mxstp, self.wave_loc_array)
+                self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, self.thick, self.mxstp, self.wave_loc_array, self.find_edges_tol)
                 print(edges, "edges")
+                # print(xs, 'xs')
+                # print(e, 'e')
                 
                 if self.sigma == 0:
                     x0_or_sigma = self.x0[0]
@@ -206,6 +210,7 @@ class main_class(parameter_load_class):
                             e_xs = benchmark(np.abs(xs))[2][:,0]
                             phi_bench = benchmark(np.abs(xs))[2][:,1]
                             e_bench = benchmark(np.abs(xs))[2][:,2]
+                            print(e_bench)
                             
                             ##################################################################
                             plt.figure(1)
@@ -218,8 +223,6 @@ class main_class(parameter_load_class):
                             plt.show()
                             ##################################################################
                             
-                            
-       
                         elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0[0] == 400:
                             print("loading s2 bench")
                             phi_bench = benchmark(np.abs(xs))[0]
@@ -247,7 +250,7 @@ class main_class(parameter_load_class):
                     plt.plot(tpnts,  128/np.sqrt(tpnts + 1e-12), label = "128/sqrt(t)")
                     plt.plot(tpnts,  256/np.sqrt(tpnts + 1e-12), label = "256/sqrt(t)")
                     # plt.plot(tpnts,  4/np.sqrt(tpnts)/math.sqrt(3))
-                    plt.ylim(0,wavespeed_array[4])
+                    # plt.ylim(0,wavespeed_array[0])
                     plt.legend()
                     plt.show()
 
@@ -297,7 +300,8 @@ class main_class(parameter_load_class):
                 plt.plot(-xsb, phi_bench_plot, "-k")
                 plt.plot(xsb, e_bench_plot, "--k")
                 plt.plot(-xsb, e_bench_plot, "--k")
-                plt.xlim(self.x0[0] - self.tfinal/math.sqrt(3) - 5, self.x0[0] + self.tfinal/math.sqrt(3) + 5)
+                if self.x0[0] == 400:
+                    plt.xlim(self.x0[0] - self.tfinal/math.sqrt(3) - 5, self.x0[0] + self.tfinal/math.sqrt(3) + 5)
 
                 plt.show()
                 # if int(self.x0[0]) == 400:

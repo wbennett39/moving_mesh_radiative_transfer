@@ -32,6 +32,7 @@ class make_benchmark:
         self.call_collided = collided_class(source_type, self.x0, self.t0, sigma)
         self.gaussian_type_sources = ['gaussian_IC', 'gaussian_source', 'gaussian_IC_2D', 
                                       'P1_gaussian_rad', 'P1_gaussian_mat']
+        self.thick_sources = ['P1_su_olson_rad']
         self.sigma = sigma
     
     def integrate(self, t, npnts):
@@ -69,8 +70,11 @@ class make_benchmark:
                 self.xs = np.linspace(0.0, 1700, npnts)
             elif t == 10:
                 self.xs = np.linspace(0.0, 1800, npnts)
+            elif t == 100:
+                self.xs = np.linspace(0.0, 1862, npnts)
+
         elif self.source_type == 'P1_su_olson_mat' or self.source_type == 'P1_su_olson_rad' and self.x0 == 400:
-            self.xs = np.linspace(0.0, self.x0 + 4 * math.sqrt(t)/math.sqrt(3), npnts)
+            self.xs = np.linspace(0.0, self.x0 + 8 * math.sqrt(t)/math.sqrt(3), npnts)
 
                 
             
@@ -79,7 +83,7 @@ class make_benchmark:
         self.collided_sol = self.call_collided(self.xs, t)
         
         
-        if self.source_type in self.gaussian_type_sources:
+        if self.source_type in self.gaussian_type_sources or self.source_type in self.thick_sources:
             self.gaussian = True
             tol = 1e-16
             index_of_zero_phi = check_gaussian_tail(self.uncollided_sol + self.collided_sol, tol)
@@ -105,10 +109,10 @@ class make_benchmark:
         plt.figure(fign)
         plt.plot(self.xs, self.uncollided_sol, "--k")
         plt.plot(self.xs, self.uncollided_sol + self.collided_sol, "-k")
-        if self.source_type == "P1_su_olson_rad" and self.t == 1:
-                test_P1_against_mathematica(self.t, self.xs, self.collided_sol, "rad")
-        elif self.source_type == "P1_su_olson_mat" and self.t == 1:
-            test_P1_against_mathematica(self.t, self.xs, self.collided_sol, "mat")
+        # if self.source_type == "P1_su_olson_rad" and self.t == 1:
+        #         test_P1_against_mathematica(self.t, self.xs, self.collided_sol, "rad")
+        # elif self.source_type == "P1_su_olson_mat" and self.t == 1:
+        #     test_P1_against_mathematica(self.t, self.xs, self.collided_sol, "mat")
             
         plt.show()
     

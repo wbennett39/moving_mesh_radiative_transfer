@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from scipy.interpolate import UnivariateSpline
+from scipy.interpolate import UnivariateSpline, CubicSpline
+
 from ..solver_classes.make_phi import make_output
 from ..solver_classes.functions import find_nodes
 
@@ -11,7 +12,7 @@ class find_wave:
     This class takes solutions at an array of times, creates interpolated solutions and derivatives, 
     and estimates the wave location at those times
     """
-    def __init__(self, N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, thermal_couple, tfinal, x0, times):
+    def __init__(self, N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, thermal_couple, tfinal, x0, times, find_edges_tol):
         self.N_ang = N_ang
         self.N_space = N_space
         self.ws = ws
@@ -24,23 +25,35 @@ class find_wave:
         self.x0 = x0
         self.times = times
         self.dx = 1e-3 # step for searching for the wave 
+        self.find_edges_tol = find_edges_tol
 
     def find_wave(self, sol):
         self.make_sol(sol)
         left_edge_list = np.zeros(sol.t.size)
         right_edge_list = np.zeros(sol.t.size)
-        for it in range(sol.t.size):
-            interpolated_sol = UnivariateSpline(self.xs_list[it], self.solutions[it, :], k=4)
-            self.first_deriv = interpolated_sol.derivative(1)
-            self.second_deriv = interpolated_sol.derivative(2)
-            xs_range = [0, self.xs_list[it,-1]]
-            x_left, x_right = self.find_wave_bounds(xs_range)
-            left_edge_list[it] = x_left
-            right_edge_list[it] = x_right
-            xs_test = np.linspace(self.xs_list[it,0], self.xs_list[it,-1], 1000)
-            plt.figure(22)
-            plt.plot(xs_test, self.first_deriv(xs_test), '-')
-            plt.plot(xs_test, self.second_deriv(xs_test), '--')
+        # for it in range(sol.t.size):
+        it = sol.t.size-1
+  
+        self.interpolated_sol = CubicSpline(self.xs_list[it], self.solutions[it, :])
+
+        xs_range = [0, self.xs_list[it,-1]]
+        x_left, x_right = self.find_wave_bounds(xs_range)
+        left_edge_list[it] = x_left
+        right_edge_list[it] = x_right
+        xs_test = np.linspace(self.xs_list[it,0], self.xs_list[it,-1], 1000)
+        plt.figure(22)
+        plt.plot(xs_test, self.interpolated_sol(xs_test,1), '-', label = f'first deriv t={sol.t[it]}')
+        plt.xlim(350, 420)
+        plt.legend()
+        plt.figure(23)
+        plt.plot(xs_test, self.interpolated_sol(xs_test,2), '--', label = f'second deriv t={sol.t[it]}')
+        plt.legend()
+        plt.xlim(350, 420)
+        plt.figure(1)
+        plt.plot(xs_test, self.interpolated_sol(xs_test,0), '-s', mfc ='none',label = f't={sol.t[it]}')
+            # plt.xlim(390, 410)
+        # print(self.interpolated_sol(xs_test,1))
+        plt.legend()
         plt.show()
 
         return left_edge_list, right_edge_list
@@ -76,33 +89,45 @@ class find_wave:
         left_found = False
         right_found = False
         inflection_found = False
-        tol = 1e-13
+        xs_test = np.linspace(0, self.tfinal + self.x0, 100000)
+        test_deriv = np.abs(self.interpolated_sol(xs_test,1))
+
+        # tol = np.abs(np.mean(test_deriv) - 8*np.std(test_deriv))
+        # tol = 1.05 * np.min(test_deriv)
+
+        tol = np.max(test_deriv)/self.find_edges_tol
+        tol_left = tol*1
+        tol_right = tol*1
+        print(tol, 'tol')
 
         while left_found == False:
             x_left -= self.dx
-            print(x_left)
             if x_left <= xs_range[0]:
+                tol_left = tol_left*1.1
+                x_left = self.x0
+                # left_found = True
+            elif abs(self.interpolated_sol(x_left,1)) <= tol_left:
                 left_found = True
-            elif abs(self.first_deriv(x_left)) <= tol:
-                left_found = True
+                print(x_left, 'left edge')
 
-        
         while right_found == False:
             x_right += self.dx
-            print(x_right)
             if x_right >= xs_range[-1]:
-                right_found = True
-            elif abs(self.first_deriv(x_right)) <= tol:
+                tol_right = tol_right*1.1
+                x_right = self.x0
+                # right_found = True
+            elif abs(self.interpolated_sol(x_right,1)) <= tol_right:
+                print(x_right, 'right edge')
                 right_found = True
 
-        while inflection_found == False:
-            second_old = self.second_deriv(edge)
-            edge -= dx
-            if np.sign(second_old) != np.sign(self.second_deriv(edge)):
-                inflection_found = True
-                print(edge)
-            elif edge <= 0:
-                inflection_found = True
+        # while inflection_found == False:
+        #     second_old = self.second_deriv(edge)
+        #     edge -= self.dx
+        #     if np.sign(second_old) != np.sign(self.second_deriv(edge)):
+        #         inflection_found = True
+        #         # print(edge)
+        #     elif edge <= 0:
+        #         inflection_found = True
 
 
         return x_left, x_right

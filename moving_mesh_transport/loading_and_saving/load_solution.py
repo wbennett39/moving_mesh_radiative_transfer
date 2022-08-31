@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 class load_sol:
-    def __init__(self, problem_name, source_name, rad_or_transfer, c, s2):
+    def __init__(self, problem_name, source_name, rad_or_transfer, c, s2, cv0):
 
         data_folder = Path("moving_mesh_transport")
 
@@ -22,6 +22,9 @@ class load_sol:
         self.c = c 
         self.s2 = s2
         self.problem_name = problem_name
+        self.cv0 = cv0
+        if self.problem_name == 'rad_transfer_const_cv_thick':
+            self.problem_name = f'transfer_const_cv={self.cv0}_thick'
     
     def call_sol(self, tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving):
         # full_str = self.rad_or_transfer
@@ -31,13 +34,16 @@ class load_sol:
         full_str += "/" + str(self.source_name) + '_uncollided_' * (uncollided) + 'moving_mesh_' * (moving) + 'N_space = ' + str(N_space) + '_t = ' + str(int(tfinal)) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
         f = h5py.File(self.data_file_path, "r+")
 
-        sol_data = f[self.problem_name][full_str]
-        self.xs = sol_data[0]
-        self.phi = sol_data[1]
-        self.e = sol_data[2]
-        
+        if self.problem_name != 'su_olson_thick_s2': # FIX THIS LATER 
+            print(f[self.problem_name].keys())
+            sol_data = f[self.problem_name][full_str]
+            self.xs = sol_data[0]
+            self.phi = sol_data[1]
+            self.e = sol_data[2]
+            
         self.ws = f[self.problem_name]['weights/' + full_str][:]
-
+        # print(f[self.problem_name]['weights'].keys())
+        # print(f[self.problem_name]['coefficients'].keys())
 
         if self.rad_or_transfer == 'transfer':
             if mat_or_rad == 'rad':
@@ -55,10 +61,18 @@ class load_sol:
         f = h5py.File(self.wavepoints_file_path, "r+")
 
         full_str = str(self.source_name) + 't = ' + str(int(tfinal))    
+        if self.problem_name == 'su_olson_thick':
+                self.tpnts = f['su_olson_thick_s2']['tpnts_' + full_str][:]
+                self.left = f['su_olson_thick_s2']['left_' + full_str][:]
+                self.right = f['su_olson_thick_s2']['right_' + full_str][:]
 
-        self.tpnts = f[self.problem_name]['tpnts_' + full_str][:]
-        self.left = f[self.problem_name]['left_' + full_str][:]
-        self.right = f[self.problem_name]['right_' + full_str][:]
+        else:
+            print(f.keys())
+            print(self.problem_name, "pn")
+            self.tpnts = f[self.problem_name]['tpnts_' + full_str][:]
+            self.left = f[self.problem_name]['left_' + full_str][:]
+            self.right = f[self.problem_name]['right_' + full_str][:]
+
 
 
 

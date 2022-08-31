@@ -30,7 +30,6 @@ class IC_func(object):
         self.x0 = x0
         
 
-        
     def function(self, x):
         if self.uncollided == True:
             return np.zeros(x.size)

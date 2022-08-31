@@ -171,27 +171,51 @@ def uncollided_su_olson_s2(x,t,x0,t0):
     sqrt3 = math.sqrt(3)
     abx = abs(x)
     edge = min(t,t0)
-    if (abx > x0):
-        arg1 = max(0,edge - sqrt3 * (abx - x0))
-        arg2 = max(0,edge - sqrt3 * (abx + x0))
-        return s2_F(t, arg1) - s2_F(t, arg2)
-    
-    elif (abx <= x0):
-        if (edge + sqrt3 * abx <= sqrt3 * x0):
-            return  2 * (s2_F(t, edge) - s2_F(t, 0))
-        elif (edge + sqrt3 * abx > sqrt3 * x0) and (edge - sqrt3 * (abx + x0) > 0):
-            arg2 = edge - sqrt3 * (x0 - abx)
-            arg1 = edge - sqrt3 * (abx + x0)
-            if arg1 <0 or arg2 <0:
-                print("error negative bounds")
-            return s2_F(t, arg2) - s2_F(t, arg1) + 2 * (s2_F(t, edge) - s2_F(t, arg2))
-        elif (edge + sqrt3 * abx > sqrt3 * x0) and (edge - sqrt3 * (abx + x0) <= 0): 
-            arg1 = max(0,edge - sqrt3 * (x0 - abx))
-            if arg1 <0:
-                print("error negative bounds")
-            return 2 * (s2_F(t, edge) - s2_F(t, arg1)) + s2_F(t, arg1) - s2_F(t, 0)
-        else:
-            print("missed case")
+    if t <= t0:
+        if (abx > x0):
+            arg1 = max(0,edge - sqrt3 * (abx - x0))
+            arg2 = max(0,edge - sqrt3 * (abx + x0))
+            # arg2 = max(arg2, edge)
+            # arg2 = min(arg2,t0)
+            # arg1 = min(arg2,t0)
+            return s2_F(t, arg1) - s2_F(t, arg2)
+        
+        elif (abx <= x0):
+            if (edge + sqrt3 * abx <= sqrt3 * x0):
+                return  2 * (s2_F(t, edge) - s2_F(t, 0))
+            elif (edge + sqrt3 * abx > sqrt3 * x0) and (edge - sqrt3 * (abx + x0) > 0):
+                arg2 = edge - sqrt3 * (x0 - abx)
+                arg1 = edge - sqrt3 * (abx + x0)
+                if arg1 <0 or arg2 <0:
+                    print("error negative bounds")
+                return s2_F(t, arg2) - s2_F(t, arg1) + 2 * (s2_F(t, edge) - s2_F(t, arg2))
+            elif (edge + sqrt3 * abx > sqrt3 * x0) and (edge - sqrt3 * (abx + x0) <= 0): 
+                arg1 = max(0,edge - sqrt3 * (x0 - abx))
+                if arg1 <0:
+                    print("error negative bounds")
+                return 2 * (s2_F(t, edge) - s2_F(t, arg1)) + s2_F(t, arg1) - s2_F(t, 0)
+            else:
+                print("missed case")
+    elif t > t0:
+        T0 = edge
+        x = abs(x)
+        if x0 - math.sqrt(3)*(t-T0)/3.0 <= x <= x0 + math.sqrt(3)*(t-T0)/3.0:
+            arg = max(T0 - (x-x0)*3/math.sqrt(3),0)
+            return s2_F(t,  T0) - s2_F(t, 0) 
+            
+        elif x > x0 + math.sqrt(3)*(t-T0)/3.0:
+            arg = max(t - (x-x0)*3/math.sqrt(3),0)
+            return s2_F(t,  arg) - s2_F(t, 0) 
+            
+        elif x < x0 - math.sqrt(3)*(t-T0)/3.0:
+            arg = t - (x0-x)*3/math.sqrt(3)
+            if t - (x0-x)*3/math.sqrt(3) <= 0:
+                return  2*(s2_F(t,  T0) - s2_F(t, 0))
+            elif t - (x0-x)*3/math.sqrt(3) > 0 and t - (x0-x)*3/math.sqrt(3) < T0:
+                return 2*(s2_F(t,  T0) - s2_F(t, arg)) + s2_F(t, arg) - s2_F(t, 0)
+            else:
+                return 0
+         
 def su_olson_s2_integrand(tau,x,t,x0,t0):
     return  (np.exp(-t + tau)*(-np.heaviside((-3*x - 3*x0 + math.sqrt(3)*(t - tau))/(t - tau),1) - np.heaviside((3*x - 3*x0 + math.sqrt(3)*(t - tau))/(t - tau),1) + np.heaviside((-3*x + 3*x0 + math.sqrt(3)*(t - tau))/(t - tau),1) + np.heaviside((3*x + 3*x0 + math.sqrt(3)*(t - tau))/(t - tau),1)))/2.
     
@@ -241,4 +265,74 @@ def problem_identifier(source_type):
 
 # plt.plot(xs, expi1, "--")
 # plt.plot(xs, expi2, ":")
+
+@njit
+def uncollided_su_olson_s2_2(x,t,x0,t0):
+    T0 = min(t, t0)
+    if t > t0:
+        x = abs(x)
+        if x0 - math.sqrt(3)*(t-T0)/3.0 <= abs(x) <= x0 + math.sqrt(3)*(t-T0)/3.0:
+            arg = max(T0 - (abs(x)-x0)*3/math.sqrt(3),0)
+            return s2_F(t,  T0) - s2_F(t, 0) 
+        
+        
+        if abs(x) < x0 - math.sqrt(3)*(t-T0)/3.0:
+            arg = t - (x0-x)*3/math.sqrt(3)
+            
+            if t - (x0-x)*3/math.sqrt(3) <= 0:
+                return  2*(s2_F(t,  T0) - s2_F(t, 0))
+            
+            
+            elif t - (x0-x)*3/math.sqrt(3) > 0 and t - (x0-x)*3/math.sqrt(3) < T0:
+                return 2*(s2_F(t,  T0) - s2_F(t, arg)) + s2_F(t, arg) - s2_F(t, 0)
+            
+            
+
+            
+        elif x > x0 + math.sqrt(3)*(t-T0)/3.0:
+            arg = max(t - (x-x0)*3/math.sqrt(3),0)
+            return s2_F(t,  arg) - s2_F(t, 0) 
+       
+        
+    else:
+        return 0.0
+
+def test_s2_sol():
+    import scipy.integrate as integrate
+    
+    xs = np.linspace(-420, 420, 100000)
+    phi = xs*0
+    phi_test = xs*0
+    phi_exact = xs*0
+    t = 50
+    t0 = 40
+    x0 = 400 
+    for ix in range(xs.size):
+        phi[ix] = uncollided_su_olson_s2(xs[ix],t, x0, t0)
+        phi_test[ix] = uncollided_su_olson_s2_2(xs[ix],t, x0, t0)
+        phi_exact[ix] = integrate.quad(su_olson_s2_integrand, 0, min(t,t0), args = (xs[ix],t,x0,t0))[0]
+    
+    plt.plot(xs, phi, '-ob')
+    plt.plot(xs, phi_exact, '-k')
+    plt.plot(xs, phi_test, '-or', mfc = 'none')
+    
+    print(np.sqrt(np.mean(phi_exact-phi)**2), 'RMSE')
+    
+    plt.show()
+    
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
 

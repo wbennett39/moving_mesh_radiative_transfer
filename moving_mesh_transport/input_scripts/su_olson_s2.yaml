@@ -4,9 +4,9 @@
     'tfinal': 1 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     't0': 10.0                           # time the source is turned off
-    'N_spaces': [4]                   # number of cells
+    'N_spaces': [4,8,16,32]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [4]                         # number of basis functions -1
+    'Ms': [4,4,4,4]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12
@@ -14,7 +14,7 @@
     'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
     'temperature_dependence': [1,0,0,0] # first slot is Su-Olson problem
-    'e_initial': 0.0000000001
+    'e_initial': 0.00000000000001
     'weights': 'gauss_legendre'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
     'save_solution': True
     'particle_v': 'sqrt_3'
@@ -45,7 +45,7 @@
 'square_source':
     'x0': [0.5]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [2]
+    'N_angles': [2,2,2,2]
     'move_type': [1,0,0]      # [standard, square source, s2, square IC, thick square]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': True
@@ -64,10 +64,10 @@
 'gaussian_source':
     'sigma': 0.5
 
-    'x0': [3,3,3,3,3]
+    'x0': [3,3,3.5]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
-    'N_angles': [2,2,2,2,2,2,2]
-    'move_type': [0,0,1,0,0]
+    'N_angles': [2,2,2]
+    'move_type': [1,0,0]      # [standard, square source, s2, square IC, thick square]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': True
 

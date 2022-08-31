@@ -214,6 +214,7 @@ data = [('N_ang', int64),
         ('c', float64),
         ('uncollided', int64),
         ('thermal_couple', int64),
+        ('test_dimensional_rhs', int64)
         ]
 ##############################################################################
 @jitclass(data)
@@ -228,6 +229,7 @@ class rhs_class():
         self.c = build.scattering_ratio
         self.thermal_couple = build.thermal_couple
         self.uncollided = build.uncollided
+        self.test_dimensional_rhs = False
         
     def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer_class):
         if self. thermal_couple == 0:
@@ -265,13 +267,16 @@ class rhs_class():
                 U[:] = V_old[self.N_ang,space,:]
                 num_flux.make_LU(t, mesh, V_old[self.N_ang,:,:], space, 0.0)
                 RU = num_flux.LU
-                RHS_energy = np.dot(G,U) - RU + sigma_a * (2.0 * P  - H)
+                if self.test_dimensional_rhs == True:
+                    RHS_energy = np.dot(G,U) - RU + sigma_a * (2.0 * P  - H)
+                else:
+                    RHS_energy = np.dot(G,U) - RU + sigma_a * (2.0 * P  - H)
                 
                 if self.uncollided == True:
                     RHS_energy += sigma_a * source.S 
                 V_new[self.N_ang ,space,:] = RHS_energy
                 
-            elif self.thermal_couple == 1 and self.N_ang ==2:
+            elif self.thermal_couple == 1 and self.N_ang == 2:
                 U = np.zeros(self.M+1).transpose()
                 U[:] = V_old[self.N_ang,space,:]
                 num_flux.make_LU(t, mesh, V_old[self.N_ang,:,:], space, 0.0)
@@ -312,7 +317,10 @@ class rhs_class():
                         if self.uncollided == True:
                             RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * (P + S*0.5) + sigma_a*0.5*H
                         elif self.uncollided == False:
-                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * P + S*0.5 + sigma_a*0.5*H
+                            if self.test_dimensional_rhs == True:
+                                RHS_transport = np.dot(G,U) - LU + 299.98*mul*np.dot(L,U) - 299.98*U + 299.98*self.c * P + 299.98 * S*0.5 + 299.98*sigma_a*0.5*H
+                            else:
+                                RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * P + S*0.5 + sigma_a*0.5*H
                     V_new[angle,space,:] = RHS_transport 
                     
         return V_new.reshape(deg_freedom)

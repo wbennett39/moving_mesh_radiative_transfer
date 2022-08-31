@@ -43,7 +43,9 @@ data = [("M", int64),
         ("xR_plus", float64),
         ('thermal_couple', int64),
         ('moving', int64),
-        ('e_init', float64)
+        ('e_init', float64),
+        ('speed', float64),
+        ('test_dimensional_rhs', int64)
         ]
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
@@ -51,6 +53,8 @@ build_type.define(build.class_type.instance_type)
 @jitclass(data)
 class LU_surf(object):
     def __init__(self, build):
+        self.test_dimensional_rhs = False
+
         self.LU = np.zeros(build.M+1).transpose()
         self.M = build.M
         self.source_type = build.source_type
@@ -66,6 +70,9 @@ class LU_surf(object):
         self.thermal_couple = build.thermal_couple
         self.moving = build.moving
         self.e_init = build.e_init
+        self.speed = 1.0
+        if self.test_dimensional_rhs == False:
+            self.speed = 299.98
 
     def integrate_quad(self, t, a, b, j, side):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
@@ -89,7 +96,7 @@ class LU_surf(object):
         if self.source_type[4] == 1:
             temp = np.exp(-xs*xs/2)/(t + 1)/2.0
         elif (self.thermal_couple == 1) and (self.moving == 1):
-            temp = np.ones(xs.size) * self.e_init
+            temp = np.ones(xs.size) * self.e_init 
         return temp
     
     def make_h(self, space):

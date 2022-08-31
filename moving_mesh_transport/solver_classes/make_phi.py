@@ -28,8 +28,9 @@ class make_output:
                     idx = 1
                 if (idx >= self.edges.size):
                     idx = self.edges.size - 1
-                for i in range(self.M+1):
-                    psi[ang, count] += self.u[ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
+                if self.edges[0] <= self.xs[count] <= self.edges[-1]:
+                    for i in range(self.M+1):
+                        psi[ang, count] += self.u[ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         output = np.sum(np.multiply(psi.transpose(), self.ws), axis = 1)
         if self.uncollided == True:
             output += uncollided_solution.uncollided_solution(self.xs, self.t)
@@ -44,5 +45,6 @@ class make_output:
             if (idx >= self.edges.size):
                 idx = self.edges.size - 1
             for i in range(self.M+1):
-                e[count] += self.u[self.N_ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
+                if self.edges[0] <= self.xs[count] <= self.edges[-1]:
+                    e[count] += self.u[self.N_ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         return e

@@ -1,16 +1,16 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'rad_transfer_constant_cv'
-    'tfinal': 1 #31.6228                       # evaluation time
+    'tfinal': 1.0 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     't0': 10.0                           # time the source is turned off
-    'N_spaces': [4]                   # number of cells
+    'N_spaces': [0,8,16]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [1]                         # number of basis functions -1
+    'Ms': [0,10,10]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12
-    'mxstp': 1.0                         # abs tolerance for ODE integrator
+    'mxstp': 10.0                         # abs tolerance for ODE integrator
     'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
     'temperature_dependence': [0,1,0,0] # first slot is Su-Olson problem, second is const Cv
@@ -19,8 +19,9 @@
     'save_solution': False
     'particle_v': 'one'
     'edge_v': 'one'
-    'cv_const': 0.3
+    'cv_const': 0.03
     'estimate_wavespeed': False
+    'find_wave_loc': False
     'thick': False            # optically thick or thin
     
 # plane pulse source
@@ -46,8 +47,8 @@
 'square_source':
     'x0': [0.5]
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [256]
-    'move_type': [1,0]      # [standard, square source, s2, square IC, thick square]
+    'N_angles': [32,128, 256]
+    'move_type': [1,0,0]      # [standard, square source thick , sqrt_t]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False
     

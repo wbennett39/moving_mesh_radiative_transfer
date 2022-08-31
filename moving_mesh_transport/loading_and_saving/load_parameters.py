@@ -11,7 +11,7 @@ import math
 
 
 class parameter_load_class:
-    def __init__(self, source_name, parameters):
+    def __init__(self, source_name, parameters, mesh_parameters):
         # with open(config_file_path, 'r') as file:
         #    parameters = yaml.safe_load(file)
         # file.close()
@@ -34,7 +34,7 @@ class parameter_load_class:
         self.edge_v = str(parameters['all']['edge_v'])
         self.cv0 = float(parameters['all']['cv_const'])
         self.problem_type = str(parameters['all']['problem_name'])
-        self.estimate_wavespeed = int(parameters['all']['estimate_wavespeed'])
+
         self.thick = int(parameters['all']['thick'])
         self.mxstp = float(parameters['all']['mxstp'])
 
@@ -74,6 +74,22 @@ class parameter_load_class:
             self.bench_type = str(parameters[source_name]['bench_type'])
         else:
             self.bench_type = 'full'
+
+
+        """ 
+        mesh
+        """
+
+        self.find_edges_tol = float(mesh_parameters['find_edges_tol'])
+        self.estimate_wavespeed = int(mesh_parameters['estimate_wavespeed'])
+        self.find_wave_loc = int(mesh_parameters['find_wave_loc'])
+        self.choose_xs = int(mesh_parameters['choose_xs'])
+        self.specified_xs = np.array(mesh_parameters['xs_list'])
+
+        if not (len(self.N_spaces) == len(self.N_angles) == len(self.Ms)):
+            print('Spaces, Ms, and N_angles should be the same length')
+            assert(0)
+
 
 
 

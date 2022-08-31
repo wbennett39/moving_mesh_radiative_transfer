@@ -102,7 +102,7 @@ class save_output:
                 if self.tfinal != 31.6228:
                     self.tfinal = int(self.tfinal)
                 dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS" + "/" + f"S{ang}")
-                
+                print(dest_str)
                 if not f.__contains__(dest_str):
                     f.create_group(dest_str)
                 destination = f[dest_str]

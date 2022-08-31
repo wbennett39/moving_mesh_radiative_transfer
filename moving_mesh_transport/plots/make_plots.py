@@ -23,7 +23,7 @@ class rms_plotter:
     
     def __init__(self, tfinal, M, source_name, major):
         self.data_folder = Path("moving_mesh_transport")
-        self.data_file_path = self.data_folder / 'run_data_RMS.h5'
+        self.data_file_path = self.data_folder / 'run_data_transport_RMS.h5'
         
         self.plot_file_path = self.data_folder / "plots" 
         # self.case_list = ["uncol_mov", "no_uncol_stat", "uncol_stat", "no_uncol_stat"]
@@ -32,7 +32,7 @@ class rms_plotter:
         self.source_name = source_name
         self.major = major 
         self.M = M
-        self.su_olson_data_file_path = self.data_folder / "run_data_radiative_transfer_RMS.h5"
+        self.su_olson_data_file_path = self.data_folder / "run_data_su_olson_RMS.h5"
         if self.M == 2:
             self.mkr = "o"
         elif self.M == 4:        
@@ -57,13 +57,18 @@ class rms_plotter:
         """
         x = self.Ms[1:]
         y = np.log(self.RMS[1:])
+        y1 = np.log(self.energy_RMS[1:])
         slope, intercept, r, p, se = linregress(x, y)
+        slope2, intercept, r, p, se = linregress(x, y1)
         print(slope, 'slope - c1')
+        print(slope2, 'energy density slope - c1')
+
         if abs(r) < 0.9:
             print('bad correlation')
             print(r, 'r')
+    
         return slope
-        
+
         
     def load_RMS_data(self, uncollided = True, moving = True):
 
@@ -140,8 +145,9 @@ class rms_plotter:
                                     'gaussian_s_thick_s2', 'gaussian_s_thick_s8', 'su_olson_thick_s2',
                                     'su_olson_thick_s8', 'gaussian_s_thick_s2_energy', 'gaussian_s_thick_s8_energy',
                                     'su_olson_thick_s2_energy','su_olson_thick_s8_energy']:
-            print("loading s2 RMS data")
+            # print("loading s2 RMS data")
             f_rad = h5py.File(self.su_olson_data_file_path, 'r')
+            print(f_rad.keys())
             rad_data = f_rad[self.dest_str + '/' + data_str]
             if self.major == 'cells':
                 self.cells = rad_data[0]
@@ -157,6 +163,10 @@ class rms_plotter:
     def plot_RMS_vs_cells(self, fign = 1, clear = False, xlimright = 260):
         plt.ion()
         plt.figure(fign)
+
+        print(self.cells, 'cells')
+        print(self.RMS, 'RMSE')
+
         if clear == True:
             plt.clf()
     
@@ -277,23 +287,79 @@ class rms_plotter:
                         order_triangle(5, 9, 4, intercept, 2, 1.7)
                         plt.ylim(1e-8,1e-1)
                         
-            elif self.source_name == 'su_olson' or self.source_name == "su_olson_energy" or self.source_name == "gaussian_s2" or self.source_name == "gaussian_energy_s2":
-                xlimright = 65
+            elif self.source_name == 'su_olson' or self.source_name == "su_olson_energy":
+                xlimright = 36
+                plt.ylim(1e-5, 1e-2)
+                if self.uncollided == False and self.moving == False:
+                    intercept = self.find_c()
+                    if self.M == 4:
+                        order_triangle(5, 8, 1, intercept, 2, 1.2)
+
+
+            elif self.source_name in ['su_olson_s2', 'su_olson_energy_s2']:
+                xlimright = 36
+                if self.uncollided == True:
+                    # self.cells = self.cells[:-1]
+                    # self.RMS = self.RMS[:-1]
+                    intercept = self.find_c()
+                    if self.M == 4 and self.moving == True:
+                        order_triangle(6, 11, 2, intercept, 2, 1.2)
+                plt.ylim(1e-7, 1e-2)
+
+            elif self.source_name in ["gaussian_s2", "gaussian_energy_s2"]:
+                xlimright = 24
+                if self.uncollided == True and self.moving == True:
+                    intercept = self.find_c()
+                    if self.M == 6:
+                        order_triangle(6, 11, 7, intercept, 1.5, 1.01)
+            
+            elif self.source_name in ['su_olson_thick_s2', 'su_olson_thick_s2_energy']:
+                xlimright = 260
+                xlimleft = 14
+                if self.uncollided == True:
+                    # self.cells = self.cells[:-1]
+                    # self.RMS = self.RMS[:-1]
+                    intercept = self.find_c()
+                    if self.M == 4 and self.moving == True:
+                        order_triangle(18, 24, 2, intercept, 2, 1.2)
+                # plt.ylim(1e-7, 1e-2)
+
+            elif self.source_name in ['gaussian_s_thick_s2', 'gaussian_s_thick_s2_energy']:
+                xlimright = 24
+                plt.ylim(5e-10,1e-3)
                 
-            energy_list = ["su_olson_energy", "gaussian_energy_s2", 'gaussian_s_thick_s2_energy', 
+                self.cells = self.cells[:-1]
+                self.RMS = self.RMS[:-1]
+                self.energy_RMS = self.energy_RMS[:-1]
+                if self.uncollided == True and self.moving == True:
+                    intercept = self.find_c()
+                    if self.M == 6:
+                        order_triangle(4, 6, 7, intercept, 2.9, 2)
+
+
+
+            energy_list = ["su_olson_energy", 'su_olson_energy_s2', "gaussian_energy_s2", 'gaussian_s_thick_s2_energy', 
                                'gaussian_s_thick_s8_energy','su_olson_thick_s2_energy','su_olson_thick_s8_energy' ]
             
             if self.source_name not in energy_list:
+
                 plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
-            
             
             if self.source_name in energy_list:
                 plt.loglog(self.cells, self.energy_RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
             
-            if  (self.source_name != 'gaussian_IC' and self.source_name != 'gaussian_s') and (self.uncollided == False and self.moving == False or self.source_name == "MMS" and self.M == 4):
+            if  (self.source_name not in ['gaussian_IC', 'gauissian_s', 'gaussian_s2', 'gaussian_energy_s2', 'su_olson_s2', 'su_olson_energy_s2', 
+            'su_olson', 'su_olson_energy', 'gaussian_s_thick_s2', 'gaussian_s_thick_s2_energy', 'su_olson_thick_s2', 'su_olson_thick_s2_energy']  and self.source_name != 'gaussian_s') and (self.uncollided == False and self.moving == False or self.source_name == "MMS" and self.M == 4):
                 logplot_sn_labels(self.cells, self.RMS, self.angles, 0.3, fign )
+            
+            if self.source_name in ['su_olson', 'su_olson_energy']:
+                if self.uncollided == False and self.moving == False:
+                    logplot_sn_labels(self.cells, self.RMS, self.angles, 0.7, fign )
+
+
             elif (self.source_name == 'gaussian_IC' or self.source_name == 'gaussian_s') and (self.uncollided == False and self.moving == False):     
                 logplot_sn_labels_2(self.cells, self.RMS, self.angles, 0.5, fign )
+
             # plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
             file_path_string = str(self.plot_file_path) + '/' "RMS_plots" '/' + f"{self.source_name}_t={self.tfinal}_M={self.M}_RMSE_vs_cells"
             show_loglog(file_path_string, xlimleft, xlimright)
@@ -302,6 +368,25 @@ class rms_plotter:
             print('moving', self.moving)
             # print('intercept', self.find_c())
             print("--- --- --- --- --- ")
+
+        elif self.tfinal == 100:
+            file_path_string = str(self.plot_file_path) + '/' "RMS_plots" '/' + f"{self.source_name}_t={self.tfinal}_M={self.M}_RMSE_vs_cells"
+            xlimleft = 10
+            xlimright = 160
+            plt.ylim(1e-6,1e-2)
+            if self.source_name in ['su_olson_thick_s2', 'su_olson_thick_s2_energy']:
+                self.cells = self.cells[:-1]
+                self.RMS = self.RMS[:-1]
+                if self.uncollided == True:
+                    if self.M == 4:
+                        intercept = self.find_c()
+                        order_triangle(12, 16, 5, intercept, 1.5, 1.5)
+
+            plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
+            show_loglog(file_path_string, xlimleft, xlimright)
+            
+
+       
             
     
             plt.show(block = False)
@@ -327,8 +412,8 @@ class rms_plotter:
             print("--- --- --- --- --- ")
         
     def plot_RMS_vs_Ms(self, source_type, fign = 1, clear = False):
-        xlimleft = 1.5
-        xlimright = 18
+        xlimleft = 1
+        xlimright = self.Ms[-1] + 2
         
         plt.ion()
         plt.figure(fign)
@@ -347,20 +432,58 @@ class rms_plotter:
             xlimright = 12
             plt.ylim = 10e-14
             self.find_c_semilog()
+        energy_list = ['su_olson_thick_s2_energy', 'gaussian_s_thick_s2_energy']
+
+        if self.source_name not in energy_list:    
+            if self.source_name == "gaussian_IC" or self.source_name == "gaussian_s":
+                self.Ms = self.Ms[:]
+                self.RMS = self.RMS[:]
+                self.angles = self.angles[:]
+                plt.ylim = 10e-10
+                if (self.uncollided == False) and (self.moving == False):
+                    logplot_sn_labels_2(self.Ms, self.RMS, self.angles, 0.02, fign )
+                self.find_c_semilog()
+                
+            elif self.source_name == 'square_IC' or self.source_name == 'square_s':
+                if (self.uncollided == False) and (self.moving == False):
+                    logplot_sn_labels(self.cells, self.RMS, self.angles, 0.1, fign )
             
-        elif self.source_name == "gaussian_IC" or self.source_name == "gaussian_s":
-            self.Ms = self.Ms[:]
-            self.RMS = self.RMS[:]
-            self.angles = self.angles[:]
-            plt.ylim = 10e-10
-            if (self.uncollided == False) and (self.moving == False):
-                logplot_sn_labels_2(self.Ms, self.RMS, self.angles, 0.02, fign )
+            elif self.source_name in ['gaussian_s2','gaussian_energy_s2', 'gaussian_s_thick_s2']:
+                self.find_c_semilog()
+                if self.source_name in ['gaussian_s_thick_s2']:
+                    if self.tfinal == 1:
+                        plt.ylim(1e-8, 1e-1)
+                    elif self.tfinal == 10:
+                        plt.ylim(1e-2, 5e-6)
+                    elif self.tfinal == 100:
+                        plt.ylim(1e-2, 5e-6)
+
+            elif self.source_name == "su_olson_thick_s2":
+                if (self.uncollided == False) and (self.moving == False):
+                
+                    self.find_c_semilog()
+
+               
+
+            plt.semilogy(self.Ms, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
+
+
+        elif self.source_name in energy_list:
+            print('material energy density')
+            if self.source_name in ['gaussian_s_thick_s2']:
+                    if self.tfinal == 1:
+                        plt.ylim(1e-8, 1e-1)
+                    elif self.tfinal == 10:
+                        plt.ylim(1e-2, 5e-6)
+                    elif self.tfinal == 100:
+                        plt.ylim(1e-2, 5e-6)
+
+            plt.semilogy(self.Ms, self.energy_RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
+
             self.find_c_semilog()
-            
-        elif self.source_name == 'square_IC' or self.source_name == 'square_s':
-            if (self.uncollided == False) and (self.moving == False):
-                logplot_sn_labels(self.cells, self.RMS, self.angles, 0.1, fign )
-        plt.semilogy(self.Ms, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
+
+
+
                
         # plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
         file_path_string = str(self.plot_file_path) + '/' "RMS_plots" '/' + f"{self.source_name}_t={self.tfinal}_RMSE_vs_Ms"
@@ -490,18 +613,19 @@ class rms_plotter:
          show_loglog(file_path_string, xlimleft, xlimright)
          plt.show(block = False)
         
-    def plot_coefficients(self, tfinal = 1,  M=16, source_name = 'square_s',  N_spaces = [8,16,32,64,128], problem_name = 'transfer_const_cv=0.1', rad_or_transport ='transfer',
-     x0_or_sigma = 0.5 , c = 0.0, uncollided = True, s2 = False, mat_or_rad = 'rad', moving = True, fign = 1):
-
-
+    def plot_coefficients(self, tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
+     x0_or_sigma, c, uncollided, s2, mat_or_rad, moving, line, legend = True, fign = 1):
 
         data = load_sol(problem_name, source_name, rad_or_transport, c, s2)
 
         self.M_coeff = M
         self.j_matrix = np.zeros((len(N_spaces), (M+1)))
-        
+        self.label_list = N_spaces
+        self.line = line
+
+
         for count, N_space in enumerate(N_spaces):
-    
+            print(uncollided,'uncollided',moving,'moving')
             data.call_sol(tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving)
             N_ang = np.shape(data.coeff_mat)[0]
 
@@ -530,34 +654,37 @@ class rms_plotter:
         plt.figure(2)
         xdata = np.linspace(0,self.M_coeff, self.M_coeff+1)
 
-        label_list = ['8', '16', '32', '64', '128', '256']
-        mkr_list = ['-o', '-^', '-s', '-p', '-*', '-x']
+        label_list = self.label_list
+        mkr_list_old = ['o', '^', 's', 'p', '*', 'x']
+        mkr_list = [x + self.line for x in mkr_list_old]
         
         self.Ms = xdata
         
         for ij in range(len(self.j_matrix[:,0])):
-            plt.semilogy(xdata, self.j_matrix[ij], mkr_list[ij], label = label_list[ij] + ' cells', mfc = 'none', c = 'b')
+            plt.semilogy(xdata, self.j_matrix[ij], mkr_list[ij], label = str(label_list[ij]) + ' cells', mfc = 'none', c = 'b')
             self.RMS = self.j_matrix[ij]
             self.find_c_semilog()
 
         plt.xlabel("M", fontsize = 20)
         plt.ylabel("RMSE", fontsize = 20)
+        
+        if legend == True:
+            plt.legend()
 
-        plt.legend()
 
-
-        show_loglog(self.file_path_string + "_boyd" ,0, self.M_coeff + 4)
+        show_loglog(self.file_path_string + "_boyd" ,1, self.M_coeff + 4)
         plt.show()
 
 
         plt.figure(3)
         for ij in range(len(self.j_matrix[:,0])):
-            plt.loglog(xdata, self.j_matrix[ij], mkr_list[ij], label = label_list[ij] + ' cells', mfc = 'none', c = 'b')
+            plt.loglog(xdata, self.j_matrix[ij], mkr_list[ij], label = str(label_list[ij]) + ' cells', mfc = 'none', c = 'b')
             self.RMS = self.j_matrix[ij]
         plt.xlabel("M", fontsize = 20)
         plt.ylabel("RMSE", fontsize = 20)
-        plt.legend()
-        show_loglog(self.file_path_string + "_boyd_loglog" ,0, self.M_coeff + 4)
+        if legend == True:
+            plt.legend()
+        show_loglog(self.file_path_string + "_boyd_loglog" ,1, self.M_coeff + 4)
         plt.show()
 
         
