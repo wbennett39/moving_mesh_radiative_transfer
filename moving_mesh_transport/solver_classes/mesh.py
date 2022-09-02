@@ -202,11 +202,16 @@ class mesh_class(object):
         index = np.searchsorted(self.wave_loc_array[0,0,:], t)
         # self.delta_t = self.wave_loc_array[0,0,index+1] - t 
         if self.tactual == 0.0:
+            delim = '#########################################################'
+            print(delim)
+            print(self.wave_loc_array[0,2,:])
+            print(self.wave_loc_array[0,1,:])
+            print(delim)
             pad = 5
             self.delta_t = self.tfinal
             index -=1
-            self.right_speed = (-self.wave_loc_array[0,2,index+1] - pad - self.edges[0])/self.delta_t
-            self.left_speed = (-self.wave_loc_array[0,1,index+1]  - self.edges[half-1])/self.delta_t
+            self.right_speed = (-self.wave_loc_array[0,2,index+1] - pad - self.edges[0])/self.delta_t 
+            self.left_speed = (-self.wave_loc_array[0,1,index+1]  - self.edges[half-1])/self.delta_t  
             wave_front_array =  self.Dedges_const[0:int(half/2)]*self.right_speed/self.speed*(-1)
             # print(wave_front_array, 'wave speeds forward')
             wave_back_array =  self.Dedges_const[int(half/2)+1:half]*self.left_speed/self.speed
@@ -216,6 +221,8 @@ class mesh_class(object):
             self.Dedges[half+int(half/2)+1:] = - np.flip(wave_front_array)
 
             self.edges = self.edges0 + self.Dedges * self.delta_t
+            print(self.left_speed, 'ls')
+            print(self.wave_loc_array[0,1,index+1], 'left edge')
 
         else:
             if index != self.index_old or index == 0:
@@ -361,7 +368,6 @@ class mesh_class(object):
             # print("#   #   #   #   #   #   #   #   #   #   #   ")
             self.set_func(indices_left, xs_left, -speeds)
             self.set_func(indices_right, xs_right, np.flip(speeds))
-
 
             # self.edges[0:half-1] = np.linspace(-self.x0-dx, -self.x0 + dx, number_of_interior_edges + 1)
             # self.edges[half+2:] = np.linspace(self.x0 - dx, self.x0 + dx, number_of_interior_edges + 1)

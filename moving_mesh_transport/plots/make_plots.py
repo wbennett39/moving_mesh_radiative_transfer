@@ -454,12 +454,14 @@ class rms_plotter:
                     if self.tfinal == 1:
                         plt.ylim(1e-8, 1e-1)
                     elif self.tfinal == 10:
-                        plt.ylim(1e-2, 5e-6)
+                        plt.ylim(1e-6, 1e0)
                     elif self.tfinal == 100:
-                        plt.ylim(1e-2, 5e-6)
+                        plt.ylim(1e-6,1e0)
 
             elif self.source_name == "su_olson_thick_s2":
                 if (self.uncollided == False) and (self.moving == False):
+                    if self.tfinal == 100:
+                        plt.ylim(5e-6,1e0)
                 
                     self.find_c_semilog()
 
@@ -470,13 +472,18 @@ class rms_plotter:
 
         elif self.source_name in energy_list:
             print('material energy density')
-            if self.source_name in ['gaussian_s_thick_s2']:
+            if self.source_name in ['gaussian_s_thick_s2_energy']:
                     if self.tfinal == 1:
                         plt.ylim(1e-8, 1e-1)
                     elif self.tfinal == 10:
-                        plt.ylim(1e-2, 5e-6)
+                        plt.ylim(1e-6, 1e0)
                     elif self.tfinal == 100:
-                        plt.ylim(1e-2, 5e-6)
+                        plt.ylim(1e-6, 1e0)
+
+            elif self.source_name == 'su_olson_thick_s2_energy':
+                if self.tfinal == 100:
+                    plt.ylim(5e-6,1e0)
+
 
             plt.semilogy(self.Ms, self.energy_RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
 

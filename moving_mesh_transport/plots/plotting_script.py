@@ -65,9 +65,9 @@ def plot_rms_Ms(tfinal, source_name, fign = 1 ):
 
     elif source_name  in [ 'su_olson_thick_s2','su_olson_thick_s8','su_olson_thick_s2_energy','su_olson_thick_s8_energy', 
     'gaussian_s_thick_s2', 'gaussian_s_thick_s2_energy']:
-        plotter.load_RMS_data(False, False)
-        plotter.plot_RMS_vs_Ms(source_name, fign, False)
         plotter.load_RMS_data(True, False)
+        plotter.plot_RMS_vs_Ms(source_name, fign, False)
+        plotter.load_RMS_data(False, False)
         plotter.plot_RMS_vs_Ms(source_name, fign, False)
     else:
 
@@ -88,9 +88,9 @@ def plot_rms_cells(tfinal, source_name, M, fign = 1):
         plotter.plot_RMS_vs_cells()
 
     elif source_name in ['su_olson_thick_s2', 'su_olson_thick', 'su_olson_thick_s2_energy']:
-        plotter.load_RMS_data(False, False)
-        plotter.plot_RMS_vs_cells()
         plotter.load_RMS_data(True, False)
+        plotter.plot_RMS_vs_cells()
+        plotter.load_RMS_data(False, False)
         plotter.plot_RMS_vs_cells()
     else:
         for count2, uncollided in enumerate(case_list_1):

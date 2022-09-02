@@ -80,12 +80,12 @@ class main_class(parameter_load_class):
                              self.x0, self.cv0, self.problem_type)
         
         if self.bench_type == 'full':
-            benchmark = load_bench(self.source_type, self.tfinal, self.x0_or_sigma)
+            benchmark = load_bench(self.source_type, self.tfinal, self.x0_or_sigma, self.scattering_ratio, self.c_scaling)
         
         elif self.bench_type == 'S2':
             s2_source_res = s2_source_type_selector(self.sigma, self.x0[0], self.thermal_couple, self.source_type, self.weights)
-            benchmark = load_bench(s2_source_res[0], self.tfinal, self.x0_or_sigma)
-            benchmark_mat = load_bench(s2_source_res[1], self.tfinal, self.x0_or_sigma)
+            benchmark = load_bench(s2_source_res[0], self.tfinal, self.x0_or_sigma, self.scattering_ratio, self.c_scaling)
+            benchmark_mat = load_bench(s2_source_res[1], self.tfinal, self.x0_or_sigma, self.scattering_ratio, self.c_scaling)
                 
         print("---  ---  ---  ---  ---  ---  ---")
         print("tfinal = ", self.tfinal )
@@ -100,10 +100,13 @@ class main_class(parameter_load_class):
             if self.source_type[0] == 1:
                 xsb2 = np.linspace(0, self.tfinal , 1000)
                 xsb = np.concatenate((xsb2, np.ones(1)*1.0000001))
-                bench = np.concatenate((benchmark(xsb2)[0],np.zeros(1)))
+                # bench = np.concatenate((benchmark(xsb2)[0],np.zeros(1)))
+                bench = self.scattering_ratio*math.exp(-(1-self.scattering_ratio)*self.tfinal)*benchmark(xsb*self.scattering_ratio)[0] 
             else:
                 xsb = np.linspace(0, self.tfinal + self.x0[0], 100000)
-                bench = benchmark(xsb)[0] 
+                # bench = benchmark(xsb)[0]
+                bench = self.scattering_ratio*math.exp(-(1-self.scattering_ratio)*self.tfinal)*benchmark(xsb*self.scattering_ratio)[0] 
+                
             
         print("uncollided  = ", uncollided)
         print("moving mesh = ", moving)
@@ -201,8 +204,11 @@ class main_class(parameter_load_class):
                     
                 if self.benchmarking == True:
                     if self.thermal_couple == 0:
-                        benchmark_solution = benchmark(np.abs(xs))[0] #benchmark for RMS
-                    
+                        if self.c_scaling == False:
+                            benchmark_solution = benchmark(np.abs(xs))[0] #benchmark for RMS
+                        elif self.c_scaling == True:
+                            benchmark_solution = self.scattering_ratio*math.exp(-(1-self.scattering_ratio)*self.tfinal)*benchmark(np.abs(xs*self.scattering_ratio))[0] #benchmark for RMS
+
                         RMS = np.sqrt(np.mean((phi - benchmark_solution)**2))
                     
                     elif self.thermal_couple == 1:
@@ -285,7 +291,7 @@ class main_class(parameter_load_class):
             else:
                 saving.save_RMS(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times)
                 
-            if ((self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10) and self.thermal_couple == 0):
+            if ((self.benchmarking == True) and self.thermal_couple == 0):
                 plt.figure(1)
                 plt.plot(xsb, bench, "k-", label = "benchmark")
                 plt.plot(-xsb, bench, "k-")

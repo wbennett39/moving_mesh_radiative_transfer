@@ -6,7 +6,7 @@ Created on Thu Feb  3 15:12:33 2022
 
 @author: bennett
 """
-
+import math
 import h5py 
 import numpy as np
 from scipy.interpolate import interp1d
@@ -17,13 +17,20 @@ from pathlib import Path
 ###############################################################################
 
 class load_bench:
-    def __init__(self, source_type, tfinal, x0_or_sigma):
+    def __init__(self, source_type, tfinal, x0_or_sigma, c, c_scaling):
         data_folder = Path("moving_mesh_transport/benchmarks")
         benchmark_file_path = data_folder / "benchmarks.hdf5"
 
+        self.c = c
         self.ask_for_bench = True
         self.source_type = source_type
+        print(tfinal, 'tfinal')
         self.tfinal = float(tfinal)
+        self.c_scaling = c_scaling
+        if self.c_scaling == True:
+            self.tfinal = self.tfinal * self.c
+            print(self.tfinal, 'tfinal for benchmark')
+
         su_olson = 0
         if self.tfinal == 1.0:
             su_olson = np.loadtxt(data_folder / 'su_olson_1.txt')
@@ -39,6 +46,7 @@ class load_bench:
                                 "P1_su_olson_mat", "P1_gaussian_rad", "P1_gaussian_mat", 
                                 "P1_gaussian_rad_thick", "P1_gaussian_mat_thick",
                                 "P1_su_olson_rad_thick", "P1_su_olson_mat_thick"]
+
         self.t_eval_str = ["t = 1", "t = 5", "t = 10", "t = 31.6228"]
         index_of_source_name = np.argmin(np.abs(np.array(self.source_type)-1))
         source_name = self.source_type_str[index_of_source_name]
@@ -46,38 +54,26 @@ class load_bench:
         if source_name == "MMS":
             # self.ask_for_bench = False
             self.xs = np.linspace(0, tfinal + 1/10)
-        # if tfinal == 1.0:
-        #     self.t_string_index = 0
-        # elif tfinal == 5.0:
-        #     self.t_string_index = 1
-        # elif tfinal == 10.0:
-        #     self.t_string_index = 2
-        # elif tfinal == 31.6228:
-        #     self.t_string_index = 3
-        # else:
-        #     self.ask_for_bench = False
+        
             
         if self.ask_for_bench == True:
             print("loading bench for ", source_name)
             # tstring = self.t_eval_str[self.t_string_index]
             if tfinal != 31.6228:
-                tstring = "t = " + str(int(tfinal))
+                tstring = "t = " + str(int(self.tfinal))
             elif tfinal == 31.6228:
                 tstring = "t = " + str(float(tfinal))
                 
             
-            # if (source_name == "P1_gaussian_rad") or (source_name == "P1_gaussian_mat"):
-            #     # sigma_str = "sigma = 0.5"
             self.solution_dataset = f[source_name][tstring]
-            # else:
-                # source_file = f[source_name]
-                
-                # self.solution_dataset = source_file[tstring]
                 
             self.xs = self.solution_dataset[0]
             
             self.phi = self.solution_dataset[1]
             self.phi_u = self.solution_dataset[2]
+            
+            self.scale_transport_benchmark()
+            print(self.phi, 'benchmark phi')
             
             self.interpolated_solution = interp1d(self.xs, self.phi, kind = "cubic")
             self.interpolated_uncollided_solution = interp1d(self.xs, self.phi_u, kind = "cubic")
@@ -94,7 +90,7 @@ class load_bench:
         stiched_uncollided_solution = xs*0
         original_xs = self.xs
         
-        # check if solution is symmetrical
+
         if abs(xs[-1]-xs[0]) <= 1e-12:
             symmetric = True
         else:
@@ -114,6 +110,15 @@ class load_bench:
             stiched_uncollided_solution[middle_index-edge_index:edge_index+middle_index] = self.interpolated_uncollided_solution(self.xs_inside)
             
         return [stiched_solution, stiched_uncollided_solution]
+    
+    def scale_transport_benchmark(self):
+        if self.c_scaling == True and 1 == 0:
+            phi_new = self.phi*0
+            x_new = self.xs/self.c
+            phi_new = self.c*math.exp(-(1-self.c)*self.tfinal/self.c)*self.phi
+            # self.xs = x_new
+            self.phi = phi_new
+
     
     def __call__(self, xs):
         if self.ask_for_bench == True:

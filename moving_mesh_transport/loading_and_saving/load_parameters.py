@@ -21,6 +21,7 @@ class parameter_load_class:
         self.Ms = np.array(parameters['all']['Ms'])
         self.N_runs = int(parameters['all']['N_runs'])
         self.t_nodes = int(parameters['all']['tnodes'])
+        self.c_scaling = int(parameters['all']['c_scaling'])
         self.rt = float(parameters['all']['rt'])
         self.at = float(parameters['all']['at'])
         self.t0 = float(parameters['all']['t0'])
@@ -85,6 +86,7 @@ class parameter_load_class:
         self.find_wave_loc = int(mesh_parameters['find_wave_loc'])
         self.choose_xs = int(mesh_parameters['choose_xs'])
         self.specified_xs = np.array(mesh_parameters['xs_list'])
+
 
         if not (len(self.N_spaces) == len(self.N_angles) == len(self.Ms)):
             print('Spaces, Ms, and N_angles should be the same length')
