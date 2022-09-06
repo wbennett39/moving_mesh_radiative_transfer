@@ -14,6 +14,8 @@ from .loading_and_saving.load_solution import load_sol
 
 from .solver_functions.main_functions import solve, s2_source_type_selector
 from .solver_functions.main_functions import plot_edges, x0_function
+
+from .plots.plot_functions.show import show
 import math
 ###############################################################################
 """ 
@@ -27,6 +29,8 @@ to do:
 [] plotting class to clean up solver
 [] have benchmarks load in the same shape 
 [] add debugging mode
+[] more functionality to mesh script
+[] simplify rhs class
 
 
 
@@ -90,7 +94,9 @@ class main_class(parameter_load_class):
         print("---  ---  ---  ---  ---  ---  ---")
         print("tfinal = ", self.tfinal )
         print("c = ", self.scattering_ratio)
+        print('source strength', self.source_strength)
         print("x0s", self.x0)
+        print('sigma', self.sigma)
         print("---  ---  ---  ---  ---  ---  ---")
         if self.benchmarking == True:
             print("verifying with benchmark solution")
@@ -150,7 +156,8 @@ class main_class(parameter_load_class):
                 N_space, N_ang, M, x0_new, self.t0, sigma_t, sigma_s, self.t_nodes, self.scattering_ratio, 
                 self.source_type, uncollided, moving, self.move_type, self.thermal_couple,self.temp_function, 
                 self.rt, self.at, self.e_initial, choose_xs, specified_xs, self.weights, self.sigma, self.particle_v, 
-                self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, self.thick, self.mxstp, self.wave_loc_array, self.find_edges_tol)
+                self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, self.thick, self.mxstp, self.wave_loc_array, 
+                self.find_edges_tol, self.source_strength)
                 print(edges, "edges")
                 # print(xs, 'xs')
                 # print(e, 'e')
@@ -293,7 +300,7 @@ class main_class(parameter_load_class):
                 
             if ((self.benchmarking == True) and self.thermal_couple == 0):
                 plt.figure(1)
-                plt.plot(xsb, bench, "k-", label = "benchmark")
+                plt.plot(xsb, bench, "k-")#, label = "benchmark")
                 plt.plot(-xsb, bench, "k-")
                 plt.show()
                 

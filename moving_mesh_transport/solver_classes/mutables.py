@@ -20,14 +20,19 @@ data = [('N_ang', int64),
         ('source', int64[:]),
         ("source_type", int64[:]),
         ("uncollided", int64),
-        ('x', float64[:])
+        ('x', float64[:]),
+        ('source_strength', float64),
+        ('sigma', float64)
         ]
 @jitclass(data)
 class IC_func(object):
-    def __init__(self, source_type, uncollided, x0):
+    def __init__(self, source_type, uncollided, x0, source_strength, sigma):
         self.source_type = source_type
         self.uncollided = uncollided
         self.x0 = x0
+        self.source_strength = source_strength
+        self.sigma = sigma
+
         
 
     def function(self, x):
@@ -47,12 +52,12 @@ class IC_func(object):
             return np.zeros(x.size)
         
     def plane_and_square_IC(self, x):
-        temp = np.greater(x, -self.x0)*1.0 - np.greater(x, self.x0)*1.0
+        temp = (np.greater(x, -self.x0) - np.greater(x, self.x0))*self.source_strength
             # temp = x/x
         return temp/2.0
     
     def gaussian_IC(self, x):
-        temp = np.exp(-4*x*x)
+        temp = np.exp(-x*x/self.sigma**2)*self.source_strength
         return temp/2.0
     
     def MMS_IC(self, x):

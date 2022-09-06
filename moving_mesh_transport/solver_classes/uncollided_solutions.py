@@ -43,7 +43,8 @@ data = [("S", float64[:]),
         ("t_quad", float64[:]),
         ("t_ws", float64[:]),
         ("N_ang", int64),
-        ("sigma", float64)
+        ("sigma", float64),
+        ('source_strength', float64)
         ]
 ###############################################################################
 @jitclass(data)
@@ -66,6 +67,7 @@ class uncollided_solution(object):
         self.t_ws = build.t_ws
         self.N_ang = build.N_ang
         self.sigma = build.sigma
+        self.source_strength = build.source_strength
         
 ###############################################################################
         
@@ -174,21 +176,21 @@ class uncollided_solution(object):
                     temp[ix] = math.exp(-t)*(t + xx + self.x0)/(2.0 * t + 1e-12)
                 elif (self.x0 - xx <= t) and (self.x0 + xx >= t):
                     temp[ix] = math.exp(-t)*(t - xx + self.x0)/(2.0 * t + 1e-12)
-        return temp
+        return temp * self.source_strength
     
     def gaussian_IC_uncollided_solution(self, xs, t):
         temp = xs*0
         sqrtpi = math.sqrt(math.pi)
         for ix in range(xs.size):
             xx = xs[ix]
-            temp[ix] = math.exp(-t) * sqrtpi * (math.erf(2*t-2*xx) + math.erf(2*t+2*xx))/(8.0 * t + 1e-12)
+            temp[ix] = self.sigma * math.exp(-t) * sqrtpi * (math.erf((t-xx)/self.sigma) + math.erf((t+xx)/self.sigma))/(4.0 * t + 1e-12) * self.source_strength
         return temp
         
     def plane_IC_uncollided_solution(self, xs, t):
         temp = xs*0
         for ix in range(xs.size):
             if (-t <= xs[ix] <= t):
-                temp[ix] = math.exp(-t)/(2*t+1e-12)
+                temp[ix] = math.exp(-t)/(2*t+1e-12) 
         return temp
     
     def plane_IC_uncollided_solution_integrated(self, t, xL, xR):

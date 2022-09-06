@@ -42,7 +42,7 @@ class save_output:
         self.source_name = source_name_list[index_of_source_name]  
               
     def save_RMS(self, RMS_list, energy_RMS_list, N_angles, r_times):
-        if (self.tfinal == 1 or self.tfinal == 5 or self.tfinal == 10) or (self.thermal_couple == 1 and self.tfinal == 31.6228) :
+        if (self.tfinal in [1,5,10,1.25, 0.8333333333333334]) or (self.thermal_couple == 1 and self.tfinal == 31.6228) :
             saving_condition = True
         else:
             saving_condition = False
@@ -51,7 +51,16 @@ class save_output:
             if saving_condition == True:
                 print("saving")
                 f = h5py.File(self.config_file_path, 'a')
-                dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS")
+                if self.tfinal == 1.25:
+                    tf = str(1.25)
+                elif self.tfinal == 0.8333333333333334:
+                    tf = str(0.8333333333333334)
+                else:
+                    tf = str(int(self.tfinal))
+                dest_str = str(self.source_name + "/" + "t="  + tf + "/" + "RMS")
+                print(dest_str)
+                if not f.__contains__(dest_str):
+                    f.create_group(dest_str)
                 destination = f[dest_str]
                 rms_str = self.uncollided * ("uncollided_")  + (not(self.uncollided))  * ("no_uncollided_")  + self.moving * ("moving_") + (not(self.moving)) * ("static_") + "M_" + str(self.Ms[0])
                 if destination.__contains__(rms_str):

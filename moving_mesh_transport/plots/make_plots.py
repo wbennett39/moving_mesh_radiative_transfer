@@ -7,6 +7,7 @@ Created on Wed Feb 23 15:40:39 2022
 """
 
 import matplotlib.pyplot as plt
+import math
 import h5py 
 from pathlib import Path
 from ..loading_and_saving.load_bench import load_bench
@@ -123,7 +124,7 @@ class rms_plotter:
                                     'gaussian_s_thick_s2', 'gaussian_s_thick_s8', 'su_olson_thick_s2',
                                     'su_olson_thick_s8', 'gaussian_s_thick_s2_energy', 'gaussian_s_thick_s8_energy',
                                     'su_olson_thick_s2_energy','su_olson_thick_s8_energy']:
-            
+            print(f['gaussian_IC'].keys())
             data = f[self.dest_str + '/' + data_str]
     
             if self.major == 'cells':
@@ -166,6 +167,7 @@ class rms_plotter:
 
         print(self.cells, 'cells')
         print(self.RMS, 'RMSE')
+        xlimleft = 2.5
 
         if clear == True:
             plt.clf()
@@ -173,6 +175,8 @@ class rms_plotter:
         plt.xlabel("cells", fontsize = 20)
         plt.ylabel("RMSE", fontsize = 20)
         # plt.title(f"{self.source_name} t = {self.tfinal}")
+        file_path_string = str(self.plot_file_path) + '/' "RMS_plots" '/' + f"{self.source_name}_t={self.tfinal}_M={self.M}_RMSE_vs_cells"
+
         #######################################################################
         if self.tfinal == 1:
             xlimleft = 1.5
@@ -368,6 +372,41 @@ class rms_plotter:
             print('moving', self.moving)
             # print('intercept', self.find_c())
             print("--- --- --- --- --- ")
+
+        elif self.tfinal in [1.25, 0.8333333333333334]:
+            # file_path_string = str(self.plot_file_path) + '/' "RMS_plots" '/' + f"{self.source_name}_t={self.tfinal}_M={self.M}_RMSE_vs_cells"
+
+            if self.source_name == 'square_IC':
+                plt.ylim(1e-8,1e-1)
+                xlimright = 36
+                xlimleft = 2.5
+                if self.uncollided == True and self.moving == True:
+                    intercept = self.find_c()
+                    if self.M == 6:
+                        order_triangle(9, 15, 2, intercept, 2, 1.5)
+                    elif self.M == 4:
+                        order_triangle(9, 15, 2, intercept, 2, 1.5)
+            elif self.source_name == 'gaussian_IC':
+                plt.ylim(1e-8,1e-1)
+                xlimright = 36
+                xlimleft = 1.
+                # if self.tfinal == 0.8333333333333334:
+                #     xlimright = 18
+                #     self.RMS = self.RMS[:-1]
+                #     self.cells = self.cells[:-1]
+                #     self.angles = self.angles[:-1]
+                if self.uncollided == True and self.moving == True:
+                    intercept = self.find_c()
+                    if self.M == 6:
+                        order_triangle(9, 15, 7, intercept, 2, 1.5)
+                    elif self.M == 4:
+                        order_triangle(5, 8, 5, intercept, 2, 1.9)
+            
+            plt.loglog(self.cells, self.RMS, self.line_mkr + self.mkr, c = self.clr, mfc = self.mfc)
+            if self.uncollided == False and self.moving == False:
+                logplot_sn_labels(self.cells, self.RMS, self.angles, 0.1, fign )
+            show_loglog(file_path_string, xlimleft, xlimright)
+
 
         elif self.tfinal == 100:
             file_path_string = str(self.plot_file_path) + '/' "RMS_plots" '/' + f"{self.source_name}_t={self.tfinal}_M={self.M}_RMSE_vs_cells"
@@ -707,7 +746,7 @@ class rms_plotter:
         if source_name == "plane_IC":
             source_type = np.array([1,0,0,0,0,0,0,0])
             x0 = 1e-11
-            bench = load_bench(source_type, tfinal, x0)
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
             xs = np.linspace(0, tfinal, npnts)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
@@ -725,7 +764,7 @@ class rms_plotter:
         elif source_name == "square_IC":
             source_type = np.array([0,1,0,0,0,0,0,0])
             x0 = 0.5
-            bench = load_bench(source_type, tfinal, x0)
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
             xs = np.linspace(0, tfinal + x0, npnts)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
@@ -739,7 +778,7 @@ class rms_plotter:
         elif source_name == "square_source":
             source_type = np.array([0,0,1,0,0,0,0,0])
             x0 = 0.5
-            bench = load_bench(source_type, tfinal, x0)
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
             xs = np.linspace(0, tfinal + x0, npnts)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
@@ -753,7 +792,7 @@ class rms_plotter:
         elif source_name == "gaussian_IC":
             source_type = np.array([0,0,0,1,0,0,0,0])
             x0 = 4
-            bench = load_bench(source_type, tfinal, x0)
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
             if tfinal == 1:
                 xs = np.linspace(0, 3.0, npnts)
             elif tfinal == 5:
@@ -771,7 +810,7 @@ class rms_plotter:
         elif source_name == "gaussian_source":
             source_type = np.array([0,0,0,0,0,1,0,0])
             x0 = 4
-            bench = load_bench(source_type, tfinal, x0)
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
             if tfinal == 1:
                 xs = np.linspace(0,3.0,npnts)
             elif tfinal == 5:
@@ -791,7 +830,7 @@ class rms_plotter:
             source_type = np.array([0,0,0,0,0,0,1,0])
             x0 = 0.5
             xs = np.linspace(0, tfinal + 1/x0, npnts)
-            bench = load_bench(source_type, tfinal, x0)
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
             if tfinal == 1:
@@ -803,23 +842,88 @@ class rms_plotter:
             source_type = np.array([0,0,0,0,0,0,0,1])
             x0 = 0.5
             xs = np.linspace(0, tfinal, npnts)
-            bench = load_bench(source_type, tfinal, x0)
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
             interp_bench = bench(xs)[0]
             uncol = bench(xs)[1]
             if tfinal == 1 or tfinal == 5:
                 plt.plot(xs, uncol, "--k")
             plt.plot(xs, interp_bench, "-k")
             show(file_path_string + f"/line_source_t_{tfinal}_benchmark")
-        elif source_name == "MMS":
+        # elif source_name == "MMS":
+        #     plt.xlabel("x", fontsize = fntsize)
+        #     source_type = np.array([0,0,0,0,1,0,0,0])
+        #     x0 = 0.1
+        #     xs = np.linspace(0, tfinal + x0, npnts)
+        #     bench = load_bench(source_type, tfinal, x0, 1.0, False)
+        #     interp_bench = bench(xs)[0]
+        #     plt.plot(xs, interp_bench, "-k")
+        #     plt.plot(-xs, interp_bench, "-k")
+        #     show(file_path_string + f"/MMS_t_{tfinal}_benchmark")
+        elif source_name == "square_IC_c_not_one":
+            plt.figure(fign)
             plt.xlabel("x", fontsize = fntsize)
-            source_type = np.array([0,0,0,0,1,0,0,0])
-            x0 = 0.1
-            xs = np.linspace(0, tfinal + x0, npnts)
-            bench = load_bench(source_type, tfinal, x0)
-            interp_bench = bench(xs)[0]
+            source_type = np.array([0,1,0,0,0,0,0,0])
+            x0 = 0.5
+            xs = np.linspace(0, 1.25 + 0.625, npnts)
+            bench = load_bench(source_type, 1.25, x0, 0.8, True)
+            interp_bench = 0.8*math.exp(-(1-0.8)*1.25)*bench(xs*0.8)[0]
+            uncol = 0.8*math.exp(-(1-0.8)*1.25)*bench(0.8*xs)[1]
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
-            show(file_path_string + f"/MMS_t_{tfinal}_benchmark")
+            plt.plot(xs, uncol, "--k")
+            plt.plot(-xs, uncol, "--k")
+            show(file_path_string + "/sq_IC_c=0.8_t_1.25_benchmark")
+            plt.show()
+
+            plt.figure(fign + 10)
+            plt.xlabel("x", fontsize = fntsize)
+            source_type = np.array([0,1,0,0,0,0,0,0])
+            x0 = 0.5
+            tactual = 1/1.2
+            xs = np.linspace(0, tactual + 0.5/1.2, npnts)
+            bench = load_bench(source_type, tactual, x0, 1.2, True)
+            interp_bench = 1.2*math.exp(-(1-1.2)*tactual)*bench(xs*1.2)[0]
+            uncol = 1.2*math.exp(-(1-1.2)*tactual)*bench(1.2*xs)[1]
+            plt.plot(xs, interp_bench, "-k")
+            plt.plot(-xs, interp_bench, "-k")
+            plt.plot(xs, uncol, "--k")
+            plt.plot(-xs, uncol, "--k")
+            show(file_path_string + f"/sq_IC_c=1.2_t_{tactual}_benchmark")
+            plt.show()
+
+        elif source_name == "gaussian_IC_c_not_one":
+            plt.figure(fign)
+            plt.xlabel("x", fontsize = fntsize)
+            source_type = np.array([0,0,0,1,0,0,0,0])
+            x0 = 4
+            xs = np.linspace(0, 1.25 + x0, npnts)
+            bench = load_bench(source_type, 1.25, x0, 0.8, True)
+            interp_bench = 0.8*math.exp(-(1-0.8)*1.25)*bench(xs*0.8)[0]
+            uncol = 0.8*math.exp(-(1-0.8)*1.25)*bench(0.8*xs)[1]
+            plt.plot(xs, interp_bench, "-k")
+            plt.plot(-xs, interp_bench, "-k")
+            plt.plot(xs, uncol, "--k")
+            plt.plot(-xs, uncol, "--k")
+            show(file_path_string + "/gauss_IC_c=0.8_t_1.25_benchmark")
+            plt.show()
+
+            plt.figure(fign + 10)
+            plt.xlabel("x", fontsize = fntsize)
+            source_type = np.array([0,0,0,1,0,0,0,0])
+            x0 = 4
+            tactual = 1/1.2
+            xs = np.linspace(0, tactual + x0, npnts)
+            bench = load_bench(source_type, tactual, x0, 1.2, True)
+            interp_bench = 1.2*math.exp(-(1-1.2)*tactual)*bench(xs*1.2)[0]
+            uncol = 1.2*math.exp(-(1-1.2)*tactual)*bench(1.2*xs)[1]
+            plt.plot(xs, interp_bench, "-k")
+            plt.plot(-xs, interp_bench, "-k")
+            plt.plot(xs, uncol, "--k")
+            plt.plot(-xs, uncol, "--k")
+            show(file_path_string + f"/gauss_IC_c=1.2_t_{tactual}_benchmark")
+            plt.show()
+
+
 
 
 

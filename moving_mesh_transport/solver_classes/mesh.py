@@ -203,10 +203,10 @@ class mesh_class(object):
         # self.delta_t = self.wave_loc_array[0,0,index+1] - t 
         if self.tactual == 0.0:
             delim = '#########################################################'
-            print(delim)
-            print(self.wave_loc_array[0,2,:])
-            print(self.wave_loc_array[0,1,:])
-            print(delim)
+            # print(delim)
+            # print(self.wave_loc_array[0,2,:])
+            # print(self.wave_loc_array[0,1,:])
+            # print(delim)
             pad = 5
             self.delta_t = self.tfinal
             index -=1
@@ -221,8 +221,8 @@ class mesh_class(object):
             self.Dedges[half+int(half/2)+1:] = - np.flip(wave_front_array)
 
             self.edges = self.edges0 + self.Dedges * self.delta_t
-            print(self.left_speed, 'ls')
-            print(self.wave_loc_array[0,1,index+1], 'left edge')
+            # print(self.left_speed, 'ls')
+            # print(self.wave_loc_array[0,1,index+1], 'left edge')
 
         else:
             if index != self.index_old or index == 0:

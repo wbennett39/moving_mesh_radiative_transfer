@@ -52,7 +52,8 @@ data = [('N_ang', int64),
         ('edge_v', float64),
         ('cv0', float64),
         ('thick', int64),
-        ('wave_loc_array', float64[:,:,:])
+        ('wave_loc_array', float64[:,:,:]),
+        ('source_strength', float64)
         ]
 ###############################################################################
 
@@ -60,7 +61,7 @@ data = [('N_ang', int64),
 class build(object):
     def __init__(self, N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, 
     source_type, uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, 
-    edge_v, cv0, thick, wave_loc_array):
+    edge_v, cv0, thick, wave_loc_array, source_strength):
         self.N_ang = N_ang
         self.N_space = N_space
         self.M = M
@@ -88,6 +89,7 @@ class build(object):
         self.cv0 = cv0
         self.thick = thick
         self.wave_loc_array = wave_loc_array
+        self.source_strength = source_strength
         
         
         if self.thermal_couple == 0:
@@ -129,7 +131,7 @@ class build(object):
                     self.integrate_e(edges_init[space], edges_init[space+1], space, j)
             
             
-        ic = IC_func(self.source_type, self.uncollided, self.x0)
+        ic = IC_func(self.source_type, self.uncollided, self.x0, self.source_strength, self.sigma)
 
         for ang in range(self.N_ang):
             for space in range(self.N_space):

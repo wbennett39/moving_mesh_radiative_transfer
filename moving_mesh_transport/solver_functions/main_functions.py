@@ -87,7 +87,8 @@ def plot_p1_su_olson_mathematica():
 
 def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
           uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, 
-          weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, find_edges_tol):
+          weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, 
+          find_edges_tol, source_strength):
 
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
@@ -97,13 +98,14 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         ws = quadpy.c1.gauss_legendre(N_ang).weights
     if N_ang == 2:
         print("mus =", mus)
-    xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
-    ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
+    xs_quad = quadpy.c1.gauss_legendre(4*M+1).points
+    ws_quad = quadpy.c1.gauss_legendre(4*M+1).weights
     t_quad = quadpy.c1.gauss_legendre(t_nodes).points
     t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
     initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
-                       thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, wave_loc_array)
+                       thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, 
+                       wave_loc_array, source_strength)
                        
     initialize.make_IC()
     IC = initialize.IC

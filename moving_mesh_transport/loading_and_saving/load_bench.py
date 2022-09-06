@@ -73,7 +73,6 @@ class load_bench:
             self.phi_u = self.solution_dataset[2]
             
             self.scale_transport_benchmark()
-            print(self.phi, 'benchmark phi')
             
             self.interpolated_solution = interp1d(self.xs, self.phi, kind = "cubic")
             self.interpolated_uncollided_solution = interp1d(self.xs, self.phi_u, kind = "cubic")
