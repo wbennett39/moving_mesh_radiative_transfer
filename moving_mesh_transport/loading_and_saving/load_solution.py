@@ -25,6 +25,8 @@ class load_sol:
         self.cv0 = cv0
         if self.problem_name == 'rad_transfer_const_cv_thick':
             self.problem_name = f'transfer_const_cv={self.cv0}_thick'
+        elif self.problem_name == 'rad_transfer_const_cv':
+            self.problem_name = f'transfer_const_cv={self.cv0}'
     
     def call_sol(self, tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving):
         # full_str = self.rad_or_transfer
@@ -36,6 +38,7 @@ class load_sol:
 
         if self.problem_name != 'su_olson_thick_s2': # FIX THIS LATER 
             # print(f[self.problem_name].keys())
+            print(f[self.problem_name].keys())
             sol_data = f[self.problem_name][full_str]
             self.xs = sol_data[0]
             self.phi = sol_data[1]

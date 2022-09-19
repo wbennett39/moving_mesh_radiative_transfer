@@ -34,52 +34,43 @@ To simply load precomputed transport results,
 Now, `loader.xs` returns the spatial points, `loader.phi` gives the scalar flux, and `loader.e` gives the material energy density. It is also possible to load the coefficients of the polynomial expansion and the quadrature weights for calculating phi, `loader.coeff_mat` and `loader.ws`.
 
 
+To load results from other radiative transfer problems,
+``loader = load(problem_name, source_name, rad_or_transfer, c, s2, cv0)``
+where
 
+`problem_name`: is one of `['transport','su_olson', 'su_olson_s2', 'su_olson_s2_thick', 'rad_transfer_const_cv', 'rad_transfer_const_cv_thick', 'rad_transfer_const_cv_s2', 'rad_transfer_const_cv_thick_s2']`
 
+`source_name`: is one of `['plane_IC', 'square_IC', 'gaussian_IC', 'square_source', 'gaussian_source']`
 
+`rad_or_transfer`: is 'rad' for all transport problems and 'transfer' for radiative transfer problems.
 
+`c`: is the scattering ratio
 
+`s2`: `True` or `False`
 
-
-
-
-
-
-
-
-
- `[transport','rad_transfer','s2_rad_transfer',
-                                        'rad_transfer_thick','config']`. `transport` runs scattering transport problems with $c=1$ where benchmarks are available for all sources. 'rad_transfer' will run absorbing radiative transfer problems. There are no benchmarks for these problems, but convergence tests are (not yet) built in. 's2_rad_transfer' runs linear absorbing thin radiative transfer problems where benchmarks are available for the square source and the Gaussian source. `rad_transfer_thick` runs optically thick absorbing radiative transfer problems for $S_2$ or $S_8$ where benchmarks are available for the Gaussian and square sources. `config` loads an input script that is intended for user customization. 
-
+`cv0`: only applies to constant cv cases. 
 
 
 ### Testing
 before invoking python, run ``pytest`` in the top level folder.
 
+
 ### Solver
 
-To solve the transport equation for a specific source, 
+The solver is automatically imported as `run` after running `imports.py`. `transport` is the default problem, but it can be changed by
 
-``
-import moving_mesh_transport.solver
-``
+``run.load(problem_name)``
 
-Running 
+where `problem name` is one of `['transport','su_olson', 'su_olson_s2', 'su_olson_s2_thick', 'rad_transfer_const_cv', 'rad_transfer_const_cv_thick', 'rad_transfer_const_cv_s2', 'rad_transfer_const_cv_thick_s2']'
 
-``
-solver.run_plane_IC(uncollided = True, Moving = True)
-``
-
-Will read in parameters from moving_mesh_transport/congfig.yaml and run an infininte plane pulse source with a moving mesh and using the uncollided solution. Setting ``uncollided = False`` does not use the uncollided solution and ``moving = False`` solves the equations with a static mesh. (note: the plane pulse takes much longer to run compared to the other sources due to the higher number of discrete angles required to converge).
-
-The commands,
+To actually solve the problem with the parameters given in the chosen input script, run one of:
 
 ``
 solver.run_square_IC(uncollided = True, Moving = True)
 ``
 
 ``
-solver.run_square_s(uncollided = True, Moving = True)
+solver.run_square_source(uncollided = True, Moving = True)
 ``
 
 ``
@@ -87,36 +78,35 @@ solver.run_gaussian_IC(uncollided = True, Moving = True)
 ``
 
 ``
-solver.run_gaussian_s(uncollided = True, Moving = True)
+solver.run_gaussian_source(uncollided = True, Moving = True)
 ``
 
 ``
 solver.run_MMS(uncollided = False, Moving = True)
+
+``
+solver.run_plane_IC(uncollided = True, Moving = True)
 ``
 
-run a square pulse, a square source, a Gaussian pulse, a Gaussian source, and a MMS (Method of Manufactured Solutions) problem.
-(note: there is only one case for the MMS source)
+Setting ``uncollided = False`` does not use the uncollided solution and ``moving = False`` solves the equations with a static mesh. (note: the plane pulse takes much longer to run compared to the other sources due to the higher number of discrete angles required to converge).
 
-The command 
-``
-solver.run_all()
-``
+
+(note: there is only one case for the MMS source: `uncollided=False, moving=True' and only for transport porlbems)
+
+
 runs all cases for every source.
 The terminal will print a `RMSE` vallue (root mean square error) compared with the benchmark solution. The order of convergence is displayed as `Order`. The run data (RMSE, computation time, number of spaces, number of angles) will be saved to run_data_RMS.h5, overwriting previous runs that had the same parameters. A plot will be created of the benchmark solution and the solutions returned by the solver. 
 
-To interact with the plots produced by the solver,
+To close the plots produced by the solver,
 
-``
-import matplotlib.pyplot as plt
-``
+``plt.close()``
 
-run
 
-``
-plt.close()
-``
+### Input scripts
+The `YAML` input scripts, found in the folder, `moving_mesh_transport/input_scripts`, allow the user to easily modify the problem parameters without quitting python (Or re-compiling all of the functions that `numba` compiles on the first run.)  Simply change the parameters and `run.load('problem_name')` to load them. 
 
-to close the current plot.
+
+
 
 ### RMS Plotter
 

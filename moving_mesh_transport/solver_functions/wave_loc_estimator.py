@@ -85,6 +85,7 @@ class find_wave:
     def find_wave_bounds(self, xs_range):
         x_left = self.x0
         x_right = self.x0
+        mean_free = 1.0
         edge = xs_range[-1]
         left_found = False
         right_found = False
@@ -110,11 +111,10 @@ class find_wave:
             elif abs(self.interpolated_sol(x_left,1)) <= tol_left:
                 left_found = True
                 print(x_left, 'left edge')
-
         while right_found == False:
             x_right += self.dx
             if x_right >= xs_range[-1]:
-                tol_right = tol_right*1.1
+                tol_right = tol_right*1.05
                 x_right = self.x0
                 print(tol_right, 'new tol right')
                 # right_found = True
@@ -130,6 +130,10 @@ class find_wave:
         #         # print(edge)
         #     elif edge <= 0:
         #         inflection_found = True
+
+        if abs(x_left) < mean_free:
+            x_left = mean_free
+            print('x_left', x_left)
 
 
         return x_left, x_right
