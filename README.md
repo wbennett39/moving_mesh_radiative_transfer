@@ -16,12 +16,19 @@ The program will automatically load the input script ``transport.yaml``. More on
 
 To simply load precomputed transport results, 
 ``loader.call_sol(tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving)``
-`tfinal`: Evaluation tim
+
+`tfinal`: Evaluation time
+
 `M`: Number of basis functions -1
+
 `x0_or_sigma`: Relevant for the square and Gaussian sources
+
 `N_space`: Number of cells
+
 'mat_or_rad': Either `'mat'` for material energy density or `'rad'` for radiation energy density
+
 `uncollided`: `True` or `False`
+
 `moving`: `True` or  `False`
 
 Now, `loader.xs` returns the spatial points, `loader.phi` gives the scalar flux, and `loader.e` gives the material energy density. It is also possible to load the coefficients of the polynomial expansion and the quadrature weights for calculating phi, `loader.coeff_mat` and `loader.ws`.
