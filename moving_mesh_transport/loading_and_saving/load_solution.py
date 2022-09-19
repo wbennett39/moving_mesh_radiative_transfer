@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 class load_sol:
-    def __init__(self, problem_name, source_name, rad_or_transfer, c, s2, cv0):
+    def __init__(self, problem_name = 'transport', source_name = 'square_s', rad_or_transfer = 'rad', c = 1.0, s2 = False, cv0 = 0.0):
 
         data_folder = Path("moving_mesh_transport")
 

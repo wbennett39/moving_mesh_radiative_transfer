@@ -1,16 +1,47 @@
 # moving_mesh_radiative_transfer
-## An accurate and fast moving mesh Discontinuous Galerkin package for solving the 1D isotropic transport equation for the purpose of coupling to rad-transfer problems
-## Everything below this line is in need of revision
-
-
+## An accurate and fast moving mesh Discontinuous Galerkin package for solving the 1D isotropic transport equation with or without material energy coupling
 
 ### Quick start guide
 ### Installation 
-Download the file ``moving_mesh_radiative_transfer`` and open the file. 
+Download the file ``moving_mesh_radiative_transfer``.
+Navigate to file location. 
 
 Invoke python via ``python3 -i imports.py``.
 
-The program will prompt the user to choose a problem type from the list `[transport','rad_transfer','s2_rad_transfer',
+The program will automatically load the input script ``transport.yaml``. More on input scripts in the next section. 
+
+`loader` is initiated with:
+``load_sol(self, problem_name = 'transport', source_name = 'square_s', rad_or_transfer = 'rad', c = 1.0, s2 = False, cv0 = 0.0)``
+
+
+To simply load precomputed transport results, 
+``loader.call_sol(tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving)``
+`tfinal`: Evaluation tim
+`M`: Number of basis functions -1
+`x0_or_sigma`: Relevant for the square and Gaussian sources
+`N_space`: Number of cells
+'mat_or_rad': Either `'mat'` for material energy density or `'rad'` for radiation energy density
+`uncollided`: `True` or `False`
+`moving`: `True` or  `False`
+
+Now, `loader.xs` returns the spatial points, `loader.phi` gives the scalar flux, and `loader.e` gives the material energy density. It is also possible to load the coefficients of the polynomial expansion and the quadrature weights for calculating phi, `loader.coeff_mat` and `loader.ws`.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ `[transport','rad_transfer','s2_rad_transfer',
                                         'rad_transfer_thick','config']`. `transport` runs scattering transport problems with $c=1$ where benchmarks are available for all sources. 'rad_transfer' will run absorbing radiative transfer problems. There are no benchmarks for these problems, but convergence tests are (not yet) built in. 's2_rad_transfer' runs linear absorbing thin radiative transfer problems where benchmarks are available for the square source and the Gaussian source. `rad_transfer_thick` runs optically thick absorbing radiative transfer problems for $S_2$ or $S_8$ where benchmarks are available for the Gaussian and square sources. `config` loads an input script that is intended for user customization. 
 
 

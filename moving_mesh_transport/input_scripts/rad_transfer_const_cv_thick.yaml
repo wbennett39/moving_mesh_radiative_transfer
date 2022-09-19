@@ -50,7 +50,7 @@
     'source_strength': 1.0
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [4]
-    'move_type': [0,0,1]      # [standard, thick, sqrt_t]
+    'move_type': [0,1,0]      # [standard, thick, sqrt_t]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False
     
