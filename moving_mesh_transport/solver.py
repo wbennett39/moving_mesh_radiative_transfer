@@ -81,15 +81,15 @@ class main_class(parameter_load_class):
         saving = save_output(self.tfinal, self.N_spaces, self.Ms, self.source_type, 
                              moving, uncollided, self.major, self.thermal_couple, 
                              self.temp_function, self.scattering_ratio, self.sigma,
-                             self.x0, self.cv0, self.problem_type)
-        
-        if self.bench_type == 'full':
-            benchmark = load_bench(self.source_type, self.tfinal, self.x0_or_sigma, self.scattering_ratio, self.c_scaling)
-        
-        elif self.bench_type == 'S2':
-            s2_source_res = s2_source_type_selector(self.sigma, self.x0[0], self.thermal_couple, self.source_type, self.weights)
-            benchmark = load_bench(s2_source_res[0], self.tfinal, self.x0_or_sigma, self.scattering_ratio, self.c_scaling)
-            benchmark_mat = load_bench(s2_source_res[1], self.tfinal, self.x0_or_sigma, self.scattering_ratio, self.c_scaling)
+                             self.x0, self.cv0, self.problem_type, self.N_angles)
+        if self.benchmarking == True:
+            if self.bench_type == 'full':
+                benchmark = load_bench(self.source_type, self.tfinal, self.x0_or_sigma, self.scattering_ratio, self.c_scaling)
+            
+            elif self.bench_type == 'S2':
+                s2_source_res = s2_source_type_selector(self.sigma, self.x0[0], self.thermal_couple, self.source_type, self.weights)
+                benchmark = load_bench(s2_source_res[0], self.tfinal, self.x0_or_sigma, self.scattering_ratio, self.c_scaling)
+                benchmark_mat = load_bench(s2_source_res[1], self.tfinal, self.x0_or_sigma, self.scattering_ratio, self.c_scaling)
                 
         print("---  ---  ---  ---  ---  ---  ---")
         print("tfinal = ", self.tfinal )
@@ -157,7 +157,7 @@ class main_class(parameter_load_class):
                 self.source_type, uncollided, moving, self.move_type, self.thermal_couple,self.temp_function, 
                 self.rt, self.at, self.e_initial, choose_xs, specified_xs, self.weights, self.sigma, self.particle_v, 
                 self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, self.thick, self.mxstp, self.wave_loc_array, 
-                self.find_edges_tol, self.source_strength)
+                self.find_edges_tol, self.source_strength, self.move_factor)
                 print(edges, "edges")
                 # print(xs, 'xs')
                 # print(e, 'e')
@@ -200,8 +200,8 @@ class main_class(parameter_load_class):
                 if self.thermal_couple == 1:
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
                 if self.thick == True:
-                    plt.xlim(self.x0[0] - self.tfinal/math.sqrt(3) - 5, self.x0[0] + self.tfinal/math.sqrt(3) + 5)
-         
+                    plt.xlim(self.x0[0] -50, edges[-1])
+                plt.legend()
                 plt.show()
                 if count == len(self.N_angles)-1:
                     self.xs = xs
@@ -223,7 +223,7 @@ class main_class(parameter_load_class):
                             e_xs = benchmark(np.abs(xs))[2][:,0]
                             phi_bench = benchmark(np.abs(xs))[2][:,1]
                             e_bench = benchmark(np.abs(xs))[2][:,2]
-                            print(e_bench)
+                            
                             
                             ##################################################################
                             plt.figure(1)
@@ -249,23 +249,23 @@ class main_class(parameter_load_class):
                     self.RMS_list[count] = RMS
 
                 ##################################################################
-                if self.estimate_wavespeed == True:
-
+                if self.find_wave_loc == True:
+                    print('saving ')
                     saving.save_wave_loc(tpnts, left_edges, right_edges)
 
-                    plt.figure(2)
-                    plt.plot(tpnts, wavespeed_array, '-o', label = "calculated wavespeed")
-                    plt.plot(tpnts,  2/np.sqrt(tpnts + 1e-12), label = "2/sqrt(t)")
-                    plt.plot(tpnts,  8/np.sqrt(tpnts + 1e-12), label = "8/sqrt(t)")
-                    plt.plot(tpnts,  16/np.sqrt(tpnts + 1e-12), label = "16/sqrt(t)")
-                    plt.plot(tpnts,  32/np.sqrt(tpnts + 1e-12), label = "32/sqrt(t)")
-                    plt.plot(tpnts,  64/np.sqrt(tpnts + 1e-12), label = "64/sqrt(t)")
-                    plt.plot(tpnts,  128/np.sqrt(tpnts + 1e-12), label = "128/sqrt(t)")
-                    plt.plot(tpnts,  256/np.sqrt(tpnts + 1e-12), label = "256/sqrt(t)")
-                    # plt.plot(tpnts,  4/np.sqrt(tpnts)/math.sqrt(3))
-                    # plt.ylim(0,wavespeed_array[0])
-                    plt.legend()
-                    plt.show()
+                    # plt.figure(2)
+                    # plt.plot(tpnts, wavespeed_array, '-o', label = "calculated wavespeed")
+                    # plt.plot(tpnts,  2/np.sqrt(tpnts + 1e-12), label = "2/sqrt(t)")
+                    # plt.plot(tpnts,  8/np.sqrt(tpnts + 1e-12), label = "8/sqrt(t)")
+                    # plt.plot(tpnts,  16/np.sqrt(tpnts + 1e-12), label = "16/sqrt(t)")
+                    # plt.plot(tpnts,  32/np.sqrt(tpnts + 1e-12), label = "32/sqrt(t)")
+                    # plt.plot(tpnts,  64/np.sqrt(tpnts + 1e-12), label = "64/sqrt(t)")
+                    # plt.plot(tpnts,  128/np.sqrt(tpnts + 1e-12), label = "128/sqrt(t)")
+                    # plt.plot(tpnts,  256/np.sqrt(tpnts + 1e-12), label = "256/sqrt(t)")
+                    # # plt.plot(tpnts,  4/np.sqrt(tpnts)/math.sqrt(3))
+                    # # plt.ylim(0,wavespeed_array[0])
+                    # plt.legend()
+                    # plt.show()
 
 
                     plt.figure(5)
@@ -314,7 +314,7 @@ class main_class(parameter_load_class):
                 plt.plot(xsb, e_bench_plot, "--k")
                 plt.plot(-xsb, e_bench_plot, "--k")
                 if self.x0[0] == 400:
-                    plt.xlim(self.x0[0] - self.tfinal/math.sqrt(3) - 5, self.x0[0] + self.tfinal/math.sqrt(3) + 5)
+                    plt.xlim(self.x0[0] -50, xs[-1])
 
                 plt.show()
                 # if int(self.x0[0]) == 400:

@@ -246,19 +246,25 @@ def compare_rms(tfinal, M):
         
 def plot_all_benchmarks(tfinal):
     M = 3
-    source_list = ["plane_IC", "square_IC", "square_source", "gaussian_IC",
-     "gaussian_source", "MMS", "gaussian_IC_2D", "line_source", "square_IC_c_not_one", "gaussian_IC_c_not_one"]
+    if tfinal <100:
+        # source_list = ["plane_IC", "square_IC", "square_source", "gaussian_IC",
+        # "gaussian_source", "MMS", "gaussian_IC_2D", "line_source", "square_IC_c_not_one", 
+        # "gaussian_IC_c_not_one", 'square_source_s2','gaussian_source_s2', 'square_source_s2_thick', 'gaussian_source_s2_thick' ]
+        source_list = ['square_source_s2','gaussian_source_s2']
+    elif tfinal >=100:
+        source_list = ['square_source_s2_thick', 'gaussian_source_s2_thick']
+
     for count, source in enumerate(source_list):
         print(source)
         plotter = rms_plotter(tfinal, M, source, "cells")
         plotter.plot_bench(tfinal, source, count)
         
-def plot_coefficients(tfinal = 1,  M=10, source_name = 'square_s',  N_spaces = [8,16,32,64,128], problem_name = 'transfer_const_cv=0.1',
-rad_or_transport ='transfer', x0_or_sigma = 0.5 , c = 0.0, uncollided = True, s2 = False, mat_or_rad = 'rad', moving = True, line = '-',legend = True, fign = 1):
+def plot_coefficients(tfinal = 1,  M=10, source_name = 'gaussian_s',  N_spaces = [4,8,16,32], problem_name = 'transfer_const_cv=0.03',
+rad_or_transport ='transfer', x0_or_sigma = 300 , c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',legend = True, fign = 1):
     
     plotter = rms_plotter(tfinal, M, source_name, 'cells')
     plotter.plot_coefficients(tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
-    x0_or_sigma, c, uncollided, s2, mat_or_rad, moving, line, legend)
+    x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend)
 
     plotter.plot_coeff_boyd()
 

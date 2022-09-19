@@ -43,15 +43,15 @@ class find_wave:
         xs_test = np.linspace(self.xs_list[it,0], self.xs_list[it,-1], 1000)
         plt.figure(22)
         plt.plot(xs_test, self.interpolated_sol(xs_test,1), '-', label = f'first deriv t={sol.t[it]}')
-        plt.xlim(350, 420)
+        plt.xlim(250, self.xs_list[it,-1])
         plt.legend()
         plt.figure(23)
         plt.plot(xs_test, self.interpolated_sol(xs_test,2), '--', label = f'second deriv t={sol.t[it]}')
         plt.legend()
-        plt.xlim(350, 420)
+        plt.xlim(350, self.xs_list[it,-1])
         plt.figure(1)
         plt.plot(xs_test, self.interpolated_sol(xs_test,0), '-s', mfc ='none',label = f't={sol.t[it]}')
-            # plt.xlim(390, 410)
+        plt.xlim(350, self.xs_list[it,-1])
         # print(self.interpolated_sol(xs_test,1))
         plt.legend()
         plt.show()
@@ -105,6 +105,7 @@ class find_wave:
             if x_left <= xs_range[0]:
                 tol_left = tol_left*1.1
                 x_left = self.x0
+                print(tol_left, 'new tol left')
                 # left_found = True
             elif abs(self.interpolated_sol(x_left,1)) <= tol_left:
                 left_found = True
@@ -115,8 +116,9 @@ class find_wave:
             if x_right >= xs_range[-1]:
                 tol_right = tol_right*1.1
                 x_right = self.x0
+                print(tol_right, 'new tol right')
                 # right_found = True
-            elif abs(self.interpolated_sol(x_right,1)) <= tol_right:
+            elif (abs(self.interpolated_sol(x_right,1)) <= tol_right) or self.interpolated_sol(x_right, 0) == 0:
                 print(x_right, 'right edge')
                 right_found = True
 

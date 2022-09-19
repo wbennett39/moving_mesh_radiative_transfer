@@ -34,7 +34,8 @@ data = [('N_ang', int64),
         ('index_old', int64),
         ('right_speed', float64),
         ('left_speed', float64),
-        ('test_dimensional_rhs', int64)
+        ('test_dimensional_rhs', int64),
+        ('move_factor', float64)
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -43,7 +44,7 @@ data = [('N_ang', int64),
     
 @jitclass(data)
 class mesh_class(object):
-    def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, wave_loc_array):
+    def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array):
         
         self.debugging = False
         self.test_dimensional_rhs = False
@@ -59,6 +60,7 @@ class mesh_class(object):
         self.Dedges = np.zeros(N_space+1)
         self.N_space = N_space
         self.speed = edge_v
+        self.move_factor = move_factor
         if self.test_dimensional_rhs == True:
             self.speed = 299.98
 
@@ -191,7 +193,7 @@ class mesh_class(object):
             # self.edges[0] = -self.x0 + -self.tfinal * self.speed
 
 
-            # print(self.edges, "final edges")
+            print(self.edges, "final edges")
 
 
     def thick_square_moving_func(self, t):
@@ -207,7 +209,12 @@ class mesh_class(object):
             # print(self.wave_loc_array[0,2,:])
             # print(self.wave_loc_array[0,1,:])
             # print(delim)
-            pad = 5
+            if t == 1.0:
+                pad = 0.5
+            elif t == 100.0:
+                pad = 2.0
+            else:
+                pad = 2.0
             self.delta_t = self.tfinal
             index -=1
             self.right_speed = (-self.wave_loc_array[0,2,index+1] - pad - self.edges[0])/self.delta_t 
@@ -249,7 +256,7 @@ class mesh_class(object):
         # # old func
     def square_source_static_func_sqrt_t(self, t):
         # only to be used to estimate the wavespeed
-        move_factor = 8
+        move_factor = self.move_factor
 
         if t > 1e-10:
             sqrt_t = math.sqrt(t)

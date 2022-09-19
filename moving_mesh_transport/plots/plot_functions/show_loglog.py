@@ -64,7 +64,7 @@ def hide_spines(intx=False,inty=False):
             # ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("v" % v)))
             # ax.xaxis.set_major_formatter(mtick.ScalarFormatter())
             ax.xaxis.set_major_formatter(StrMethodFormatter('{x:.0f}'))
-            ax.set_xticks([2, 4, 8, 16, 32, 64, 128, 256])
+            ax.set_xticks([2, 4, 8,12])
             
             
             

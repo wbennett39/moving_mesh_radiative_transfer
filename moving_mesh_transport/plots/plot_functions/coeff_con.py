@@ -11,12 +11,22 @@ def coeff_con(ws, sol_matrix, N_ang, M, k):
     
     weight_avg = np.zeros(M+1)
 
-    for j in range(M+1):
 
-        weight_avg[j] = np.sum(ws*sol_matrix[:,k,j])/np.sum(ws)
+    if len(np.shape(sol_matrix)) == 3:
+
+        for j in range(M+1):
+
+            weight_avg[j] = np.sum(ws*sol_matrix[:,k,j])/np.sum(ws)
+        
+        return weight_avg
     
-    return weight_avg
-    
-    
-    
+    elif len(np.shape(sol_matrix)) == 2:
+
+        for j in range(M+1):
+
+            weight_avg[j] = sol_matrix[k,j]
+
+        return weight_avg
+
+
     

@@ -6,6 +6,7 @@ import numpy as np
 import math
 from scipy.special import expi
 import matplotlib.pyplot as plt
+from ..plots.plot_functions.show import show
 
 
 @njit 
@@ -297,27 +298,25 @@ def uncollided_su_olson_s2_2(x,t,x0,t0):
     else:
         return 0.0
 
-def test_s2_sol():
+def test_s2_sol(t = 10, t0 = 10):
     import scipy.integrate as integrate
     
-    xs = np.linspace(-420, 420, 100000)
+    xs = np.linspace(380, 420, 1000)
     phi = xs*0
     phi_test = xs*0
     phi_exact = xs*0
-    t = 50
-    t0 = 40
     x0 = 400 
     for ix in range(xs.size):
         phi[ix] = uncollided_su_olson_s2(xs[ix],t, x0, t0)
         phi_test[ix] = uncollided_su_olson_s2_2(xs[ix],t, x0, t0)
         phi_exact[ix] = integrate.quad(su_olson_s2_integrand, 0, min(t,t0), args = (xs[ix],t,x0,t0))[0]
     
-    plt.plot(xs, phi, '-ob')
+    # plt.plot(xs, phi, '-ob')
     plt.plot(xs, phi_exact, '-k')
-    plt.plot(xs, phi_test, '-or', mfc = 'none')
+    # plt.plot(xs, phi_test, '-or', mfc = 'none')
     
     print(np.sqrt(np.mean(phi_exact-phi)**2), 'RMSE')
-    
+    show('uncollided_su_olson_s2_t_10')
     plt.show()
     
     

@@ -31,20 +31,24 @@ class load_sol:
         full_str = ''
         if self.s2 == True:
             full_str += '_s2'
-        full_str += "/" + str(self.source_name) + '_uncollided_' * (uncollided) + 'moving_mesh_' * (moving) + 'N_space = ' + str(N_space) + '_t = ' + str(int(tfinal)) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
+        full_str += "/" + str(self.source_name) + '_uncollided_' * (uncollided) + 'moving_mesh_' * (moving) + 'N_space = ' + str(N_space) + '_t = ' + str(tfinal) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
         f = h5py.File(self.data_file_path, "r+")
 
         if self.problem_name != 'su_olson_thick_s2': # FIX THIS LATER 
-            print(f[self.problem_name].keys())
+            # print(f[self.problem_name].keys())
             sol_data = f[self.problem_name][full_str]
             self.xs = sol_data[0]
             self.phi = sol_data[1]
             self.e = sol_data[2]
-            
+      
+
+
+        # print(f[self.problem_name]['coefficients/'].keys())
+
         self.ws = f[self.problem_name]['weights/' + full_str][:]
         # print(f[self.problem_name]['weights'].keys())
         # print(f[self.problem_name]['coefficients'].keys())
-
+        
         if self.rad_or_transfer == 'transfer':
             if mat_or_rad == 'rad':
                 self.coeff_mat = f[self.problem_name]['coefficients/' + full_str][:-1,:,:]
@@ -66,8 +70,15 @@ class load_sol:
                 self.left = f['su_olson_thick_s2']['left_' + full_str][:]
                 self.right = f['su_olson_thick_s2']['right_' + full_str][:]
 
+        elif self.problem_name == 'rad_transfer_constant_cv_thick':
+            folder_name =  f"transfer_const_cv={self.cv0}_thick"
+            self.tpnts = f[folder_name]['tpnts_' + full_str][:]
+            self.left = f[folder_name]['left_' + full_str][:]
+            self.right = f[folder_name]['right_' + full_str][:]
+
+
         else:
-            print(f.keys())
+            # print(f.keys())
             print(self.problem_name, "pn")
             self.tpnts = f[self.problem_name]['tpnts_' + full_str][:]
             self.left = f[self.problem_name]['left_' + full_str][:]

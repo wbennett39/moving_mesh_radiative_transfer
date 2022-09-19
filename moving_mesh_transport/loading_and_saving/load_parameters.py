@@ -83,6 +83,7 @@ class parameter_load_class:
         """
 
         self.find_edges_tol = float(mesh_parameters['find_edges_tol'])
+        self.move_factor = float(mesh_parameters['sqrt_t_move_factor'])
         self.estimate_wavespeed = int(mesh_parameters['estimate_wavespeed'])
         self.find_wave_loc = int(mesh_parameters['find_wave_loc'])
         self.choose_xs = int(mesh_parameters['choose_xs'])

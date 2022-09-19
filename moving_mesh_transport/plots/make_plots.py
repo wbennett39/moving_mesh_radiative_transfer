@@ -20,6 +20,7 @@ from scipy.stats import linregress
 from .plot_functions.order_triangle import order_triangle
 from .plot_functions.coeff_con import coeff_con
 from ..loading_and_saving.load_solution import load_sol
+from ..solver_classes.functions import  convergence
 class rms_plotter:
     
     def __init__(self, tfinal, M, source_name, major):
@@ -529,8 +530,6 @@ class rms_plotter:
             self.find_c_semilog()
 
 
-
-               
         # plt.savefig(self.plot_file_path / "RMS_plots" / f"{self.source_name}_t={self.tfinal}_RMSE_vs_cells.pdf")
         file_path_string = str(self.plot_file_path) + '/' "RMS_plots" '/' + f"{self.source_name}_t={self.tfinal}_RMSE_vs_Ms"
         show_loglog(file_path_string, xlimleft, xlimright)
@@ -660,20 +659,24 @@ class rms_plotter:
          plt.show(block = False)
         
     def plot_coefficients(self, tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
-     x0_or_sigma, c, uncollided, s2, mat_or_rad, moving, line, legend = True, fign = 1):
+     x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend = True, fign = 1):
 
-        data = load_sol(problem_name, source_name, rad_or_transport, c, s2)
+        data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0)
 
         self.M_coeff = M
         self.j_matrix = np.zeros((len(N_spaces), (M+1)))
         self.label_list = N_spaces
         self.line = line
+        self.legend = legend
+        self.N_angles = []
+        self.mat_or_rad = mat_or_rad
 
 
         for count, N_space in enumerate(N_spaces):
             print(uncollided,'uncollided',moving,'moving')
             data.call_sol(tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving)
             N_ang = np.shape(data.coeff_mat)[0]
+            self.N_angles.append(N_ang)
 
             
             for k in range(N_space):
@@ -688,7 +691,7 @@ class rms_plotter:
             ydata = np.array(self.j_matrix[:,j])
 
             plt.loglog(xdata, np.abs(ydata), "-o", mfc = 'none', label =f"j={j}")
-        self.file_path_string = str(self.plot_file_path) + '/' + "coefficient_convergence" + "/" + problem_name +"_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
+        self.file_path_string = str(self.plot_file_path) + '/'  + "coefficient_convergence" + "/" + problem_name + "_" +'tfinal_' + str(tfinal) +'_' + self.mat_or_rad + "_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
         show_loglog(self.file_path_string, N_spaces[0]-1, N_spaces[-1] + 2)
         plt.show()
         
@@ -708,29 +711,37 @@ class rms_plotter:
         
         for ij in range(len(self.j_matrix[:,0])):
             plt.semilogy(xdata, self.j_matrix[ij], mkr_list[ij], label = str(label_list[ij]) + ' cells', mfc = 'none', c = 'b')
-            self.RMS = self.j_matrix[ij]
+            self.RMS = self.j_matrix[ij]        # this is a hack
+            self.energy_RMS = self.j_matrix[ij] # this is a hack
             self.find_c_semilog()
+            if self.mat_or_rad == 'rad':
+                logplot_sn_labels([xdata[-1]], [self.j_matrix[ij][-1]], np.ones(1)*self.N_angles[ij], 0.3, 3)
 
         plt.xlabel("M", fontsize = 20)
         plt.ylabel("RMSE", fontsize = 20)
         
-        if legend == True:
+        if self.legend == True:
             plt.legend()
 
-
+        plt.ylim(1e-13, 1e-0)
         show_loglog(self.file_path_string + "_boyd" ,1, self.M_coeff + 4)
         plt.show()
 
 
         plt.figure(3)
+        plt.ylim(1e-13, 1e-0)
         for ij in range(len(self.j_matrix[:,0])):
             plt.loglog(xdata, self.j_matrix[ij], mkr_list[ij], label = str(label_list[ij]) + ' cells', mfc = 'none', c = 'b')
             self.RMS = self.j_matrix[ij]
+            if self.mat_or_rad == 'rad':
+                logplot_sn_labels([xdata[-1]], [self.j_matrix[ij][-1]], np.ones(1)*self.N_angles[ij], 0.3, 3)
         plt.xlabel("M", fontsize = 20)
         plt.ylabel("RMSE", fontsize = 20)
-        if legend == True:
+        if self.legend == True:
             plt.legend()
         show_loglog(self.file_path_string + "_boyd_loglog" ,1, self.M_coeff + 4)
+        # print("convergence order", "%.2f" % convergence(self.RMS[2], xdata[2], self.RMS[3], xdata[3]))
+
         plt.show()
 
         
@@ -789,6 +800,115 @@ class rms_plotter:
                 plt.plot(-xs, uncol, "-.k")
             show(file_path_string + f"/square_source_t_{tfinal}_benchmark")
             plt.show()
+        elif source_name == "square_source_s2":
+            source_type = np.array([0,0,0,0,0,0,0,0,1,0])
+            x0 = 0.5
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            xs = np.linspace(0, tfinal + x0, npnts)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            plt.plot(xs, interp_bench, "-k")
+            plt.plot(-xs, interp_bench, "-k")
+            # if tfinal == 1 or tfinal == 5:
+            #     plt.plot(xs, uncol, "-.k")
+            #     plt.plot(-xs, uncol, "-.k")
+            source_type = np.array([0,0,0,0,0,0,0,0,0,1])
+            x0 = 0.5
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            xs = np.linspace(0, tfinal + x0, npnts)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            plt.plot(xs, interp_bench, ":k")
+            plt.plot(-xs, interp_bench, ":k")
+            show(file_path_string + f"/s2_square_source_t_{tfinal}_benchmark")
+            plt.show()
+        elif source_name == "square_source_s2_thick":
+            source_type = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0])
+            x0 = 400
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            xs = np.linspace(0, 500, npnts)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            plt.plot(xs, interp_bench, "-k")
+            plt.plot(-xs, interp_bench, "-k")
+            # if tfinal == 1 or tfinal == 5:
+            #     plt.plot(xs, uncol, "-.k")
+            #     plt.plot(-xs, uncol, "-.k")
+            source_type = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1])
+            x0 = 400
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            xs = np.linspace(0, 500, npnts)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            plt.plot(xs, interp_bench, ":k")
+            plt.plot(-xs, interp_bench, ":k")
+            show(file_path_string + f"/s2_square_source_thick_t_{tfinal}_benchmark_view1")
+            plt.show()
+
+            plt.figure(fign+100)
+            source_type = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0])
+            x0 = 400
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            interp_bench = bench(xs)[0]
+            plt.plot(xs, interp_bench, "-k")
+            plt.plot(-xs, interp_bench, "-k")
+            source_type = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1])
+            x0 = 400
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            interp_bench = bench(xs)[0]
+            plt.plot(xs, interp_bench, ":k")
+            plt.plot(-xs, interp_bench, ":k")
+            plt.xlim(380, 420)
+            show(file_path_string + f"/s2_square_source_thick_t_{tfinal}_benchmark_view2")
+            plt.show()
+        elif source_name == "gaussian_source_s2":
+            source_type = np.array([0,0,0,0,0,0,0,0,0,0,1,0])
+            x0 = 0.5
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            xs = np.linspace(0, tfinal + x0, npnts)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            plt.plot(xs, interp_bench, "-k")
+            plt.plot(-xs, interp_bench, "-k")
+            # if tfinal == 1 or tfinal == 5:
+            #     plt.plot(xs, uncol, "-.k")
+            #     plt.plot(-xs, uncol, "-.k")
+            source_type = np.array([0,0,0,0,0,0,0,0,0,0,0,1])
+            x0 = 0.5
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            xs = np.linspace(0, tfinal + x0, npnts)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            plt.plot(xs, interp_bench, ":k")
+            plt.plot(-xs, interp_bench, ":k")
+            show(file_path_string + f"/s2_gaussian_source_t_{tfinal}_benchmark")
+            plt.show()
+        elif source_name == "gaussian_source_s2_thick":
+            source_type = np.array([0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,0])
+            
+            x0 = 1500
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            xs = np.linspace(0, tfinal + x0, npnts)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            plt.plot(xs, interp_bench, "-k")
+            plt.plot(-xs, interp_bench, "-k")
+            # if tfinal == 1 or tfinal == 5:
+            #     plt.plot(xs, uncol, "-.k")
+            #     plt.plot(-xs, uncol, "-.k")
+            source_type = np.array([0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0])
+            x0 = 1500
+            bench = load_bench(source_type, tfinal, x0, 1.0, False)
+            xs = np.linspace(0, tfinal + x0, npnts)
+            interp_bench = bench(xs)[0]
+            uncol = bench(xs)[1]
+            plt.plot(xs, interp_bench, ":k")
+            plt.plot(-xs, interp_bench, ":k")
+
+            show(file_path_string + f"/s2_gaussian_source_thick_t_{tfinal}_benchmark")
+            plt.show()
+
+
         elif source_name == "gaussian_IC":
             source_type = np.array([0,0,0,1,0,0,0,0])
             x0 = 4

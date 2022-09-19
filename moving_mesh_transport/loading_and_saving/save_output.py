@@ -11,7 +11,7 @@ from pathlib import Path
 
 class save_output:
     def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major,
-                 thermal_couple, temp_function, c, sigma, x0, cv_const, problem_type):
+                 thermal_couple, temp_function, c, sigma, x0, cv_const, problem_type, N_angles):
         data_folder = Path("moving_mesh_transport")
         self.solution_file_path = data_folder / 'run_data.h5'
         self.wavepoints_file_path = data_folder / 'wavepoints.h5'
@@ -28,10 +28,11 @@ class save_output:
         self.c = c
         self.sigma = sigma
         self.cv_const = cv_const
+        self.N_angles = N_angles
 
         if self.problem_type == 'transport':
             self.config_file_path = data_folder / 'run_data_transport_RMS.h5'
-        elif self.problem_type in ['su_olson', 'su_olson_s2', 'su_olson_thick', 'su_olson_thick_s2']:
+        elif self.problem_type in ['su_olson', 'su_olson_s2', 'su_olson_thick', 'su_olson_thick_s2', '']:
             self.config_file_path = data_folder / 'run_data_su_olson_RMS.h5'
         else:
             print('no problem selected')
@@ -152,6 +153,7 @@ class save_output:
                 f.close()
                 
     def save_solution(self, xs, phi, e, sol_matrix, x0_or_sigma, ws, N_space, s2):
+        print("saving solution")
         "transport or transfer/source_name/t = {tfinal}/c = {c}/ x0(or sigma) = {val}"
         
         f = h5py.File(self.solution_file_path, 'a')
@@ -160,8 +162,12 @@ class save_output:
             folder_name = "transport"
         elif self.problem_type == 'rad_transfer_constant_cv':
             folder_name =  f"transfer_const_cv={self.cv_const}"
+        elif self.problem_type == 'rad_transfer_constant_cv_s2':
+            folder_name =  f"transfer_const_cv={self.cv_const}_s2"
         elif self.problem_type == 'rad_transfer_constant_cv_thick':
             folder_name =  f"transfer_const_cv={self.cv_const}_thick"
+        elif self.problem_type == 'rad_transfer_constant_cv_thick_s2':
+            folder_name =  f"transfer_const_cv={self.cv_const}_thick_s2"
         elif self.problem_type == "su_olson_s2":
             folder_name = "su_olson_s2"
         elif self.problem_type == "su_olson_thick_s2":
@@ -172,18 +178,20 @@ class save_output:
             folder_name = "su_olson"
         else:
             folder_name = 'none'
+            print('not saving')
+            print(self.problem_type)
         if not f.__contains__(folder_name):
             f.create_group(folder_name)
         full_str = ''
 
-        
-
-        
-        full_str += "/" + str(self.source_name) + '_uncollided_' * (self.uncollided) + 'moving_mesh_' * (self.moving) + 'N_space = ' + str(N_space) + '_t = ' + str(int(self.tfinal)) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
+        full_str += "/" + str(self.source_name) + '_uncollided_' * (self.uncollided) + 'moving_mesh_' * (self.moving) + 'N_space = ' + str(N_space) + '_t = ' + str(self.tfinal) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
         if f[folder_name].__contains__(full_str):
             del f[folder_name][full_str]
-        
+        print('###  ###  ###  ###  ###  ###  ###  ###  ###')
+        print(full_str)
+        print('###  ###  ###  ###  ###  ###  ###  ###  ###')
         dset = f[folder_name].create_dataset(full_str, (4, len(xs)))
+
         
         print("saving solution")
         dset[0] = xs
@@ -228,6 +236,7 @@ class save_output:
         elif self.problem_type == "su_olson":
             folder_name = "su_olson"
         else:
+            print('not saving correctly')
             folder_name = 'none'
 
 
