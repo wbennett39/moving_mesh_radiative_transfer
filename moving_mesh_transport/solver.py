@@ -159,8 +159,6 @@ class main_class(parameter_load_class):
                 self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, self.thick, self.mxstp, self.wave_loc_array, 
                 self.find_edges_tol, self.source_strength, self.move_factor)
                 print(edges, "edges")
-                # print(xs, 'xs')
-                # print(e, 'e')
                 
                 if self.sigma == 0:
                     x0_or_sigma = self.x0[0]
@@ -173,7 +171,7 @@ class main_class(parameter_load_class):
                     else:
                         s2 = False
                         
-                    saving.save_solution(xs, phi, e, sol_matrix, x0_or_sigma, ws, N_space, s2)
+                    saving.save_solution(xs, phi, e, sol_matrix, edges, x0_or_sigma, ws, N_space, s2)
                 
                 
                 self.r_times[count] += (time)/self.N_runs

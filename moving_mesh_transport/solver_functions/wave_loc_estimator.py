@@ -31,30 +31,33 @@ class find_wave:
         self.make_sol(sol)
         left_edge_list = np.zeros(sol.t.size)
         right_edge_list = np.zeros(sol.t.size)
-        # for it in range(sol.t.size):
-        it = sol.t.size-1
+        for it in range(sol.t.size):
+        # it = sol.t.size-1
   
-        self.interpolated_sol = CubicSpline(self.xs_list[it], self.solutions[it, :])
+            self.interpolated_sol = CubicSpline(self.xs_list[it], self.solutions[it, :])
+            self.e_interpolated_sol = CubicSpline(self.xs_list[it], self.e_solutions[it, :])
 
-        xs_range = [0, self.xs_list[it,-1]]
-        x_left, x_right = self.find_wave_bounds(xs_range)
-        left_edge_list[it] = x_left
-        right_edge_list[it] = x_right
-        xs_test = np.linspace(self.xs_list[it,0], self.xs_list[it,-1], 1000)
-        plt.figure(22)
-        plt.plot(xs_test, self.interpolated_sol(xs_test,1), '-', label = f'first deriv t={sol.t[it]}')
-        plt.xlim(250, self.xs_list[it,-1])
-        plt.legend()
-        plt.figure(23)
-        plt.plot(xs_test, self.interpolated_sol(xs_test,2), '--', label = f'second deriv t={sol.t[it]}')
-        plt.legend()
-        plt.xlim(350, self.xs_list[it,-1])
-        plt.figure(1)
-        plt.plot(xs_test, self.interpolated_sol(xs_test,0), '-s', mfc ='none',label = f't={sol.t[it]}')
-        plt.xlim(350, self.xs_list[it,-1])
-        # print(self.interpolated_sol(xs_test,1))
-        plt.legend()
-        plt.show()
+            xs_range = [0, self.xs_list[it,-1]]
+            x_left, x_right = self.find_wave_bounds(xs_range)
+
+            left_edge_list[it] = x_left
+            right_edge_list[it] = x_right
+            xs_test = np.linspace(self.xs_list[it,0], self.xs_list[it,-1], 1000)
+            if it == sol.t.size-1:
+                plt.figure(22)
+                plt.plot(xs_test, self.interpolated_sol(xs_test,1), '-', label = f'first deriv t={sol.t[it]}')
+                plt.xlim(250, self.xs_list[it,-1])
+                plt.legend()
+                plt.figure(23)
+                plt.plot(xs_test, self.interpolated_sol(xs_test,2), '--', label = f'second deriv t={sol.t[it]}')
+                plt.legend()
+                plt.xlim(350, self.xs_list[it,-1])
+                plt.figure(1)
+                plt.plot(xs_test, self.interpolated_sol(xs_test,0), '-s', mfc ='none',label = f't={sol.t[it]}')
+                plt.xlim(350, self.xs_list[it,-1])
+                # print(self.interpolated_sol(xs_test,1))
+                plt.legend()
+                plt.show()
 
         return left_edge_list, right_edge_list
 
@@ -64,6 +67,7 @@ class find_wave:
         self.edges = self.mesh.edges
         xs = find_nodes(self.edges, self.M)
         self.solutions = np.zeros((sol.t.size, xs.size))
+        self.e_solutions = np.zeros((sol.t.size, xs.size))
         self.xs_list = np.zeros((sol.t.size, xs.size))
         for it in range(sol.t.size):
             self.mesh.move(sol.t[it])
@@ -79,13 +83,15 @@ class find_wave:
 
             output = make_output(t, self.N_ang, self.ws, xs, sol_reshape, self.M, self.edges, self.uncollided)
             phi = output.make_phi(self.uncollided_sol)
+            e = output.make_e()
 
             self.solutions[it, :] = phi
+            self.e_solutions[it,:] = e
 
     def find_wave_bounds(self, xs_range):
         x_left = self.x0
         x_right = self.x0
-        mean_free = 1.0
+        mean_free = 25.0
         edge = xs_range[-1]
         left_found = False
         right_found = False
@@ -108,7 +114,7 @@ class find_wave:
                 x_left = self.x0
                 print(tol_left, 'new tol left')
                 # left_found = True
-            elif abs(self.interpolated_sol(x_left,1)) <= tol_left:
+            elif max(abs(self.interpolated_sol(x_left,1)), abs(self.e_interpolated_sol(x_left,1))) <= tol_left:
                 left_found = True
                 print(x_left, 'left edge')
         while right_found == False:
@@ -118,7 +124,7 @@ class find_wave:
                 x_right = self.x0
                 print(tol_right, 'new tol right')
                 # right_found = True
-            elif (abs(self.interpolated_sol(x_right,1)) <= tol_right) or self.interpolated_sol(x_right, 0) == 0:
+            elif max(abs(self.interpolated_sol(x_right,1)), abs(self.e_interpolated_sol(x_right,1))) or self.interpolated_sol(x_right, 0) == 0:
                 print(x_right, 'right edge')
                 right_found = True
 

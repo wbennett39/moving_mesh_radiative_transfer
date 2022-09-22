@@ -14,11 +14,11 @@ from moving_mesh_transport.solver_classes.functions import test_s2_sol
 from moving_mesh_transport.solver_functions.run_functions import run
 
 run = run()
-t_list = [0.1, 0.31623, 1, 3.16228, 10, 31.6228, 100.0]
+t_list = [0.1, 0.31623, 1, 3.16228, 10.0, 31.6228, 100.0]
 run.load('su_olson')
 for t in t_list:
     run.parameters['all']['tfinal'] = t
-    run.mesh_parameters['choose_xs'] = True
+    # run.mesh_parameters['choose_xs'] = True
     run.square_source()
     plt.close()
     plt.close()

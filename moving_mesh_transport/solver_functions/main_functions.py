@@ -170,7 +170,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         
     elif choose_xs == True:
         xs = specified_xs
-        
+    print(xs, 'xs')
     output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
     phi = output.make_phi(uncollided_sol)
     if thermal_couple == 1:

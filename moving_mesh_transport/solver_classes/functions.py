@@ -318,6 +318,9 @@ def test_s2_sol(t = 10, t0 = 10):
     print(np.sqrt(np.mean(phi_exact-phi)**2), 'RMSE')
     show('uncollided_su_olson_s2_t_10')
     plt.show()
+
+# def time_step_counter(t, division):
+    
     
     
         

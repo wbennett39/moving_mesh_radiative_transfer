@@ -1,13 +1,13 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'rad_transfer_constant_cv'
-    'tfinal': 10.0 #31.6228                       # evaluation time
+    'tfinal': 1.0 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     'c_scaling': False
     't0': 10.0                           # time the source is turned off
-    'N_spaces': [4,8,16,32]                   # number of cells
+    'N_spaces': [4,8]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [15,15,15,15]                         # number of basis functions -1
+    'Ms': [4,4]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12
@@ -49,7 +49,7 @@
     'x0': [0.5]
     'source_strength': 1.0
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [32,256,256,512]
+    'N_angles': [32,256]
     'move_type': [1,0,0]      # [standard, square source thick , sqrt_t]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False

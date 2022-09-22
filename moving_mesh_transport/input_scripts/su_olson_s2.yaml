@@ -3,6 +3,7 @@
     'problem_name': 'su_olson_s2'
     'tfinal': 1 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
+    'c_scaling': False
     't0': 10.0                           # time the source is turned off
     'N_spaces': [4,8,16,32]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
@@ -44,6 +45,7 @@
 # square source
 'square_source':
     'x0': [0.5]
+    'source_strength': 1.0
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [2,2,2,2]
     'move_type': [1,0,0]      # [standard, square source, s2, square IC, thick square]

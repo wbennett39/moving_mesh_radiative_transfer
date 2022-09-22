@@ -37,9 +37,10 @@ class load_sol:
         f = h5py.File(self.data_file_path, "r+")
 
         if self.problem_name != 'su_olson_thick_s2': # FIX THIS LATER 
-            # print(f[self.problem_name].keys())
-            print(f[self.problem_name].keys())
-            sol_data = f[self.problem_name][full_str]
+            # print(f.keys())
+
+            sol_data = f[self.problem_name]['solution/'+full_str]
+
             self.xs = sol_data[0]
             self.phi = sol_data[1]
             self.e = sol_data[2]
@@ -49,6 +50,7 @@ class load_sol:
         # print(f[self.problem_name]['coefficients/'].keys())
 
         self.ws = f[self.problem_name]['weights/' + full_str][:]
+        self.edges = f[self.problem_name]['edges/' + full_str][:]
         # print(f[self.problem_name]['weights'].keys())
         # print(f[self.problem_name]['coefficients'].keys())
         

@@ -50,7 +50,11 @@ class rms_plotter:
         """
         x = np.log(self.cells[1:])
         y = np.log(self.RMS[1:])
+        y1 = (np.log(self.energy_RMS[1:]))
         slope, intercept, r, p, se = linregress(x, y)
+        slope2, intercept2, r, p, se = linregress(x, y1)
+        print('intercept', np.exp(intercept))
+        print('energy intercept', np.exp(intercept2))
         return np.exp(intercept)
     
     def find_c_semilog(self):
@@ -303,10 +307,12 @@ class rms_plotter:
 
             elif self.source_name in ['su_olson_s2', 'su_olson_energy_s2']:
                 xlimright = 36
+                intercept = self.find_c()
                 if self.uncollided == True:
                     # self.cells = self.cells[:-1]
                     # self.RMS = self.RMS[:-1]
                     intercept = self.find_c()
+
                     if self.M == 4 and self.moving == True:
                         order_triangle(6, 11, 2, intercept, 2, 1.2)
                 plt.ylim(1e-7, 1e-2)
@@ -472,7 +478,7 @@ class rms_plotter:
             xlimright = 12
             plt.ylim = 10e-14
             self.find_c_semilog()
-        energy_list = ['su_olson_thick_s2_energy', 'gaussian_s_thick_s2_energy']
+        energy_list = ['su_olson_thick_s2_energy', 'gaussian_s_thick_s2_energy', 'gaussian_energy_s2']
 
         if self.source_name not in energy_list:    
             if self.source_name == "gaussian_IC" or self.source_name == "gaussian_s":

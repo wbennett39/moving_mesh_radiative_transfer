@@ -214,7 +214,9 @@ data = [('N_ang', int64),
         ('c', float64),
         ('uncollided', int64),
         ('thermal_couple', int64),
-        ('test_dimensional_rhs', int64)
+        ('test_dimensional_rhs', int64),
+        ('told', float64),
+        ('division', float64)
         ]
 ##############################################################################
 @jitclass(data)
@@ -230,8 +232,17 @@ class rhs_class():
         self.thermal_couple = build.thermal_couple
         self.uncollided = build.uncollided
         self.test_dimensional_rhs = False
+        self.told = 0.0
+        self.division = 10.0
+    
+    def time_step_counter(self, t):
+        if self.told < self.division and t >= self.division:
+            print(t)
+            self.division += 10.
+            self.told = t
         
     def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer_class):
+        self.time_step_counter(t)
         if self. thermal_couple == 0:
             V_new = V.copy().reshape((self.N_ang, self.N_space, self.M+1))
         elif self.thermal_couple == 1:

@@ -239,6 +239,7 @@ class mesh_class(object):
                 # print(self.wave_loc_array[0,2,index+1])
                 self.right_speed = self.right_speed*(-1)
                 self.left_speed = self.left_speed*(-1)
+                
             
             wave_front_array =  self.Dedges_const[0:int(half/2)]*self.right_speed/self.speed*(-1)
                 # print(wave_front_array, 'wave speeds forward')

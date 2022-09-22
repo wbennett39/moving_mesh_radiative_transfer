@@ -51,10 +51,6 @@ where
 `cv0`: only applies to constant cv cases. 
 
 
-### Testing
-before invoking python, run ``pytest`` in the top level folder.
-
-
 ### Solver
 
 The solver is automatically imported as `run` after running `imports.py`. `transport` is the default problem, but it can be changed by
@@ -105,7 +101,7 @@ To close the plots produced by the solver,
 ### Input scripts
 The `YAML` input scripts, found in the folder, `moving_mesh_transport/input_scripts`, allow the user to easily modify the problem parameters without quitting python (Or re-compiling all of the functions that `numba` compiles on the first run.)  Simply change the parameters and `run.load('problem_name')` to load them. 
 
-
+`mesh_parameters.yaml` contains parameters that apply to all problems. Most of the parameters have to do with the optically thick source mesh.  
 
 
 ### RMS Plotter
@@ -132,20 +128,11 @@ make_plots.plot_bench(tfinal, source_name, fign)
 
 Where `source_name` can be `plane_IC`, `square_IC`, `square_source`, `gaussian_IC`, `gaussian_source`, or `MMS`.
 
-### Benchmark maker
 
-If you are interested in re-running the benchmark module (which takes quite a while)
-
-``
-from moving_mesh_transport.benchmarks import make_benchmarks
-``
-
-``
-make_benchmarks.make_all()
-``
-
-will integrate the Greens function solution for the plane pulse and produce benchmark results for all of the sources run by the ``solver`` except for the MMS source at times 1, 5, and 10. For this reason, running the ``solver`` at other final times will return results but the benchmark solution will be 0 for all x. 
 
 ### Final notes
 In ``config.yaml`` certain parameters may be easily changed, such as the final evaluation time, number of basis functions, number of cells in the mesh, and number of discrete angles. Please ensure that the lengths of the  `N_spaces`, `Ms`, and `N_angles` lists are all the same, or the program will complain. 
 
+
+### Testing
+before invoking python, run ``pytest`` in the top level folder.
