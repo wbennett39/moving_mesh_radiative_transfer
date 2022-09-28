@@ -7,7 +7,9 @@ import matplotlib.pyplot as plt
 
 # from moving_mesh_transport.plots.plot_square_s_times import main as plot_square_s_times
 from moving_mesh_transport.solution_plotter import plot_thin_nonlinear_problems as plot_thin
+from moving_mesh_transport.solution_plotter import plot_thick_nonlinear_problems as plot_thick
 from moving_mesh_transport.solution_plotter import plot_su_olson as plot_su
+
 from moving_mesh_transport.solution_plotter import make_tables_su_olson as tab_su
 
 # from moving_mesh_transport.solver_classes.functions import test_s2_sol

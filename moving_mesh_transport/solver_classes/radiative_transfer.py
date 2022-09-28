@@ -52,7 +52,7 @@ class T_function(object):
         
         self.xs_quad = build.xs_quad
         self.ws_quad = build.ws_quad
-        self.cv0 = build.cv0 / self.a
+        self.cv0 = build.cv0 / self.a 
         if (self.cv0) != 0.0:
             print('cv0 is ', self.cv0)
         self.test_dimensional_rhs = False

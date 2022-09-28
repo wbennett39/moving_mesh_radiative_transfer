@@ -35,6 +35,8 @@ class parameter_load_class:
         self.edge_v = str(parameters['all']['edge_v'])
         self.cv0 = float(parameters['all']['cv_const'])
         self.problem_type = str(parameters['all']['problem_name'])
+        self.sigma_t = float(parameters['all']['sigma_t'])
+
 
         self.thick = int(parameters['all']['thick'])
         self.mxstp = float(parameters['all']['mxstp'])

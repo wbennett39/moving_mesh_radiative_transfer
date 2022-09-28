@@ -216,7 +216,10 @@ data = [('N_ang', int64),
         ('thermal_couple', int64),
         ('test_dimensional_rhs', int64),
         ('told', float64),
-        ('division', float64)
+        ('division', float64),
+        ('c_a', float64),
+        ('sigma_a', float64),
+        ('mean_free_time', float64)
         ]
 ##############################################################################
 @jitclass(data)
@@ -233,12 +236,16 @@ class rhs_class():
         self.uncollided = build.uncollided
         self.test_dimensional_rhs = False
         self.told = 0.0
-        self.division = 10.0
+       
+        self.c_a = build.sigma_a / build.sigma_t
+        print(self.c_a, 'c_a')
+        self.mean_free_time = 1/build.sigma_t
+        self.division = 200.0 * self.mean_free_time
     
     def time_step_counter(self, t):
         if self.told < self.division and t >= self.division:
             print(t)
-            self.division += 10.
+            self.division += 200. * self.mean_free_time
             self.told = t
         
     def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer_class):
@@ -270,7 +277,8 @@ class rhs_class():
                 H = np.zeros(self.M+1)
             S = source.S
             
-            sigma_a = 1-self.c
+            
+
             ######### solve thermal couple ############
             if self.thermal_couple == 1 and self.N_ang !=2:
         
@@ -279,12 +287,12 @@ class rhs_class():
                 num_flux.make_LU(t, mesh, V_old[self.N_ang,:,:], space, 0.0)
                 RU = num_flux.LU
                 if self.test_dimensional_rhs == True:
-                    RHS_energy = np.dot(G,U) - RU + sigma_a * (2.0 * P  - H)
+                    RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H)
                 else:
-                    RHS_energy = np.dot(G,U) - RU + sigma_a * (2.0 * P  - H)
+                    RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H)
                 
                 if self.uncollided == True:
-                    RHS_energy += sigma_a * source.S 
+                    RHS_energy += self.c_a * source.S 
                 V_new[self.N_ang ,space,:] = RHS_energy
                 
             elif self.thermal_couple == 1 and self.N_ang == 2:
@@ -292,9 +300,9 @@ class rhs_class():
                 U[:] = V_old[self.N_ang,space,:]
                 num_flux.make_LU(t, mesh, V_old[self.N_ang,:,:], space, 0.0)
                 RU = num_flux.LU
-                RHS_energy = np.dot(G,U) - RU + sigma_a * (2.0 * P  - H)
+                RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H)
                 if self.uncollided == True:
-                    RHS_energy += sigma_a * source.S 
+                    RHS_energy += self.c_a * source.S 
                 V_new[self.N_ang ,space,:] = RHS_energy
                 
             ########## Loop over angle ############
@@ -317,21 +325,22 @@ class rhs_class():
                     V_new[angle,space,:] = RHS
                     
                 elif self.thermal_couple == 1:
+
                     deg_freedom = (self.N_ang + 1) * self.N_space * (self.M+1)
                     
                     if self.N_ang == 2:
                         if self.uncollided == True:
-                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * (P + 0.5*S) + sigma_a*0.5*H
+                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * (P + 0.5*S) + self.c_a*0.5*H
                         elif self.uncollided == False:
-                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c*P + 0.5*S + sigma_a*0.5*H
+                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c*P + 0.5*S + self.c_a*0.5*H
                     elif self.N_ang !=2:
                         if self.uncollided == True:
-                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * (P + S*0.5) + sigma_a*0.5*H
+                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * (P + S*0.5) + self.c_a*0.5*H
                         elif self.uncollided == False:
                             if self.test_dimensional_rhs == True:
-                                RHS_transport = np.dot(G,U) - LU + 299.98*mul*np.dot(L,U) - 299.98*U + 299.98*self.c * P + 299.98 * S*0.5 + 299.98*sigma_a*0.5*H
+                                RHS_transport = np.dot(G,U) - LU + 299.98*mul*np.dot(L,U) - 299.98*U + 299.98*self.c * P + 299.98 * S*0.5 + 299.98*self.c_a*0.5*H
                             else:
-                                RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * P + S*0.5 + sigma_a*0.5*H
+                                RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * P + S*0.5 + self.c_a*0.5*H
                     V_new[angle,space,:] = RHS_transport 
                     
         return V_new.reshape(deg_freedom)

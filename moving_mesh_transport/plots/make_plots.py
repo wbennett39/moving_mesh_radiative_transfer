@@ -676,7 +676,7 @@ class rms_plotter:
         self.legend = legend
         self.N_angles = []
         self.mat_or_rad = mat_or_rad
-
+        self.fign = fign
 
         for count, N_space in enumerate(N_spaces):
             print(uncollided,'uncollided',moving,'moving')
@@ -696,17 +696,17 @@ class rms_plotter:
             xdata = np.array(N_spaces)
             ydata = np.array(self.j_matrix[:,j])
 
-            plt.loglog(xdata, np.abs(ydata), "-o", mfc = 'none', label =f"j={j}")
+            # plt.loglog(xdata, np.abs(ydata), "-o", mfc = 'none', label =f"j={j}")
         self.file_path_string = str(self.plot_file_path) + '/'  + "coefficient_convergence" + "/" + problem_name + "_" +'tfinal_' + str(tfinal) +'_' + self.mat_or_rad + "_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
-        show_loglog(self.file_path_string, N_spaces[0]-1, N_spaces[-1] + 2)
-        plt.show()
+        # show_loglog(self.file_path_string, N_spaces[0]-1, N_spaces[-1] + 2)
+        # plt.show()
         
         
-        plt.legend()
-        plt.show()
+        # plt.legend()
+        # plt.show()
     
     def plot_coeff_boyd(self):
-        plt.figure(2)
+        plt.figure(self.fign + 1)
         xdata = np.linspace(0,self.M_coeff, self.M_coeff+1)
 
         label_list = self.label_list
@@ -734,7 +734,7 @@ class rms_plotter:
         plt.show()
 
 
-        plt.figure(3)
+        plt.figure(self.fign + 2)
         plt.ylim(1e-13, 1e-0)
         for ij in range(len(self.j_matrix[:,0])):
             plt.loglog(xdata, self.j_matrix[ij], mkr_list[ij], label = str(label_list[ij]) + ' cells', mfc = 'none', c = 'b')

@@ -259,8 +259,8 @@ def plot_all_benchmarks(tfinal):
         plotter = rms_plotter(tfinal, M, source, "cells")
         plotter.plot_bench(tfinal, source, count)
         
-def plot_coefficients(tfinal = 1,  M=10, source_name = 'gaussian_s',  N_spaces = [4,8,16,32], problem_name = 'transfer_const_cv=0.03',
-rad_or_transport ='transfer', x0_or_sigma = 300 , c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',legend = True, fign = 1):
+def plot_coefficients(tfinal = 10000.0,  M=15, source_name = 'gaussian_s',  N_spaces = [64], problem_name = 'transfer_const_cv=0.03_thick',
+rad_or_transport ='transfer', x0_or_sigma = 300.0 , c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',legend = True, fign = 1):
     
     plotter = rms_plotter(tfinal, M, source_name, 'cells')
     plotter.plot_coefficients(tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
@@ -268,6 +268,11 @@ rad_or_transport ='transfer', x0_or_sigma = 300 , c = 0.0, cv0=0.03,mat_or_rad =
 
     plotter.plot_coeff_boyd()
 
+    plotter = rms_plotter(tfinal, M, source_name, 'cells')
+    plotter.plot_coefficients(tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
+    x0_or_sigma, c, cv0, uncollided, s2, 'mat', moving, line, legend, fign = 3)
+
+    plotter.plot_coeff_boyd()
 
 
     

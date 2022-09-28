@@ -79,6 +79,7 @@ class mesh_class(object):
         pad = 0.0
         self.thick = thick
         self.wave_loc_array = wave_loc_array 
+        print(self.wave_loc_array, 'wave loc array')
         self.wave_loc_array[0,2,1:] += pad
         # print(self.wave_loc_array[0,2,-1], 'wave final location')
         self.wave_loc_array[0,1,1:] -= pad
@@ -112,6 +113,9 @@ class mesh_class(object):
         linearly increasing from 0 to the wavespeed
         """
         if self.moving == True:
+            # if self.source_type[1] == 1 or self.source_type[2] == 1:
+                # if t > 10.0:
+                #     self.Dedges = self.edges/self.edges[-1] * self.speed
             if self.move_func == 0: # simple linear
                 self.edges = self.edges0 + self.Dedges*t
               
@@ -158,9 +162,10 @@ class mesh_class(object):
         elif self.thick == True:
             # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
             if self.source_type[3] == 1 or self.source_type[5] == 1:
-                # self.thick_gaussian_init_func()
-                # have not yet optimized the mesh for this problem
-                self.simple_moving_init_func()
+                if self.moving == True:
+                    self.simple_moving_init_func()
+                elif self.moving == False:
+                    self.thick_gaussian_static_init_func()
 
             elif self.source_type[1] == 1 or self.source_type[2] == 1:
                 if self.move_func == 0:
@@ -193,7 +198,24 @@ class mesh_class(object):
             # self.edges[0] = -self.x0 + -self.tfinal * self.speed
 
 
-            print(self.edges, "final edges")
+            print(self.edges[-1], "final edges -- last edge")
+
+    def thick_gaussian_static_init_func(self):
+        print(self.wave_loc_array[0,2,-1], 'wave loc last')
+        if abs(self.wave_loc_array[0, 2, -1]) > 5:
+            right_edge = self.wave_loc_array[0,2,-1]
+        else:
+            right_edge = self.x0 + self.tfinal
+        
+        if right_edge < self.x0:
+            right_edge = self.x0 + self.tfinal
+        print(right_edge, 'right_edge')
+
+        self.edges = np.linspace(-right_edge, right_edge, self.N_space + 1)
+        self.Dedges = self.edges * 0
+
+
+
 
 
     def thick_square_moving_func(self, t):
@@ -209,12 +231,13 @@ class mesh_class(object):
             # print(self.wave_loc_array[0,2,:])
             # print(self.wave_loc_array[0,1,:])
             # print(delim)
+
             if t == 1.0:
                 pad = 0.5
             elif t == 100.0:
                 pad = 2.0
             else:
-                pad = 2.0
+                pad = 0.0
             self.delta_t = self.tfinal
             index -=1
             self.right_speed = (-self.wave_loc_array[0,2,index+1] - pad - self.edges[0])/self.delta_t 
@@ -307,8 +330,6 @@ class mesh_class(object):
 
 
 
-    def thick_gaussian_init_func(self):
-        return 0
 
     def thick_square_init_func(self):
         print("initializing thick square source")

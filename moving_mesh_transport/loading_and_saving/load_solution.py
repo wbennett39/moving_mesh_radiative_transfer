@@ -8,6 +8,7 @@ Created on Fri Jun 17 08:38:18 2022
 
 import h5py 
 from pathlib import Path
+import numpy as np
 
 
 class load_sol:
@@ -50,7 +51,8 @@ class load_sol:
         # print(f[self.problem_name]['coefficients/'].keys())
 
         self.ws = f[self.problem_name]['weights/' + full_str][:]
-        self.edges = f[self.problem_name]['edges/' + full_str][:]
+        if self.problem_name != 'rad_transfer_const_cv=0.03_thick':
+            self.edges = f[self.problem_name]['edges/' + full_str][:]
         # print(f[self.problem_name]['weights'].keys())
         # print(f[self.problem_name]['coefficients'].keys())
         
@@ -69,7 +71,7 @@ class load_sol:
 
         f = h5py.File(self.wavepoints_file_path, "r+")
 
-        full_str = str(self.source_name) + 't = ' + str(int(tfinal))    
+        full_str = str(self.source_name) + 't = ' + str((tfinal))    
         if self.problem_name == 'su_olson_thick':
                 self.tpnts = f['su_olson_thick_s2']['tpnts_' + full_str][:]
                 self.left = f['su_olson_thick_s2']['left_' + full_str][:]
@@ -77,9 +79,14 @@ class load_sol:
 
         elif self.problem_name == 'rad_transfer_constant_cv_thick':
             folder_name =  f"transfer_const_cv={self.cv0}_thick"
-            self.tpnts = f[folder_name]['tpnts_' + full_str][:]
-            self.left = f[folder_name]['left_' + full_str][:]
-            self.right = f[folder_name]['right_' + full_str][:]
+            if not f[folder_name].__contains__('tpnts_' + full_str):
+                self.tpnts = np.array([tfinal])
+                self.left = np.array([0])
+                self.right = np.array([0])
+            else:
+                self.tpnts = f[folder_name]['tpnts_' + full_str][:]
+                self.left = f[folder_name]['left_' + full_str][:]
+                self.right = f[folder_name]['right_' + full_str][:]
 
 
         else:

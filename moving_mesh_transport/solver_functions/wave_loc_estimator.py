@@ -12,7 +12,7 @@ class find_wave:
     This class takes solutions at an array of times, creates interpolated solutions and derivatives, 
     and estimates the wave location at those times
     """
-    def __init__(self, N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, thermal_couple, tfinal, x0, times, find_edges_tol):
+    def __init__(self, N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, thermal_couple, tfinal, x0, times, find_edges_tol, source_type):
         self.N_ang = N_ang
         self.N_space = N_space
         self.ws = ws
@@ -26,6 +26,7 @@ class find_wave:
         self.times = times
         self.dx = 1e-3 # step for searching for the wave 
         self.find_edges_tol = find_edges_tol
+        self.source_type = source_type
 
     def find_wave(self, sol):
         self.make_sol(sol)
@@ -89,12 +90,21 @@ class find_wave:
             self.e_solutions[it,:] = e
 
     def find_wave_bounds(self, xs_range):
-        x_left = self.x0
-        x_right = self.x0
-        mean_free = 25.0
-        edge = xs_range[-1]
         left_found = False
         right_found = False
+
+
+        if self.source_type[1] == 1 or self.source_type[2] == 1:
+            x_left = self.x0
+            x_right = self.x0
+        elif self.source_type[3] == 1 or self.source_type[5] ==1:
+            x_left = 0
+            x_right = 0
+            left_found = True
+
+        mean_free = 1
+        edge = xs_range[-1]
+
         inflection_found = False
         xs_test = np.linspace(0, self.tfinal + self.x0, 100000)
         test_deriv = np.abs(self.interpolated_sol(xs_test,1))
@@ -114,7 +124,7 @@ class find_wave:
                 x_left = self.x0
                 print(tol_left, 'new tol left')
                 # left_found = True
-            elif max(abs(self.interpolated_sol(x_left,1)), abs(self.e_interpolated_sol(x_left,1))) <= tol_left:
+            elif abs(self.interpolated_sol(x_left,1)) <= tol_left and abs(self.e_interpolated_sol(x_left,1)) <= tol_left:
                 left_found = True
                 print(x_left, 'left edge')
         while right_found == False:
@@ -124,7 +134,7 @@ class find_wave:
                 x_right = self.x0
                 print(tol_right, 'new tol right')
                 # right_found = True
-            elif max(abs(self.interpolated_sol(x_right,1)), abs(self.e_interpolated_sol(x_right,1))) or self.interpolated_sol(x_right, 0) == 0:
+            elif abs(self.interpolated_sol(x_right,1)) <= tol_right and abs(self.e_interpolated_sol(x_right,1)) <= tol_right:
                 print(x_right, 'right edge')
                 right_found = True
 

@@ -67,7 +67,7 @@ class source_class(object):
         self.t0 = build.t0
         self.sigma = build.sigma
         # self.source_strength = 0.0137225 * 299.98
-        self.source_strength = 1.0
+        self.source_strength = build.source_strength
     
     def integrate_quad(self, t, a, b, j, func):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
@@ -89,7 +89,7 @@ class source_class(object):
         temp = xs*0
         for ix in range(xs.size):
             if abs(xs[ix]) <= self.x0 and t < self.t0:
-                temp[ix] = 1.0 * self.source_strength
+                temp[ix] = 1.0
         return temp
             
     def gaussian_source(self, xs, t):
@@ -116,6 +116,8 @@ class source_class(object):
             elif self.source_type[5] == 1:
                 for j in range(self.M+1):
                     self.integrate_quad(t, xL, xR, j, self.gaussian_source)
+        
+        self.S = self.S * self.source_strength
 
     def make_source_not_isotropic(self, t, mu, xL, xR):
             if self.source_type[4] ==1:

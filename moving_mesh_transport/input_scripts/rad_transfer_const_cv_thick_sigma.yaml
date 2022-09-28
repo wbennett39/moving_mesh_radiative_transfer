@@ -1,0 +1,82 @@
+# parameters shared by all source types
+'all':
+    'problem_name': 'rad_transfer_constant_cv_thick'
+    'tfinal': 0.125 #31.6228                       # evaluation time
+    'c': 0.0                            # scattering ratio
+    'sigma_t': 800
+    'c_scaling': False
+    't0': 0.0125                          # time the source is turned off
+    'N_spaces': [8]                   # number of cells
+    'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
+    'Ms': [0]                         # number of basis functions -1
+    'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
+    'rt': 5e-13                         # rel tolerance for ODE integrator
+    'at': 1e-12                         # abs tolerance for ODE integrator
+    'mxstp': 10000.
+    'major': 'cells'                       # whether the solver iterates over spaces or M's
+    'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
+    'temperature_dependence': [0,1,0,0] # first slot is Su-Olson problem, second is const Cv
+    'e_initial': 0.0000000001
+    'weights': 'gauss_lobatto'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
+    'save_solution': True
+    'particle_v': 'one'
+    'edge_v': 'one'
+    'cv_const': 0.03
+    'estimate_wavespeed': False
+    'find_wave_loc': False
+    'thick': True
+    
+# plane pulse source
+'plane_IC':
+    'x0': [1e-10]                         # source initial width/2
+    'source_type': [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    'N_angles': [2, 2, 2]    # corresponds to N_spaces
+    'move_type': [1,0,0,0,0]              # moving mesh function selector
+    'benchmarking': False                # If 'True', will attempt to load benchmark and calculate RMSE
+    
+# square pulse source
+'square_IC':
+    'x0': [400]
+    'source_type': [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
+    'N_angles': [8]
+#    'N_angles': [128]
+    'move_type': [0,0,0,0,1]      # [standard, square source, s2, square IC, thick square]
+    'benchmarking': False
+    
+    
+    
+# square source
+'square_source':
+    'x0': [0.5]
+    'source_strength': 800
+    'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
+    'N_angles': [64]
+    'move_type': [0,0,1]      # [standard, thick, sqrt_t]
+    'bench_type': 'Full'          # 'S2' or 'full'
+    'benchmarking': False
+    
+# gaussian pulse source
+'gaussian_IC':
+    'sigma': 300
+#    'x0': [, 3.6, 1.5, 1.5, 1.5]
+    'x0': [1700, 1700, 1700, 1700, 1700]
+    'source_type': [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
+    'N_angles': [8,8,8]
+    'move_type': [1,0,0,1,0]
+    'benchmarking': False
+    
+# gaussian  source
+'gaussian_source':
+    'sigma': 300
+    'source_strength': 0.00125
+    'x0': [1700, 1700, 1700, 1700, 1700]
+    'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
+    'N_angles': [4]
+    'move_type': [1,0,0]
+    'bench_type': 'Full'          # 'S2' or 'full'
+    'benchmarking': False
+
+
+    
+    
+

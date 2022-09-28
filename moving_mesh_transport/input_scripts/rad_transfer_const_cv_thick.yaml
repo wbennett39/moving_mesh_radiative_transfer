@@ -1,17 +1,18 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'rad_transfer_constant_cv_thick'
-    'tfinal': 100.0 #31.6228                       # evaluation time
+    'tfinal': 1000.0 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
+    'sigma_t': 1
     'c_scaling': False
-    't0': 10.0                           # time the source is turned off
-    'N_spaces': [8,16]                   # number of cells
+    't0': 10.0                          # time the source is turned off
+    'N_spaces': [64]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [10,10]                         # number of basis functions -1
+    'Ms': [0]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
-    'mxstp': 100000.
+    'mxstp': 10000.
     'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
     'temperature_dependence': [0,1,0,0] # first slot is Su-Olson problem, second is const Cv
@@ -46,10 +47,10 @@
     
 # square source
 'square_source':
-    'x0': [400]
-    'source_strength': 1.0
+    'x0': [400.0]
+    'source_strength': 1
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [4,16]
+    'N_angles': [64]
     'move_type': [0,1,0]      # [standard, thick, sqrt_t]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False
@@ -67,10 +68,10 @@
 # gaussian  source
 'gaussian_source':
     'sigma': 300
-    'source_strength': 1.0
+    'source_strength': 1
     'x0': [1700, 1700, 1700, 1700, 1700]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
-    'N_angles': [8,8,8,8]
+    'N_angles': [16]
     'move_type': [1,0,0]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False

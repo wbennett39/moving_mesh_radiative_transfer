@@ -54,7 +54,8 @@ data = [('N_ang', int64),
         ('thick', int64),
         ('wave_loc_array', float64[:,:,:]),
         ('source_strength', float64),
-        ('move_factor', float64)
+        ('move_factor', float64),
+        ('sigma_a', float64)
         ]
 ###############################################################################
 
@@ -69,6 +70,7 @@ class build(object):
         self.tfinal = tfinal
         self.sigma_t = sigma_t
         self.sigma_s = sigma_s
+        self.sigma_a = sigma_t-sigma_s
         self.mus = mus
         self.ws = ws/np.sum(ws)
         self.xs_quad = xs_quad

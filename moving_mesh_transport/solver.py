@@ -96,7 +96,7 @@ class main_class(parameter_load_class):
         print("c = ", self.scattering_ratio)
         print('source strength', self.source_strength)
         print("x0s", self.x0)
-        print('sigma', self.sigma)
+        print('sigma', self.sigma_t)
         print("---  ---  ---  ---  ---  ---  ---")
         if self.benchmarking == True:
             print("verifying with benchmark solution")
@@ -118,8 +118,14 @@ class main_class(parameter_load_class):
         print("moving mesh = ", moving)
         print("---  ---  ---  ---  ---  ---  ---")
 
-        if self.thick == True and self.source_type[2] == 1 and self.move_type[1] == 1: # make this a separate function
+        if (self.thick == True and self.source_type[2] == 1 and self.move_type[1] == 1): # make this a separate function
             sol_loader = load_sol(self.problem_type, 'square_s','transfer', self.scattering_ratio, self.N_angles[0]==2, self.cv0)
+            sol_loader.call_wavepoints(self.tfinal)
+            self.tpnts_wave = sol_loader.tpnts
+            self.left_wave = sol_loader.left
+            self.right_wave = sol_loader.right
+        elif (self.thick == True and self.source_type[5] == 1):
+            sol_loader = load_sol(self.problem_type, 'gaussian_s','transfer', self.scattering_ratio, self.N_angles[0]==2, self.cv0)
             sol_loader.call_wavepoints(self.tfinal)
             self.tpnts_wave = sol_loader.tpnts
             self.left_wave = sol_loader.left
@@ -142,8 +148,8 @@ class main_class(parameter_load_class):
                 print(N_ang, "angles")
                 print("---  ---  ---  ---  ---  ---  ---")
     
-                sigma_t = np.ones(N_space)
-                sigma_s = np.ones(N_space)
+                sigma_t = np.ones(N_space)*self.sigma_t
+                sigma_s = np.ones(N_space)*self.scattering_ratio*self.sigma_t
                 
                 if self.choose_xs == True:
                     choose_xs = True
@@ -158,8 +164,13 @@ class main_class(parameter_load_class):
                 self.rt, self.at, self.e_initial, choose_xs, specified_xs, self.weights, self.sigma, self.particle_v, 
                 self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, self.thick, self.mxstp, self.wave_loc_array, 
                 self.find_edges_tol, self.source_strength, self.move_factor)
-                print(edges, "edges")
+                # print(edges, "edges")
                 
+
+                # if self.sigma_t == 800:
+                #     print('re-scaling thick solution')
+                #     xs = xs * self.sigma_t
+
                 if self.sigma == 0:
                     x0_or_sigma = self.x0[0]
                 else:
@@ -197,8 +208,8 @@ class main_class(parameter_load_class):
                     plot_edges(edges, 3)
                 if self.thermal_couple == 1:
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
-                if self.thick == True:
-                    plt.xlim(self.x0[0] -50, edges[-1])
+                if self.thick == True and self.sigma_t ==1 and (self.source_type[1] == 1 or self.source_type[2] == 1) :
+                    plt.xlim(self.x0[0] - self.x0[0]/8, edges[-1])
                 plt.legend()
                 plt.show()
                 if count == len(self.N_angles)-1:

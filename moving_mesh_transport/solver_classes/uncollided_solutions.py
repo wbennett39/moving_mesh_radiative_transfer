@@ -224,25 +224,25 @@ class uncollided_solution(object):
     def uncollided_solution(self, xs, t):
         if self.uncollided == True:
             if self.source_type[0] == 1:
-                return self.plane_IC_uncollided_solution(xs, t)
+                return self.plane_IC_uncollided_solution(xs, t) * self.source_strength
             
             elif self.source_type[1] == 1:
-                return self.square_IC_uncollided_solution(xs, t)
+                return self.square_IC_uncollided_solution(xs, t) * self.source_strength
             
             elif self.source_type[2] == 1:
                 if self.N_ang == 2:
-                    return self.su_olson_s2_uncollided_solution(xs, t)
+                    return self.su_olson_s2_uncollided_solution(xs, t) * self.source_strength
                 else:
-                    return self.square_source_uncollided_solution(xs, t)
+                    return self.square_source_uncollided_solution(xs, t) * self.source_strength
                 
             elif self.source_type[3] == 1:                
-                return self.gaussian_IC_uncollided_solution(xs, t)
+                return self.gaussian_IC_uncollided_solution(xs, t) * self.source_strength
             
             elif self.source_type[5] == 1:
                 if self.N_ang == 2:
-                    return self.gaussian_s2(xs,t)
+                    return self.gaussian_s2(xs,t) * self.source_strength
                 else:
-                    return self.gaussian_source_uncollided_solution(xs, t)
+                    return self.gaussian_source_uncollided_solution(xs, t) * self.source_strength
             
         else:
             return xs*0

@@ -1,5 +1,5 @@
 'find_edges_tol': 10000000. # tolerance is this many times smaller than the max value of the derivative
-'sqrt_t_move_factor': 2.2    # the constant in front of the sqrt(t) # not yet implemented
+'sqrt_t_move_factor': 8    # the constant in front of the sqrt(t) # not yet implemented
 'estimate_wavespeed': False # there's a glitch here. Needs to be True to save 'find_wave_loc' results
 'find_wave_loc': False
 'choose_xs': False        # Allows the user to select points to return a solution

@@ -141,15 +141,15 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         wavespeed_array = wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, 
                           uncollided_sol, thermal_couple, tfinal, x0)
     elif estimate_wavespeed == False:
-        wavespeed_array = np.array([[0],[0], [0]])
+        wavespeed_array = np.zeros((1,1,1))
 
     if find_wave_loc == True:
         wave_loc_finder = find_wave(N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, 
-        thermal_couple, tfinal, x0, sol.t, find_edges_tol)
+        thermal_couple, tfinal, x0, sol.t, find_edges_tol, source_type)
         left_edges, right_edges = wave_loc_finder.find_wave(sol)
     elif find_wave_loc == False:
-        left_edges =  np.array([0])
-        right_edges = np.array([0])
+        left_edges =  np.zeros(1)
+        right_edges = np.zeros(1)
 
 
     if thermal_couple == 0:

@@ -17,6 +17,7 @@ class make_output:
         self.M = M
         self.edges = edges
         self.uncollided = uncollided
+        print(self.uncollided, 'uncollided')
         self.t = t
     def make_phi(self, uncollided_solution):
         output = self.xs*0
