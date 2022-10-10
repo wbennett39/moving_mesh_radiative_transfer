@@ -124,6 +124,10 @@ class main_class(parameter_load_class):
             self.tpnts_wave = sol_loader.tpnts
             self.left_wave = sol_loader.left
             self.right_wave = sol_loader.right
+            self.T_wave = sol_loader.T_wave
+            self.wave_loc_array = np.array([[(self.tpnts_wave)], [(self.left_wave)], [(self.right_wave)], [(self.T_wave)]])
+            print(self.wave_loc_array)
+
         elif (self.thick == True and self.source_type[5] == 1):
             sol_loader = load_sol(self.problem_type, 'gaussian_s','transfer', self.scattering_ratio, self.N_angles[0]==2, self.cv0)
             sol_loader.call_wavepoints(self.tfinal)
@@ -131,7 +135,7 @@ class main_class(parameter_load_class):
             self.left_wave = sol_loader.left
             self.right_wave = sol_loader.right
             
-            self.wave_loc_array = np.array([[(self.tpnts_wave)], [(self.left_wave)], [(self.right_wave)]])
+            self.wave_loc_array = np.array([[(self.tpnts_wave)], [(self.left_wave)], [(self.right_wave)], [(self.T_wave)]])
         else:
             self.wave_loc_array = np.zeros((1,1,1))
 
@@ -158,13 +162,14 @@ class main_class(parameter_load_class):
                     choose_xs = False
                     specified_xs = 0.0
                     
-                xs, phi, e, time, sol_matrix, ws, edges, wavespeed_array, tpnts, left_edges, right_edges = solve(self.tfinal,
-                N_space, N_ang, M, x0_new, self.t0, sigma_t, sigma_s, self.t_nodes, self.scattering_ratio, 
-                self.source_type, uncollided, moving, self.move_type, self.thermal_couple,self.temp_function, 
-                self.rt, self.at, self.e_initial, choose_xs, specified_xs, self.weights, self.sigma, self.particle_v, 
-                self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, self.thick, self.mxstp, self.wave_loc_array, 
-                self.find_edges_tol, self.source_strength, self.move_factor)
+                xs, phi, e, time, sol_matrix, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location = solve(self.tfinal,N_space, N_ang, M, x0_new, self.t0, sigma_t, 
+                sigma_s, self.t_nodes, self.scattering_ratio, self.source_type, uncollided, moving, self.move_type,
+                self.thermal_couple,self.temp_function, self.rt, self.at, self.e_initial, choose_xs, specified_xs, 
+                self.weights, self.sigma, self.particle_v, self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, 
+                self.thick, self.mxstp, self.wave_loc_array, self.find_edges_tol, self.source_strength, self.move_factor, 
+                self.integrator, self.l, self.save_wave_loc, self.pad)
                 # print(edges, "edges")
+                print(wave_tpnts, wave_xpnts, "wave points")
                 
 
                 # if self.sigma_t == 800:
@@ -217,6 +222,12 @@ class main_class(parameter_load_class):
                     self.phi = phi
                     self.e = e
                 ##################################################################
+                if self.save_wave_loc == True:
+                    plt.figure(7)
+                    plt.plot(wave_tpnts[1:], wave_xpnts[1:], label = f'{N_space} spaces')
+                    plt.legend()
+                    plt.show()
+                ##################################################################
                     
                 if self.benchmarking == True:
                     if self.thermal_couple == 0:
@@ -260,7 +271,7 @@ class main_class(parameter_load_class):
                 ##################################################################
                 if self.find_wave_loc == True:
                     print('saving ')
-                    saving.save_wave_loc(tpnts, left_edges, right_edges)
+                    saving.save_wave_loc(tpnts, left_edges, right_edges, T_front_location)
 
                     # plt.figure(2)
                     # plt.plot(tpnts, wavespeed_array, '-o', label = "calculated wavespeed")
@@ -280,6 +291,8 @@ class main_class(parameter_load_class):
                     plt.figure(5)
                     plt.plot(tpnts, left_edges, '-o', label = 'left_edge')
                     plt.plot(tpnts, right_edges, '-o', label = 'right_edge')
+                    plt.plot(tpnts, T_front_location, '-o', label = 'wave temperature front')
+
                     plt.legend()
                     plt.show()
                 ##################################################################

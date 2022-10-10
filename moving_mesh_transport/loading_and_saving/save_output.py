@@ -220,7 +220,7 @@ class save_output:
         f.close()        
      
 
-    def save_wave_loc(self, tpnts, leftpnts, rightpnts):
+    def save_wave_loc(self, tpnts, leftpnts, rightpnts, T_wave_points):
     
         f = h5py.File(self.wavepoints_file_path, 'a')
 
@@ -260,10 +260,14 @@ class save_output:
               del f[folder_name]['left_' + full_str]
         if f[folder_name].__contains__('right_' + full_str):
               del f[folder_name]['right_' + full_str]
+        if f[folder_name].__contains__('T_wave_' + full_str):
+              del f[folder_name]['T_wave_' + full_str]
 
         dset1  = f[folder_name].create_dataset('tpnts_' + full_str, data = tpnts)
         dset2  = f[folder_name].create_dataset('left_' + full_str, data = leftpnts)
         dset3  = f[folder_name].create_dataset('right_' + full_str, data = rightpnts)
+        dset3  = f[folder_name].create_dataset('T_wave_' + full_str, data = T_wave_points)
+
 
 
         f.close()

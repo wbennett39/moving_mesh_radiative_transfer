@@ -25,6 +25,7 @@
     'estimate_wavespeed': False
     'find_wave_loc': False
     'thick': False            # optically thick or thin
+    'integrator': 'DOP853'
     
 # plane pulse source
 'plane_IC':

@@ -32,16 +32,52 @@ def numba_expi(x):
     return expn_fn(x)
 
 # @njit("float64[:](float64,float64[:],float64,float64)", looplift=False, parallel=False)
-@njit
+@njit('float64[:](int64, float64[:], float64, float64)')
 def normPn(n,x,a=-1.0,b=1.0):
     tmp = 0*x
     for count in prange(x.size):
         z = (b+a-2*x[count])/(a-b)
         fact = np.sqrt((2*n+1)/(b-a)) #*(x>=a)*(x<=b)
         # tmp[count] = sc.eval_legendre(n,z)*fact
-        tmp[count] = numba_eval_legendre_float64(n, z)*fact
-    return tmp
-    
+        tmp[count] = numba_eval_legendre_float64(n, z)
+    return tmp * fact
+
+@njit
+def dx_normPn(n, x, a = -1.0, b = 1.0):
+    tmp = 0*x
+    fact = np.sqrt((2*n+1)/(b-a))
+    for count in prange(x.size):
+        z = (b+a-2*x[count])/(a-b)
+        if n == 0:
+            tmp[count] = 0.0
+        elif n == 1:
+            tmp[count] = 1.0
+        elif n == 2:
+            tmp[count] = 3*z
+        elif n == 3:
+            tmp[count] = (-3 + 15*z**2)/2.
+        elif n == 4:
+            tmp[count] = (-60*z + 140*z**3)/8.
+        elif n == 5:
+            tmp[count] = (15 - 210*z**2 + 315*z**4)/8.
+        elif n == 6:
+            tmp[count] = (210*z - 1260*z**3 + 1386*z**5)/16.
+        elif n == 7:
+            tmp[count] = (-35 + 945*z**2 - 3465*z**4 + 3003*z**6)/16.
+        elif n == 8:
+            tmp[count] = (-2520*z + 27720*z**3 - 72072*z**5 + 51480*z**7)/128.
+        elif n == 9:
+            tmp[count] = (315 - 13860*z**2 + 90090*z**4 - 180180*z**6 + 109395*z**8)/128.
+        elif n == 10:
+            tmp[count] = (6930*z - 120120*z**3 + 540540*z**5 - 875160*z**7 + 461890*z**9)/256.
+        elif n == 11:
+            tmp[count] = (-693 + 45045*z**2 - 450450*z**4 + 1531530*z**6 - 2078505*z**8 + 969969*z**10)/256.
+
+
+    return tmp * fact
+
+
+
 
 # @njit("float64[:](int64, float64[:], float64[:], float64[:,:,:], int64, float64[:,:])", parallel = True, looplift = True, fastmath = True)
 def make_phi(N_ang, ws, xs, u, M, edges):
@@ -319,12 +355,31 @@ def test_s2_sol(t = 10, t0 = 10):
     show('uncollided_su_olson_s2_t_10')
     plt.show()
 
+def test_square_sol(t = 240, t0 = 10):
+    import scipy.integrate as integrate
+    
+    xs = np.linspace(0, 480, 1000)
+    phi = xs*0
+    phi_test = xs*0
+    phi_exact = xs*0
+    x0 = 400 
+    for ix in range(xs.size):
+        phi[ix] = uncollided_square_s2(xs[ix],t, x0, t0)
+
+    
+    # plt.plot(xs, phi, '-ob')
+    plt.plot(xs, phi, '-k')
+    # plt.plot(xs, phi_test, '-or', mfc = 'none')
+    
+    show('uncollided_square_s2t')
+    plt.show()
+
 # def time_step_counter(t, division):
     
     
     
         
-        
+     
         
         
         

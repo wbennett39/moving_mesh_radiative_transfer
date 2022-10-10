@@ -58,9 +58,9 @@ class plot:
 
 # plot(1,4,16,'transport', 'square_s', 'transport', 1.0, False, 0.0, 0.5, 'rad', True, True )
 
-def plot_thin_nonlinear_problems(M=0, N_space = 16, problem_name = 'rad_transfer_const_cv', rad_or_transport = 'rad', 
+def plot_thin_nonlinear_problems(M=10, N_space = 32, problem_name = 'rad_transfer_const_cv', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 0.5, mat_or_rad ='rad', uncollided = True, moving = True):
-    tfinal_list = [1.0,10.0,31.6228]
+    tfinal_list = [1.0,10.0,31.6228,100.0]
     source_name_list = ['gaussian_s', 'square_s']
     fign = 1
     delim = '_'

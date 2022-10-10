@@ -36,9 +36,15 @@ class parameter_load_class:
         self.cv0 = float(parameters['all']['cv_const'])
         self.problem_type = str(parameters['all']['problem_name'])
         self.sigma_t = float(parameters['all']['sigma_t'])
+        self.integrator = str(parameters['all']['integrator'])
 
 
         self.thick = int(parameters['all']['thick'])
+        if self.thick == True:
+            self.l = float(parameters[source_name]['l'])
+        else:
+            self.l = 1.0
+
         self.mxstp = float(parameters['all']['mxstp'])
 
 
@@ -86,10 +92,12 @@ class parameter_load_class:
 
         self.find_edges_tol = float(mesh_parameters['find_edges_tol'])
         self.move_factor = float(mesh_parameters['sqrt_t_move_factor'])
-        self.estimate_wavespeed = int(mesh_parameters['estimate_wavespeed'])
+        self.save_wave_loc = int(mesh_parameters['save_wave_loc'])
         self.find_wave_loc = int(mesh_parameters['find_wave_loc'])
+        self.estimate_wavespeed = int(mesh_parameters['estimate_wavespeed'])
         self.choose_xs = int(mesh_parameters['choose_xs'])
         self.specified_xs = np.array(mesh_parameters['xs_list'])
+        self.pad = float(mesh_parameters['pad'])
 
 
         if not (len(self.N_spaces) == len(self.N_angles) == len(self.Ms)):

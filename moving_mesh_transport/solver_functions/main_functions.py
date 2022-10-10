@@ -88,7 +88,7 @@ def plot_p1_su_olson_mathematica():
 def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
           uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, 
           weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, 
-          find_edges_tol, source_strength, move_factor):
+          find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad):
 
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
@@ -105,7 +105,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
                        thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, 
-                       wave_loc_array, source_strength, move_factor)
+                       wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad)
                        
     initialize.make_IC()
     IC = initialize.IC
@@ -114,7 +114,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         deg_freedom = N_ang*N_space*(M+1)
     elif thermal_couple == 1:
         deg_freedom = (N_ang+1)*N_space*(M+1)
-    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array) 
+    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array, pad) 
     matrices = G_L(initialize)
     num_flux = LU_surf(initialize)
     source = source_class(initialize)
@@ -132,24 +132,34 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     if estimate_wavespeed == False:
         tpnts = [tfinal]
     elif estimate_wavespeed == True:
-        tpnts = np.linspace(0, tfinal, 25)
+        tpnts = np.linspace(0, tfinal, 5000)
     
-    sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method='DOP853', t_eval = tpnts , rtol = rt, atol = at, max_step = mxstp)
-    end = timer()
+    sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method=integrator, t_eval = tpnts , rtol = rt, atol = at, max_step = mxstp)
 
-    if estimate_wavespeed == True:
-        wavespeed_array = wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, 
-                          uncollided_sol, thermal_couple, tfinal, x0)
-    elif estimate_wavespeed == False:
-        wavespeed_array = np.zeros((1,1,1))
+    end = timer()
+    
+    if save_wave_loc == True:
+        print(save_wave_loc, 'save wave')
+        wave_tpnts = rhs.times_list
+        wave_xpnts = rhs.wave_loc_list
+    else:
+        wave_tpnts = np.array([0.0])
+        wave_xpnts = np.array([0.0])
+
+    # if estimate_wavespeed == True:
+    #     wavespeed_array = wavespeed_estimator(sol, N_ang, N_space, ws, M, uncollided, mesh, 
+    #                       uncollided_sol, thermal_couple, tfinal, x0)
+    # elif estimate_wavespeed == False:
+    wavespeed_array = np.zeros((1,1,1))
 
     if find_wave_loc == True:
         wave_loc_finder = find_wave(N_ang, N_space, ws, M, uncollided, mesh, uncollided_sol, 
-        thermal_couple, tfinal, x0, sol.t, find_edges_tol, source_type)
-        left_edges, right_edges = wave_loc_finder.find_wave(sol)
+        thermal_couple, tfinal, x0, sol.t, find_edges_tol, source_type, sigma_t)
+        left_edges, right_edges, T_front_location = wave_loc_finder.find_wave(sol)
     elif find_wave_loc == False:
         left_edges =  np.zeros(1)
         right_edges = np.zeros(1)
+        T_front_location = np.zeros(1)
 
 
     if thermal_couple == 0:
@@ -180,7 +190,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     
     computation_time = end-start
     
-    return xs, phi, e, computation_time, sol_last, ws, edges, wavespeed_array, tpnts, left_edges, right_edges
+    return xs, phi, e, computation_time, sol_last, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
 
 
 

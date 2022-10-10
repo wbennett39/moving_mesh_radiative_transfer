@@ -34,7 +34,11 @@ data = [('temp_function', int64[:]),
         ('cv0', float64),
         ('fudge_factor', float64[:]),
         ('clight', float64),
-        ('test_dimensional_rhs', int64)
+        ('test_dimensional_rhs', int64),
+        ('save_derivative', int64),
+        ('xs_points', float64[:]),
+        ('e_points', float64[:])
+
 
         ]
 ###############################################################################
@@ -56,6 +60,7 @@ class T_function(object):
         if (self.cv0) != 0.0:
             print('cv0 is ', self.cv0)
         self.test_dimensional_rhs = False
+        self.save_derivative = build.save_wave_loc
 
         
     def make_e(self, xs, a, b):
@@ -70,23 +75,29 @@ class T_function(object):
         self.H[j] = (b-a)/2 * np.sum(self.ws_quad * self.T_func(argument, a, b) * normPn(j, argument, a, b))
         
     def T_func(self, argument, a, b):
+        e = self.make_e(argument, a, b)
+
+        self.xs_points = argument
+        self.e_points = e
         if self.temp_function[0] == 1:
-            T = self.su_olson_source(argument, a, b)
+            T = self.su_olson_source(e, argument, a, b)
             return self.a * np.power(T,4) * self.fudge_factor
+
         elif self.temp_function[1] == 1:
-            e = self.make_e(argument,a,b)
             if self.test_dimensional_rhs == True:
                 T =  e / self.cv0
                 return np.power(T,4) * self.a * self.clight
             else:
                 T =  e / self.cv0 
                 return np.power(T,4)
-            
         else:
             assert(0)
+
         
-    def su_olson_source(self, x, a, b):
-        e = self.make_e(x, a, b)
+
+        
+    def su_olson_source(self, e, x, a, b):
+        
         self.fudge_factor = np.ones(e.size)
     
         for count in range(e.size):
@@ -107,3 +118,5 @@ class T_function(object):
             
         for j in range(self.M+1):
             self.integrate_quad(xL, xR, j)
+
+        

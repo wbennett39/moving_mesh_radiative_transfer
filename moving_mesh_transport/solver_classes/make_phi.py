@@ -6,7 +6,8 @@ Created on Wed Feb  2 18:17:08 2022
 @author: bennett
 """
 import numpy as np
-from .functions import normPn
+from .functions import normPn, dx_normPn
+
 
 class make_output:
     def __init__(self, t, N_ang, ws, xs, u, M, edges, uncollided):
@@ -17,7 +18,6 @@ class make_output:
         self.M = M
         self.edges = edges
         self.uncollided = uncollided
-        print(self.uncollided, 'uncollided')
         self.t = t
     def make_phi(self, uncollided_solution):
         output = self.xs*0
@@ -39,6 +39,7 @@ class make_output:
     
     def make_e(self):
         e = np.zeros((self.xs.size))
+        self.dx_e = np.zeros((self.xs.size))
         for count in range(self.xs.size):
             idx = np.searchsorted(self.edges[:], self.xs[count])
             if (idx == 0):
@@ -48,4 +49,6 @@ class make_output:
             for i in range(self.M+1):
                 if self.edges[0] <= self.xs[count] <= self.edges[-1]:
                     e[count] += self.u[self.N_ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
+                    if self.M <=11:
+                        self.dx_e[count] += self.u[self.N_ang,idx-1,i] * dx_normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         return e

@@ -1,7 +1,7 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'rad_transfer_constant_cv'
-    'tfinal': 1.0                       # evaluation time
+    'tfinal': 100.0                       # evaluation time
     'c': 0.0                            # scattering ratio
     'sigma_t': 1.0
     'c_scaling': False
@@ -25,6 +25,7 @@
     'estimate_wavespeed': False
     'find_wave_loc': False
     'thick': False            # optically thick or thin
+    'integrator': 'DOP853'
     
 # plane pulse source
 'plane_IC':

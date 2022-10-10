@@ -14,7 +14,8 @@ from moving_mesh_transport.solver_classes.functions import test_s2_sol
 from moving_mesh_transport.solver_functions.run_functions import run
 
 run = run()
-t_list = [0.1, 0.31623, 1, 3.16228, 10.0, 31.6228, 100.0]
+# t_list = [0.1, 0.31623, 1, 3.16228, 10.0, 31.6228, 100.0]÷
+t_list = [100.0]
 # run.load('su_olson_s2')
 # for t in t_list:
 #     run.parameters['all']['tfinal'] = t
@@ -44,9 +45,20 @@ t_list = [0.1, 0.31623, 1, 3.16228, 10.0, 31.6228, 100.0]
 #     plt.close()
 #     plt.close()
 #     plt.close()
-    # plt.close()
+#     plt.close()
+
+# t_list = [0.1, 0.31623, 1, 3.16228, 10.0, 31.6228, 100.0]
 
 run.load('rad_transfer_const_cv_s2')
+for t in t_list:
+    run.parameters['all']['tfinal'] = t
+    # run.mesh_parameters['choose_xs'] = True
+    run.square_source()
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+run.load('rad_transfer_const_cv')
 for t in t_list:
     run.parameters['all']['tfinal'] = t
     # run.mesh_parameters['choose_xs'] = True

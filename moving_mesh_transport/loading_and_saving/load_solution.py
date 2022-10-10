@@ -76,6 +76,8 @@ class load_sol:
                 self.tpnts = f['su_olson_thick_s2']['tpnts_' + full_str][:]
                 self.left = f['su_olson_thick_s2']['left_' + full_str][:]
                 self.right = f['su_olson_thick_s2']['right_' + full_str][:]
+                self.T_wave = f[folder_name]['T_wave_' + full_str][:]
+
 
         elif self.problem_name == 'rad_transfer_constant_cv_thick':
             folder_name =  f"transfer_const_cv={self.cv0}_thick"
@@ -83,10 +85,12 @@ class load_sol:
                 self.tpnts = np.array([tfinal])
                 self.left = np.array([0])
                 self.right = np.array([0])
+                self.T_wave = np.array([0])
             else:
                 self.tpnts = f[folder_name]['tpnts_' + full_str][:]
                 self.left = f[folder_name]['left_' + full_str][:]
                 self.right = f[folder_name]['right_' + full_str][:]
+                self.T_wave = f[folder_name]['T_wave_' + full_str][:]
 
 
         else:
@@ -95,6 +99,8 @@ class load_sol:
             self.tpnts = f[self.problem_name]['tpnts_' + full_str][:]
             self.left = f[self.problem_name]['left_' + full_str][:]
             self.right = f[self.problem_name]['right_' + full_str][:]
+            self.T_wave = f[folder_name]['T_wave_' + full_str][:]
+
 
 
 

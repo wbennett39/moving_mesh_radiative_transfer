@@ -219,7 +219,15 @@ data = [('N_ang', int64),
         ('division', float64),
         ('c_a', float64),
         ('sigma_a', float64),
-        ('mean_free_time', float64)
+        ('mean_free_time', float64),
+        ('counter', int64),
+        ('delta_tavg', float64),
+        ('l', float64),
+        ('times_list', float64[:]),
+        ('save_derivative', int64),
+        ('e_list', float64[:]),
+        ('e_xs_list', float64[:]),
+        ('wave_loc_list', float64[:])
         ]
 ##############################################################################
 @jitclass(data)
@@ -240,16 +248,51 @@ class rhs_class():
         self.c_a = build.sigma_a / build.sigma_t
         print(self.c_a, 'c_a')
         self.mean_free_time = 1/build.sigma_t
-        self.division = 200.0 * self.mean_free_time
+        self.division = 10000
+        self.counter = 0
+        self.delta_tavg = 0.0
+        self.l = build.l
+        self.times_list = np.array([0.0])
+        self.e_list = np.array([0.0])
+        self.e_xs_list = np.array([0.0])
+        self.wave_loc_list = np.array([0.0])
+        self.save_derivative = build.save_wave_loc
+
     
-    def time_step_counter(self, t):
-        if self.told < self.division and t >= self.division:
-            print(t)
-            self.division += 200. * self.mean_free_time
-            self.told = t
+    def time_step_counter(self, t, mesh):
+        delta_t = abs(self.told - t)
+        self.delta_tavg += delta_t / self.division
+        if self.counter == self.division:
+            print('t = ', t, '|', 'delta_t average= ', self.delta_tavg)
+            print(mesh.edges[-1]-mesh.edges[-2], 'last zone thickness')
+            print('--- --- --- --- --- --- --- --- --- --- --- --- --- ---')
+            self.delta_tavg = 0.0
+            self.counter = 0
+        else:
+            self.counter += 1
+        self.told = t
+
+        
+    def derivative_saver(self, t,  space, transfer_class):
+        if self.save_derivative == True:
+            self.e_list = np.append(self.e_list, transfer_class.e_points)
+            self.e_xs_list = np.append(self.e_xs_list, transfer_class.xs_points)
+
+        if space == self.N_space - 1:
+            deriv = np.copy(self.e_list)*0
+            for ix in range(1,self.e_list.size-1):
+                dx = self.e_xs_list[ix+1] - self.e_xs_list[ix]
+                deriv[ix] = (self.e_list[ix+1] - self.e_list[ix])/dx
+
+            max_deriv = max(np.abs(deriv))
+            max_deriv_loc = np.argmin(np.abs(np.abs(self.e_list) - max_deriv))
+            heat_wave_loc = self.e_xs_list[max_deriv_loc]
+            self.wave_loc_list = np.append(self.wave_loc_list, abs(heat_wave_loc)) 
+            self.times_list = np.append(self.times_list,t)
+            # print(heat_wave_loc, 'wave x')
         
     def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer_class):
-        self.time_step_counter(t)
+        self.time_step_counter(t, mesh)
         if self. thermal_couple == 0:
             V_new = V.copy().reshape((self.N_ang, self.N_space, self.M+1))
         elif self.thermal_couple == 1:
@@ -257,7 +300,7 @@ class rhs_class():
         V_old = V_new.copy()
         mesh.move(t)
 
-        for space in prange(self.N_space):            
+        for space in range(self.N_space):            
             xR = mesh.edges[space+1]
             xL = mesh.edges[space]
             dxR = mesh.Dedges[space+1]
@@ -275,9 +318,10 @@ class rhs_class():
                 H = transfer_class.H
             else: 
                 H = np.zeros(self.M+1)
+
+            self.derivative_saver(t, space, transfer_class)
+
             S = source.S
-            
-            
 
             ######### solve thermal couple ############
             if self.thermal_couple == 1 and self.N_ang !=2:
@@ -289,10 +333,10 @@ class rhs_class():
                 if self.test_dimensional_rhs == True:
                     RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H)
                 else:
-                    RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H)
+                    RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H) / self.l
                 
                 if self.uncollided == True:
-                    RHS_energy += self.c_a * source.S 
+                    RHS_energy += self.c_a * source.S /self.l
                 V_new[self.N_ang ,space,:] = RHS_energy
                 
             elif self.thermal_couple == 1 and self.N_ang == 2:
@@ -300,9 +344,9 @@ class rhs_class():
                 U[:] = V_old[self.N_ang,space,:]
                 num_flux.make_LU(t, mesh, V_old[self.N_ang,:,:], space, 0.0)
                 RU = num_flux.LU
-                RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H)
+                RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H) / self.l
                 if self.uncollided == True:
-                    RHS_energy += self.c_a * source.S 
+                    RHS_energy += self.c_a * source.S / self.l
                 V_new[self.N_ang ,space,:] = RHS_energy
                 
             ########## Loop over angle ############
@@ -335,13 +379,14 @@ class rhs_class():
                             RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c*P + 0.5*S + self.c_a*0.5*H
                     elif self.N_ang !=2:
                         if self.uncollided == True:
-                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * (P + S*0.5) + self.c_a*0.5*H
+                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U/self.l + self.c * (P + S*0.5)/self.l + self.c_a*0.5*H/self.l
                         elif self.uncollided == False:
                             if self.test_dimensional_rhs == True:
                                 RHS_transport = np.dot(G,U) - LU + 299.98*mul*np.dot(L,U) - 299.98*U + 299.98*self.c * P + 299.98 * S*0.5 + 299.98*self.c_a*0.5*H
                             else:
-                                RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * P + S*0.5 + self.c_a*0.5*H
+                                RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U/self.l + self.c * P /self.l + S*0.5/self.l + self.c_a*0.5*H/self.l
                     V_new[angle,space,:] = RHS_transport 
                     
         return V_new.reshape(deg_freedom)
+    
        
