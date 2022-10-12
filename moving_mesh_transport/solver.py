@@ -289,9 +289,10 @@ class main_class(parameter_load_class):
 
 
                     plt.figure(5)
-                    plt.plot(tpnts, left_edges, '-o', label = 'left_edge')
-                    plt.plot(tpnts, right_edges, '-o', label = 'right_edge')
+                    # plt.plot(tpnts, left_edges, '-o', label = 'left_edge')
+                    # plt.plot(tpnts, right_edges, '-o', label = 'right_edge')
                     plt.plot(tpnts, T_front_location, '-o', label = 'wave temperature front')
+                    plt.plot(tpnts, np.ones(tpnts.size)* xs[-1], 'k-')
 
                     plt.legend()
                     plt.show()

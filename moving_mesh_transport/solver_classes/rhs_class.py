@@ -265,6 +265,7 @@ class rhs_class():
         if self.counter == self.division:
             print('t = ', t, '|', 'delta_t average= ', self.delta_tavg)
             print(mesh.edges[-1]-mesh.edges[-2], 'last zone thickness')
+            print(mesh.edges)
             print('--- --- --- --- --- --- --- --- --- --- --- --- --- ---')
             self.delta_tavg = 0.0
             self.counter = 0

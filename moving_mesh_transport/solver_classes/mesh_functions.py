@@ -2,6 +2,9 @@ from numba import njit, types, prange
 from numba.extending import get_cython_function_address
 import numpy as np
 import math
+from numba import guvectorize
+import scipy.interpolate
+
 
 
 @njit
@@ -83,3 +86,36 @@ def thick_square_moving_func(self, t):
         self.told = t
     # print(self.Dedges_const, "const")
     # # old func
+
+
+@njit
+def _interp1d(xnew, xvals, yvals, ynew):
+    i = 0
+    N = len(xvals)
+    if xnew[0] < xvals[0]:
+        x_a = 0.0
+        y_a = 0.0
+        x_b = xvals[0]
+        y_b = yvals[0]
+    else:
+        while xnew[0] >= xvals[i] and i < N:
+            i += 1
+        if xnew[0] == xvals[i]:
+            ynew[0] = yvals[i]
+            return ynew
+        if i == N:
+            i = N-1
+        x_a = xvals[i-1]
+        y_a = yvals[i-1]
+        x_b = xvals[i]
+        y_b = yvals[i]
+    slope = (xnew[0] - x_a)/(x_b - x_a)
+    ynew[0] = slope * (y_b-y_a) + y_a
+    return ynew
+
+  
+# interp1d_numba = guvectorize(
+#     ['float64[:], float64[:], float64[:], float64[:]'],
+#     "(),(n),(n) -> ()", nopython=True)(_interp1d)
+
+

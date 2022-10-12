@@ -48,29 +48,39 @@ class find_wave:
             left_edge_list[it] = x_left
             right_edge_list[it] = x_right
             
-            xs_test = np.linspace(self.xs_list[it,0], self.xs_list[it,-1], 500)
+            xs_test = np.linspace(self.xs_list[it,0], self.xs_list[it,-1], self.xs_list[it,:].size * 10)
+            xs_test = self.xs_list[it,:]
             dx_e_array = self.e_interpolated_sol(xs_test, 1)
+            dx_phi_array = self.interpolated_sol(xs_test, 1)
 
             T_wavefront_list[it] = self.find_T_wave(xs_test, dx_e_array)
+            if T_wavefront_list[it] < self.x0:
+                T_wavefront_list[it] = self.x0
 
 
             if it == sol.t.size-1:
-                plt.figure(22)
+                # plt.figure(22)
                 # plt.plot(xs_test, self.interpolated_sol(xs_test,1), '-', label = f'phi first deriv t={sol.t[it]}')
                 # plt.plot(xs_test, self.e_interpolated_sol(xs_test,1), '-', label = f'e first deriv t={sol.t[it]}')
-                plt.plot( self.xs_list[it], self.dx_e, label = 'expansion derivative')
-                plt.xlim(250, self.xs_list[it,-1])
-                plt.legend()
-                plt.figure(23)
-                plt.plot(xs_test, self.interpolated_sol(xs_test,2), '--', label = f'second deriv t={sol.t[it]}')
-                plt.legend()
-                plt.xlim(350, self.xs_list[it,-1])
-                plt.figure(1)
-                plt.plot(xs_test, self.interpolated_sol(xs_test,0), '-s', mfc ='none',label = f't={sol.t[it]}')
-                plt.xlim(350, self.xs_list[it,-1])
+                # plt.plot( self.xs_list[it], self.dx_e, label = 'expansion derivative')
+                # plt.xlim(250, self.xs_list[it,-1])
+                # plt.legend()
+                # plt.figure(23)
+                # plt.plot(xs_test, self.interpolated_sol(xs_test,2), '--', label = f'second deriv t={sol.t[it]}')
+                # plt.legend()
+                # plt.xlim(350, self.xs_list[it,-1])
+                # plt.figure(1)
+                # plt.plot(xs_test, self.interpolated_sol(xs_test,0), '-s', mfc ='none',label = f't={sol.t[it]}')
+                # plt.xlim(350, self.xs_list[it,-1])
                 # print(self.interpolated_sol(xs_test,1))
                 plt.legend()
                 plt.show()
+                plt.figure(23)
+                plt.plot(xs_test, self.e_interpolated_sol(xs_test,0), '-s', label = f'e sol t={sol.t[it]}')
+                plt.plot(xs_test, self.e_interpolated_sol(xs_test,1), '--', label = f'e deriv t={sol.t[it]}')
+                plt.xlim(0.45, self.xs_list[it,-1])
+                plt.legend()
+
 
                 
         T_wavefront_list[0] = self.x0
@@ -179,9 +189,13 @@ class find_wave:
         return x_left, x_right
     
     def find_T_wave(self, xs, deriv):
-        max_deriv = max(np.abs(deriv))
+        sorted_deriv = np.sort(deriv)
+        heat_wave_loc = self.x0
+        index = 0
+        max_deriv = sorted_deriv[index]
         heat_wave_index = np.argmin(np.abs(deriv - max_deriv))
         heat_wave_loc = xs[heat_wave_index]
+        print(heat_wave_loc, 'heat wave position')
         return abs(heat_wave_loc)
 
 
