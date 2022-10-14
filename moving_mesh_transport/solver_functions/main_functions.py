@@ -35,7 +35,7 @@ This file contains functions used by solver
 
 def parameter_function(major, N_spaces, Ms, count):
     if major == 'cells':
-        M = Ms[0]
+        M = Ms[count]
         N_space = N_spaces[count]
     elif major == 'Ms':
         N_space = N_spaces[1]
@@ -138,6 +138,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method=integrator, t_eval = tpnts , rtol = rt, atol = at, max_step = mxstp)
 
     end = timer()
+    print('solver finished')
     
     if save_wave_loc == True:
         print(save_wave_loc, 'save wave')

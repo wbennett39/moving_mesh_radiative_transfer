@@ -4,10 +4,11 @@
     'tfinal': 1.25 #0.8333333333333334 #31.6228                       # evaluation time
     'c': 0.8                      # scattering ratio
     'c_scaling': True
+    'sigma_t': 1.0
     't0': 5.0                           # time the source is turned off
     'N_spaces': [4,8,16,32]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [4,4,4,4]                         # number of basis functions -1
+    'Ms': [0,0,0,0]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-12                         # abs tolerance for ODE integrator
@@ -17,12 +18,13 @@
     'temperature_dependence': [1,0,0,0] # first slot is Su-Olson problem
     'e_initial': 0.0000000001
     'weights': 'gauss_lobatto'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
-    'save_solution': True
+    'save_solution': False
     'particle_v': 'one'
     'edge_v': 'one'
     'cv_const': 0.0
     'estimate_wavespeed': False
     'thick': False            # optically thick or thin
+    'integrator': 'DOP853'
     
 # plane pulse source
 'plane_IC':

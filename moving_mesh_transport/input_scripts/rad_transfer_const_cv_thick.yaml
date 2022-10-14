@@ -6,9 +6,9 @@
     'sigma_t': 800.0
     'c_scaling': False
     't0': 0.0125                         # time the source is turned off
-    'N_spaces': [16]                   # number of cells
+    'N_spaces': [256]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [5]                         # number of basis functions -1
+    'Ms': [4]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-10                         # rel tolerance for ODE integrator
     'at': 1e-11                        # abs tolerance for ODE integrator
@@ -25,7 +25,7 @@
     'estimate_wavespeed': False
     'find_wave_loc': False
     'thick': True
-    'integrator': 'LSODA'
+    'integrator': 'RK45'
     
 # plane pulse source
 'plane_IC':

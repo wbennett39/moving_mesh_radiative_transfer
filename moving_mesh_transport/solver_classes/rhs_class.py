@@ -248,7 +248,7 @@ class rhs_class():
         self.c_a = build.sigma_a / build.sigma_t
         print(self.c_a, 'c_a')
         self.mean_free_time = 1/build.sigma_t
-        self.division = 10000
+        self.division = 1000
         self.counter = 0
         self.delta_tavg = 0.0
         self.l = build.l
@@ -265,7 +265,7 @@ class rhs_class():
         if self.counter == self.division:
             print('t = ', t, '|', 'delta_t average= ', self.delta_tavg)
             print(mesh.edges[-1]-mesh.edges[-2], 'last zone thickness')
-            print(mesh.edges)
+            print(mesh.edges[int(self.N_space/2):])
             print('--- --- --- --- --- --- --- --- --- --- --- --- --- ---')
             self.delta_tavg = 0.0
             self.counter = 0

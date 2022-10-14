@@ -7,8 +7,24 @@ Created on Wed Feb  2 18:17:08 2022
 """
 import numpy as np
 from .functions import normPn, dx_normPn
+from numba.experimental import jitclass
+from numba import int64, float64, deferred_type
+from .uncollided_solutions import uncollided_solution
 
+uncollided_solution_type = deferred_type()
+uncollided_solution_type.define(uncollided_solution.class_type.instance_type)
 
+data = [('N_ang', int64), 
+        ('t', float64),
+        ('M', int64),
+        ('ws', float64[:]),
+        ('xs', float64[:]),
+        ('u', float64[:,:,:]),
+        ('edges', float64[:]),
+        ('uncollided', int64),
+        ('dx_e', float64[:])
+        ]
+@jitclass(data)
 class make_output:
     def __init__(self, t, N_ang, ws, xs, u, M, edges, uncollided):
         self.N_ang = N_ang

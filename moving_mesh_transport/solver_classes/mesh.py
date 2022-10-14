@@ -90,6 +90,7 @@ class mesh_class(object):
         # self.problem_type = problem_identifier(self.source_typem, self.x0)
         self.thick = thick
         self.wave_loc_array = wave_loc_array
+        # self.smooth_wave_loc_array
         # for count, element in enumerate(self.wave_loc_array[0, 3, :]):
         #     if element < self.x0:
         #         self.wave_loc_array[0, 3, count] = self.x0 + 1e-8
@@ -153,6 +154,11 @@ class mesh_class(object):
             #         if self.edges[itest] != np.sort(self.edges)[itest]:
             #             print("crossed edges")
             #             assert(0)
+    def smooth_wave_loc_array(self):
+        for ix in range(0,self.wave_loc_array[0,3,:].size-1):
+            if self.wave_loc_array[0,3,ix] < self.wave_loc_array[0,3,ix +1]:
+                self.wave_loc_array[0,3,ix] = self.wave_loc_array[0,3,ix +1]
+
 
     def thick_wave_loc_and_deriv_finder(self, t):
         
