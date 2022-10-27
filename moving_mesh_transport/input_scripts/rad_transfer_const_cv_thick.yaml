@@ -1,17 +1,17 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'rad_transfer_constant_cv_thick'
-    'tfinal': 3.0 #31.6228                       # evaluation time
+    'tfinal': 30.0 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     'sigma_t': 800.0
     'c_scaling': False
     't0': 0.0125                         # time the source is turned off
-    'N_spaces': [256]                   # number of cells
+    'N_spaces': [64]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [4]                         # number of basis functions -1
+    'Ms': [8]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
-    'rt': 5e-10                         # rel tolerance for ODE integrator
-    'at': 1e-11                        # abs tolerance for ODE integrator
+    'rt': 5e-9                         # rel tolerance for ODE integrator
+    'at': 1e-10                        # abs tolerance for ODE integrator
     'mxstp': 1000.0
     'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
@@ -51,7 +51,7 @@
     'l': 0.00125
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [64]
-    'move_type': [0,1,0]      # [standard, thick, sqrt_t]
+    'move_type': [0,0,1]      # [standard, thick, sqrt_t]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False
     
@@ -67,12 +67,13 @@
     
 # gaussian  source
 'gaussian_source':
-    'sigma': 300
+    'sigma': 0.375
+    'l': 0.00125
     'source_strength': 1
-    'x0': [1700, 1700, 1700, 1700, 1700]
+    'x0': [3.1, 3.1, 3.1, 3.1, 3.1]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
     'N_angles': [16]
-    'move_type': [1,0,0]
+    'move_type': [0,0,1]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False
 

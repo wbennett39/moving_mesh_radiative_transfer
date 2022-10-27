@@ -35,56 +35,56 @@ class collided_class:
         self.sigma = sigma
         
     
-    def plane_IC(self, xs,t):
+    def plane_IC(self, xs,t, c):
         temp = xs*0
         for ix in range(xs.size):
-            temp[ix] = integrate.nquad(F1, [[0, math.pi]], args =  (0.0, 0.0, xs[ix], t, 0), opts = [opts0])[0]
+            temp[ix] = integrate.nquad(F1, [[0, math.pi]], args =  (0.0, 0.0, xs[ix], t, 0, c), opts = [opts0])[0]
         return temp
     
-    def square_IC(self, xs, t):
+    def square_IC(self, xs, t, c):
         temp = xs*0
         counter = 0 
         for ix in range(xs.size):
             if counter == 100:
                 print("x=", xs[ix])
                 counter = 0 
-            temp[ix] = integrate.nquad(F1, [[0, math.pi], [-self.x0, self.x0]], args =  (0.0, xs[ix], t, 0), opts = [opts0, opts0])[0]
+            temp[ix] = integrate.nquad(F1, [[0, math.pi], [-self.x0, self.x0]], args =  (0.0, xs[ix], t, 0, c), opts = [opts0, opts0])[0]
             counter += 1
         return temp
     
-    def source_double_integral_time(self, s, x, t, t0, source):
+    def source_double_integral_time(self, s, x, t, t0, source, c):
         """ source function for the gaussian source and the square source (1-gaussian, 0-square)
         """
         ab = find_intervals_time(t, t0, x, s)
-        solution = integrate.nquad(F1_spacefirst, [[0, math.pi], [ab[0],ab[1]]], args =  (s, x, t, source), opts = [opts1, opts1])[0]
+        solution = integrate.nquad(F1_spacefirst, [[0, math.pi], [ab[0],ab[1]]], args =  (s, x, t, source, c), opts = [opts1, opts1])[0]
         return solution
         
-    def square_source(self, xs, t):
+    def square_source(self, xs, t, c):
         temp = xs*0
         counter = 0 
         for ix in range(xs.size):
             if counter == 5:
                 print('x=', xs[ix])
                 counter = 0
-            temp[ix] = integrate.nquad(self.source_double_integral_time, [[-self.x0, self.x0]], args = (xs[ix], t, self.t0, 0), opts = [opts2])[0]
+            temp[ix] = integrate.nquad(self.source_double_integral_time, [[-self.x0, self.x0]], args = (xs[ix], t, self.t0, 0, c), opts = [opts2])[0]
             counter += 1
         return temp
     
-    def gaussian_IC(self, xs, t):
+    def gaussian_IC(self, xs, t, c):
         temp = xs*0
         # s_interval = [-np.inf, np.inf]
         
         for ix in range(xs.size):
             s_interval = [xs[ix]-t, xs[ix]+t]
-            temp[ix] = integrate.nquad(F1, [[0, math.pi], s_interval], args =  (0.0, xs[ix], t, 1), opts = [opts0, opts0])[0]
+            temp[ix] = integrate.nquad(F1, [[0, math.pi], s_interval], args =  (0.0, xs[ix], t, 1, c), opts = [opts0, opts0])[0]
         return temp
 
-    def gaussian_source(self, xs, t):
+    def gaussian_source(self, xs, t, c):
         temp = xs*0
         for ix in range(xs.size):
             s_interval = [xs[ix]-t, xs[ix]+t]
             # s_interval = [-np.inf, np.inf]
-            temp[ix] = integrate.nquad(self.source_double_integral_time, [s_interval], args = (xs[ix], t, self.t0, 1), opts = [opts2])[0]
+            temp[ix] = integrate.nquad(self.source_double_integral_time, [s_interval], args = (xs[ix], t, self.t0, 1, c), opts = [opts2])[0]
         return temp
     
     
@@ -239,17 +239,17 @@ class collided_class:
         return temp 
     
     
-    def __call__(self, xs, t):
+    def __call__(self, xs, t, c):
         if self.source_type == 'plane_IC':
-            return self.plane_IC(xs, t)
+            return self.plane_IC(xs, t, c)
         elif self.source_type == 'square_IC':
-            return self.square_IC(xs, t)
+            return self.square_IC(xs, t, c)
         elif self.source_type == 'square_source':
-            return self.square_source(xs, t)
+            return self.square_source(xs, t, c)
         elif self.source_type == 'gaussian_IC':                
-            return self.gaussian_IC(xs, t)
+            return self.gaussian_IC(xs, t, c)
         elif self.source_type == 'gaussian_source':
-            return self.gaussian_source(xs, t)
+            return self.gaussian_source(xs, t, c)
         elif self.source_type == 'gaussian_IC_2D':
             return self.gaussian_IC_2D(xs, t)
         elif self.source_type == "line_source":

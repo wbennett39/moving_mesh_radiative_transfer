@@ -134,7 +134,7 @@ class main_class(parameter_load_class):
             self.tpnts_wave = sol_loader.tpnts
             self.left_wave = sol_loader.left
             self.right_wave = sol_loader.right
-            
+            self.T_wave = sol_loader.T_wave
             self.wave_loc_array = np.array([[(self.tpnts_wave)], [(self.left_wave)], [(self.right_wave)], [(self.T_wave)]])
         else:
             self.wave_loc_array = np.zeros((1,1,1))

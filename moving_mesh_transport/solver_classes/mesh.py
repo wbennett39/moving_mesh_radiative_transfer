@@ -190,9 +190,13 @@ class mesh_class(object):
             # self.Dedges[self.middlebin+self.sidebin + 1:] =  - np.flip(np.copy(self.Dedges[0:self.sidebin]))
 
     def thick_square_moving_func_2(self, t):
-        delta_t = 1e-2
+        delta_t = 1e-6
         self.edges = self.thick_wave_loc_and_deriv_finder(t)
         edges_new = self.thick_wave_loc_and_deriv_finder(t + delta_t)
+        # if t > delta_t:
+        #     edges_old = self.thick_wave_loc_and_deriv_finder(t - delta_t)
+        #     self.Dedges = (edges_new - 2 * self.edges + edges_old) / delta_t**2
+        # else:
         self.Dedges = (edges_new - self.edges) / delta_t
         # print(self.Dedges)
         if self.edges[-3] < self.edges[-4]:
@@ -337,13 +341,18 @@ class mesh_class(object):
             
 
     def thick_gaussian_static_init_func(self):
-        if abs(self.wave_loc_array[0, 2, -1]) > 5:
-            right_edge = self.wave_loc_array[0,2,-1]
-        else:
-            right_edge = self.x0 + self.tfinal
+        # if abs(self.wave_loc_array[0, 2, -1]) > 5:
+        if self.move_func == 1:
+            right_edge = self.wave_loc_array[0,3,-1] + self.pad
+        elif self.move_func == 0:
+            right_edge = self.x0
+        print(self.move_func, 'move_func')
+        print(right_edge, 'right edge')
+        # else:
+            # right_edge = self.x0 + self.tfinal
         
-        if right_edge < self.x0:
-            right_edge = self.x0 + self.tfinal
+        # if right_edge < self.x0:
+            # right_edge = self.x0 + self.tfinal
 
         self.edges = np.linspace(-right_edge, right_edge, self.N_space + 1)
         self.Dedges = self.edges * 0

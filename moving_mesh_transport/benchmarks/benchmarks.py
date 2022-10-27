@@ -23,7 +23,7 @@ from .test_benchmarks import test_P1_against_mathematica
 ###############################################################################
 
 class make_benchmark:
-    def __init__(self, source_type, x0, t0, sigma):
+    def __init__(self, source_type, x0, t0, sigma, c = 1.0):
         self.x0 = x0
         self.t0 = t0
         self.source_type = source_type
@@ -34,6 +34,7 @@ class make_benchmark:
                                       'P1_gaussian_rad', 'P1_gaussian_mat']
         self.thick_sources = ['P1_su_olson_rad']
         self.sigma = sigma
+        self.c = c
     
     def integrate(self, t, npnts):
         self.t = t
@@ -78,7 +79,7 @@ class make_benchmark:
 
     
         self.uncollided_sol = self.call_uncollided(self.xs, t)
-        self.collided_sol = self.call_collided(self.xs, t)
+        self.collided_sol = self.call_collided(self.xs, t, self.c)
 
         
         
@@ -114,6 +115,11 @@ class make_benchmark:
         #     test_P1_against_mathematica(self.t, self.xs, self.collided_sol, "mat")
             
         plt.show()
+    
+    def return_sol(self):
+        phi = self.uncollided_sol + self.collided_sol
+        return self.xs, phi
+
     
         
         

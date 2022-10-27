@@ -259,8 +259,8 @@ def plot_all_benchmarks(tfinal):
         plotter = rms_plotter(tfinal, M, source, "cells")
         plotter.plot_bench(tfinal, source, count)
         
-def plot_coefficients(tfinal = 3.0,  M=5, source_name = 'square_s',  N_spaces = [16], problem_name = 'transfer_const_cv=0.03_thick',
-rad_or_transport ='transfer', x0_or_sigma = 0.5 , c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = True, line = '-',legend = True, fign = 1):
+def plot_coefficients(tfinal = 3.0,  M=8, source_name = 'gaussian_s',  N_spaces = [16], problem_name = 'transfer_const_cv=0.03_thick',
+rad_or_transport ='transfer', x0_or_sigma = 0.375 , c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',legend = True, fign = 1):
     
     plotter = rms_plotter(tfinal, M, source_name, 'cells')
     plotter.plot_coefficients(tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,

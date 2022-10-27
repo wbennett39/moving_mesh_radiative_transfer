@@ -48,14 +48,14 @@ class find_wave:
             left_edge_list[it] = x_left
             right_edge_list[it] = x_right
             
-            xs_test = np.linspace(self.xs_list[it,0], self.xs_list[it,-1], self.xs_list[it,:].size * 10)
+            xs_test = np.linspace(self.x0, self.xs_list[it,-1], self.xs_list[it,:].size * 10)
             xs_test = self.xs_list[it,:]
             dx_e_array = self.e_interpolated_sol(xs_test, 1)
             dx_phi_array = self.interpolated_sol(xs_test, 1)
 
             T_wavefront_list[it] = self.find_T_wave(xs_test, dx_e_array)
-            if T_wavefront_list[it] < self.x0:
-                T_wavefront_list[it] = self.x0
+            # if T_wavefront_list[it] < self.x0:
+                # T_wavefront_list[it] = self.x0
 
 
             if it == sol.t.size-1:
