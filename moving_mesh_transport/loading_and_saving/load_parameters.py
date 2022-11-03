@@ -98,6 +98,7 @@ class parameter_load_class:
         self.choose_xs = int(mesh_parameters['choose_xs'])
         self.specified_xs = np.array(mesh_parameters['xs_list'])
         self.pad = float(mesh_parameters['pad'])
+        self.leader_pad = float(mesh_parameters['leader_pad'])
 
 
         if not (len(self.N_spaces) == len(self.N_angles) == len(self.Ms)):

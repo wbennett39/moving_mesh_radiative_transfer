@@ -73,9 +73,9 @@ class load_sol:
 
         full_str = str(self.source_name) + 't = ' + str((tfinal))    
         if self.problem_name == 'su_olson_thick':
-                self.tpnts = f['su_olson_thick_s2']['tpnts_' + full_str][:]
-                self.left = f['su_olson_thick_s2']['left_' + full_str][:]
-                self.right = f['su_olson_thick_s2']['right_' + full_str][:]
+                self.tpnts = f['su_olson_thick']['tpnts_' + full_str][:]
+                self.left = f['su_olson_thick']['left_' + full_str][:]
+                self.right = f['su_olson_thick']['right_' + full_str][:]
                 self.T_wave = f[folder_name]['T_wave_' + full_str][:]
 
 

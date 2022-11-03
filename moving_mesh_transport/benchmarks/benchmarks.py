@@ -36,6 +36,11 @@ class make_benchmark:
         self.sigma = sigma
         self.c = c
     
+    def recall_collided_uncollided_classes(self):
+        self.call_uncollided = uncollided_class(self.source_type, self.x0, self.t0)
+        self.call_collided = collided_class(self.source_type, self.x0, self.t0, self.sigma)
+
+    
     def integrate(self, t, npnts):
         self.t = t
         print("t = ", t)

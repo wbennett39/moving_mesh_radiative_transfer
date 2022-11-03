@@ -88,7 +88,7 @@ def plot_p1_su_olson_mathematica():
 def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
           uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, 
           weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, 
-          find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad):
+          find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad, leader_pad):
 
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
@@ -106,7 +106,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
                        thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, 
-                       wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, quad_thick_source)
+                       wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source)
                        
     initialize.make_IC()
     IC = initialize.IC
@@ -115,7 +115,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         deg_freedom = N_ang*N_space*(M+1)
     elif thermal_couple == 1:
         deg_freedom = (N_ang+1)*N_space*(M+1)
-    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array, pad, quad_thick_source) 
+    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array, pad, leader_pad, quad_thick_source) 
     matrices = G_L(initialize)
     num_flux = LU_surf(initialize)
     source = source_class(initialize)

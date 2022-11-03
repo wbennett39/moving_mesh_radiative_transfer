@@ -59,6 +59,7 @@ data = [('N_ang', int64),
         ('l', float64),
         ('save_wave_loc', int64),
         ('pad', float64),
+        ('leader_pad', float64),
         ('quad_thick_source', float64[:])
         ]
 ###############################################################################
@@ -67,7 +68,7 @@ data = [('N_ang', int64),
 class build(object):
     def __init__(self, N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, 
     source_type, uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, 
-    edge_v, cv0, thick, wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, quad_thick_source):
+    edge_v, cv0, thick, wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source):
         self.N_ang = N_ang
         self.N_space = N_space
         self.M = M
@@ -101,6 +102,7 @@ class build(object):
         self.l = l
         self.save_wave_loc = save_wave_loc
         self.pad = pad
+        self.leader_pad = leader_pad
         self.quad_thick_source = quad_thick_source
         
         
@@ -128,7 +130,7 @@ class build(object):
                 
     def make_IC(self):
         edges = mesh_class(self.N_space, self.x0, self.tfinal, self.moving, self.move_type, self.source_type, 
-        self.edge_v, self.thick, self.move_factor, self.wave_loc_array, self.pad, self.quad_thick_source)
+        self.edge_v, self.thick, self.move_factor, self.wave_loc_array, self.pad,  self.leader_pad, self.quad_thick_source)
         edges_init = edges.edges
         
         if self.moving == False and self.source_type[0] == 1 and self.uncollided == False and self.N_space%2 == 0:

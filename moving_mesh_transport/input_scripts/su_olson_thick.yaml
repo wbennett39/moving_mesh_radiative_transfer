@@ -1,17 +1,19 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson_thick'
-    'tfinal': 100 #31.6228                       # evaluation time
+    'tfinal': 30.0 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
-    't0': 10.0                           # time the source is turned off
-    'N_spaces': [128,128,128]                   # number of cells
+    'c_scaling': False
+    'sigma_t': 800
+    't0': 0.0125                           # time the source is turned off
+    'N_spaces': [16]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [1,2,3]                         # number of basis functions -1
+    'Ms': [2]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
-    'rt': 5e-13                         # rel tolerance for ODE integrator
-    'at': 1e-12                         # abs tolerance for ODE integrator
-    'mxstp': 10.
-    'major': 'Ms'                       # whether the solver iterates over spaces or M's
+    'rt': 5e-10                         # rel tolerance for ODE integrator
+    'at': 1e-8                         # abs tolerance for ODE integrator
+    'mxstp': 10000.
+    'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
     'temperature_dependence': [1,0,0,0] # first slot is Su-Olson problem
     'e_initial': 0.0000000001
@@ -22,6 +24,7 @@
     'cv_const': 0.0
     'estimate_wavespeed': False
     'thick': True            # optically thick or thin
+    'integrator': 'RK45'
     
 # plane pulse source
 'plane_IC':
@@ -43,12 +46,14 @@
     
 # square source
 'square_source':
-    'x0': [400]
+    'x0': [0.5]
+    'source_strength': 1.0
+    'l': 0.00125
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [8,8,8]
-    'move_type': [0,1,0]      # [standard, thick, sqrt_t]
+    'N_angles': [16]
+    'move_type': [0,0,1]      # [standard, thick, sqrt_t]
     'bench_type': 'S2'          # 'S2' or 'full'
-    'benchmarking': True
+    'benchmarking': False
     
 # gaussian pulse source
 'gaussian_IC':

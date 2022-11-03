@@ -49,7 +49,8 @@ class find_wave:
             right_edge_list[it] = x_right
             
             xs_test = np.linspace(self.x0, self.xs_list[it,-1], self.xs_list[it,:].size * 10)
-            xs_test = self.xs_list[it,:]
+            # xs_test = self.xs_list[it,:]
+            xs_test = np.linspace(self.xs_list[it,0], self.xs_list[it, -1], 50000)
             dx_e_array = self.e_interpolated_sol(xs_test, 1)
             dx_phi_array = self.interpolated_sol(xs_test, 1)
 
@@ -195,7 +196,7 @@ class find_wave:
         max_deriv = sorted_deriv[index]
         heat_wave_index = np.argmin(np.abs(deriv - max_deriv))
         heat_wave_loc = xs[heat_wave_index]
-        print(heat_wave_loc, 'heat wave position')
+        # print(heat_wave_loc, 'heat wave position')
         return abs(heat_wave_loc)
 
 
