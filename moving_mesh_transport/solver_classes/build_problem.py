@@ -75,7 +75,7 @@ class build(object):
         self.tfinal = tfinal
         self.sigma_t = sigma_t
         self.sigma_s = sigma_s
-        self.sigma_a = sigma_t-sigma_s
+        self.sigma_a = sigma_t[0]-sigma_s[0]
         self.mus = mus
         self.ws = ws/np.sum(ws)
         self.xs_quad = xs_quad
