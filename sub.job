@@ -3,5 +3,5 @@
 #$ -m abe
 
 module load python
-python3 -i imports.py
-run.square_source()
+python3 crc_run.py
+
