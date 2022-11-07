@@ -493,7 +493,7 @@ class mesh_class(object):
         self.Dedges = self.Dedges * self.speed * 0
     
     def thick_square_moving_init_func(self):
-        if self.N_space in np.array([2, 4, 8]):
+        if self.N_space ==2 or self.N_space == 4 or self.N_space == 8:
             print(f"don't run this problem with {self.N_space} spaces")
             assert(0)
         middlebin = int(self.N_space/2)   # edges inside the source - static
