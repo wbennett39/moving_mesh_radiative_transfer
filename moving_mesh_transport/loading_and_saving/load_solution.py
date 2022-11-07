@@ -70,7 +70,7 @@ class load_sol:
     
     def call_wavepoints(self, tfinal):
 
-        f = h5py.File(self.wavepoints_file_path, "a")
+        f = h5py.File(self.wavepoints_file_path, "r")
 
         full_str = str(self.source_name) + 't = ' + str((tfinal))    
         if self.problem_name == 'su_olson_thick':
