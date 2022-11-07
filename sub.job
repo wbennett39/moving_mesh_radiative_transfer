@@ -1,6 +1,9 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
+#$ -N nlgss3
+#$ -q short
+
 
 module load python
 python3 crc_run.py
