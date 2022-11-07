@@ -18,6 +18,7 @@ class load_sol:
 
         self.data_file_path = data_folder / 'run_data.h5'
         self.wavepoints_file_path = data_folder / 'wavepoints.h5'
+        print(self.wavepoints_file_path)
         self.source_name = source_name
         self.rad_or_transfer = rad_or_transfer
         self.c = c 
@@ -69,7 +70,7 @@ class load_sol:
     
     def call_wavepoints(self, tfinal):
 
-        f = h5py.File(self.wavepoints_file_path, "r+")
+        f = h5py.File(self.wavepoints_file_path, "a")
 
         full_str = str(self.source_name) + 't = ' + str((tfinal))    
         if self.problem_name == 'su_olson_thick':
