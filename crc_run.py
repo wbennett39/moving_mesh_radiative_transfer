@@ -18,6 +18,11 @@ from moving_mesh_transport.loading_and_saving.load_solution import load_sol as l
 
 
 from moving_mesh_transport.solver_functions.run_functions import run
+import h5py
+f = h5py.File('moving_mesh_transport/wavepoints.h5', 'r')
+print(f.keys())
+
+
 
 run = run()
 run.load()
