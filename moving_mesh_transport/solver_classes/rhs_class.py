@@ -245,9 +245,9 @@ class rhs_class():
         self.test_dimensional_rhs = False
         self.told = 0.0
        
-        self.c_a = build.sigma_a / build.sigma_t
+        self.c_a = build.sigma_a / build.sigma_t[0]
         print(self.c_a, 'c_a')
-        self.mean_free_time = 1/build.sigma_t
+        self.mean_free_time = 1/build.sigma_t[0]
         self.division = 1000
         self.counter = 0
         self.delta_tavg = 0.0
