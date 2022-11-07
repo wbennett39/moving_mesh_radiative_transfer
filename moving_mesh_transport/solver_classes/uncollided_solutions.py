@@ -44,7 +44,8 @@ data = [("S", float64[:]),
         ("t_ws", float64[:]),
         ("N_ang", int64),
         ("sigma", float64),
-        ('source_strength', float64)
+        ('source_strength', float64),
+        ('uncollided_solution', float64[:])
         ]
 ###############################################################################
 @jitclass(data)
@@ -68,7 +69,7 @@ class uncollided_solution(object):
         self.N_ang = build.N_ang
         self.sigma = build.sigma
         self.source_strength = build.source_strength
-        
+        self.uncollided_solution = np.zeros(1)
 ###############################################################################
         
     def integrate_quad_gaussian_source(self, t, x, a, b, func):
@@ -224,28 +225,29 @@ class uncollided_solution(object):
     def uncollided_solution(self, xs, t):
         if self.uncollided == True:
             if self.source_type[0] == 1:
-                return (self.plane_IC_uncollided_solution(xs, t) * self.source_strength)
+                self.uncollided_solution = (self.plane_IC_uncollided_solution(xs, t) * self.source_strength)
             
             elif self.source_type[1] == 1:
-                return (self.square_IC_uncollided_solution(xs, t) * self.source_strength)
-            
+                self.uncollided_solution = (self.square_IC_uncollided_solution(xs, t) * self.source_strength)
+        
             elif self.source_type[2] == 1:
                 if self.N_ang == 2:
-                    return (self.su_olson_s2_uncollided_solution(xs, t) * self.source_strength)
+                    self.uncollided_solution = (self.su_olson_s2_uncollided_solution(xs, t) * self.source_strength)
                 else:
-                    return (self.square_source_uncollided_solution(xs, t) * self.source_strength)
+                    self.uncollided_solution = (self.square_source_uncollided_solution(xs, t) * self.source_strength)
                 
-            elif self.source_type[3] == 1:                
-                return (self.gaussian_IC_uncollided_solution(xs, t) * self.source_strength)
+            elif self.source_type[3] == 1:      
+                self.uncollided_solution =  (self.gaussian_IC_uncollided_solution(xs, t) * self.source_strength)        
             
             elif self.source_type[5] == 1:
                 if self.N_ang == 2:
-                    return np.array(self.gaussian_s2(xs,t) * self.source_strength)
+                    self.uncollided_solution = (self.gaussian_s2(xs,t) * self.source_strength)
                 else:
-                    return (self.gaussian_source_uncollided_solution(xs, t) * self.source_strength)
-            
+                    self.uncollided_solution = (self.gaussian_source_uncollided_solution(xs, t) * self.source_strength)
         else:
-            return (xs*0)
+            self.uncollided_solution = (xs*0)
+
+        return self.uncollided_solution
         
 # import quadpy
 # import matplotlib.pyplot as plt
