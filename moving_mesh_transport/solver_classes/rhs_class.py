@@ -264,7 +264,8 @@ class rhs_class():
         self.delta_tavg += delta_t / self.division
         if self.counter == self.division:
             print('t = ', t, '|', 'delta_t average= ', self.delta_tavg)
-            print(mesh.edges[int(self.N_space/2):])
+            if self.N_space <= 32:
+                print(mesh.edges[int(self.N_space/2):])
             print('--- --- --- --- --- --- --- --- --- --- --- --- --- ---')
             self.delta_tavg = 0.0
             self.counter = 0

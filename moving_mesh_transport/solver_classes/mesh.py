@@ -507,7 +507,7 @@ class mesh_class(object):
         # else:
         #     first = index
         # dx = self.wave_loc_array[0,3,index]
-        dx = 1e-2
+        dx = 1e-3
         left = np.linspace(-self.x0-dx, -self.x0, sidebin + 1)
         right = np.linspace(self.x0, self.x0 + dx, sidebin + 1)
         # middle = np.linspace(-self.x0, self.x0, middlebin + 1)

@@ -204,10 +204,6 @@ class main_class(parameter_load_class):
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
                 plt.show()
 
-                plt.figure(3)
-                plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
-                plt.xlabel("x")
-                plt.ylabel("scalar flux")
                 
                 if count == len(self.N_angles)-1:
                     plot_edges(edges, 3)
