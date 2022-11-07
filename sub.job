@@ -1,0 +1,9 @@
+#!/bin/bash
+#$ -M wbennet2@nd.edu
+#$ -m abe
+
+module load python
+python3 -i imports.py
+run.square_source()
+plt.close()
+plt.close()
