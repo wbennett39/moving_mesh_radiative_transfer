@@ -78,9 +78,39 @@ class load_sol:
                 self.right = f['su_olson_thick']['right_' + full_str][:]
                 self.T_wave = f[folder_name]['T_wave_' + full_str][:]
 
+        elif self.problem_name == 'su_olson_thick_s2':
+                if not f[folder_name].__contains__('tpnts_' + full_str):
+                    self.tpnts = np.array([tfinal])
+                    self.left = np.array([0])
+                    self.right = np.array([0])
+                    self.T_wave = np.array([0])
+                else:
+                    self.tpnts = f['su_olson_thick_s2']['tpnts_' + full_str][:]
+                    self.left = f['su_olson_thick_s2']['left_' + full_str][:]
+                    self.right = f['su_olson_thick_s2']['right_' + full_str][:]
+                    self.T_wave = f[folder_name]['T_wave_' + full_str][:]
+
+
+
 
         elif self.problem_name == 'rad_transfer_constant_cv_thick':
             folder_name =  f"transfer_const_cv={self.cv0}_thick"
+            if not f[folder_name].__contains__('tpnts_' + full_str):
+                self.tpnts = np.array([tfinal])
+                self.left = np.array([0])
+                self.right = np.array([0])
+                self.T_wave = np.array([0])
+            else:
+                self.tpnts = f[folder_name]['tpnts_' + full_str][:]
+                self.left = f[folder_name]['left_' + full_str][:]
+                self.right = f[folder_name]['right_' + full_str][:]
+                self.T_wave = f[folder_name]['T_wave_' + full_str][:]
+
+        elif self.problem_name == 'rad_transfer_constant_cv_thick_s2':
+            folder_name =  f"transfer_const_cv={self.cv0}_thick_s2"
+            # if not f.__contains__(folder_name):
+            #     f.create(folder_name)
+
             if not f[folder_name].__contains__('tpnts_' + full_str):
                 self.tpnts = np.array([tfinal])
                 self.left = np.array([0])

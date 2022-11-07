@@ -138,6 +138,44 @@ def plot_su_olson(M=6, N_space = 16, problem_name = 'su_olson', rad_or_transport
             fign +=1
 
 
+def plot_thick_suolson_problems(M=10, N_spaces = [64, 64, 128, 32, 32, 32], problem_name = 'su_olson_thick', rad_or_transport = 'rad', 
+                                c = 0.0, s2 = False, cv0=0.00, x0_or_sigma = 0.5, mat_or_rad ='rad', uncollided = False, moving = False):
+    
+    tfinal_list = [0.3,3.0,30.0]
+    source_name_list = ['square_s']
+    fign = 1
+    delim = '_'
+    path = Path("moving_mesh_transport")
+    for count, tfinal in  enumerate(tfinal_list):
+            
+        string = problem_name + delim + str(tfinal) + delim + source_name_list[0] + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
+
+        name = str(path / 'plots' / 'solution_plots') + '/' + string
+
+        plotter = plot(tfinal, M,  N_spaces[count], problem_name, source_name_list[0], rad_or_transport, c, s2, 
+        cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
+
+
+        fign +=1
+
+        plotter.plot()
+        plotter = plot(tfinal, M,  N_spaces[count], problem_name, source_name_list[0], rad_or_transport, c, s2, 
+        cv0, x0_or_sigma , 'mat', uncollided, moving, fign, name)
+        plotter.plot()
+
+    # for count, tfinal in  enumerate(tfinal_list):
+            
+    #     string = problem_name + delim + str(tfinal) + delim + source_name_list[0] + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
+
+    #     name = str(path / 'plots' / 'solution_plots') + '/' + string
+
+    #     plotter = plot(tfinal, M,  N_spaces[count + 3], problem_name, source_name_list[0], rad_or_transport, c, s2, 
+    #     cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
+
+    #     fign +=1
+
+    #     plotter.plot()
+
 def make_tables_su_olson(M=10, N_space = 32, problem_name = 'su_olson', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_phi.csv','su_olson_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True):
     tfinal_list = np.array([0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228,  100.0])
