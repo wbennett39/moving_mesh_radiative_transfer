@@ -224,28 +224,28 @@ class uncollided_solution(object):
     def uncollided_solution(self, xs, t):
         if self.uncollided == True:
             if self.source_type[0] == 1:
-                return np.array(self.plane_IC_uncollided_solution(xs, t) * self.source_strength)
+                return (self.plane_IC_uncollided_solution(xs, t) * self.source_strength)
             
             elif self.source_type[1] == 1:
-                return np.array(self.square_IC_uncollided_solution(xs, t) * self.source_strength)
+                return (self.square_IC_uncollided_solution(xs, t) * self.source_strength)
             
             elif self.source_type[2] == 1:
                 if self.N_ang == 2:
-                    return np.array(self.su_olson_s2_uncollided_solution(xs, t) * self.source_strength)
+                    return (self.su_olson_s2_uncollided_solution(xs, t) * self.source_strength)
                 else:
-                    return np.array(self.square_source_uncollided_solution(xs, t) * self.source_strength)
+                    return (self.square_source_uncollided_solution(xs, t) * self.source_strength)
                 
             elif self.source_type[3] == 1:                
-                return np.array(self.gaussian_IC_uncollided_solution(xs, t) * self.source_strength)
+                return (self.gaussian_IC_uncollided_solution(xs, t) * self.source_strength)
             
             elif self.source_type[5] == 1:
                 if self.N_ang == 2:
                     return np.array(self.gaussian_s2(xs,t) * self.source_strength)
                 else:
-                    return np.array(self.gaussian_source_uncollided_solution(xs, t) * self.source_strength)
+                    return (self.gaussian_source_uncollided_solution(xs, t) * self.source_strength)
             
         else:
-            return np.array(xs*0)
+            return (xs*0)
         
 # import quadpy
 # import matplotlib.pyplot as plt
