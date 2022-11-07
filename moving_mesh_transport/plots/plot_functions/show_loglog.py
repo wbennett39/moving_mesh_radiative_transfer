@@ -29,7 +29,7 @@ import matplotlib.font_manager as fm
 import matplotlib.ticker as mtick
 from matplotlib.ticker import ScalarFormatter
 from scipy import optimize
-from labellines import labelLine, labelLines
+# from labellines import labelLine, labelLines
 import csv
 from matplotlib.ticker import StrMethodFormatter, NullFormatter
 

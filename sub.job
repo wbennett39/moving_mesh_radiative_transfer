@@ -5,5 +5,3 @@
 module load python
 python3 -i imports.py
 run.square_source()
-plt.close()
-plt.close()
