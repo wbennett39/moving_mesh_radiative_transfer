@@ -50,7 +50,7 @@ class make_output:
                         psi[ang, count] += self.u[ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         output = np.sum(np.multiply(psi.transpose(), self.ws), axis = 1)
         if self.uncollided == True:
-            uncol = np.array(uncollided_solution.uncollided_solution(self.xs, self.t))
+            uncol = uncollided_solution.uncollided_solution(self.xs, self.t)
             output += uncol
         return output
     
