@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N sus2t30
+#$ -N sus2t0.3_gauss
 #$ -q long
 
 
