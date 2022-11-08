@@ -1,7 +1,7 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson_thick'
-    'tfinal': 3.0 #31.6228                       # evaluation time
+    'tfinal': 30.0 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     'c_scaling': False
     'sigma_t': 800
@@ -70,7 +70,7 @@
     'sigma': 0.375
     'l': 0.00125
     'source_strength': 1.0
-    'x0': [3.0]
+    'x0': [9.5]
 #    'x0': [3,3,3,3,3]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
     'N_angles': [16]
