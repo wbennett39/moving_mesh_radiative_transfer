@@ -1,7 +1,7 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson_thick'
-    'tfinal': 30.0 #31.6228                       # evaluation time
+    'tfinal': .3 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     'c_scaling': False
     'sigma_t': 800
@@ -67,12 +67,13 @@
     
 # gaussian  source
 'gaussian_source':
-    'sigma': 300
-    'x0': [1700, 1700, 1700, 1700, 1700]
+    'sigma': 0.375
+    'l': 0.00125
+    'x0': [2.5]
 #    'x0': [3,3,3,3,3]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
-    'N_angles': [8]
-    'move_type': [0,0,1]      # [standard, thick, sqrt_t]
+    'N_angles': [16]
+    'move_type': [1,0,0]      # [standard, thick, sqrt_t]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': False
 
