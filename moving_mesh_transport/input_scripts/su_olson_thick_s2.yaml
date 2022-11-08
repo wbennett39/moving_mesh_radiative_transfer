@@ -1,7 +1,7 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson_thick_s2'
-    'tfinal': 0.3 #31.6228               # evaluation time
+    'tfinal': 3.0 #31.6228               # evaluation time
     'c': 0.0                            # scattering ratio
     'sigma_t': 1.0
     'c_scaling': False
@@ -12,7 +12,7 @@
     'Ms': [10]                           # number of basis functions -
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
-    'at': 1e-12                         # abs tolerance for ODE integrator
+    'at': 1e-11                         # abs tolerance for ODE integrator
     'mxstp': 500.
     'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
