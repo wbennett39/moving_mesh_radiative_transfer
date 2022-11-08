@@ -13,8 +13,8 @@ class save_output:
     def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major,
                  thermal_couple, temp_function, c, sigma, x0, cv_const, problem_type, N_angles):
         data_folder = Path("moving_mesh_transport")
-        self.solution_file_path = data_folder / 'run_data_crc.h5'
-        self.wavepoints_file_path = data_folder / 'wavepoints_crc.h5'
+        self.solution_file_path = data_folder / 'run_data_crc.hdf5'
+        self.wavepoints_file_path = data_folder / 'wavepoints_crc.hdf5'
         self.problem_type = problem_type              
         self.Ms = Ms
         self.tfinal = tfinal
@@ -32,7 +32,7 @@ class save_output:
 
         if self.problem_type == 'transport':
             self.config_file_path = data_folder / 'run_data_transport_RMS.h5'
-        elif self.problem_type in ['su_olson', 'su_olson_s2', 'su_olson_thick', 'su_olson_thick_s2', '']:
+        elif self.problem_type in ['su_olson', 'su_olson_s2', 'su_olson_thick', 'su_olson_thick_s2']:
             self.config_file_path = data_folder / 'run_data_su_olson_RMS.h5'
         else:
             print('no problem selected')
