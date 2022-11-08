@@ -51,7 +51,7 @@ class save_output:
         if self.major == 'cells':
             if saving_condition == True:
                 print("saving")
-                f = h5py.File(self.config_file_path, 'a')
+                f = h5py.File(self.config_file_path, 'r+')
                 if self.tfinal == 1.25:
                     tf = str(1.25)
                 elif self.tfinal == 0.8333333333333334:
@@ -78,7 +78,7 @@ class save_output:
         elif self.major == 'Ms':
             if saving_condition == True :
                 print("saving")
-                f = h5py.File(self.config_file_path, 'a')
+                f = h5py.File(self.config_file_path, 'r+')
                 dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS")
                 
                 if not f.__contains__(dest_str):
@@ -108,7 +108,7 @@ class save_output:
         if saving_condition == True :
             if self.major == 'cells':
                 print("saving RMSE")
-                f = h5py.File(self.config_file_path, 'a')
+                f = h5py.File(self.config_file_path, 'r+')
                 if self.tfinal != 31.6228:
                     self.tfinal = int(self.tfinal)
                 dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS" + "/" + f"S{ang}")
@@ -131,7 +131,7 @@ class save_output:
             
             elif self.major == 'Ms':
                 print("saving RMSE")
-                f = h5py.File(self.config_file_path, 'a')
+                f = h5py.File(self.config_file_path, 'r+')
                 dest_str = str(self.source_name + "/" + "t="  + str(int(self.tfinal)) + "/" + "RMS" + "/" + f"S{ang}")
                 print(dest_str)
                 
@@ -156,7 +156,7 @@ class save_output:
         print("saving solution")
         "transport or transfer/source_name/t = {tfinal}/c = {c}/ x0(or sigma) = {val}"
         
-        f = h5py.File(self.solution_file_path, 'a')
+        f = h5py.File(self.solution_file_path, 'r+')
         
         if self.problem_type == 'transport':
             folder_name = "transport"
@@ -222,7 +222,7 @@ class save_output:
 
     def save_wave_loc(self, tpnts, leftpnts, rightpnts, T_wave_points):
     
-        f = h5py.File(self.wavepoints_file_path, 'a')
+        f = h5py.File(self.wavepoints_file_path, 'r+')
 
 
         if self.problem_type == 'transport':
