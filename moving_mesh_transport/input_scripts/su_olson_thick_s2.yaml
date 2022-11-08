@@ -1,7 +1,7 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson_thick_s2'
-    'tfinal': 3.0 #31.6228               # evaluation time
+    'tfinal': 30.0 #31.6228               # evaluation time
     'c': 0.0                            # scattering ratio
     'sigma_t': 1.0
     'c_scaling': False
