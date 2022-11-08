@@ -117,25 +117,25 @@ class main_class(parameter_load_class):
         print("uncollided  = ", uncollided)
         print("moving mesh = ", moving)
         print("---  ---  ---  ---  ---  ---  ---")
+        if self.move_type[1] == 1:
+            if (self.thick == True and self.source_type[2] == 1 and self.move_type[1] == 1): # make this a separate function
+                sol_loader = load_sol(self.problem_type, 'square_s','transfer', self.scattering_ratio, self.N_angles[0]==2, self.cv0)
+                sol_loader.call_wavepoints(self.tfinal)
+                self.tpnts_wave = sol_loader.tpnts
+                self.left_wave = sol_loader.left
+                self.right_wave = sol_loader.right
+                self.T_wave = sol_loader.T_wave
+                self.wave_loc_array = np.array([[(self.tpnts_wave)], [(self.left_wave)], [(self.right_wave)], [(self.T_wave)]])
+                print(self.wave_loc_array)
 
-        if (self.thick == True and self.source_type[2] == 1 and self.move_type[1] == 1): # make this a separate function
-            sol_loader = load_sol(self.problem_type, 'square_s','transfer', self.scattering_ratio, self.N_angles[0]==2, self.cv0)
-            sol_loader.call_wavepoints(self.tfinal)
-            self.tpnts_wave = sol_loader.tpnts
-            self.left_wave = sol_loader.left
-            self.right_wave = sol_loader.right
-            self.T_wave = sol_loader.T_wave
-            self.wave_loc_array = np.array([[(self.tpnts_wave)], [(self.left_wave)], [(self.right_wave)], [(self.T_wave)]])
-            print(self.wave_loc_array)
-
-        elif (self.thick == True and self.source_type[5] == 1):
-            sol_loader = load_sol(self.problem_type, 'gaussian_s','transfer', self.scattering_ratio, self.N_angles[0]==2, self.cv0)
-            sol_loader.call_wavepoints(self.tfinal)
-            self.tpnts_wave = sol_loader.tpnts
-            self.left_wave = sol_loader.left
-            self.right_wave = sol_loader.right
-            self.T_wave = sol_loader.T_wave
-            self.wave_loc_array = np.array([[(self.tpnts_wave)], [(self.left_wave)], [(self.right_wave)], [(self.T_wave)]])
+            elif (self.thick == True and self.source_type[5] == 1):
+                sol_loader = load_sol(self.problem_type, 'gaussian_s','transfer', self.scattering_ratio, self.N_angles[0]==2, self.cv0)
+                sol_loader.call_wavepoints(self.tfinal)
+                self.tpnts_wave = sol_loader.tpnts
+                self.left_wave = sol_loader.left
+                self.right_wave = sol_loader.right
+                self.T_wave = sol_loader.T_wave
+                self.wave_loc_array = np.array([[(self.tpnts_wave)], [(self.left_wave)], [(self.right_wave)], [(self.T_wave)]])
         else:
             self.wave_loc_array = np.zeros((1,1,1))
 
