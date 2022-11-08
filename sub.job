@@ -2,7 +2,7 @@
 #$ -M wbennet2@nd.edu
 #$ -m abe
 #$ -N nlgss3
-#$ -q debug
+#$ -q long
 
 
 module load python
