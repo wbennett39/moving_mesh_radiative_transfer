@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N cvconst_gauss_s2
+#$ -N su_square
 #$ -q long
 
 

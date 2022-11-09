@@ -35,12 +35,14 @@ plt.close()
 
 
 t_list = [0.3, 3.0, 30.0]
+factor_list = [1.5, 0.9, 0.9]
 
-run.load('rad_transfer_const_cv_thick_s2')
+run.load('su_olson_thick')
 
-for t in t_list:
+for count, t in enumerate[t_list]:
     run.parameters['all']['tfinal'] = t
-    run.gaussian_source(False, False)
+    run.mesh_parameters['sqrt_t_move_factor'] = factor_list[count]
+    run.square_source(False, False)
     plt.close()
     plt.close()
     plt.close()
