@@ -39,7 +39,7 @@ factor_list = [1.5, 0.9, 0.9]
 
 run.load('su_olson_thick')
 
-for count, t in enumerate[t_list]:
+for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
     run.mesh_parameters['sqrt_t_move_factor'] = factor_list[count]
     run.square_source(False, False)
