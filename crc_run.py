@@ -38,7 +38,7 @@ t_list = [0.3, 3.0, 30.0]
 
 run.load('rad_transfer_const_cv_thick_s2')
 
-for t in tlist:
+for t in t_list:
     run.parameters['all']['tfinal'] = t
     run.gaussian_source(False, False)
     plt.close()
