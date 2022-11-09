@@ -37,7 +37,7 @@ plt.close()
 t_list = [0.3, 3.0, 30.0]
 factor_list = [2.5, 3.0, 6.0]
 
-run.load('su_olson_thick')
+run.load('su_olson_thick_s2')
 
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
