@@ -30,10 +30,24 @@ run.square_source()
 plt.close()
 plt.close()
 plt.close()
-# run.load('rad_transfer_const_cv_thick_s2')
-run.load('su_olson_thick')
-run.gaussian_source(False, False)
-plt.close()
-plt.close()
-plt.close()
+
+# run.load('su_olson_thick')
+
+
+t_list = [0.3, 3.0, 30.0]
+
+run.load('rad_transfer_const_cv_thick_s2')
+
+for t in tlist:
+    run.parameters['all']['tfinal'] = t
+    run.gaussian_source(False, False)
+    plt.close()
+    plt.close()
+    plt.close()
+
+
+
+
+
+
 

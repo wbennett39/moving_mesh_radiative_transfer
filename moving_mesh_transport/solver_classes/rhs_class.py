@@ -375,9 +375,9 @@ class rhs_class():
                     
                     if self.N_ang == 2:
                         if self.uncollided == True:
-                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c * (P + 0.5*S) + self.c_a*0.5*H
+                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U/self.l + self.c * (P/self.l + 0.5*S/self.l) + self.c_a*0.5*H/self.l
                         elif self.uncollided == False:
-                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U + self.c*P + 0.5*S + self.c_a*0.5*H
+                            RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U/self.l + self.c*P/self.l + 0.5*S/self.l + self.c_a*0.5*H/self.l
                     elif self.N_ang !=2:
                         if self.uncollided == True:
                             RHS_transport = np.dot(G,U) - LU + mul*np.dot(L,U) - U/self.l + self.c * (P + S*0.5)/self.l + self.c_a*0.5*H/self.l
