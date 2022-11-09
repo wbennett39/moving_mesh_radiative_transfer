@@ -41,7 +41,7 @@ run.load('su_olson_thick_s2')
 
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
-    run.parameters['gaussian_source']['x0'] = factor_list[count]
+    run.parameters['gaussian_source']['x0'][0] = factor_list[count]
     run.gaussian_source(False, False)
     plt.close()
     plt.close()
