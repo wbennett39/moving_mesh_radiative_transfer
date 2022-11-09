@@ -79,11 +79,35 @@ def plot_thin_nonlinear_problems(M=10, N_space = 32, problem_name = 'rad_transfe
 
         plotter.plot()
 
-def plot_thick_nonlinear_problems(M=10, N_spaces = [64, 64, 128, 32, 32, 32], problem_name = 'rad_transfer_const_cv_thick', rad_or_transport = 'rad', 
+def plot_thick_nonlinear_problems(M=10, N_spaces = [64, 64, 128], problem_name = 'rad_transfer_const_cv_thick', rad_or_transport = 'rad', 
+                                c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 0.375, mat_or_rad ='rad', uncollided = False, moving = False):
+    
+    tfinal_list = [0.3, 3.0, 30.0]
+    source_name_list = ['gaussian_s']
+    fign = 1
+    delim = '_'
+    path = Path("moving_mesh_transport")
+    for count, tfinal in  enumerate(tfinal_list):
+            
+        string = problem_name + delim + str(tfinal) + delim + source_name_list[0] + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
+
+        name = str(path / 'plots' / 'solution_plots') + '/' + string
+
+        plotter = plot(tfinal, M,  N_spaces[count], problem_name, source_name_list[0], rad_or_transport, c, s2, 
+        cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
+
+        fign +=1
+
+        plotter.plot()
+
+  
+
+
+def plot_thick_nonlinear_problems_s2(M=10, N_spaces = [64, 64, 128], problem_name = 'rad_transfer_const_cv_thick_s2', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 400.0, mat_or_rad ='rad', uncollided = False, moving = False):
     
-    tfinal_list = [100.0,1000.0,1000.0]
-    source_name_list = ['gaussian_s', 'square_s']
+    tfinal_list = [0.3, 3.0, 3.0]
+    source_name_list = ['gaussian_s']
     fign = 1
     delim = '_'
     path = Path("moving_mesh_transport")

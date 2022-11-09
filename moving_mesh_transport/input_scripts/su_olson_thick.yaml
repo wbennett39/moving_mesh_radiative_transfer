@@ -4,7 +4,7 @@
     'tfinal': 30.0 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     'c_scaling': False
-    'sigma_t': 800
+    'sigma_t': 800.0
     't0': 0.0125                           # time the source is turned off
     'N_spaces': [128]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source

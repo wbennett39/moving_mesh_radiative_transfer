@@ -3,7 +3,7 @@
     'problem_name': 'su_olson_thick_s2'
     'tfinal': 30.0 #31.6228               # evaluation time
     'c': 0.0                            # scattering ratio
-    'sigma_t': 1.0
+    'sigma_t': 800.0
     'c_scaling': False
     't0': 10.0                          # time the source is turned off
     'N_spaces': [128]                     # number of cells

@@ -1,17 +1,17 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'rad_transfer_constant_cv_thick'
-    'tfinal': 300.0 #31.6228                       # evaluation time
+    'tfinal': 0.3 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     'c_scaling': False
     'sigma_t': 800.0
     't0': 0.0125                         # time the source is turned off
     'N_spaces': [64]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [8]                         # number of basis functions -1
+    'Ms': [10]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
-    'rt': 5e-8                         # rel tolerance for ODE integrator
-    'at': 1e-9                        # abs tolerance for ODE integrator
+    'rt': 5e-12                         # rel tolerance for ODE integrator
+    'at': 1e-11                        # abs tolerance for ODE integrator
     'mxstp': 1000.0
     'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 1             # material temperature feedback. 1-True, 0 - False
@@ -25,7 +25,7 @@
     'estimate_wavespeed': False
     'find_wave_loc': False
     'thick': True
-    'integrator': 'RK45'
+    'integrator': 'DOP853'
     
 # plane pulse source
 'plane_IC':
@@ -70,10 +70,10 @@
     'sigma': 0.375
     'l': 0.00125
     'source_strength': 1
-    'x0': [4.1, 3.1, 3.1, 3.1, 3.1]
+    'x0': [3.1, 3.1, 3.1, 3.1, 3.1]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
     'N_angles': [16]
-    'move_type': [0,1,0]          # [standard, thick, empty]
+    'move_type': [1,0,0]          # [standard, thick, empty]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False
 

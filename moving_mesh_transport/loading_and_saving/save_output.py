@@ -13,8 +13,8 @@ class save_output:
     def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major,
                  thermal_couple, temp_function, c, sigma, x0, cv_const, problem_type, N_angles):
         data_folder = Path("moving_mesh_transport")
-        self.solution_file_path = data_folder / 'run_data_crc.hdf5'
-        self.wavepoints_file_path = data_folder / 'wavepoints_crc.hdf5'
+        self.solution_file_path = data_folder / 'run_data.h5'
+        self.wavepoints_file_path = data_folder / 'wavepoints.h5'
         self.problem_type = problem_type              
         self.Ms = Ms
         self.tfinal = tfinal
