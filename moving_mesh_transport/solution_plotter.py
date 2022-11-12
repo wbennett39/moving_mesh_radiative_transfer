@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 
 from .loading_and_saving.load_solution import load_sol
 from .plots.plot_functions.show import show
+from .plots.plotting_script import plot_coefficients
 from .solver_classes import make_phi, build_problem
 from .solver_classes.uncollided_solutions import uncollided_solution
 from pathlib import Path
@@ -354,6 +355,73 @@ def make_tables_const_cv_thin(M=10, N_space = 32, problem_name = 'rad_transfer_c
         writer = csv.writer(file)
         data_e_trunc = trunc(data_e, 10)
         writer.writerows(data_e_trunc)
+
+
+def plot_coeffs_all_crc():
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  M=10, source_name = 'gaussian_s',  N_spaces = [128], 
+    problem_name = 'transfer_const_cv=0.03_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+    
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  M=10, source_name = 'gaussian_s',  N_spaces = [128], 
+    problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  M=10, source_name = 'gaussian_s',  N_spaces = [128], 
+    problem_name = 'su_olson_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+
+def plot_coeffs_all_local():
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  M=8, source_name = 'gaussian_s',  N_spaces = [64], 
+    problem_name = 'transfer_const_cv=0.03_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+    
+    # plot_coefficients(tfinals = [0.3, 3.0, 30.0],  M=10, source_name = 'gaussian_s',  N_spaces = [128], 
+    # problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    # c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    # legend = True, fign = 1)
+
+
+    # plt.close()
+    # plt.close()
+    # plt.close()
+    # plt.close()
+
+    # plot_coefficients(tfinals = [0.3, 3.0, 30.0],  M=10, source_name = 'gaussian_s',  N_spaces = [128], 
+    # problem_name = 'su_olson_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    # c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    # legend = True, fign = 1)
+
+
+    # plt.close()
+    # plt.close()
+    # plt.close()
+    # plt.close()
 
 
  
