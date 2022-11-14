@@ -712,7 +712,7 @@ class rms_plotter:
         xdata = np.linspace(0,self.M_coeff, self.M_coeff+1)
 
         label_list = self.label_list
-        mkr_list_old = ['o', '^', 's', 'p', '*', 'x']
+        mkr_list_old = ['o', '^', 's', 'p', '*', 'x', 'd']
         mkr_list = [x + self.line for x in mkr_list_old]
 
         

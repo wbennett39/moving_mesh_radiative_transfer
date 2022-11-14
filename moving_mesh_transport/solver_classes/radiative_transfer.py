@@ -100,13 +100,13 @@ class T_function(object):
         
         self.fudge_factor = np.ones(e.size)
     
-        for count in range(e.size):
-            if math.isnan(e[count]) == True:
-                            print("nan")
-                            print(e)
-                            assert 0     
-            elif (e[count]) < 0.:
-                self.fudge_factor[count] = -1.
+        # for count in range(e.size):
+        #     if math.isnan(e[count]) == True:
+        #                     print("nan")
+        #                     print(e)
+        #                     assert 0     
+            # elif (e[count]) < 0.:
+            #     self.fudge_factor[count] = -1.
 
 
         t1 = np.abs(4*e/self.alpha)

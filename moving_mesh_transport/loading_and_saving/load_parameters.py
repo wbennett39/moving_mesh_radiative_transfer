@@ -37,6 +37,7 @@ class parameter_load_class:
         self.problem_type = str(parameters['all']['problem_name'])
         self.sigma_t = float(parameters['all']['sigma_t'])
         self.integrator = str(parameters['all']['integrator'])
+        
 
 
         self.thick = int(parameters['all']['thick'])
@@ -99,6 +100,8 @@ class parameter_load_class:
         self.specified_xs = np.array(mesh_parameters['xs_list'])
         self.pad = float(mesh_parameters['pad'])
         self.leader_pad = float(mesh_parameters['leader_pad'])
+        self.xs_quad = int(mesh_parameters['xs_quad'])
+        
 
 
         if not (len(self.N_spaces) == len(self.N_angles) == len(self.Ms)):
