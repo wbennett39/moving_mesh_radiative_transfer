@@ -73,7 +73,7 @@
     'x0': [3,3,3,3,3]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
     'N_angles': [64]
-    'move_type': [1,0,0]      # [standard, thick, sqrt_t]
+    'move_type': [0,0,1]      # [standard, thick, sqrt_t]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': False
 

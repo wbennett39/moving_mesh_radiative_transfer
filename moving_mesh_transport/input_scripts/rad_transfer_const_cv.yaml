@@ -72,8 +72,8 @@
     'sigma': 0.5
     'x0': [2.9,2.9,2.9,2.9,2.9]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
-    'N_angles': [128,256,256,256]
-    'move_type': [1,0,0]
+    'N_angles': [64]
+    'move_type': [0,0,1]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False
 
