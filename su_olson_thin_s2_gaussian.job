@@ -6,5 +6,5 @@
 
 
 module load python
-python3 SuS2Gauss.py
+python3 SuTS2Gauss.py
 
