@@ -1,10 +1,10 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N SuThickFull
+#$ -N SuThickS2
 #$ -q long
 
 
 module load python
-python3 SuTKFull.py
+python3 SuTKS2.py
 
