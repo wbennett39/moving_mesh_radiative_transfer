@@ -1,0 +1,10 @@
+#!/bin/bash
+#$ -M wbennet2@nd.edu
+#$ -m abe
+#$ -N SuThickGsS2
+#$ -q long
+
+
+module load python
+python3 SuTKGsS2.py
+
