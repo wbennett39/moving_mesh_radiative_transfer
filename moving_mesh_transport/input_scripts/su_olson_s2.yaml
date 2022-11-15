@@ -24,7 +24,7 @@
     'cv_const': 0.0
     'estimate_wavespeed': True
     'thick': False
-    'integtrator': 'DOP853'
+    'integrator': 'DOP853'
     
 # plane pulse source
 'plane_IC':

@@ -6,5 +6,5 @@
 
 
 module load python
-python3 NLS2.py
+python3 NLTS2.py
 

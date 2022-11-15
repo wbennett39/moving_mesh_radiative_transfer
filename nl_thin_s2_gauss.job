@@ -1,10 +1,10 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N NLThinS2lGauss
+#$ -N NLThinS2Gauss
 #$ -q long
 
 
 module load python
-python3 NLS2Gauss.py
+python3 NLTS2Gauss.py
 
