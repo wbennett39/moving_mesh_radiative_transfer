@@ -45,9 +45,9 @@ run.load('rad_transfer_const_cv_thick')
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
     # run.mesh_parameters['sqrt_t_move_factor'] = factor_list[count]
-    run.parameters['all']['N_spaces'][0] = 64
+    run.parameters['all']['N_spaces'][0] = 128
     run.parameters['gaussian_source']['x0'][0] = factor_list[count]
-    run.parameters['all']['Ms'][0] = 12
+    run.parameters['all']['Ms'][0] = 10
     run.gaussian_source(False, False)
     plt.close()
     plt.close()
