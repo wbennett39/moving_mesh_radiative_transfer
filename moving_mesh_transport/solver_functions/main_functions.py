@@ -103,10 +103,12 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     t_quad = quadpy.c1.gauss_legendre(t_nodes).points
     t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
     quad_thick_source = quadpy.c1.gauss_lobatto(int(N_space/2+1)).points
+    quad_thick_edge = quadpy.c1.gauss_lobatto(int(N_space/4+1)).points
+    # quad_thick_source = ([quad_thick_source_inside, quad_thick_source_outside])
     initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
                        thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, 
-                       wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source)
+                       wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source, quad_thick_edge)
                        
     initialize.make_IC()
     IC = initialize.IC
@@ -115,7 +117,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         deg_freedom = N_ang*N_space*(M+1)
     elif thermal_couple == 1:
         deg_freedom = (N_ang+1)*N_space*(M+1)
-    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array, pad, leader_pad, quad_thick_source) 
+    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array, pad, leader_pad, quad_thick_source, quad_thick_edge) 
     matrices = G_L(initialize)
     num_flux = LU_surf(initialize)
     source = source_class(initialize)

@@ -25,7 +25,9 @@ def coeff_con(ws, sol_matrix, N_ang, M, k):
         for j in range(M+1):
 
             weight_avg[j] = sol_matrix[k,j]
-
+            max_cell = max(sol_matrix[:,j])
+            index_of_max = np.argmin(np.abs(sol_matrix[:,j]-max_cell))
+            print('j=', j, 'cell with highest coefficient', index_of_max, "value", max_cell)
         return weight_avg
 
 

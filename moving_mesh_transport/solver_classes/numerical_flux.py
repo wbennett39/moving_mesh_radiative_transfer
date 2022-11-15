@@ -131,7 +131,7 @@ class LU_surf(object):
                 if space != 0:
                     self.v0 += self.B_LR_func(j, self.hm)[1]*(u[space-1,j])
                     
-                elif space == 0 and (self.source_type[4] == 1 or self.moving == True and self.thermal_couple == 1): # special MMS case
+                elif space == 0 and (self.source_type[4] == 1 or self.thermal_couple == 1): # special MMS case
                     self.v0 += self.integrate_quad(t, self.xL_minus, self.edges[space], j, "l") * self.B_LR_func(j, self.h)[1] 
                     
                 self.v1 += self.B_LR_func(j, self.h)[0]*(u[space, j])
@@ -140,7 +140,7 @@ class LU_surf(object):
                 if space != self.N_space - 1:
                     self.v3 += self.B_LR_func(j, self.hp)[0]*(u[space+1,j])
                     
-                elif space == self.N_space - 1 and (self.source_type[4] == 1 or self.moving == True and self.thermal_couple == 1):
+                elif space == self.N_space - 1 and (self.source_type[4] == 1 or self.thermal_couple == 1):
                     self.v3 += self.integrate_quad(t, self.edges[space+1], self.xR_plus, j, "r") * self.B_LR_func(j, self.h)[0] 
             
     

@@ -7,6 +7,7 @@ from .functions import problem_identifier
 from .mesh_functions import set_func, _interp1d
 import quadpy
 import numpy.polynomial as nply
+from scipy.special import roots_legendre
 
 
 #################################################################################################
@@ -49,7 +50,8 @@ data = [('N_ang', int64),
         ('middlebin', int64),
         ('sidebin', int64),
         ('leader_pad', float64),
-        ('packet_leader_speed', float64)
+        ('packet_leader_speed', float64),
+        ('thick_quad_edge', float64[:])
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -58,7 +60,7 @@ data = [('N_ang', int64),
     
 @jitclass(data)
 class mesh_class(object):
-    def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array, pad, leader_pad, thick_quad):
+    def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array, pad, leader_pad, thick_quad, thick_quad_edge):
         
         self.debugging = True
         self.test_dimensional_rhs = False
@@ -97,6 +99,7 @@ class mesh_class(object):
         #     if element < self.x0:
         #         self.wave_loc_array[0, 3, count] = self.x0 + 1e-8
         self.thick_quad = thick_quad
+        self.thick_quad_edge = thick_quad_edge
 
         # print(self.wave_loc_array[0,2,-1], 'wave final location')
 
@@ -290,7 +293,7 @@ class mesh_class(object):
                 self.simple_moving_init_func()
             # elif self.problem_type in ['square_IC', 'square_source']:
             if self.source_type[1] == 1 or self.source_type[2] == 1:
-                self.thin_square_init_func()
+                self.thin_square_init_func_legendre()
 
         elif self.thick == True:
             # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
@@ -455,16 +458,9 @@ class mesh_class(object):
         dx = 1e-14
         left = np.linspace(-self.x0-dx, -self.x0, sidebin + 1)
         right = np.linspace(self.x0, self.x0 + dx, sidebin + 1)
-        # if self.N_space == 32 and self.move_func == 2:
-        #     middle = np.array([-0.99057548, -0.95067552, -0.88023915, -0.781514  , -0.65767116,
-        #                 -0.51269054, -0.35123176, -0.17848418,  0.        ,  0.17848418,
-        #                 0.35123176,  0.51269054,  0.65767116,  0.781514  ,  0.88023915,
-        #                 0.95067552,  0.99057548]) 
-        # else:
-        if self.move_func == 2:
-            middle = 0.5 * self.thick_quad
-        else:
-            middle = np.linspace(-self.x0, self.x0, middlebin + 1)
+
+        
+        middle = np.linspace(-self.x0, self.x0, middlebin + 1)
 
         self.edges = np.concatenate((left[:-1], middle[:-1], right[:])) # put them all together 
         
@@ -473,6 +469,44 @@ class mesh_class(object):
         self.Dedges[sidebin:sidebin+middlebin] = 0       
         self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
         self.Dedges = self.Dedges * self.speed
+
+    def thin_square_init_func_legendre(self):
+        if self.N_space == 2:
+            print("don't run this problem with 2 spaces")
+            assert(0)
+        middlebin = int(self.N_space/2)   # edges inside the source - static
+        sidebin = int(middlebin/2) # edges outside the source - moving
+        dx = 1e-9
+        # left = np.linspace(-self.x0-dx, -self.x0, sidebin + 1)
+        # right = np.linspace(self.x0, self.x0 + dx, sidebin + 1)
+        left_old = self.thick_quad_edge
+        right_old = self.thick_quad_edge
+        right =(right_old*(self.x0-self.x0-dx)-self.x0-dx-self.x0)/-2
+        left =(left_old*(-self.x0-dx+self.x0)+self.x0+dx+self.x0)/-2
+
+        # if self.N_space == 32 and self.move_func == 2:
+        #     middle = np.array([-0.99057548, -0.95067552, -0.88023915, -0.781514  , -0.65767116,
+        #                 -0.51269054, -0.35123176, -0.17848418,  0.        ,  0.17848418,
+        #                 0.35123176,  0.51269054,  0.65767116,  0.781514  ,  0.88023915,
+        #                 0.95067552,  0.99057548]) 
+        # else:
+        # if self.move_func == 2:
+        middle = 0.5 * self.thick_quad
+
+            # left = roots_legendre(siebin+1)[0]
+            # right = roots_legendre(siebin+1)[0]
+            # right =(right*(self.x0-self.x0-dx)-self.x0-dx-self.x0)/-2
+            # left =(left*(-self.x0-dx+self.x0)+self.x0+dx+self.x0)/-2
+            # print(left, right)
+
+        self.edges = np.concatenate((left[:-1], middle[:-1], right[:])) # put them all together 
+        
+        # initialize derivatives
+        self.Dedges[0:sidebin] = (self.edges[0:sidebin] + self.x0 )/(self.edges[-1] - self.x0)
+        self.Dedges[sidebin:sidebin+middlebin] = 0       
+        self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
+        self.Dedges = self.Dedges * self.speed
+
 
     def simple_thick_square_init_func_2(self):
         if self.N_space == 2:

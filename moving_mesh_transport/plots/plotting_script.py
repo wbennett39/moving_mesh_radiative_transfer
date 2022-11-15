@@ -276,15 +276,6 @@ rad_or_transport ='transfer', x0_or_sigma = 0.375 , c = 0.0, cv0=0.03,mat_or_rad
 
         plotter.plot_coeff_boyd()
 
-
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     
