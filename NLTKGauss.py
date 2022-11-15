@@ -40,7 +40,7 @@ t_list = [0.3, 3.0, 30.0]
 # factor_list = [0.8, 0.9, 1.2]
 factor_list = [0.6, 0.6, 1.0, 1.0, 1.6, 1.6, 1.5] # thin gaussian ninlinear
 
-run.load('su_olson')
+run.load('rad_transfer_const_cv_thick')
 
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
