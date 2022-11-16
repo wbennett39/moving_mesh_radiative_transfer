@@ -17,7 +17,7 @@ class load_sol:
         data_folder = Path("moving_mesh_transport")
 
         # self.data_file_path = data_folder / 'run_data_crc.hdf5'
-        self.data_file_path = data_folder / 'run_data.h5' 
+        self.data_file_path = data_folder / 'run_data_crc_nov15.hdf5' 
 
         self.wavepoints_file_path = data_folder / 'wavepoints.h5'
         print(self.wavepoints_file_path)
