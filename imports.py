@@ -11,6 +11,7 @@ from moving_mesh_transport.solution_plotter import plot_thick_nonlinear_problems
 from moving_mesh_transport.solution_plotter import plot_thick_nonlinear_problems_s2 as plot_thick_s2
 from moving_mesh_transport.solution_plotter import plot_thick_suolson_problems as plot_sut
 from moving_mesh_transport.solution_plotter import plot_su_olson as plot_su
+from moving_mesh_transport.solution_plotter import plot_su_olson_gaussian as plot_sug
 from moving_mesh_transport.solution_plotter import plot_coeffs_all_crc as pca_crc
 from moving_mesh_transport.solution_plotter import plot_coeffs_all_local as pca_loc
 

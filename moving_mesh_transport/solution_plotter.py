@@ -141,8 +141,30 @@ def plot_thick_nonlinear_problems_s2(M=10, N_spaces = [64, 64, 128], problem_nam
 
 def plot_su_olson(M=6, N_space = 16, problem_name = 'su_olson', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', uncollided = True, moving = True):
-    tfinal_list = [0.1, 1.0,5.0,10.0,31.6228]
+    tfinal_list = [0.1, 1.0,5.0,10.0,31.6228,100.0]
     source_name_list = ['square_s']
+    fign = 1
+    delim = '_'
+    path = Path("moving_mesh_transport")
+    for tfinal in tfinal_list:
+        for source_name in source_name_list:
+            
+            string = problem_name + delim + str(tfinal) + delim + source_name + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
+
+            name = str(path / 'plots' / 'solution_plots') + '/' + string
+            print(problem_name, 'problem name')
+            plotter = plot(tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2, 
+            cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
+
+            
+
+            plotter.plot()
+
+            fign +=1
+def plot_su_olson_gaussian(M=12, N_space = 64, problem_name = 'su_olson', rad_or_transport = 'rad', 
+                                c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', uncollided = True, moving = False):
+    tfinal_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
+    source_name_list = ['gaussian_s']
     fign = 1
     delim = '_'
     path = Path("moving_mesh_transport")
@@ -414,7 +436,7 @@ def plot_coeffs_all_crc():
     # plt.close()
     # plt.close()
 
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0],  M=10, source_name = 'gaussian_s',  N_spaces = [64], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0],  M=12, source_name = 'gaussian_s',  N_spaces = [64], 
     problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
@@ -434,7 +456,7 @@ def plot_coeffs_all_crc():
     # plt.close()
     # plt.close()
 
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0],  M=10, source_name = 'gaussian_s',  N_spaces = [64], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0],  M=12, source_name = 'gaussian_s',  N_spaces = [64], 
     problem_name = 'su_olson', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
