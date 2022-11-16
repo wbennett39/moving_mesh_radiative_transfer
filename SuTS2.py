@@ -33,7 +33,7 @@ plt.close()
 
 # run.load('su_olson_thick')
 
-t_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
+t_list = [1.0, 3.16228, 10.0, 31.6228, 100.0]
 # t_list = [0.1, 0.31623, 1, 3.16228, 10.0]
 # t_list = [0.3, 3.0, 30.0]
 # factor_list = [2.5, 3.0, 6.0] # for thick gaussians nonlinear
