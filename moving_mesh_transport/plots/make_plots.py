@@ -733,7 +733,7 @@ class rms_plotter:
             plt.legend()
 
         plt.ylim(1e-14, 1e-0)
-        show_loglog(self.file_path_string + "_boyd", 1, self.M_coeff + 4)
+        show_loglog(self.file_path_string + "_boyd", 0.001, self.M_coeff + 4)
         plt.show()
 
 
