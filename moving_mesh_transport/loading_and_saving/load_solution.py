@@ -19,7 +19,7 @@ class load_sol:
         # self.data_file_path = data_folder / 'run_data_crc.hdf5'
         self.data_file_path = data_folder / 'run_data.h5' 
 
-        self.wavepoints_file_path = data_folder / 'wavepoints_crc.hdf5'
+        self.wavepoints_file_path = data_folder / 'wavepoints.h5'
         print(self.wavepoints_file_path)
         self.source_name = source_name
         self.rad_or_transfer = rad_or_transfer

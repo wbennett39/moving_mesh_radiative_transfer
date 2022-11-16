@@ -6,9 +6,9 @@
     'c_scaling': False
     'sigma_t': 800.0
     't0': 0.0125                         # time the source is turned off
-    'N_spaces': [64]                   # number of cells
+    'N_spaces': [128]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [10]                         # number of basis functions -1
+    'Ms': [3]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-12                         # rel tolerance for ODE integrator
     'at': 1e-11                        # abs tolerance for ODE integrator
@@ -51,7 +51,7 @@
     'l': 0.00125
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [16]
-    'move_type': [0,1,0]      # [standard, thick, sqrt_t]
+    'move_type': [0,0,1]      # [standard, thick, sqrt_t]
     'bench_type': 'Full'          # 'S2' or 'full'
     'benchmarking': False
     

@@ -203,8 +203,11 @@ class main_class(parameter_load_class):
                     plot_edges(edges, 1)
                 if self.thermal_couple == 1:
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
-                    if self.temp_function[0]==1:
+                if self.temp_function[0]==1:
                         plt.plot(xs, np.power(e,0.25), '-s', mfc = 'none', label = 'T')
+                elif self.temp_function[1] == 1:
+                        plt.plot(xs, e/self.cv0* 0.0137225, '-s', mfc = 'none', label = 'T')
+
                 plt.show()
 
                 
@@ -214,6 +217,8 @@ class main_class(parameter_load_class):
                     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
                     if self.temp_function[0]==1:
                         plt.plot(xs, np.power(e,0.25), '-s', mfc = 'none', label = 'T')
+                    elif self.temp_function[1] == 1:
+                        plt.plot(xs, e/self.cv0* 0.0137225, '-s', mfc = 'none', label = 'T')
                 if self.thick == True and self.sigma_t ==1 and (self.source_type[1] == 1 or self.source_type[2] == 1) :
                     plt.xlim(self.x0[0] - self.x0[0]/8, edges[-1])
                 plt.legend()
