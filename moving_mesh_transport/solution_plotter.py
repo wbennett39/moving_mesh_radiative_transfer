@@ -482,7 +482,7 @@ def plot_coeffs_all_crc():
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.1, 3.16228, 1.0],  M=6, source_name = 'square_s',  N_spaces = [128], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0],  M=4, source_name = 'square_s',  N_spaces = [128], 
     problem_name = 'su_olson', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -492,7 +492,7 @@ def plot_coeffs_all_crc():
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 31.6228],  M=4, source_name = 'square_s',  N_spaces = [128], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228],  M=4, source_name = 'square_s',  N_spaces = [128], 
     problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -504,7 +504,7 @@ def plot_coeffs_all_crc():
 
     # NONLINEAR SQUARE
 
-    plot_coefficients(tfinals = [0.1, 0.31623],  M=6, source_name = 'square_s',  N_spaces = [128], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228],  M=4, source_name = 'square_s',  N_spaces = [128], 
     problem_name = 'transfer_const_cv=0.03_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -513,6 +513,17 @@ def plot_coeffs_all_crc():
     plt.close()
     plt.close()
     plt.close()
+
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0],  M=4, source_name = 'square_s',  N_spaces = [128], 
+    problem_name = 'transfer_const_cv=0.03_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
+    legend = True, fign = 1)
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+
 
 
 
