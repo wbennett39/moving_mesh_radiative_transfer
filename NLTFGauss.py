@@ -39,15 +39,15 @@ t_list = [10.0, 31.6228, 100.0]
 # factor_list = [2.5, 3.0, 6.0] # for thick gaussians nonlinear
 # factor_list = [0.8, 0.9, 1.2]
 # factor_list = [0.6, 0.6, 1.0, 1.0, 1.6, 1.6, 1.5] # thin gaussian ninlinear
-factor_list = [2.4, 2.5, 1.7] # thin gaussian ninlinear
+factor_list = [1.8, 2.2, 1.3] # thin gaussian ninlinear
 
 run.load('rad_transfer_const_cv')
 
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
     run.mesh_parameters['sqrt_t_move_factor'] = factor_list[count]
-    run.parameters['all']['N_spaces'][0] = 64
-    run.parameters['all']['Ms'][0] = 12
+    run.parameters['all']['N_spaces'][0] = 128
+    run.parameters['all']['Ms'][0] = 10
     run.gaussian_source(True, False)
 
     plt.close()
@@ -59,8 +59,8 @@ run.load('rad_transfer_const_cv_s2')
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
     run.mesh_parameters['sqrt_t_move_factor'] = factor_list[count]
-    run.parameters['all']['N_spaces'][0] = 64
-    run.parameters['all']['Ms'][0] = 12
+    run.parameters['all']['N_spaces'][0] = 128
+    run.parameters['all']['Ms'][0] = 10
     run.gaussian_source(True, False)
 
     plt.close()

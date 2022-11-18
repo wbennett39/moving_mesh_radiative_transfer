@@ -68,10 +68,10 @@ class plot:
 
 # plot(1,4,16,'transport', 'square_s', 'transport', 1.0, False, 0.0, 0.5, 'rad', True, True )
 
-def plot_thin_nonlinear_problems(M=10, N_space = 32, problem_name = 'rad_transfer_const_cv', rad_or_transport = 'rad', 
-                                c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 0.5, mat_or_rad ='rad', uncollided = True, moving = True):
-    tfinal_list = [1.0,10.0,31.6228,100.0]
-    source_name_list = ['gaussian_s', 'square_s']
+def plot_thin_nonlinear_problems(M=12, N_space = 64, problem_name = 'rad_transfer_const_cv', rad_or_transport = 'rad', 
+                                c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 0.5, mat_or_rad ='rad', uncollided = True, moving = False):
+    tfinal_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228,100.0]
+    source_name_list = ['gaussian_s']
     fign = 1
     delim = '_'
     path = Path("moving_mesh_transport")
@@ -483,7 +483,7 @@ def plot_coeffs_all_crc():
     plt.close()
     plt.close()
     
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0],  M=10, source_name = 'gaussian_s',  N_spaces = [64], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0],  M=12, source_name = 'gaussian_s',  N_spaces = [64], 
     problem_name = 'transfer_const_cv=0.03_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
@@ -505,7 +505,7 @@ def plot_coeffs_all_crc():
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0],  M=4, source_name = 'square_s',  N_spaces = [128], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  M=4, source_name = 'square_s',  N_spaces = [128], 
     problem_name = 'su_olson', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
