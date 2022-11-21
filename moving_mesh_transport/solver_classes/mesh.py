@@ -51,7 +51,9 @@ data = [('N_ang', int64),
         ('sidebin', int64),
         ('leader_pad', float64),
         ('packet_leader_speed', float64),
-        ('thick_quad_edge', float64[:])
+        ('thick_quad_edge', float64[:]),
+        ('t0', float64),
+        ('edges0_2', float64[:])
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -115,6 +117,8 @@ class mesh_class(object):
         self.leader_speed = 0.0
         self.span_speed = 0.0
         self.leader_pad = leader_pad
+        self.t0 = 10.0
+    
 
     def move(self, t):
         # print(self.edges)pr
@@ -132,8 +136,13 @@ class mesh_class(object):
                 # if t > 10.0:
                 #     self.Dedges = self.edges/self.edges[-1] * self.speed
             if self.move_func == 0: # simple linear
-                self.edges = self.edges0 + self.Dedges*t
-              
+                if t > self.t0 and self.source_type[2] == 1:
+                    self.move_middle_edges(t)
+                    self.edges = self.edges0_2 + self.Dedges * (t-self.t0)
+
+                if t <= self.t0 or self.source_type[2] != 1:
+                    self.Dedges = self.Dedges_const
+                    self.edges = self.edges0 + self.Dedges*t
 
             elif self.move_func == 1: 
                 """
@@ -162,6 +171,28 @@ class mesh_class(object):
             if self.wave_loc_array[0,3,ix] < self.wave_loc_array[0,3,ix +1]:
                 self.wave_loc_array[0,3,ix] = self.wave_loc_array[0,3,ix +1]
 
+    def move_middle_edges(self,t):
+        middlebin = int(self.N_space/2)
+        sidebin = int(middlebin/2)
+        if self.Dedges[sidebin] == 0:
+            final_pos = self.edges0[-1] + self.Dedges[-1] * self.tfinal
+            # final_pos = self.x0 + self.pad
+            final_array = np.linspace(-final_pos, final_pos, self.N_space + 1)
+            new_Dedges = (final_array - self.edges) / (self.tfinal-self.t0)
+            self.Dedges = new_Dedges
+            self.edges0_2 = self.edges
+            # loc_of_right_outside_edge = self.edges[middlebin+sidebin] + self.Dedges[sidebin] * (self.tfinal-t)
+            # loc_of_left_outside_edge = self.edges[sidebin] + self.Dedges[sidebin] * (self.tfinal-t)
+            # dx = loc_of_right_outside_edge - loc_of_left_outside_edge
+            # speed_right = dx/2/(self.tfinal-t)
+            # speed_array = self.edges[sidebin:middlebin+sidebin+1]/speed_right
+            # self.Dedges[sidebin:sidebin+middlebin+1] = speed_array
+            # print(' --- --- --- --- --- --- --- ')
+            # print('speed_array')
+            # print(speed_array)
+            # print(' --- --- --- --- --- --- --- ')
+
+    
 
     def thick_wave_loc_and_deriv_finder(self, t):
         
@@ -469,6 +500,7 @@ class mesh_class(object):
         self.Dedges[sidebin:sidebin+middlebin] = 0       
         self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
         self.Dedges = self.Dedges * self.speed
+
 
     def thin_square_init_func_legendre(self):
         if self.N_space == 2:
