@@ -10,10 +10,10 @@ import math
 
 def logplot_sn_labels(xdata, ydata, angles_list, dy, fign):
     for count, angle in enumerate(angles_list):
-        sn = "$S_{" + str(int(angle)) + "}$"
-        xcoord = (xdata[count])
-        ycoord = (ydata[count]) - math.exp(math.log(ydata[count]) - dy)
-        plt.text(xcoord, ycoord, sn)        
+        sn = "$S_{" + str(int(angle)) + "}$";
+        xcoord = (xdata[count]);
+        ycoord = (ydata[count]) - math.exp(math.log(ydata[count]) - dy);
+        plt.text(xcoord, ycoord, sn);        
         
 def logplot_sn_labels_2(xdata, ydata, angles_list, dy, fign):
     for count, angle in enumerate(angles_list):

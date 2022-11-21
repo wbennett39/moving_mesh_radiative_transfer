@@ -259,19 +259,19 @@ def plot_all_benchmarks(tfinal):
         plotter = rms_plotter(tfinal, M, source, "cells")
         plotter.plot_bench(tfinal, source, count)
         
-def plot_coefficients(tfinals = [3.0],  M=8, source_name = 'gaussian_s',  N_spaces = [16], problem_name = 'transfer_const_cv=0.03_thick',
+def plot_coefficients(tfinals = [3.0],  Ms=[8], source_name = 'gaussian_s',  N_spaces = [16], problem_name = 'transfer_const_cv=0.03_thick',
 rad_or_transport ='transfer', x0_or_sigma = 0.375 , c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',legend = True, fign = 1):
     
 
     for count, tfinal in enumerate(tfinals):
-        plotter = rms_plotter(tfinal, M, source_name, 'cells')
-        plotter.plot_coefficients(tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
+        plotter = rms_plotter(tfinal, Ms[count], source_name, 'cells')
+        plotter.plot_coefficients(tfinal,  Ms[count], source_name,  [N_spaces[count]], problem_name, rad_or_transport,
         x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend, count)
 
         plotter.plot_coeff_boyd()
 
-        plotter = rms_plotter(tfinal, M, source_name, 'cells')
-        plotter.plot_coefficients(tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
+        plotter = rms_plotter(tfinal, Ms[count], source_name, 'cells')
+        plotter.plot_coefficients(tfinal,  Ms[count], source_name,  [N_spaces[count]], problem_name, rad_or_transport,
         x0_or_sigma, c, cv0, uncollided, s2, 'mat', moving, line, legend, count, fign = 3)
 
         plotter.plot_coeff_boyd()
