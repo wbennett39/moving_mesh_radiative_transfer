@@ -39,7 +39,7 @@ t_list = [10.0, 31.6228, 100.0]
 # t_list = [0.3, 3.0, 30.0]
 # factor_list = [2.5, 3.0, 6.0] # for thick gaussians nonlinear
 # factor_list = [0.8, 0.9, 1.2]
-factor_list = [2.4, 2.5, 1.7] # thin gaussian ninlinear
+factor_list = [4.0, 3.0, 4.0] # thin gaussian ninlinear
 
 run.load('su_olson')
 

@@ -74,7 +74,7 @@
     'x0': [3,3,3.5]
     'source_type': [0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]
     'N_angles': [2]
-    'move_type': [1,0,0]      # [standard, square source, s2, square IC, thick square]
+    'move_type': [0,0,1]      # [standard, square source, s2, square IC, thick square]
     'bench_type': 'S2'          # 'S2' or 'full'
     'benchmarking': False
 
