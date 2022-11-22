@@ -6,7 +6,7 @@
     'c_scaling': False
     'sigma_t': 1.0
     't0': 10.0                           # time the source is turned off
-    'N_spaces': [8]                   # number of cells
+    'N_spaces': [64]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
     'Ms': [6]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot

@@ -294,7 +294,7 @@ class main_class(parameter_load_class):
                     # plt.show()
 
 
-                    plt.figure(5)
+                    # plt.figure(5)
                     # plt.plot(tpnts, left_edges, '-o', label = 'left_edge')
                     # plt.plot(tpnts, right_edges, '-o', label = 'right_edge')
                     plt.plot(tpnts, T_front_location, '-o', label = 'wave temperature front')
