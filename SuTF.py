@@ -1,4 +1,3 @@
-
 from moving_mesh_transport.benchmarks import integrate_greens as intg
 from moving_mesh_transport.plots import plotting_script as plotter
 from moving_mesh_transport import solver
