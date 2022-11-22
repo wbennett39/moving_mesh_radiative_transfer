@@ -167,7 +167,7 @@ class main_class(parameter_load_class):
                 self.thermal_couple,self.temp_function, self.rt, self.at, self.e_initial, choose_xs, specified_xs, 
                 self.weights, self.sigma, self.particle_v, self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, 
                 self.thick, self.mxstp, self.wave_loc_array, self.find_edges_tol, self.source_strength, self.move_factor, 
-                self.integrator, self.l, self.save_wave_loc, self.pad, self.leader_pad, self.xs_quad)
+                self.integrator, self.l, self.save_wave_loc, self.pad, self.leader_pad, self.xs_quad, self.eval_times, self.eval_array)
                 
                 # print(edges, "edges")
                 print(wave_tpnts, wave_xpnts, "wave points")

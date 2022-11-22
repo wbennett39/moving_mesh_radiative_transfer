@@ -719,7 +719,7 @@ class rms_plotter:
         self.Ms = xdata
         
         for ij in range(len(self.j_matrix[:,0])):
-            plt.semilogy(xdata, self.j_matrix[ij], mkr_list[self.plot_counter], label = 't = ' + str(self.tfinal), mfc = 'none', c = 'b')
+            _ = plt.semilogy(xdata, self.j_matrix[ij], mkr_list[self.plot_counter], label = 't = ' + str(self.tfinal), mfc = 'none', c = 'b')
             self.RMS = self.j_matrix[ij]        # this is a hack
             self.energy_RMS = self.j_matrix[ij] # this is a hack
             self.find_c_semilog()
@@ -740,7 +740,7 @@ class rms_plotter:
         plt.figure(self.fign + 2)
         plt.ylim(1e-14, 1e-0)
         for ij in range(len(self.j_matrix[:,0])):
-            plt.loglog(xdata, self.j_matrix[ij], mkr_list[self.plot_counter], label = 't = ' + str(self.tfinal), mfc = 'none', c = 'b')
+            _ = plt.loglog(xdata, self.j_matrix[ij], mkr_list[self.plot_counter], label = 't = ' + str(self.tfinal), mfc = 'none', c = 'b')
             self.RMS = self.j_matrix[ij]
             if self.mat_or_rad == 'rad':
                 logplot_sn_labels([xdata[-1]], [self.j_matrix[ij][-1]], np.ones(1)*self.N_angles[ij], 0.3, 3)

@@ -101,6 +101,8 @@ class parameter_load_class:
         self.pad = float(mesh_parameters['pad'])
         self.leader_pad = float(mesh_parameters['leader_pad'])
         self.xs_quad = int(mesh_parameters['xs_quad'])
+        self.eval_times = int(mesh_parameters['eval_times'])
+        self.eval_array = np.array(mesh_parameters['eval_array'])
         
 
 

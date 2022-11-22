@@ -88,7 +88,7 @@ def plot_p1_su_olson_mathematica():
 def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
           uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, 
           weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, 
-          find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad, leader_pad, xs_quad_order):
+          find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad, leader_pad, xs_quad_order, eval_times, eval_array):
 
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
@@ -136,6 +136,9 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         tpnts = [tfinal]
     elif estimate_wavespeed == True:
         tpnts = np.linspace(0, tfinal, 10000)
+    elif eval_times == True:
+        tpnts = eval_array
+
     
     sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method=integrator, t_eval = tpnts , rtol = rt, atol = at, max_step = mxstp)
 
@@ -165,11 +168,15 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         right_edges = np.zeros(1)
         T_front_location = np.zeros(1)
 
-
+    
     if thermal_couple == 0:
         sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
     elif thermal_couple == 1:
         sol_last = sol.y[:,-1].reshape((N_ang+1,N_space,M+1))
+    if eval_times == True:
+        sol_array = sol.y.reshape((eval_array.size,N_ang+1,N_space,M+1)) 
+
+    
 
     
     if sol.t.size > 1:
