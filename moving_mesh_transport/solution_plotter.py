@@ -218,9 +218,11 @@ def plot_su_olson_s2(M=4, N_space = 128, problem_name = 'su_olson_s2', rad_or_tr
             plotter.plot()
 
             fign +=1
-def plot_su_olson_gaussian(M=12, N_space = 64, problem_name = 'su_olson', rad_or_transport = 'rad', 
+def plot_su_olson_gaussian(M=12, N_space = 16, problem_name = 'su_olson', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', uncollided = True, moving = False):
-    tfinal_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
+    # tfinal_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
+    tfinal_list = [31.6228]
+
     source_name_list = ['gaussian_s']
     fign = 1
     delim = '_'
@@ -522,7 +524,8 @@ def plot_coeffs_all_crc():
 
     # SU-OLSON
 
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0],  Ms=[12,12,12,12,12,12,12], source_name = 'gaussian_s',   N_spaces = [64,64,64,64,64,64,64], 
+def plot_coefficients_square_crc():
+     plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0],  Ms=[12,12,12,12,12,12,12], source_name = 'gaussian_s',   N_spaces = [64,64,64,64,64,64,64], 
     problem_name = 'su_olson', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
@@ -532,9 +535,14 @@ def plot_coeffs_all_crc():
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228],  Ms=[12,12,12,12,12,12,12], source_name = 'gaussian_s',   N_spaces = [64,64,64,64,64,64,64], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228],  Ms=[12,12,12,12,12,12,12], source_name = 'gaussian_s',   N_spaces = [64,64,64,64,64,16,8], 
     problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[12,12], source_name = 'gaussian_s',   N_spaces = [16,32], 
+    problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = ':',
     legend = True, fign = 1)
 
 
@@ -543,7 +551,7 @@ def plot_coeffs_all_crc():
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.1, 0.31623],  Ms=[6,6,6,6,6,6,6], source_name = 'square_s',   N_spaces = [128,128,128,128,128,128,128], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[6,6,6,6,6,6,6], source_name = 'square_s',   N_spaces = [128,128,128,128,128,128,128], 
     problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -553,7 +561,7 @@ def plot_coeffs_all_crc():
     plt.close()
     plt.close()
      
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0],  Ms=[6,6,6,6,6,6,6], source_name = 'square_s',   N_spaces = [128,128,128,128,128,128,128], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[6,6,6,6,6,6,6], source_name = 'square_s',   N_spaces = [128,128,128,128,128,128,128], 
     problem_name = 'su_olson', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -575,10 +583,15 @@ def plot_coeffs_all_crc():
 
     # # NONLINEAR SQUARE
 
-    # plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228],  M=4, source_name = 'square_s',  N_spaces = [128], 
-    # problem_name = 'transfer_const_cv=0.03_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
-    # c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
-    # legend = True, fign = 1)
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[6,6,6,6,6,6,6], source_name = 'square_s',   N_spaces = [128,128,128,128,128,128,128], 
+    problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
+    legend = True, fign = 1)
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
 
     # plt.close()
     # plt.close()

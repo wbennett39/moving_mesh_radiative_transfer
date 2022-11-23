@@ -44,10 +44,10 @@ run.load('su_olson_s2')
 
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
-    run.parameters['all']['N_spaces'][0] = 64
-    run.parameters['all']['Ms'][0] = 12
-    run.mesh_parameters['sqrt_t_move_factor'] = factor_list[count]
-    run.gaussian_source(True, False)
+    run.parameters['all']['N_spaces'][0] = 16
+    run.parameters['all']['Ms'][0] = 10
+    # run.mesh_parameters['sqrt_t_move_factor'] =S factor_list[count]
+    run.gaussian_source(True, True)
     plt.close()
     plt.close()
     plt.close()

@@ -91,7 +91,7 @@ def show_loglog(nm,xlimleft,xlimright,a=0,b=0):
     #ax.yaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("10$^{%d}$" % math.log(v,10)) ))
     if (len(nm)>0):
         plt.savefig(nm+".pdf",bbox_inches='tight');
-    plt.show()
+    plt.show();
     
 
     
