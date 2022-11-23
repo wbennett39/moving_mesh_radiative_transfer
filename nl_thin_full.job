@@ -1,9 +1,8 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N NLThnFul2
+#$ -N NLsquareAll
 #$ -q long
-
 
 module load python
 python3 NLTF.py

@@ -34,7 +34,10 @@ plt.close()
 # run.load('su_olson_thick')
 
 t_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
+N_spaces_list = [256, 256, 256, 256, 64, 32, 32]
+Ms_list = [3, 3, 3, 3, 8, 10, 10]
 # t_list = [0.1, 0.31623, 1, 3.16228, 10.0]
+
 # t_list = [0.3, 3.0, 30.0]
 # factor_list = [2.5, 3.0, 6.0] # for thick gaussians nonlinear
 # factor_list = [0.8, 0.9, 1.2]
@@ -44,6 +47,8 @@ run.load('rad_transfer_const_cv')
 
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
+    run.parameters['all']['N_spaces'][0] = N_spaces_list[count]
+    run.parameters['all']['Ms'][0] = Ms_list[count]
     run.square_source(True, True)
     plt.close()
     plt.close()
