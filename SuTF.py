@@ -33,7 +33,8 @@ plt.close()
 # run.load('su_olson_thick')
 
 
-t_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
+# t_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
+t_list = [0.1, 0.31623, 1.0, 3.16228]
 
 
 # t_list = [31.6228, 100.0]
@@ -47,11 +48,6 @@ run.load('su_olson')
 
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
-
-
-
-
-
     run.square_source(True, True)
     plt.close()
     plt.close()
