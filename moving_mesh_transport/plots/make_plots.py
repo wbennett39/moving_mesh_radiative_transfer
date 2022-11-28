@@ -679,6 +679,7 @@ class rms_plotter:
         self.fign = fign
         self.tfinal = tfinal
         self.plot_counter = pc
+        self.N_spaces = N_spaces
 
         for count, N_space in enumerate(N_spaces):
             print(uncollided,'uncollided',moving,'moving')
@@ -712,14 +713,33 @@ class rms_plotter:
         xdata = np.linspace(0,self.M_coeff, self.M_coeff+1)
 
         label_list = self.label_list
-        mkr_list_old = ['o', '^', 's', 'p', '*', 'x', 'd']
+        mkr_list_old = ['o', '^', 's', 'p', '*', 'x', 'd'] 
+
+            
         mkr_list = [x + self.line for x in mkr_list_old]
 
         
         self.Ms = xdata
         
+        if self.tfinal == 0.1:
+            self.plot_counter = 0
+        elif self.tfinal == 0.31623:
+            self.plot_counter = 1
+        elif self.tfinal == 1.0:
+            self.plot_counter = 2
+        elif self.tfinal == 3.16228:
+            self.plot_counter = 3
+        elif self.tfinal == 10.0:
+            self.plot_counter = 4
+        elif self.tfinal == 31.6228:
+            self.plot_counter = 5
+        elif self.tfinal == 100.0:
+            self.plot_counter = 6
+        
+        
+        
         for ij in range(len(self.j_matrix[:,0])):
-            _ = plt.semilogy(xdata, self.j_matrix[ij], mkr_list[self.plot_counter], label = 't = ' + str(self.tfinal), mfc = 'none', c = 'b')
+            _ = plt.semilogy(xdata, self.j_matrix[ij], mkr_list[self.plot_counter], label = str(self.N_spaces[0]) + ' cells,' + ' t = ' + str(self.tfinal), mfc = 'none', c = 'b')
             self.RMS = self.j_matrix[ij]        # this is a hack
             self.energy_RMS = self.j_matrix[ij] # this is a hack
             self.find_c_semilog()
