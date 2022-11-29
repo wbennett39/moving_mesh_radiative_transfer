@@ -206,7 +206,9 @@ class main_class(parameter_load_class):
                 if self.temp_function[0]==1:
                         plt.plot(xs, np.power(e,0.25), '-s', mfc = 'none', label = 'T')
                 elif self.temp_function[1] == 1:
-                        plt.plot(xs, e/self.cv0* 0.0137225, '-s', mfc = 'none', label = 'T')
+                        plt.plot(xs, e/self.cv0, '-s', mfc = 'none', label = 'T')
+                        plt.plot(xs, (e/self.cv0)**4, '-s', mfc = 'none', label = 'T^4')
+                plt.legend()
 
                 plt.show()
 

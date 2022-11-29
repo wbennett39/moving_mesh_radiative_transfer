@@ -665,7 +665,7 @@ class rms_plotter:
          plt.show(block = False)
         
     def plot_coefficients(self, tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
-     x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend = True, pc = 0, fign = 1):
+     x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend = True, pc = 0, fign = 1, ifshow = False):
 
         data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0)
 
@@ -680,6 +680,8 @@ class rms_plotter:
         self.tfinal = tfinal
         self.plot_counter = pc
         self.N_spaces = N_spaces
+        self.ifshow = ifshow
+        print(self.tfinal, ifshow)
 
         for count, N_space in enumerate(N_spaces):
             print(uncollided,'uncollided',moving,'moving')
@@ -700,7 +702,7 @@ class rms_plotter:
             ydata = np.array(self.j_matrix[:,j])
 
             # plt.loglog(xdata, np.abs(ydata), "-o", mfc = 'none', label =f"j={j}")
-        self.file_path_string = str(self.plot_file_path) + '/'  + "coefficient_convergence" + "/" + 'new_plots' + '/' + problem_name + "_"  +'_' + self.mat_or_rad + "_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
+        self.file_path_string = str(self.plot_file_path) + '/'  + "final_coefficient_convergence" + "/" + str(self.source_name) + '/' + problem_name + "_"  +'_' + self.mat_or_rad + "_" + source_name + "_M=" + str(M) + "x0_or_sigma_" + str(x0_or_sigma) + "_S2" * s2
         # show_loglog(self.file_path_string, N_spaces[0]-1, N_spaces[-1] + 2)
         # plt.show()
         
@@ -709,7 +711,8 @@ class rms_plotter:
         # plt.show()
     
     def plot_coeff_boyd(self):
-        plt.figure(self.fign + 1)
+
+        plt.figure(self.fign)
         xdata = np.linspace(0,self.M_coeff, self.M_coeff+1)
 
         label_list = self.label_list
@@ -743,8 +746,8 @@ class rms_plotter:
             self.RMS = self.j_matrix[ij]        # this is a hack
             self.energy_RMS = self.j_matrix[ij] # this is a hack
             self.find_c_semilog()
-            if self.mat_or_rad == 'rad':
-                logplot_sn_labels([xdata[-1]], [self.j_matrix[ij][-1]], np.ones(1)*self.N_angles[ij], 0.3, 3)
+            # if self.mat_or_rad == 'rad':
+            #     _ = logplot_sn_labels([xdata[-1]], [self.j_matrix[ij][-1]], np.ones(1)*self.N_angles[ij], 0.3, 3)
 
         plt.xlabel("M", fontsize = 20)
         plt.ylabel("RMSE", fontsize = 20)
@@ -753,25 +756,26 @@ class rms_plotter:
             plt.legend()
 
         plt.ylim(1e-14, 1e-0)
-        _ = show_loglog(self.file_path_string + "_boyd", 0.001, self.M_coeff + 4)
+        if self.ifshow == True: 
+            _ = show_loglog(self.file_path_string + "_boyd", 0.001, self.M_coeff + 4)
         plt.show()
 
 
-        plt.figure(self.fign + 2)
-        plt.ylim(1e-14, 1e-0)
-        for ij in range(len(self.j_matrix[:,0])):
-            _ = plt.loglog(xdata, self.j_matrix[ij], mkr_list[self.plot_counter], label = 't = ' + str(self.tfinal), mfc = 'none', c = 'b')
-            self.RMS = self.j_matrix[ij]
-            if self.mat_or_rad == 'rad':
-                logplot_sn_labels([xdata[-1]], [self.j_matrix[ij][-1]], np.ones(1)*self.N_angles[ij], 0.3, 3)
-        plt.xlabel("M", fontsize = 20)
-        plt.ylabel("RMSE", fontsize = 20)
-        if self.legend == True:
-            plt.legend()
-        # show_loglog(self.file_path_string + "_boyd_loglog" ,1, self.M_coeff + 4)
-        # print("convergence order", "%.2f" % convergence(self.RMS[2], xdata[2], self.RMS[3], xdata[3]))
+        # plt.figure(self.fign + 2)
+        # plt.ylim(1e-14, 1e-0)
+        # for ij in range(len(self.j_matrix[:,0])):
+        #     _ = plt.loglog(xdata, self.j_matrix[ij], mkr_list[self.plot_counter], label = 't = ' + str(self.tfinal), mfc = 'none', c = 'b')
+        #     self.RMS = self.j_matrix[ij]
+        #     if self.mat_or_rad == 'rad':
+        #         logplot_sn_labels([xdata[-1]], [self.j_matrix[ij][-1]], np.ones(1)*self.N_angles[ij], 0.3, 3)
+        # plt.xlabel("M", fontsize = 20)
+        # plt.ylabel("RMSE", fontsize = 20)
+        # if self.legend == True:
+        #     plt.legend()
+        # # show_loglog(self.file_path_string + "_boyd_loglog" ,1, self.M_coeff + 4)
+        # # print("convergence order", "%.2f" % convergence(self.RMS[2], xdata[2], self.RMS[3], xdata[3]))
 
-        plt.show()
+        # plt.show()
 
     
     def plot_bench(self, tfinal, source_name, fign):

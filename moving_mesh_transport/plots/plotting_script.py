@@ -262,17 +262,22 @@ def plot_all_benchmarks(tfinal):
 def plot_coefficients(tfinals = [3.0],  Ms=[8], source_name = 'gaussian_s',  N_spaces = [16], problem_name = 'transfer_const_cv=0.03_thick',
 rad_or_transport ='transfer', x0_or_sigma = 0.375 , c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',legend = True, fign = 1):
     
+    ifshow = False
 
     for count, tfinal in enumerate(tfinals):
+
+        if tfinal == 100.0 or tfinal == 30.0:
+            ifshow = True
+        # ifshow = True
         plotter = rms_plotter(tfinal, Ms[count], source_name, 'cells')
         plotter.plot_coefficients(tfinal,  Ms[count], source_name,  [N_spaces[count]], problem_name, rad_or_transport,
-        x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend, count)
+        x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend, count, fign, ifshow)
 
         plotter.plot_coeff_boyd()
 
         plotter = rms_plotter(tfinal, Ms[count], source_name, 'cells')
         plotter.plot_coefficients(tfinal,  Ms[count], source_name,  [N_spaces[count]], problem_name, rad_or_transport,
-        x0_or_sigma, c, cv0, uncollided, s2, 'mat', moving, line, legend, count, fign = 3)
+        x0_or_sigma, c, cv0, uncollided, s2, 'mat', moving, line, legend, count, 3, ifshow)
 
         plotter.plot_coeff_boyd()
 

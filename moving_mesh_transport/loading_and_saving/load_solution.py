@@ -16,9 +16,9 @@ class load_sol:
 
         data_folder = Path("moving_mesh_transport")
 
-        self.data_file_path = data_folder / 'run_data_crc_nov29.hdf5'
+        self.data_file_path = data_folder / 'run_data_crc_nov30.hdf5'
         # self.data_file_path = data_folder / 'run_data.h5' 
-
+        self.final_sol_path = data_folder / 'run_data_final'
         self.wavepoints_file_path = data_folder / 'wavepoints.h5'
         print(self.wavepoints_file_path)
         self.source_name = source_name
@@ -39,6 +39,7 @@ class load_sol:
             full_str += '_s2'
         full_str += "/" + str(self.source_name) + '_uncollided_' * (uncollided) + 'moving_mesh_' * (moving) + 'N_space = ' + str(N_space) + '_t = ' + str(tfinal) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
         f = h5py.File(self.data_file_path, "r+")
+        f2 = h5py.File(self.final_sol_path, 'a')
 
         if self.problem_name != 'su_olson_thick_s2': # FIX THIS LATER 
             # print(f.keys())
@@ -68,7 +69,15 @@ class load_sol:
         else:
             self.coeff_mat = f[self.problem_name]['coefficients/' + full_str][:,:,:]
 
+        # x = f[self.problem_name]
+
+        # f.copy('x', f2[self.problem_name])
+        # f2.create_dataset_like(self.problem_name, f[self.problem_name])
+        
         f.close()
+        f2.close()
+
+
     
     def call_wavepoints(self, tfinal):
 
