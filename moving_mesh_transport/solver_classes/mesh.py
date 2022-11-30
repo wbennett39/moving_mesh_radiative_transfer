@@ -179,7 +179,8 @@ class mesh_class(object):
         middlebin = int(self.N_space/2)
         sidebin = int(middlebin/2)
         if self.Dedges[sidebin] == 0:
-            final_pos = self.edges0[-1] + self.Dedges[-1] * self.tfinal
+            # final_pos = self.edges0[-1] + self.Dedges[-1] * self.tfinal
+            final_pos = self.pad
             # final_pos = self.x0 + self.pad
             final_array = np.linspace(-final_pos, final_pos, self.N_space + 1)
             new_Dedges = (final_array - self.edges) / (self.tfinal-self.t0)

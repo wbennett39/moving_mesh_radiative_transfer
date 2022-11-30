@@ -40,9 +40,10 @@ plt.close()
 
 
 
-t_list = [100.0]
-N_spaces_list = [128, 128, 128]
-Ms_list = [6,6,6]
+t_list = [31.6228, 100.0]
+N_spaces_list = [64, 64, 128]
+Ms_list = [8,8,6]
+pad_list = [15, 25]
 
 # t_list = [0.3, 3.0, 30.0]
 # factor_list = [2.5, 3.0, 6.0] # for thick gaussians nonlinear
@@ -55,6 +56,7 @@ for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
     run.parameters['all']['N_spaces'][0] = N_spaces_list[count]
     run.parameters['all']['Ms'][0] = Ms_list[count]
+    run.mesh_parameters['pad'] = pad_list[count]
     run.square_source(True, True)
     plt.close()
     plt.close()
