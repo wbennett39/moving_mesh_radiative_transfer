@@ -92,6 +92,8 @@ class mesh_class(object):
             print('thick square source edge estimation mesh')
         elif self.move_type[2] == True:
             self.move_func = 2 # sqrt t static
+        elif self.move_type[3] == True:
+            self.move_func = 3 # sqrt t static
         
         # self.problem_type = problem_identifier(self.source_typem, self.x0)
         self.thick = thick
@@ -155,6 +157,8 @@ class mesh_class(object):
 
             elif self.move_func == 2:
                 self.square_source_static_func_sqrt_t(t)
+
+
         
 
             else:
