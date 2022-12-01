@@ -18,7 +18,7 @@
     'temperature_dependence': [0,1,0,0] # first slot is Su-Olson problem, second is const Cv
     'e_initial': 0.00000000001
     'weights': 'gauss_lobatto'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
-    'save_solution': False
+    'save_solution': True
     'particle_v': 'one'
     'edge_v': 'one'
     'cv_const': 0.03

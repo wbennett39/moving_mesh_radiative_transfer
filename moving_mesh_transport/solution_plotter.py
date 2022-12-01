@@ -644,6 +644,26 @@ def plot_coeffs_nov28_crc():
     # plt.close()
     # plt.close()
     # plt.close()
+def plot_coeffs_nov31_crc():
+     
+
+
+
+    plot_coefficients(tfinals = [10.0],  Ms=[8], source_name = 'square_s',   N_spaces = [64], 
+    problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
+    legend = True, fign = 1)
+
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [64,64], 
+    problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
+    legend = True, fign = 1)
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+
 
 
 

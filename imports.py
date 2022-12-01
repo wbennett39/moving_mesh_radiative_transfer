@@ -15,6 +15,7 @@ from moving_mesh_transport.solution_plotter import plot_su_olson as plot_su
 from moving_mesh_transport.solution_plotter import plot_su_olson_gaussian as plot_sug
 from moving_mesh_transport.solution_plotter import plot_coeffs_nov28_crc as pca_28
 from moving_mesh_transport.solution_plotter import plot_coeffs_nov23_crc as pca_23
+from moving_mesh_transport.solution_plotter import plot_coeffs_nov31_crc as pca_31
 from moving_mesh_transport.solution_plotter import plot_coeffs_all_local as pca_loc
 
 from moving_mesh_transport.solution_plotter import make_tables_su_olson as tab_su
