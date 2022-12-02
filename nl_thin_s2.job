@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N NLThinS231-100
+#$ -N NLThinS210
 #$ -q long
 
 
