@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N NLS10._8_256
+#$ -N NLS10._8_128
 #$ -q long
 
 module load python

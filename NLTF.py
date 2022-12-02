@@ -41,7 +41,7 @@ plt.close()
 
 
 t_list = [10.0]
-N_spaces_list = [256]
+N_spaces_list = [128]
 Ms_list = [8,8,6]
 pad_list = [25]
 
