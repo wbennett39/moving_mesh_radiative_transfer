@@ -750,7 +750,7 @@ class rms_plotter:
             #     _ = logplot_sn_labels([xdata[-1]], [self.j_matrix[ij][-1]], np.ones(1)*self.N_angles[ij], 0.3, 3)
 
         plt.xlabel("M", fontsize = 20)
-        plt.ylabel("RMSE", fontsize = 20)
+        plt.ylabel(r"$avg. $|c_n|$", fontsize = 20)
         
         if self.legend == True:
             plt.legend()

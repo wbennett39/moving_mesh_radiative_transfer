@@ -586,6 +586,32 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
     plt.close()
+    
+
+
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[4,4,4,4], source_name = 'square_s',   N_spaces = [128,128,128,128], 
+    problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
+    legend = True, fign = 1)
+
+    plot_coefficients(tfinals = [10.0],  Ms=[6], source_name = 'square_s',   N_spaces = [128], 
+    problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
+    legend = True, fign = 1)
+
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[4,10], source_name = 'square_s',   N_spaces = [128,32], 
+    problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
+    legend = True, fign = 1)
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
 
 
     plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,3,3,3], source_name = 'square_s',   N_spaces = [256,256,256,256], 

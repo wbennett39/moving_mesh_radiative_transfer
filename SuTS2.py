@@ -43,9 +43,11 @@ plt.close()
 
 run.load('su_olson_s2')
 
-t_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
-N_spaces_list = [256, 256, 256, 256, 128, 32, 32]
-Ms_list = [3, 3, 3, 3, 5, 10, 10]
+# t_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
+t_list = [31.6228, 100.0]
+N_spaces_list = [64, 64]
+Ms_list = [8, 8]
+pad_list = [20.0, 30.0]
 # t_list = [0.1, 0.31623, 1, 3.16228, 10.0]
 
 # t_list = [0.3, 3.0, 30.0]
@@ -53,12 +55,14 @@ Ms_list = [3, 3, 3, 3, 5, 10, 10]
 # factor_list = [0.8, 0.9, 1.2]
 # factor_list = [0.6, 0.6, 1.0, 1.0, 1.6, 1.6, 1.5] # thin gaussian ninlinear
 
-run.load('rad_transfer_const_cv')
+# run.load('rad_transfer_const_cv')
+run.load('su_olson_s2')
 
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
     run.parameters['all']['N_spaces'][0] = N_spaces_list[count]
     run.parameters['all']['Ms'][0] = Ms_list[count]
+    run.mesh_parameters['pad'] = pad_list[count]
     run.square_source(True, True)
     plt.close()
     plt.close()
