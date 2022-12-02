@@ -145,6 +145,8 @@ class mesh_class(object):
                 if t <= self.t0 or self.source_type[2] != 1:
                     self.Dedges = self.Dedges_const
                     self.edges = self.edges0 + self.Dedges*t
+                else:
+                    self.edges = self.edges0 + self.Dedges*t
 
             elif self.move_func == 1: 
                 """
