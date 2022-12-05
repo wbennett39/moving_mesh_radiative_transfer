@@ -1,8 +1,9 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N NLS10._8_128
+#$ -N NLS311008128
 #$ -q long
+
 
 module load python
 python3 NLTF.py
