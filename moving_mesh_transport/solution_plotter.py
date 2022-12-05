@@ -709,6 +709,18 @@ def plot_coeffs_nov28_crc():
     plt.close()
 
 
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+    problem_name = 'transfer_const_cv=0.03_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+
+
 
     # plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  M=3, source_name = 'square_s',  N_spaces = [256], 
     # problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
