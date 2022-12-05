@@ -46,6 +46,7 @@ for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
     # run.mesh_parameters['sqrt_t_move_factor'] = factor_list[count]
     run.parameters['gaussian_source']['x0'][0] = factor_list[count]
+    run.parameters['all']['Ms'][0] = 10
     run.gaussian_source(False, False)
     plt.close()
     plt.close()

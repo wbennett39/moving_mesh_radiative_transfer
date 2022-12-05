@@ -619,7 +619,7 @@ def plot_coeffs_nov28_crc():
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
-    plot_coefficients(tfinals = [10.0],  Ms=[8], source_name = 'square_s',   N_spaces = [64], 
+    plot_coefficients(tfinals = [10.0],  Ms=[8], source_name = 'square_s',   N_spaces = [128], 
     problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -666,6 +666,17 @@ def plot_coeffs_nov28_crc():
 
     plot_coefficients(tfinals = [0.3],  Ms=[6,0,0], source_name = 'square_s',  N_spaces = [128,128,128], 
     problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[6,6,6], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+    problem_name = 'su_olson_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
     c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
 
