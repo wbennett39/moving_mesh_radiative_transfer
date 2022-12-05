@@ -36,8 +36,10 @@ plt.close()
 # t_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
 # t_list = [0.1, 0.31623, 1, 3.16228, 10.0]
 t_list = [0.3, 3.0, 30.0]
+# t_list = [3.0]
 # factor_list = [2.5, 3.0, 6.0] # for thick gaussians nonlinear
 factor_list = [0.8, 0.9, 1.2]
+# factor_list = [0.9]
 # factor_list = [0.6, 0.6, 1.0, 1.0, 1.6, 1.6, 1.5] # thin gaussian ninlinear
 
 run.load('su_olson_thick')
@@ -47,9 +49,9 @@ for count, t in enumerate(t_list):
     run.mesh_parameters['sqrt_t_move_factor'] = factor_list[count]
     run.square_source(False, False)
 
-    plt.close()
-    plt.close()
-    plt.close()
+    # plt.close()
+    # plt.close()
+    # plt.close()
 
 
 
