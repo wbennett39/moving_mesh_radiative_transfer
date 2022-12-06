@@ -35,8 +35,8 @@ plt.close()
 
 # t_list = [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
 # t_list = [0.1, 0.31623, 1, 3.16228, 10.0]
-t_list = [0.3, 3.0, 30.0]
-factor_list = [2.5, 3.0, 6.0] # for thick gaussians nonlinear
+t_list = [30.0]
+factor_list = [2.5, 3.0, 7.5] # for thick gaussians nonlinear
 # factor_list = [0.8, 0.9, 1.2]
 # factor_list = [0.6, 0.6, 1.0, 1.0, 1.6, 1.6, 1.5] # thin gaussian ninlinear
 
@@ -46,7 +46,7 @@ for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
     # run.mesh_parameters['sqrt_t_move_factor'] = factor_list[count]
     run.parameters['all']['N_spaces'][0] = 128
-    run.parameters['gaussian_source']['x0'][0] = factor_list[count]
+    run.parameters['gaussian_source']['x0'][-1] = factor_list[count]
     run.parameters['all']['Ms'][0] = 10
     run.gaussian_source(False, False)
     plt.close()
