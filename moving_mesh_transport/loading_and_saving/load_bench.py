@@ -60,7 +60,7 @@ class load_bench:
             print("loading bench for ", source_name)
             # tstring = self.t_eval_str[self.t_string_index]
             if tfinal != 31.6228:
-                tstring = "t = " + str(int(self.tfinal))
+                tstring = "t = " + str((self.tfinal))
             elif tfinal == 31.6228:
                 tstring = "t = " + str(float(tfinal))
                 

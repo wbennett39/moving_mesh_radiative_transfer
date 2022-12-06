@@ -69,18 +69,29 @@ class make_benchmark:
             elif t == 10:
                 self.xs = np.linspace(0.0, 12.2, npnts)
         
-        elif (self.source_type == "P1_gaussian_rad" or self.source_type == "P1_gaussian_mat") and self.sigma == 300:
-            if t == 1:
-                self.xs = np.linspace(0.0, 1600, npnts)
-            elif t == 5:
-                self.xs = np.linspace(0.0, 1700, npnts)
-            elif t == 10:
-                self.xs = np.linspace(0.0, 1800, npnts)
-            elif t == 100:
-                self.xs = np.linspace(0.0, 1862, npnts)
+        elif (self.source_type == "P1_gaussian_rad" or self.source_type == "P1_gaussian_mat"):
+            # if t == 1:
+            #     self.xs = np.linspace(0.0, 1600, npnts)
+            # elif t == 5:
+            #     self.xs = np.linspace(0.0, 1700, npnts)
+            # elif t == 10:
+            #     self.xs = np.linspace(0.0, 1800, npnts)
+            # elif t == 100:
+            #     self.xs = np.linspace(0.0, 1862, npnts)
+             self.xs = np.linspace(0.0, self.x0 + t/math.sqrt(3), npnts)
 
-        elif self.source_type == 'P1_su_olson_mat' or self.source_type == 'P1_su_olson_rad' and self.x0 == 400:
-            self.xs = np.linspace(0.0, self.x0 + 8 * math.sqrt(t)/math.sqrt(3), npnts)
+        elif self.source_type == 'P1_su_olson_mat' or self.source_type == 'P1_su_olson_rad':
+            if t < 10.0:
+                self.xs = np.linspace(0.0, self.x0 + t/math.sqrt(3), npnts)
+            elif t == 10.0:
+                self.xs = np.linspace(0.0, 6.35, npnts)
+            elif t == 31.6228:
+                self.xs = np.linspace(0.0, 18.9, npnts)
+            elif t == 100.0:
+                self.xs = np.linspace(0.0, 43.9, npnts)
+
+
+
 
     
         self.uncollided_sol = self.call_uncollided(self.xs, t)

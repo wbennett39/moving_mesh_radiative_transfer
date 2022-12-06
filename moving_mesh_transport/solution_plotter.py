@@ -6,16 +6,21 @@ from .plots.plot_functions.show import show
 from .plots.plotting_script import plot_coefficients
 from .solver_classes import make_phi, build_problem
 from .solver_classes.uncollided_solutions import uncollided_solution
+from .loading_and_saving.load_bench import load_bench
 from pathlib import Path
 import quadpy
 import csv
 
 def trunc(values, decs=0):
     return np.trunc(values*10**decs)/(10**decs)
-    
+
+
+su_tfinal_list = np.array([0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228,  100.0])
+su_xs_list = np.array([0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.0, 1.33352, 1.77828, 3.16228, 5.62341, 10.0, 17.78279])
+        
 class plot:
     def __init__(self,tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2,
-                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:'):
+                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec5-2.hdf5' ):
         self.tfinal = tfinal
         self.M = M
         self.problem_name = problem_name
@@ -34,10 +39,17 @@ class plot:
         self.mkr1 = mkr1
         self.mkr2 = mkr2
         self.mkr3 = mkr3
-        
+        self.mkr4 = mkr4
+        self.mkr5 = mkr5
+        self.mkr6 = mkr6
+        if self.source_name == 'square_s':
+            self.file_name = file_name
+        else:
+            self.file_name = 'run_data_crc_nov23.hdf5'
+
 
     def plot(self):
-        data = load_sol(self.problem_name, self.source_name, self.rad_or_transport, self.c, self.s2, self.cv0)
+        data = load_sol(self.problem_name, self.source_name, self.rad_or_transport, self.c, self.s2, self.cv0, file_name = self.file_name)
         data.call_sol(self.tfinal, self.M, self.x0_or_sigma, self.N_space, self.mat_or_rad, self.uncollided, self.moving)
         self.N_ang = np.shape(data.coeff_mat)[0] -1
         self.coeff_mat = data.coeff_mat
@@ -49,20 +61,39 @@ class plot:
         
         plt.ion()
         plt.figure(self.fign)
-        plt.plot(data.xs, data.phi, self.mkr1)
-        plt.plot(data.xs, data.e, self.mkr2)
 
-        if self.problem_name in ['rad_transfer_const_cv', 'rad_transfer_const_cv_s2', 'rad_transfer_const_cv_thick', 'rad_transfer_const_cv_thick_s2', 'transfer_const_cv=0.03_s2']:
-            T = data.e / 0.03
+        middle = np.argmin(np.abs(data.xs))
+        xs_plot = data.xs[middle:]
+        phi_plot = data.phi[middle:]
+        e_plot = data.e[middle:]
+    
+        if self.s2 == True:
+            xs_plot = - xs_plot
+            marker1 = self.mkr4
+            marker2 = self.mkr5
+            marker3 = self.mkr6
+        else:
+            marker1 = self.mkr1
+            marker2 = self.mkr2
+            marker3 = self.mkr3
+
+        plt.plot(xs_plot, phi_plot, marker1, mfc = 'none')
+        plt.plot(xs_plot, e_plot, marker2, mfc = 'none')
+
+        if self.problem_name in ['transfer_const_cv=0.03', 'transfer_const_cv_s2', 'transfer_const_cv_thick', 'transfer_const_cv_thick_s2', 'transfer_const_cv=0.03_s2']:
+            T = e_plot / 0.03
 
         elif self.problem_name in ['su_olson', 'su_olson_s2', 'su_olson_thick', 'su_olson_thick_s2']:
-            T = np.power(data.e,.25)
+            T = np.power(e_plot, .25)
         
-        plt.plot(data.xs, T, self.mkr3)
+        # plt.plot(xs_plot, T, marker3, mfc = 'none')
 
-        show(self.name)
-        plt.show()
-        plt.close()
+
+        if self.s2 == True:
+            plt.xlim(xs_plot[-1], -xs_plot[-1])
+            show(self.name)
+            plt.show()
+            plt.close()
 
         return data.xs, data.phi
 
@@ -175,7 +206,7 @@ def plot_thick_nonlinear_problems_s2(M=10, N_spaces = [64, 64, 128], problem_nam
 def plot_su_olson(M=4, N_space = 128, problem_name = 'su_olson', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', uncollided = True, moving = True):
     # tfinal_list = [0.1, 1.0,5.0,10.0,31.6228,100.0]
-    tfinal_list = [0.1, 0.31623, 1.0]
+    
     source_name_list = ['square_s']
     fign = 1
     delim = '_'
@@ -282,16 +313,17 @@ def plot_thick_suolson_problems(M=10, N_spaces = [64, 64, 128, 32, 32, 32], prob
 
     #     plotter.plot()
 
-def make_tables_su_olson(M=10, N_space = 32, problem_name = 'su_olson', rad_or_transport = 'rad', 
+def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_phi.csv','su_olson_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True):
-    tfinal_list = np.array([0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228,  100.0])
-    xs_list = np.array([0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.0, 1.33352, 1.77828, 3.16228, 5.62341, 10.0, 17.78279])
+
     # xs_list = 
-    # source_name_list = ['square_s']
+    # source_name_list = ['square_s']\
+    xs_list = su_xs_list
+    tfinal_list = su_tfinal_list
     fign = 1
     delim = '_'
     path = Path("moving_mesh_transport")
-    csv_file = 'su_olson.csv'
+    csv_file = filenames[0]
     data_phi = np.zeros((xs_list.size+1, tfinal_list.size+1))
     data_e = np.zeros((xs_list.size+1, tfinal_list.size+1))
     data_phi[0,1:] = tfinal_list
@@ -305,11 +337,19 @@ def make_tables_su_olson(M=10, N_space = 32, problem_name = 'su_olson', rad_or_t
     for count, tfinal in enumerate(tfinal_list):
         print('t=',tfinal)
         for source_name in source_name_list:
-            
+            if s2 == True:
+                if source_name_list[0] == 'square_s': 
+                    benchmark_phi =  load_bench([0,0,0,0,0,0,0,0,1], tfinal, 0.5, 0.0, False)
+                    benchmark_e =  load_bench([0,0,0,0,0,0,0,0,1,0], tfinal, 0.5, 0.0, False)
+
+
+
             string = problem_name + delim + str(tfinal) + delim + source_name + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
 
             name = str(path / 'plots' / 'solution_plots') + '/' + string
             print(problem_name, 'problem name')
+            M = Ms[count]
+            N_space = N_spaces[count]
             plotter = plot(tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2, 
             cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
 
@@ -319,17 +359,112 @@ def make_tables_su_olson(M=10, N_space = 32, problem_name = 'su_olson', rad_or_t
             t_ws = quadpy.c1.gauss_legendre(40).weights
 
             xs, phi = plotter.plot()
+            l = 1.0
 
-            quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad, np.array([1.0]), np.array([0.0]), 
-            np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided, moving, np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0, 1.0, 
-            1, 0, False, np.zeros((1,1,1)), 1.0, 1.0)
+            quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad,  np.array([1.0]),  np.array([1.0]), 
+            np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0, 1.0, 
+            1, 0, False, np.zeros((1,1,1)), 1.0, 1.0, 1.0, 0, 0, 0, np.zeros(3), np.zeros(3))
+
 
             uncollided_class = uncollided_solution(quick_build)
 
 
 
-            print(plotter.N_ang, 'angle')
-            print(plotter.edges, 'edges')
+            # print(plotter.N_ang, 'angle')
+            # print(plotter.edges, 'edges')
+
+
+            output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_list, plotter.coeff_mat, M, plotter.edges, uncollided)
+
+            phi_new = output_maker.make_phi(uncollided_class)
+            e_new = output_maker.make_e()
+
+            # from scipy.interpolate import interp1d
+            # interp_phi = interp1d(xs, phi_new, kind = 'cubic')
+            # RMSE = np.sqrt(np.mean(phi - interp_phi(np.abs(xs)))**2)
+            # print(RMSE, 'RMSE', '------', tfinal)
+            data_phi[1:, count+1] = phi_new
+            data_e[1:, count+1] = e_new
+            
+            if s2 == True:
+  
+                phi_RMS = np.sqrt(np.mean((phi_new - benchmark_phi(xs_list)[0])**2))
+                e_RMS = np.sqrt(np.mean((e_new - benchmark_e(xs_list)[0])**2))
+                print('--- --- --- --- --- --- --- ---')
+                print(phi_RMS, 'rmse')
+                print('--- --- --- --- --- --- --- ---')
+
+            # plt.figure(fign)
+            # plt.plot(xs_list, phi_new)
+            # plt.plot(xs, phi, 'o')
+            # plt.show()
+            fign+=1
+    
+    with open('tables/' + filenames[0], 'w') as file:
+        writer = csv.writer(file)
+        data_phi_trunc = trunc(data_phi, 10)
+        writer.writerows(data_phi_trunc)
+
+    with open('tables/' + filenames[1], 'w') as file:
+        writer = csv.writer(file)
+        data_e_trunc = trunc(data_e, 10)
+        writer.writerows(data_e_trunc)
+
+def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson', rad_or_transport = 'rad', 
+                                c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_phi.csv','su_olson_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = False):
+
+    # xs_list = 
+    # source_name_list = ['square_s']\
+    xs_list = su_xs_list
+    tfinal_list = su_tfinal_list
+    fign = 1
+    delim = '_'
+    path = Path("moving_mesh_transport")
+    csv_file = filenames[0]
+    data_phi = np.zeros((xs_list.size+1, tfinal_list.size+1))
+    data_e = np.zeros((xs_list.size+1, tfinal_list.size+1))
+    data_phi[0,1:] = tfinal_list
+    data_e[0,1:] = tfinal_list
+    data_phi[1:,0] = xs_list
+    data_e[1:,0] = xs_list
+
+    # data_phi = np.zeros((N_space, tfinal_list.size))
+    # data_e = np.zeros((N_space, tfinal_list.size))
+
+    for count, tfinal in enumerate(tfinal_list):
+        print('t=',tfinal)
+        if (tfinal == 31.6228 or tfinal == 100.0) and s2 == True and problem_name == 'su_olson_s2':
+            moving = True
+        for source_name in source_name_list:
+            
+            string = problem_name + delim + str(tfinal) + delim + source_name + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
+
+            name = str(path / 'plots' / 'solution_plots') + '/' + string
+            print(problem_name, 'problem name')
+            M = Ms[count]
+            N_space = N_spaces[count]
+            plotter = plot(tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2, 
+            cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
+
+            xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
+            ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
+            t_quad = quadpy.c1.gauss_legendre(40).points
+            t_ws = quadpy.c1.gauss_legendre(40).weights
+
+            xs, phi = plotter.plot()
+            l = 1.0
+
+            quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad,  np.array([1.0]),  np.array([1.0]), 
+            np.array([0,0,0,0,1,0,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0, 1.0, 
+            1, 0, False, np.zeros((1,1,1)), 1.0, 1.0, 1.0, 0, 0, 0, np.zeros(3), np.zeros(3))
+
+
+            uncollided_class = uncollided_solution(quick_build)
+
+
+
+            # print(plotter.N_ang, 'angle')
+            # print(plotter.edges, 'edges')
 
 
             output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_list, plotter.coeff_mat, M, plotter.edges, uncollided)
@@ -349,93 +484,93 @@ def make_tables_su_olson(M=10, N_space = 32, problem_name = 'su_olson', rad_or_t
             # plt.show()
             fign+=1
     
-    with open(filenames[0], 'w') as file:
+    with open('tables/' + filenames[0], 'w') as file:
         writer = csv.writer(file)
         data_phi_trunc = trunc(data_phi, 10)
         writer.writerows(data_phi_trunc)
 
-    with open(filenames[1], 'w') as file:
+    with open('tables/' + filenames[1], 'w') as file:
         writer = csv.writer(file)
         data_e_trunc = trunc(data_e, 10)
         writer.writerows(data_e_trunc)
 
-def make_tables_const_cv_thin(M=10, N_space = 32, problem_name = 'rad_transfer_const_cv', rad_or_transport = 'rad', 
-                                c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['square_const_cv_phi.csv','square_const_cv_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True):
+# def make_tables_const_cv_thin(M=10, N_space = 32, problem_name = 'rad_transfer_const_cv', rad_or_transport = 'rad', 
+#                                 c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['square_const_cv_phi.csv','square_const_cv_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True):
 
-    tfinal_list = np.array([0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228,  100.0])
-    xs_list = np.array([0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.0, 1.33352, 1.77828, 3.16228, 5.62341, 10.0, 17.78279])
-    # xs_list = 
-    # source_name_list = ['square_s']
-    fign = 1
-    delim = '_'
-    path = Path("moving_mesh_transport")
-    csv_file = 'su_olson.csv'
-    data_phi = np.zeros((xs_list.size+1, tfinal_list.size+1))
-    data_e = np.zeros((xs_list.size+1, tfinal_list.size+1))
-    data_phi[0,1:] = tfinal_list
-    data_e[0,1:] = tfinal_list
-    data_phi[1:,0] = xs_list
-    data_e[1:,0] = xs_list
+#     tfinal_list = np.array([0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228,  100.0])
+#     xs_list = np.array([0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.0, 1.33352, 1.77828, 3.16228, 5.62341, 10.0, 17.78279])
+#     # xs_list = 
+#     # source_name_list = ['square_s']
+#     fign = 1
+#     delim = '_'
+#     path = Path("moving_mesh_transport")
+#     csv_file = 'su_olson.csv'
+#     data_phi = np.zeros((xs_list.size+1, tfinal_list.size+1))
+#     data_e = np.zeros((xs_list.size+1, tfinal_list.size+1))
+#     data_phi[0,1:] = tfinal_list
+#     data_e[0,1:] = tfinal_list
+#     data_phi[1:,0] = xs_list
+#     data_e[1:,0] = xs_list
 
-    # data_phi = np.zeros((N_space, tfinal_list.size))
-    # data_e = np.zeros((N_space, tfinal_list.size))
+#     # data_phi = np.zeros((N_space, tfinal_list.size))
+#     # data_e = np.zeros((N_space, tfinal_list.size))
 
-    for count, tfinal in enumerate(tfinal_list):
-        print('t=',tfinal)
-        for source_name in source_name_list:
+#     for count, tfinal in enumerate(tfinal_list):
+#         print('t=',tfinal)
+#         for source_name in source_name_list:
             
-            string = problem_name + delim + str(tfinal) + delim + source_name + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
+#             string = problem_name + delim + str(tfinal) + delim + source_name + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
 
-            name = str(path / 'plots' / 'solution_plots') + '/' + string
-            print(problem_name, 'problem name')
-            plotter = plot(tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2, 
-            cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
+#             name = str(path / 'plots' / 'solution_plots') + '/' + string
+#             print(problem_name, 'problem name')
+#             plotter = plot(tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2, 
+#             cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
 
-            xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
-            ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
-            t_quad = quadpy.c1.gauss_legendre(40).points
-            t_ws = quadpy.c1.gauss_legendre(40).weights
+#             xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
+#             ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
+#             t_quad = quadpy.c1.gauss_legendre(40).points
+#             t_ws = quadpy.c1.gauss_legendre(40).weights
 
-            xs, phi = plotter.plot()
+#             xs, phi = plotter.plot()
 
-            quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad, np.array([1.0]), np.array([0.0]), 
-            np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided, moving, np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0, 1.0, 
-            1, 0, False, np.zeros((1,1,1)), 1.0, 1.0)
+#             quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad, np.array([1.0]), np.array([0.0]), 
+#             np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided, moving, np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0, 1.0, 
+#             1, 0, False, np.zeros((1,1,1)), 1.0, 1.0)
 
-            uncollided_class = uncollided_solution(quick_build)
-
-
-
-            print(plotter.N_ang, 'angle')
-            print(plotter.edges, 'edges')
+#             uncollided_class = uncollided_solution(quick_build)
 
 
-            output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_list, plotter.coeff_mat, M, plotter.edges, uncollided)
 
-            phi_new = output_maker.make_phi(uncollided_class)
-            e_new = output_maker.make_e()
+#             # print(plotter.N_ang, 'angle')
+#             # print(plotter.edges, 'edges')
 
-            # from scipy.interpolate import interp1d
-            # interp_phi = interp1d(xs, phi_new, kind = 'cubic')
-            # RMSE = np.sqrt(np.mean(phi - interp_phi(np.abs(xs)))**2)
-            # print(RMSE, 'RMSE', '------', tfinal)
-            data_phi[1:, count+1] = phi_new
-            data_e[1:, count+1] = e_new
-            # plt.figure(fign)
-            # plt.plot(xs_list, phi_new)
-            # plt.plot(xs, phi, 'o')
-            # plt.show()
-            fign+=1
+
+#             output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_list, plotter.coeff_mat, M, plotter.edges, uncollided)
+
+#             phi_new = output_maker.make_phi(uncollided_class)
+#             e_new = output_maker.make_e()
+
+#             # from scipy.interpolate import interp1d
+#             # interp_phi = interp1d(xs, phi_new, kind = 'cubic')
+#             # RMSE = np.sqrt(np.mean(phi - interp_phi(np.abs(xs)))**2)
+#             # print(RMSE, 'RMSE', '------', tfinal)
+#             data_phi[1:, count+1] = phi_new
+#             data_e[1:, count+1] = e_new
+#             # plt.figure(fign)
+#             # plt.plot(xs_list, phi_new)
+#             # plt.plot(xs, phi, 'o')
+#             # plt.show()
+#             fign+=1
     
-    with open(filenames[0], 'w') as file:
-        writer = csv.writer(file)
-        data_phi_trunc = trunc(data_phi, 10)
-        writer.writerows(data_phi_trunc)
+#     with open(filenames[0], 'w') as file:
+#         writer = csv.writer(file)
+#         data_phi_trunc = trunc(data_phi, 10)
+#         writer.writerows(data_phi_trunc)
 
-    with open(filenames[1], 'w') as file:
-        writer = csv.writer(file)
-        data_e_trunc = trunc(data_e, 10)
-        writer.writerows(data_e_trunc)
+#     with open(filenames[1], 'w') as file:
+#         writer = csv.writer(file)
+#         data_e_trunc = trunc(data_e, 10)
+#         writer.writerows(data_e_trunc)
 
 
 def plot_coeffs_nov23_crc():
@@ -664,11 +799,46 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.3],  Ms=[6,0,0], source_name = 'square_s',  N_spaces = [128,128,128], 
+    plot_coefficients(tfinals = [0.3],  Ms=[6,6,6], source_name = 'square_s',  N_spaces = [128,128,128], 
     problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
 
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+
+
+
+
+
+    # plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+    # problem_name = 'su_olson_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    # c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    # legend = True, fign = 1)
+
+
+    # plt.close()
+    # plt.close()
+    # plt.close()
+    # plt.close()
+
+    plot_coefficients(tfinals = [0.3],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+    problem_name = 'transfer_const_cv=0.03_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+
+    plot_coefficients(tfinals = [0.3],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+    problem_name = 'transfer_const_cv=0.03_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
 
     plt.close()
     plt.close()
@@ -719,6 +889,11 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
     plt.close()
+
+    plot_coefficients(tfinals = [0.3],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+    problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
 
 
 

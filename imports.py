@@ -17,8 +17,9 @@ from moving_mesh_transport.solution_plotter import plot_coeffs_nov28_crc as pca_
 from moving_mesh_transport.solution_plotter import plot_coeffs_nov23_crc as pca_23
 from moving_mesh_transport.solution_plotter import plot_coeffs_nov31_crc as pca_31
 from moving_mesh_transport.solution_plotter import plot_coeffs_all_local as pca_loc
+from moving_mesh_transport.table_script import make_all_tables as mat
 
-from moving_mesh_transport.solution_plotter import make_tables_su_olson as tab_su
+# from moving_mesh_transport.solution_plotter import make_tables_su_olson as tab_sus
 
 # from moving_mesh_transport.solver_classes.functions import test_s2_sol
 from moving_mesh_transport.loading_and_saving.load_solution import load_sol as load
