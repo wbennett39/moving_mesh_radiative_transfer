@@ -63,7 +63,7 @@ for count, t in enumerate(t_list):
     run.parameters['all']['N_spaces'][0] = N_spaces_list[count]
     run.parameters['all']['Ms'][0] = Ms_list[count]
     run.mesh_parameters['pad'] = pad_list[count]
-    run.square_source(True, True)
+    run.square_source(False, True)
     plt.close()
     plt.close()
     plt.close()
