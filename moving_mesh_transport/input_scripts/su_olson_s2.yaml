@@ -54,7 +54,7 @@
     'N_angles': [2]
     'move_type': [1,0,0]      # [standard, square source, s2, square IC, thick square]
     'bench_type': 'S2'          # 'S2' or 'full'
-    'benchmarking': True
+    'benchmarking': False
     
 # gaussian pulse source
 'gaussian_IC':
