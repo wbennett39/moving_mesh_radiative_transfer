@@ -1,12 +1,12 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson'
-    'tfinal': 9.9999999999999 #31.6228                       # evaluation time
+    'tfinal': 31.6228 #31.6228                       # evaluation time
     'c': 0.0                            # scattering ratio
     'sigma_t': 1.0
     'c_scaling': False
     't0': 10.0                           # time the source is turned off
-    'N_spaces': [64]                   # number of cells
+    'N_spaces': [32]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
     'Ms': [0]                         # number of basis functions -6
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
@@ -18,7 +18,7 @@
     'temperature_dependence': [1,0,0,0] # first slot is Su-Olson problem
     'e_initial': 0.000000001
     'weights': 'gauss_lobatto'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
-    'save_solution': True
+    'save_solution': False
     'particle_v': 'one'
     'edge_v': 'one'
     'cv_const': 0.0

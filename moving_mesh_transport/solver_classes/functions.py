@@ -237,12 +237,25 @@ def uncollided_su_olson_s2(x,t,x0,t0):
         T0 = edge
         x = abs(x)
         if x0 - math.sqrt(3)*(t-T0)/3.0 <= x <= x0 + math.sqrt(3)*(t-T0)/3.0:
-            arg = max(T0 - (x-x0)*3/math.sqrt(3),0)
-            return s2_F(t,  T0) - s2_F(t, 0) 
+            arg = max(t - (x-x0)*3/math.sqrt(3),0)
+            argp = min(arg, T0)
+            arg2 = max(t - (x+x0)*3/math.sqrt(3),0)
+            arg2p = min(arg2, T0)
+            return s2_F(t,  argp)   - s2_F(t, arg2p) 
+        # elif x <= x0 + math.sqrt(3)*(t-T0)/3.0 and x >= x0 - math.sqrt(3)*(t-T0)/3.0:
+        #     arg = min(t - (x-x0)*3/math.sqrt(3),T0)
+        #     arg2 = max(t - (x+x0)*3/math.sqrt(3),0)
+        #     return s2_F(t,  arg)   - s2_F(t, arg2) 
+
             
         elif x > x0 + math.sqrt(3)*(t-T0)/3.0:
             arg = max(t - (x-x0)*3/math.sqrt(3),0)
-            return s2_F(t,  arg) - s2_F(t, 0) 
+            arg2 = max(t - (x+x0)*3/math.sqrt(3),0)
+            arg = min(arg, edge)
+            arg2 = min(arg2, edge)
+            return s2_F(t,  arg) - s2_F(t, arg2)
+
+        # elif x < x0 + math.sqrt(3)*(t-T0)/3.0:
             
         elif x < x0 - math.sqrt(3)*(t-T0)/3.0:
             arg = t - (x0-x)*3/math.sqrt(3)
@@ -337,32 +350,34 @@ def uncollided_su_olson_s2_2(x,t,x0,t0):
 def test_s2_sol(t = 10, t0 = 10):
     import scipy.integrate as integrate
     
-    xs = np.linspace(380, 420, 1000)
+    xs = np.linspace(0, t+0.5, 500)
     phi = xs*0
     phi_test = xs*0
     phi_exact = xs*0
-    x0 = 400 
+    x0 = 0.5 
     for ix in range(xs.size):
         phi[ix] = uncollided_su_olson_s2(xs[ix],t, x0, t0)
-        phi_test[ix] = uncollided_su_olson_s2_2(xs[ix],t, x0, t0)
+        # phi_test[ix] = uncollided_su_olson_s2_2(xs[ix],t, x0, t0)
         phi_exact[ix] = integrate.quad(su_olson_s2_integrand, 0, min(t,t0), args = (xs[ix],t,x0,t0))[0]
     
-    # plt.plot(xs, phi, '-ob')
+    plt.plot(xs, phi, '-ob')
     plt.plot(xs, phi_exact, '-k')
     # plt.plot(xs, phi_test, '-or', mfc = 'none')
+    # plt.axvline(x = x0 + math.sqrt(3)*(t-t0)/3.0, color = 'r')
+    # t - (x0-x)*3/math.sqrt(3)
     
     print(np.sqrt(np.mean(phi_exact-phi)**2), 'RMSE')
     show('uncollided_su_olson_s2_t_10')
     plt.show()
 
-def test_square_sol(t = 240, t0 = 10):
+def test_square_sol(t = 31.6228, t0 = 10):
     import scipy.integrate as integrate
     
-    xs = np.linspace(0, 480, 1000)
+    xs = np.linspace(0, 20, 1000)
     phi = xs*0
     phi_test = xs*0
     phi_exact = xs*0
-    x0 = 400 
+    x0 = 0.5
     for ix in range(xs.size):
         phi[ix] = uncollided_square_s2(xs[ix],t, x0, t0)
 
@@ -371,7 +386,7 @@ def test_square_sol(t = 240, t0 = 10):
     plt.plot(xs, phi, '-k')
     # plt.plot(xs, phi_test, '-or', mfc = 'none')
     
-    show('uncollided_square_s2t')
+    # show('uncollided_square_s2t')
     plt.show()
 
 # def time_step_counter(t, division):

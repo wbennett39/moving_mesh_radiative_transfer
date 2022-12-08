@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N SuS10._8_256
+#$ -N Su31100
 #$ -q long
 
 module load python

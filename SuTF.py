@@ -38,7 +38,7 @@ plt.close()
 
 
 # t_list = [10.0]
-t_list = [10.0]
+t_list = [31.6228,100.0]
 # t_list = [10.0]
 # t_list = [0.3, 3.0, 30.0]
 # factor_list = [2.5, 3.0, 6.0] # for thick gaussians nonlinear
@@ -50,7 +50,7 @@ run.load('su_olson')
 for count, t in enumerate(t_list):
     run.parameters['all']['tfinal'] = t
     run.parameters['all']['Ms'][0] = 8
-    run.parameters['all']['N_spaces'][0] = 256
+    run.parameters['all']['N_spaces'][0] = 64
     run.square_source(True, True)
     plt.close()
     plt.close()

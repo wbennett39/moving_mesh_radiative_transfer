@@ -20,7 +20,7 @@ su_xs_list = np.array([0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.
         
 class plot:
     def __init__(self,tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2,
-                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec5-2.hdf5' ):
+                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec8.hdf5' ):
         self.tfinal = tfinal
         self.M = M
         self.problem_name = problem_name
@@ -42,7 +42,7 @@ class plot:
         self.mkr4 = mkr4
         self.mkr5 = mkr5
         self.mkr6 = mkr6
-        if self.source_name == 'square_s':
+        if self.source_name == 'square_s' or self.x0_or_sigma == 0.375:
             self.file_name = file_name
         else:
             self.file_name = 'run_data_crc_nov23.hdf5'
@@ -77,20 +77,38 @@ class plot:
             marker2 = self.mkr2
             marker3 = self.mkr3
 
-        plt.plot(xs_plot, phi_plot, marker1, mfc = 'none')
-        plt.plot(xs_plot, e_plot, marker2, mfc = 'none')
+        
+  
 
         if self.problem_name in ['transfer_const_cv=0.03', 'transfer_const_cv_s2', 'transfer_const_cv_thick', 'transfer_const_cv_thick_s2', 'transfer_const_cv=0.03_s2']:
             T = e_plot / 0.03
+            plt.plot(xs_plot, np.power(phi_plot,.25), marker1, mfc = 'none')
+            plt.plot(xs_plot, T, marker2, mfc = 'none')
+            maxT = max(T)
+            maxphi = max(phi_plot**.25)
+            height = max(maxT, maxphi)
 
         elif self.problem_name in ['su_olson', 'su_olson_s2', 'su_olson_thick', 'su_olson_thick_s2']:
             T = np.power(e_plot, .25)
+            maxe = max(e_plot)
+            maxphi = max(phi_plot)
+            height = max(maxe, maxphi)
+            plt.plot(xs_plot, phi_plot, marker1, mfc = 'none')
+            plt.plot(xs_plot, e_plot, marker2, mfc = 'none')
+            
         
         # plt.plot(xs_plot, T, marker3, mfc = 'none')
 
 
         if self.s2 == True:
             plt.xlim(xs_plot[-1], -xs_plot[-1])
+            plt.axvline(x = 0, color = 'tab:gray')
+            # if self.tfinal == 100.0 or self.tfinal == 30.0:
+            left = xs_plot[-1]/2
+            right = -left
+            txtheight = height * 1.2
+            plt.text(left, txtheight, r'$S_2$')
+            plt.text(right, txtheight, 'Transport')
             show(self.name)
             plt.show()
             plt.close()
@@ -318,18 +336,32 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
 
     # xs_list = 
     # source_name_list = ['square_s']\
+    decimals = 6
     xs_list = su_xs_list
     tfinal_list = su_tfinal_list
     fign = 1
     delim = '_'
     path = Path("moving_mesh_transport")
     csv_file = filenames[0]
-    data_phi = np.zeros((xs_list.size+1, tfinal_list.size+1))
-    data_e = np.zeros((xs_list.size+1, tfinal_list.size+1))
-    data_phi[0,1:] = tfinal_list
-    data_e[0,1:] = tfinal_list
-    data_phi[1:,0] = xs_list
-    data_e[1:,0] = xs_list
+    if s2 == True:
+        plus = 2
+    else:
+        plus = 1
+
+    data_phi = np.zeros((xs_list.size+plus, tfinal_list.size+1))
+    data_e = np.zeros((xs_list.size+plus, tfinal_list.size+1))
+    if s2 == True:
+        data_phi[0,1:] = tfinal_list
+        data_e[0,1:] = tfinal_list
+        data_phi[1:-1,0] = xs_list
+        data_e[1:-1,0] = xs_list
+        # data_phi[-1, 0] = 'RMSE'
+        # data_e[-1, 0] = 'RMSE'
+    else:
+        data_phi[0,1:] = tfinal_list
+        data_e[0,1:] = tfinal_list
+        data_phi[1:,0] = xs_list
+        data_e[1:,0] = xs_list
 
     # data_phi = np.zeros((N_space, tfinal_list.size))
     # data_e = np.zeros((N_space, tfinal_list.size))
@@ -340,7 +372,7 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
             if s2 == True:
                 if source_name_list[0] == 'square_s': 
                     benchmark_phi =  load_bench([0,0,0,0,0,0,0,0,1], tfinal, 0.5, 0.0, False)
-                    benchmark_e =  load_bench([0,0,0,0,0,0,0,0,1,0], tfinal, 0.5, 0.0, False)
+                    benchmark_e =  load_bench([0,0,0,0,0,0,0,0,0,1], tfinal, 0.5, 0.0, False)
 
 
 
@@ -383,13 +415,21 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
             # interp_phi = interp1d(xs, phi_new, kind = 'cubic')
             # RMSE = np.sqrt(np.mean(phi - interp_phi(np.abs(xs)))**2)
             # print(RMSE, 'RMSE', '------', tfinal)
-            data_phi[1:, count+1] = phi_new
-            data_e[1:, count+1] = e_new
-            
             if s2 == True:
+                data_phi[1:-1, count+1] = trunc(phi_new, decimals)
+                data_e[1:-1, count+1] = trunc(e_new, decimals)
+                
+            else:
+                data_phi[1:, count+1] = trunc(phi_new, decimals)
+                data_e[1:, count+1] = trunc(e_new, decimals)
+
+            
+            if s2 == True and problem_name =='su_olson_s2':
   
                 phi_RMS = np.sqrt(np.mean((phi_new - benchmark_phi(xs_list)[0])**2))
                 e_RMS = np.sqrt(np.mean((e_new - benchmark_e(xs_list)[0])**2))
+                data_e[-1,count+1] = e_RMS
+                data_phi[-1, count+1] = phi_RMS
                 print('--- --- --- --- --- --- --- ---')
                 print(phi_RMS, 'rmse')
                 print('--- --- --- --- --- --- --- ---')
@@ -402,13 +442,13 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
     
     with open('tables/' + filenames[0], 'w') as file:
         writer = csv.writer(file)
-        data_phi_trunc = trunc(data_phi, 10)
-        writer.writerows(data_phi_trunc)
+        # data_phi_trunc = trunc(data_phi, 15)
+        writer.writerows(data_phi)
 
     with open('tables/' + filenames[1], 'w') as file:
         writer = csv.writer(file)
-        data_e_trunc = trunc(data_e, 10)
-        writer.writerows(data_e_trunc)
+        # data_e_trunc = trunc(data_e, 15)
+        writer.writerows(data_e)
 
 def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_phi.csv','su_olson_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = False):
@@ -486,12 +526,12 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
     
     with open('tables/' + filenames[0], 'w') as file:
         writer = csv.writer(file)
-        data_phi_trunc = trunc(data_phi, 10)
+        data_phi_trunc = trunc(data_phi, 6)
         writer.writerows(data_phi_trunc)
 
     with open('tables/' + filenames[1], 'w') as file:
         writer = csv.writer(file)
-        data_e_trunc = trunc(data_e, 10)
+        data_e_trunc = trunc(data_e, 6)
         writer.writerows(data_e_trunc)
 
 # def make_tables_const_cv_thin(M=10, N_space = 32, problem_name = 'rad_transfer_const_cv', rad_or_transport = 'rad', 
@@ -698,7 +738,7 @@ def plot_coeffs_nov23_crc():
 def plot_coeffs_nov28_crc():
 
      
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,3,3,3], source_name = 'square_s',   N_spaces = [256,256,256,256], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,4,5,3], source_name = 'square_s',   N_spaces = [256,256,256,256], 
     problem_name = 'su_olson', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -749,7 +789,7 @@ def plot_coeffs_nov28_crc():
     plt.close()
 
 
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,3,3,3], source_name = 'square_s',   N_spaces = [256,256,256,256], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,4,5,3], source_name = 'square_s',   N_spaces = [256,256,256,256], 
     problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -789,17 +829,12 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
-    problem_name = 'transfer_const_cv=0.03_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
-    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
-    legend = True, fign = 1)
+    # thick sources
 
-    plt.close()
-    plt.close()
-    plt.close()
-    plt.close()
+    print(' --- --- --- --- --- --- ')
+    print('su olson thick')
 
-    plot_coefficients(tfinals = [0.3],  Ms=[6,6,6], source_name = 'square_s',  N_spaces = [128,128,128], 
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'square_s',  N_spaces = [128,128,128], 
     problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
@@ -810,42 +845,38 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
 
+    print(' --- --- --- --- --- --- ')
+    print('su olson thick s2 square')
 
-
-
-
-    # plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
-    # problem_name = 'su_olson_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
-    # c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
-    # legend = True, fign = 1)
-
-
-    # plt.close()
-    # plt.close()
-    # plt.close()
-    # plt.close()
-
-    plot_coefficients(tfinals = [0.3],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
-    problem_name = 'transfer_const_cv=0.03_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'square_s',  N_spaces = [128,128,128], 
+    problem_name = 'su_olson_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
 
+
     plt.close()
     plt.close()
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.3],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
-    problem_name = 'transfer_const_cv=0.03_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    print(' --- --- --- --- --- --- ')
+    print('su olson thick gaussian')
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+    problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
     c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
 
+
     plt.close()
     plt.close()
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[6,6,6], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+
+    print(' --- --- --- --- --- --- ')
+    print('su olson thick s2 gaussian')
+
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
     problem_name = 'su_olson_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
     c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
     legend = True, fign = 1)
@@ -856,16 +887,39 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
 
-    # plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128], 
-    # problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
-    # c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
-    # legend = True, fign = 1)
+    print(' --- --- --- --- --- --- ')
+    print('cv const thick gaussian')
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+    problem_name = 'transfer_const_cv=0.03_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
+    print('cv const thick s2 gaussian')
+    plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
+    problem_name = 'transfer_const_cv=0.03_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
 
 
-    # plt.close()
-    # plt.close()
-    # plt.close()
-    # plt.close()
+    plot_coefficients(tfinals = [0.3, 3.0],  Ms=[10,10,10], source_name = 'square_s',  N_spaces = [128,128,128], 
+    problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
+    legend = True, fign = 1)
+
+
+    plt.close()
+    plt.close()
+    plt.close()
+    plt.close()
 
     plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
     problem_name = 'transfer_const_cv=0.03_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
@@ -890,10 +944,6 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
 
-    plot_coefficients(tfinals = [0.3],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
-    problem_name = 'su_olson_thick', rad_or_transport ='transfer', x0_or_sigma = 0.375,
-    c = 0.0, cv0=0.0,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = False, line = '-',
-    legend = True, fign = 1)
 
 
 

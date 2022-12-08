@@ -141,6 +141,10 @@ class mesh_class(object):
                 if t > self.t0 and self.source_type[2] == 1:
                     self.move_middle_edges(t)
                     self.edges = self.edges0_2 + self.Dedges * (t-self.t0)
+     
+
+                    # print(self.Dedges)
+
 
                 if t <= self.t0 or self.source_type[2] != 1:
                     self.Dedges = self.Dedges_const
@@ -186,8 +190,10 @@ class mesh_class(object):
             # final_pos = self.x0 + self.pad
             final_array = np.linspace(-final_pos, final_pos, self.N_space + 1)
             new_Dedges = (final_array - self.edges) / (self.tfinal-self.t0)
-            self.Dedges = new_Dedges
+            # self.Dedges = new_Dedges
+            self.Dedges = self.Dedges_const
             self.edges0_2 = self.edges
+            
             # loc_of_right_outside_edge = self.edges[middlebin+sidebin] + self.Dedges[sidebin] * (self.tfinal-t)
             # loc_of_left_outside_edge = self.edges[sidebin] + self.Dedges[sidebin] * (self.tfinal-t)
             # dx = loc_of_right_outside_edge - loc_of_left_outside_edge

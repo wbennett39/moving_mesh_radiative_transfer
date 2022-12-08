@@ -667,7 +667,18 @@ class rms_plotter:
     def plot_coefficients(self, tfinal,  M, source_name,  N_spaces, problem_name, rad_or_transport,
      x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend = True, pc = 0, fign = 1, ifshow = False):
 
-        data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0)
+        print('here')
+        if (source_name == 'square_s' or x0_or_sigma == 0.375) and problem_name != 'su_olson_thick_s2':
+            data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0)
+        else:
+            if source_name == 'gaussian_s' and x0_or_sigma == 0.5:
+                file_name = 'run_data_crc_nov23.hdf5'
+            elif problem_name == 'su_olson_thick_s2':
+                file_name = 'run_data_crc_dec7-4.hdf5'
+            print('loading', file_name)
+            data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0, file_name)
+
+        
 
         self.M_coeff = M
         self.j_matrix = np.zeros((len(N_spaces), (M+1)))

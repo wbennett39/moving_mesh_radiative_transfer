@@ -9,7 +9,7 @@ import numpy as np
 import math
 
 from .build_problem import build
-from .functions import normPn, numba_expi, uncollided_square_s2, uncollided_su_olson_s2
+from .functions import normPn, numba_expi, uncollided_su_olson_s2, uncollided_square_s2
 from .functions import uncollided_s2_gaussian, uncollided_s2_gaussian_thick
 # from scipy.special import expi as expi2
 
@@ -138,6 +138,7 @@ class uncollided_solution(object):
     #     return math.exp(self.sqs_interval_4-t) - math.exp(self.sqs_interval_3-t)
     
     def square_source_uncollided_solution(self, xs, t):
+        # i dont think thid is used
         temp = xs*0
         for ix in range(xs.size):
             x = xs[ix]

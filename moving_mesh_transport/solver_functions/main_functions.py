@@ -98,8 +98,8 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
         ws = quadpy.c1.gauss_legendre(N_ang).weights
     if N_ang == 2:
         print("mus =", mus)
-    xs_quad = quadpy.c1.gauss_legendre(int(xs_quad_order)).points
-    ws_quad = quadpy.c1.gauss_legendre(int(xs_quad_order)).weights
+    xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
+    ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
     t_quad = quadpy.c1.gauss_legendre(t_nodes).points
     t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
     quad_thick_source = quadpy.c1.gauss_lobatto(int(N_space/2+1)).points

@@ -70,6 +70,22 @@ class make_benchmark:
                 self.xs = np.linspace(0.0, 12.2, npnts)
         
         elif (self.source_type == "P1_gaussian_rad" or self.source_type == "P1_gaussian_mat"):
+            if t == 0.1:
+                self.xs = np.linspace(0.0, 2.9, npnts)
+            elif t == 0.3123:
+                self.xs = np.linspace(0.0, 3.1, npnts)
+            elif t == 1.0:
+                self.xs = np.linspace(0.0, 3.5, npnts)
+            elif t == 3.16228:
+                self.xs = np.linspace(0.0, 4.5, npnts)
+            elif t == 10.0:
+                self.xs = np.linspace(0.0, 9.0, npnts)
+            elif t == 31.6228:
+                self.xs = np.linspace(0.0, 20.0, npnts)
+            elif t == 100.0:
+                self.xs = np.linspace(0.0, 45.0, npnts)
+                
+
             # if t == 1:
             #     self.xs = np.linspace(0.0, 1600, npnts)
             # elif t == 5:
@@ -78,7 +94,8 @@ class make_benchmark:
             #     self.xs = np.linspace(0.0, 1800, npnts)
             # elif t == 100:
             #     self.xs = np.linspace(0.0, 1862, npnts)
-             self.xs = np.linspace(0.0, self.x0 + t/math.sqrt(3), npnts)
+            else:
+                qself.xs = np.linspace(0.0, self.x0 + t/math.sqrt(3), npnts)
 
         elif self.source_type == 'P1_su_olson_mat' or self.source_type == 'P1_su_olson_rad':
             if t < 10.0:

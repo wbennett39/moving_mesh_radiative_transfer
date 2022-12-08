@@ -12,7 +12,7 @@ import numpy as np
 
 
 class load_sol:
-    def __init__(self, problem_name = 'transport', source_name = 'square_s', rad_or_transfer = 'rad', c = 1.0, s2 = False, cv0 = 0.0, file_name = 'run_data_crc_dec6-2.hdf5' ):
+    def __init__(self, problem_name = 'transport', source_name = 'square_s', rad_or_transfer = 'rad', c = 1.0, s2 = False, cv0 = 0.0, file_name = 'run_data_crc_dec8.hdf5' ):
 
         data_folder = Path("moving_mesh_transport")
 
