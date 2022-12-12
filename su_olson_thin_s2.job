@@ -2,7 +2,7 @@
 #$ -M wbennet2@nd.edu
 #$ -m abe
 #$ -N SuSS231-100_8_64
-#$ -q long
+#$ -q long@@mcclarren
 
 
 module load python
