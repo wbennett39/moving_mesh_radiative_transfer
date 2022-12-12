@@ -20,7 +20,7 @@ from moving_mesh_transport.solution_plotter import plot_coeffs_all_local as pca_
 from moving_mesh_transport.table_script import make_all_tables as mat
 from moving_mesh_transport.solver_classes.functions import test_square_sol
 from moving_mesh_transport.solver_classes.functions import test_s2_sol
-
+from moving_mesh_transport.mesh_tester import test_square_mesh as test_mesh
 # from moving_mesh_transport.solution_plotter import make_tables_su_olson as tab_sus
 
 # from moving_mesh_transport.solver_classes.functions import test_s2_sol

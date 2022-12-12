@@ -53,7 +53,8 @@ data = [('N_ang', int64),
         ('packet_leader_speed', float64),
         ('thick_quad_edge', float64[:]),
         ('t0', float64),
-        ('edges0_2', float64[:])
+        ('edges0_2', float64[:]),
+        ('c1s', float64[:])
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -138,19 +139,37 @@ class mesh_class(object):
                 # if t > 10.0:
                 #     self.Dedges = self.edges/self.edges[-1] * self.speed
             if self.move_func == 0: # simple linear
-                if t > self.t0 and self.source_type[2] == 1:
-                    self.move_middle_edges(t)
-                    self.edges = self.edges0_2 + self.Dedges * (t-self.t0)
-     
+                if self.source_type[2] == 1:
+                    if t >= self.t0:
+                        self.move_middle_edges(t)
+                        tnew = t - self.t0 
 
-                    # print(self.Dedges)
+                        ### uncomment this to go back to the old mesh
+
+                        # self.edges = self.edges0_2 + self.Dedges_const * (t-self.t0)
+                        # self.Dedges = self.Dedges_const
 
 
-                if t <= self.t0 or self.source_type[2] != 1:
-                    self.Dedges = self.Dedges_const
-                    self.edges = self.edges0 + self.Dedges*t
+                        ### uncomment this for constant vel. 
+
+                        # self.edges = self.edges0_2 + self.Dedges * (t-self.t0)
+
+                        ### uncomment this for acceleration case
+
+                        self.edges = 0.5 * self.c1s * (tnew) ** 2 + self.Dedges_const * tnew + self.edges0_2
+                        self.Dedges = self.c1s * tnew + self.Dedges_const
+
+
+                    if (t < self.t0):
+                        # self.Dedges = self.Dedges_const
+                        self.edges = self.edges0 + self.Dedges*t
+
                 else:
+
                     self.edges = self.edges0 + self.Dedges*t
+
+
+
 
             elif self.move_func == 1: 
                 """
@@ -185,25 +204,28 @@ class mesh_class(object):
         middlebin = int(self.N_space/2)
         sidebin = int(middlebin/2)
         if self.Dedges[sidebin] == 0:
+            self.edges0_2 = self.edges0 + self.Dedges_const * self.t0
             # final_pos = self.edges0[-1] + self.Dedges[-1] * self.tfinal
             final_pos = self.pad
             # final_pos = self.x0 + self.pad
             final_array = np.linspace(-final_pos, final_pos, self.N_space + 1)
-            new_Dedges = (final_array - self.edges) / (self.tfinal-self.t0)
+            # print(final_array, 'final array')
+
+            # constant velocity
+            # new_Dedges = (final_array - self.edges0_2) / (self.tfinal-self.t0)
             # self.Dedges = new_Dedges
-            self.Dedges = self.Dedges_const
-            self.edges0_2 = self.edges
-            
-            # loc_of_right_outside_edge = self.edges[middlebin+sidebin] + self.Dedges[sidebin] * (self.tfinal-t)
-            # loc_of_left_outside_edge = self.edges[sidebin] + self.Dedges[sidebin] * (self.tfinal-t)
-            # dx = loc_of_right_outside_edge - loc_of_left_outside_edge
-            # speed_right = dx/2/(self.tfinal-t)
-            # speed_array = self.edges[sidebin:middlebin+sidebin+1]/speed_right
-            # self.Dedges[sidebin:sidebin+middlebin+1] = speed_array
-            # print(' --- --- --- --- --- --- --- ')
-            # print('speed_array')
-            # print(speed_array)
-            # print(' --- --- --- --- --- --- --- ')
+            # self.Dedges[sidebin:sidebin+middlebin+1] = 0    
+
+
+
+
+            #### constant acceleration ###
+
+            # print(self.Dedges_const, 'const edges')
+            # print(self.tfinal, 'tfinal')
+            # print(self.edges0_2, 'second edges0')
+            tnew = self.tfinal - self.t0
+            self.c1s = 2 * (self.Dedges_const * (self.t0) -self.tfinal * self.Dedges_const - self.edges0_2 + final_array) / ((self.t0-self.tfinal)**2)       
 
     
 
@@ -550,7 +572,8 @@ class mesh_class(object):
         self.Dedges[0:sidebin] = (self.edges[0:sidebin] + self.x0 )/(self.edges[-1] - self.x0)
         self.Dedges[sidebin:sidebin+middlebin] = 0       
         self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
-        self.Dedges = self.Dedges * self.speed
+        self.Dedges = self.Dedges * self.speed 
+        self.Dedges_const = np.copy(self.Dedges)
 
 
     def simple_thick_square_init_func_2(self):

@@ -4,7 +4,7 @@ def make_all_tables():
     # Square sources
 
     # su olson
-    make_tables_su_olson(Ms=[3,4,5,3,6,10,10], N_spaces = [256, 256, 256, 256, 128, 32, 32], problem_name = 'su_olson', rad_or_transport = 'rad', 
+    make_tables_su_olson(Ms=[3,4,5,6,6,10,10], N_spaces = [256, 256, 256, 256, 128, 32, 32], problem_name = 'su_olson', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_phi.csv','su_olson_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True)
 
     # su olson s2
@@ -12,7 +12,7 @@ def make_all_tables():
                                 c = 0.0, s2 = True, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_s2_phi.csv','su_olson_s2_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True)
 
     # const cv
-    make_tables_su_olson(Ms=[3,4,5,3,6,10,10], N_spaces = [256, 256, 256, 256, 128, 32, 32], problem_name = 'transfer_const_cv=0.03', rad_or_transport = 'rad', 
+    make_tables_su_olson(Ms=[3,4,5,6,6,10,10], N_spaces = [256, 256, 256, 256, 128, 32, 32], problem_name = 'transfer_const_cv=0.03', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['cv=0.03_phi.csv','cv=0.03_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True)
 
     # const cv s2

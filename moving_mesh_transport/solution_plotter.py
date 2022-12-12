@@ -42,10 +42,12 @@ class plot:
         self.mkr4 = mkr4
         self.mkr5 = mkr5
         self.mkr6 = mkr6
-        if self.source_name == 'square_s' or self.x0_or_sigma == 0.375:
+        if (self.source_name == 'square_s' or self.x0_or_sigma == 0.375) and (self.problem_name != 'transfer_const_cv=0.03'):
             self.file_name = file_name
+        # elif self.problem_name == 'transfer_const_cv=0.03':
+        #     self.file_name = 'run_data_crc_nov15.hdf5'
         else:
-            self.file_name = 'run_data_crc_nov23.hdf5'
+            self.file_name = 'run_data_crc_nov15.hdf5'
 
 
     def plot(self):
@@ -738,7 +740,7 @@ def plot_coeffs_nov23_crc():
 def plot_coeffs_nov28_crc():
 
      
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,4,5,3], source_name = 'square_s',   N_spaces = [256,256,256,256], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,4,5,6], source_name = 'square_s',   N_spaces = [256,256,256,256], 
     problem_name = 'su_olson', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -789,7 +791,7 @@ def plot_coeffs_nov28_crc():
     plt.close()
 
 
-    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,4,5,3], source_name = 'square_s',   N_spaces = [256,256,256,256], 
+    plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,4,5,6], source_name = 'square_s',   N_spaces = [256,256,256,256], 
     problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)

@@ -12,7 +12,7 @@ import numpy as np
 
 
 class load_sol:
-    def __init__(self, problem_name = 'transport', source_name = 'square_s', rad_or_transfer = 'rad', c = 1.0, s2 = False, cv0 = 0.0, file_name = 'run_data_crc_dec8.hdf5' ):
+    def __init__(self, problem_name = 'transport', source_name = 'square_s', rad_or_transfer = 'rad', c = 1.0, s2 = False, cv0 = 0.0, file_name = 'run_data_crc_dec12.hdf5' ):
 
         data_folder = Path("moving_mesh_transport")
 
@@ -20,7 +20,6 @@ class load_sol:
         # self.data_file_path = data_folder / 'run_data.h5' 
         self.final_sol_path = data_folder / 'run_data_final'
         self.wavepoints_file_path = data_folder / 'wavepoints.h5'
-        print(self.wavepoints_file_path)
         self.source_name = source_name
         self.rad_or_transfer = rad_or_transfer
         self.c = c 
@@ -42,6 +41,7 @@ class load_sol:
         f2 = h5py.File(self.final_sol_path, 'a')
         # print(f[self.problem_name]['solution'].keys())
         # print(full_str)
+        # print(f[self.problem_name]['solution'].keys())
         sol_data = f[self.problem_name]['solution/'+full_str]
 
         self.xs = sol_data[0]
