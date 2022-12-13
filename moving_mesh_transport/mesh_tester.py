@@ -27,6 +27,7 @@ def test_square_mesh(tfinal = 10.0, N_space = 8, x0 = 0.5, moving = True, move_t
         if ( N_space / 4 <= iedge  <= 3 * N_space / 4):
             mkr = 'b^--'
         plt.plot(edges_array[:, iedge],eval_times, mkr , mfc = 'none')
+        plt.plot(np.linspace(-pad, pad, 50), np.ones(50) * 10.0, 'k--')
     plt.scatter(np.linspace(-pad, pad, N_space+1), eval_times[-1] * np.ones(N_space+1), marker = '|', c= 'k', s= 64 )
     plt.xlabel('t')
     plt.ylabel('edge_pos')

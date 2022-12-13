@@ -20,7 +20,7 @@ su_xs_list = np.array([0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.
         
 class plot:
     def __init__(self,tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2,
-                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec8.hdf5' ):
+                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec13.hdf5' ):
         self.tfinal = tfinal
         self.M = M
         self.problem_name = problem_name
@@ -42,7 +42,7 @@ class plot:
         self.mkr4 = mkr4
         self.mkr5 = mkr5
         self.mkr6 = mkr6
-        if (self.source_name == 'square_s' or self.x0_or_sigma == 0.375) and (self.problem_name != 'transfer_const_cv=0.03'):
+        if (self.source_name == 'square_s' or self.x0_or_sigma == 0.375):
             self.file_name = file_name
         # elif self.problem_name == 'transfer_const_cv=0.03':
         #     self.file_name = 'run_data_crc_nov15.hdf5'
@@ -739,7 +739,7 @@ def plot_coeffs_nov23_crc():
 
 def plot_coeffs_nov28_crc():
 
-     
+    print('su olson')
     plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,4,5,6], source_name = 'square_s',   N_spaces = [256,256,256,256], 
     problem_name = 'su_olson', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
@@ -764,7 +764,7 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
     
-
+    print('su olson s2')
 
     plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[4,4,4,4], source_name = 'square_s',   N_spaces = [128,128,128,128], 
     problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
@@ -776,9 +776,9 @@ def plot_coeffs_nov28_crc():
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
-    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [64,64], 
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [32,32], 
     problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
-    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
     plt.close()
@@ -790,7 +790,7 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
 
-
+    print('const cv')
     plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[3,4,5,6], source_name = 'square_s',   N_spaces = [256,256,256,256], 
     problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
@@ -801,7 +801,7 @@ def plot_coeffs_nov28_crc():
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
-    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [64,64], 
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [32,32], 
     problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -811,6 +811,7 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
 
+    print('const cv s2')
     plot_coefficients(tfinals = [0.1, 0.31623, 1.0, 3.16228],  Ms=[4,4,4,4], source_name = 'square_s',   N_spaces = [128,128,128,128], 
     problem_name = 'transfer_const_cv=0.03_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
@@ -821,9 +822,9 @@ def plot_coeffs_nov28_crc():
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
-    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [64,64], 
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [32,32], 
     problem_name = 'transfer_const_cv=0.03_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
-    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
     plt.close()
