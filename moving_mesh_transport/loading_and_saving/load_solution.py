@@ -41,7 +41,7 @@ class load_sol:
         f2 = h5py.File(self.final_sol_path, 'a')
         # print(f[self.problem_name]['solution'].keys())
         # print(full_str)
-        print(f[self.problem_name]['solution'].keys())
+        # print(f[self.problem_name]['solution'].keys())
         sol_data = f[self.problem_name]['solution/'+full_str]
 
         self.xs = sol_data[0]
