@@ -68,6 +68,7 @@ class uncollided_solution(object):
         self.t_ws = build.t_ws
         self.N_ang = build.N_ang
         self.sigma = build.sigma
+        print(self.sigma, 'sigma')
         self.source_strength = build.source_strength
         self.uncollided_solution_return = np.zeros(1)
 ###############################################################################

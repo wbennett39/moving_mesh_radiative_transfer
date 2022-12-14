@@ -8,7 +8,7 @@ def make_all_tables():
                                 c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_phi.csv','su_olson_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True)
 
     # su olson s2
-    make_tables_su_olson(Ms=[4,4,4,4,6,8,8], N_spaces = [128, 128, 128, 128, 128, 64, 64], problem_name = 'su_olson_s2', rad_or_transport = 'rad', 
+    make_tables_su_olson(Ms=[4,4,4,4,6,8,8], N_spaces = [128, 128, 128, 128, 128, 32, 32], problem_name = 'su_olson_s2', rad_or_transport = 'rad', 
                                 c = 0.0, s2 = True, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_s2_phi.csv','su_olson_s2_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True)
 
     # const cv

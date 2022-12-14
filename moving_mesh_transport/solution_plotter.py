@@ -20,7 +20,7 @@ su_xs_list = np.array([0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.
         
 class plot:
     def __init__(self,tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2,
-                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec13.hdf5' ):
+                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec13-2.hdf5' ):
         self.tfinal = tfinal
         self.M = M
         self.problem_name = problem_name
@@ -47,7 +47,7 @@ class plot:
         # elif self.problem_name == 'transfer_const_cv=0.03':
         #     self.file_name = 'run_data_crc_nov15.hdf5'
         else:
-            self.file_name = 'run_data_crc_nov15.hdf5'
+            self.file_name = 'run_data_crc_nov23.hdf5'
 
 
     def plot(self):
@@ -375,8 +375,8 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
                 if source_name_list[0] == 'square_s': 
                     benchmark_phi =  load_bench([0,0,0,0,0,0,0,0,1], tfinal, 0.5, 0.0, False)
                     benchmark_e =  load_bench([0,0,0,0,0,0,0,0,0,1], tfinal, 0.5, 0.0, False)
-
-
+                    if tfinal > 10.0:
+                        uncollided = False
 
             string = problem_name + delim + str(tfinal) + delim + source_name + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
 
@@ -427,11 +427,15 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
 
             
             if s2 == True and problem_name =='su_olson_s2':
+                xs_new = np.linspace(plotter.edges[0], plotter.edges[-1], 100)
+                output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_new, plotter.coeff_mat, M, plotter.edges, uncollided)
+                phi_new = output_maker.make_phi(uncollided_class)
+                e_new = output_maker.make_e()
   
-                phi_RMS = np.sqrt(np.mean((phi_new - benchmark_phi(xs_list)[0])**2))
-                e_RMS = np.sqrt(np.mean((e_new - benchmark_e(xs_list)[0])**2))
-                data_e[-1,count+1] = e_RMS
-                data_phi[-1, count+1] = phi_RMS
+                phi_RMS = np.sqrt(np.mean((phi_new - benchmark_phi(np.abs(xs_new))[0])**2))
+                e_RMS = np.sqrt(np.mean((e_new - benchmark_e(np.abs(xs_new))[0])**2))
+                data_e[-1,count+1] = '{:0.3e}'.format(e_RMS)
+                data_phi[-1, count+1] = '{:0.3e}'.format(phi_RMS)
                 print('--- --- --- --- --- --- --- ---')
                 print(phi_RMS, 'rmse')
                 print('--- --- --- --- --- --- --- ---')
@@ -453,22 +457,37 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
         writer.writerows(data_e)
 
 def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson', rad_or_transport = 'rad', 
-                                c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_phi.csv','su_olson_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = False):
+                                c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_phi.csv','su_olson_e.csv'], source_name_list = ['gaussian_s'], uncollided = True, moving = False):
 
     # xs_list = 
-    # source_name_list = ['square_s']\
+    # source_name_list = ['square_s']
     xs_list = su_xs_list
     tfinal_list = su_tfinal_list
+    decimals = 6
     fign = 1
     delim = '_'
     path = Path("moving_mesh_transport")
     csv_file = filenames[0]
-    data_phi = np.zeros((xs_list.size+1, tfinal_list.size+1))
-    data_e = np.zeros((xs_list.size+1, tfinal_list.size+1))
-    data_phi[0,1:] = tfinal_list
-    data_e[0,1:] = tfinal_list
-    data_phi[1:,0] = xs_list
-    data_e[1:,0] = xs_list
+    if s2 == True:
+        plus = 2
+    else:
+        plus = 1
+
+    data_phi = np.zeros((xs_list.size+plus, tfinal_list.size+1))
+    data_e = np.zeros((xs_list.size+plus, tfinal_list.size+1))
+    if s2 == True:
+        data_phi[0,1:] = tfinal_list
+        data_e[0,1:] = tfinal_list
+        data_phi[1:-1,0] = xs_list
+        data_e[1:-1,0] = xs_list
+        # data_phi[-1, 0] = 'RMSE'
+        # data_e[-1, 0] = 'RMSE'
+    else:
+        data_phi[0,1:] = tfinal_list
+        data_e[0,1:] = tfinal_list
+        data_phi[1:,0] = xs_list
+        data_e[1:,0] = xs_list
+
 
     # data_phi = np.zeros((N_space, tfinal_list.size))
     # data_e = np.zeros((N_space, tfinal_list.size))
@@ -478,6 +497,10 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
         if (tfinal == 31.6228 or tfinal == 100.0) and s2 == True and problem_name == 'su_olson_s2':
             moving = True
         for source_name in source_name_list:
+            if s2 == True:
+                if source_name_list[0] == 'gaussian_s': 
+                    benchmark_phi= load_bench([0,0,0,0,0,0,0,0,0,0,1], tfinal, 0.5, 0.0, False)
+                    benchmark_e =  load_bench([0,0,0,0,0,0,0,0,0,0,0,1], tfinal, 0.5, 0.0, False)
             
             string = problem_name + delim + str(tfinal) + delim + source_name + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
 
@@ -497,7 +520,7 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
             l = 1.0
 
             quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad,  np.array([1.0]),  np.array([1.0]), 
-            np.array([0,0,0,0,1,0,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0, 1.0, 
+            np.array([0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0.5, 1.0, 
             1, 0, False, np.zeros((1,1,1)), 1.0, 1.0, 1.0, 0, 0, 0, np.zeros(3), np.zeros(3))
 
 
@@ -505,22 +528,42 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
 
 
 
-            # print(plotter.N_ang, 'angle')
-            # print(plotter.edges, 'edges')
-
-
             output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_list, plotter.coeff_mat, M, plotter.edges, uncollided)
 
             phi_new = output_maker.make_phi(uncollided_class)
             e_new = output_maker.make_e()
 
+            # print(plotter.N_ang, 'angle')
+            # print(plotter.edges, 'edges')
+            if s2 == True:
+                data_phi[1:-1, count+1] = phi_new
+                data_e[1:-1, count+1] = e_new
+                
+            else:
+                data_phi[1:, count+1] = trunc(phi_new, decimals)
+                data_e[1:, count+1] = trunc(e_new, decimals)
+
+            
+            if s2 == True and problem_name =='su_olson_s2':
+                xs_new = np.linspace(plotter.edges[0], plotter.edges[-1], 100)
+                output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_new, plotter.coeff_mat, M, plotter.edges, uncollided)
+                phi_new = output_maker.make_phi(uncollided_class)
+                e_new = output_maker.make_e()
+
+                phi_RMS = np.sqrt(np.mean((phi_new - benchmark_phi(np.abs(xs_new))[0])**2))
+                e_RMS = np.sqrt(np.mean((e_new - benchmark_e(np.abs(xs_new))[0])**2))
+                data_e[-1,count+1] = '{:0.3e}'.format(e_RMS)
+                data_phi[-1, count+1] = '{:0.3e}'.format(phi_RMS)
+                print('--- --- --- --- --- --- --- ---')
+                print(phi_RMS, 'rmse')
+                print(e_RMS, 'rmse e')
+                print('--- --- --- --- --- --- --- ---')
+
             # from scipy.interpolate import interp1d
             # interp_phi = interp1d(xs, phi_new, kind = 'cubic')
             # RMSE = np.sqrt(np.mean(phi - interp_phi(np.abs(xs)))**2)
             # print(RMSE, 'RMSE', '------', tfinal)
-            data_phi[1:, count+1] = phi_new
-            data_e[1:, count+1] = e_new
-            # plt.figure(fign)
+
             # plt.plot(xs_list, phi_new)
             # plt.plot(xs, phi, 'o')
             # plt.show()
@@ -528,13 +571,13 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
     
     with open('tables/' + filenames[0], 'w') as file:
         writer = csv.writer(file)
-        data_phi_trunc = trunc(data_phi, 6)
-        writer.writerows(data_phi_trunc)
+        # data_phi_trunc = trunc(data_phi, 6)
+        writer.writerows(data_phi)
 
     with open('tables/' + filenames[1], 'w') as file:
         writer = csv.writer(file)
-        data_e_trunc = trunc(data_e, 6)
-        writer.writerows(data_e_trunc)
+        # data_e_trunc = trunc(data_e, 6)
+        writer.writerows(data_e)
 
 # def make_tables_const_cv_thin(M=10, N_space = 32, problem_name = 'rad_transfer_const_cv', rad_or_transport = 'rad', 
 #                                 c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['square_const_cv_phi.csv','square_const_cv_e.csv'], source_name_list = ['square_s'], uncollided = True, moving = True):
@@ -776,10 +819,10 @@ def plot_coeffs_nov28_crc():
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
-    # plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [32,32], 
-    # problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
-    # c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = True, line = '-',
-    # legend = True, fign = 1)
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [32,32], 
+    problem_name = 'su_olson_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
+    c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = True, line = '-',
+    legend = True, fign = 1)
 
     plt.close()
     plt.close()
@@ -901,6 +944,8 @@ def plot_coeffs_nov28_crc():
     plt.close()
     plt.close()
     plt.close()
+
+
     print('cv const thick s2 gaussian')
     plot_coefficients(tfinals = [0.3, 3.0, 30.0],  Ms=[10,10,10], source_name = 'gaussian_s',  N_spaces = [128,128,128], 
     problem_name = 'transfer_const_cv=0.03_thick_s2', rad_or_transport ='transfer', x0_or_sigma = 0.375,
