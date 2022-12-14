@@ -1,4 +1,4 @@
-from .solution_plotter import plot, make_tables_su_olson, make_tables_gaussian_thin
+from .solution_plotter import plot, make_tables_su_olson, make_tables_gaussian_thin, make_tables_thick_problems
 
 def make_all_tables():
     # Square sources
@@ -35,3 +35,25 @@ def make_all_tables():
 
     make_tables_gaussian_thin(Ms=[12,12,12,12,12,12,12], N_spaces = [64,64,64,64,128,128,128], problem_name = 'transfer_const_cv=0.03_s2', rad_or_transport = 'rad', 
                             c = 0.0, s2 = True, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['cv=0.03_s2_g_phi.csv','cv=0.03_s2_g_e.csv'], source_name_list = ['gaussian_s'], uncollided = True, moving = False)
+
+    # thick problems
+
+    # thick su olson
+
+    make_tables_thick_problems(Ms=[10,10,10], N_spaces = [128,128,128], problem_name = 'su_olson_thick', rad_or_transport = 'rad', 
+                            c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_thick_phi.csv','su_olson_thick_e.csv'], source_name_list = ['square_s'], uncollided = False, moving = False)
+
+    make_tables_thick_problems(Ms=[10,10,10], N_spaces = [128,128,128], problem_name = 'su_olson_thick_s2', rad_or_transport = 'rad', 
+                            c = 0.0, s2 = True, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_thick_s2_phi.csv','su_olson_thick_s2_e.csv'], source_name_list = ['square_s'], uncollided = False, moving = False)
+
+    make_tables_thick_problems(Ms=[10,10,10], N_spaces = [128,128,128], problem_name = 'su_olson_thick', rad_or_transport = 'rad', 
+                            c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.375, mat_or_rad ='rad', filenames = ['su_olson_thick_g_phi.csv','su_olson_thick_g_e.csv'], source_name_list = ['gaussian_s'], uncollided = False, moving = False)
+    
+    make_tables_thick_problems(Ms=[10,10,10], N_spaces = [128,128,128], problem_name = 'su_olson_thick_s2', rad_or_transport = 'rad', 
+                            c = 0.0, s2 = True, cv0=0.0, x0_or_sigma = 0.375, mat_or_rad ='rad', filenames = ['su_olson_thick_s2_g_phi.csv','su_olson_thick_s2_g_e.csv'], source_name_list = ['gaussian_s'], uncollided = False, moving = False)
+
+    make_tables_thick_problems(Ms=[10,10,10], N_spaces = [128,128,128], problem_name = 'transfer_const_cv=0.03_thick', rad_or_transport = 'rad', 
+                            c = 0.0, s2 = False, cv0=0.03, x0_or_sigma = 0.375, mat_or_rad ='rad', filenames = ['cv=0.03_g_phi.csv','cv=0.03_g_e.csv'], source_name_list = ['gaussian_s'], uncollided = False, moving = False)
+    
+    make_tables_thick_problems(Ms=[10,10,10], N_spaces = [128,128,128], problem_name = 'transfer_const_cv=0.03_thick_s2', rad_or_transport = 'rad', 
+                            c = 0.0, s2 = True, cv0=0.03, x0_or_sigma = 0.375, mat_or_rad ='rad', filenames = ['cv=0.03_s2_g_phi.csv','cv=0.03_s2_g_e.csv'], source_name_list = ['gaussian_s'], uncollided = False, moving = False)

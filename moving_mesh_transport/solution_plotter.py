@@ -20,7 +20,7 @@ su_xs_list = np.array([0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.
         
 class plot:
     def __init__(self,tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2,
-                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec13-2.hdf5' ):
+                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec14.hdf5' ):
         self.tfinal = tfinal
         self.M = M
         self.problem_name = problem_name
@@ -42,12 +42,15 @@ class plot:
         self.mkr4 = mkr4
         self.mkr5 = mkr5
         self.mkr6 = mkr6
-        if (self.source_name == 'square_s' or self.x0_or_sigma == 0.375):
-            self.file_name = file_name
-        # elif self.problem_name == 'transfer_const_cv=0.03':
-        #     self.file_name = 'run_data_crc_nov15.hdf5'
+        if self.problem_name == 'su_olson_thick_s2':
+            self.file_name = 'run_data_crc_dec7-4.hdf5'
         else:
-            self.file_name = 'run_data_crc_nov23.hdf5'
+            if (self.source_name == 'square_s' or self.x0_or_sigma == 0.375):
+                self.file_name = file_name
+            # elif self.problem_name == 'transfer_const_cv=0.03':
+            #     self.file_name = 'run_data_crc_nov15.hdf5'
+            else:
+                self.file_name = 'run_data_crc_nov23.hdf5'
 
 
     def plot(self):
@@ -58,6 +61,7 @@ class plot:
         self.ws = data.ws
         self.edges = data.edges
         self.e = data.e
+        self.xs = data.xs
 
         print('loading solutions for', self.N_space, 'spaces',self.N_ang, 'angles', self.M, 'M')
         
@@ -82,7 +86,7 @@ class plot:
         
   
 
-        if self.problem_name in ['transfer_const_cv=0.03', 'transfer_const_cv_s2', 'transfer_const_cv_thick', 'transfer_const_cv_thick_s2', 'transfer_const_cv=0.03_s2']:
+        if self.problem_name in ['transfer_const_cv=0.03', 'transfer_const_cv=0.03_s2', 'transfer_const_cv=0.03_thick', 'transfer_const_cv=0.03_thick_s2', 'transfer_const_cv=0.03_s2']:
             T = e_plot / 0.03
             plt.plot(xs_plot, np.power(phi_plot,.25), marker1, mfc = 'none')
             plt.plot(xs_plot, T, marker2, mfc = 'none')
@@ -104,13 +108,14 @@ class plot:
 
         if self.s2 == True:
             plt.xlim(xs_plot[-1], -xs_plot[-1])
-            plt.axvline(x = 0, color = 'tab:gray')
+            
             # if self.tfinal == 100.0 or self.tfinal == 30.0:
-            left = xs_plot[-1]/2
+            left = xs_plot[-1]/4
             right = -left
-            txtheight = height * 1.2
-            plt.text(left, txtheight, r'$S_2$')
-            plt.text(right, txtheight, 'Transport')
+            txtheight = height * 1.05
+            plt.text(left, txtheight, r'$S_2$', fontsize = 'large', horizontalalignment = 'center' )
+            plt.text(right, txtheight, 'Transport', fontsize = 'large', horizontalalignment = 'center' )
+            plt.axvline(x = 0, color = 'tab:gray')
             show(self.name)
             plt.show()
             plt.close()
@@ -427,7 +432,9 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
 
             
             if s2 == True and problem_name =='su_olson_s2':
-                xs_new = np.linspace(plotter.edges[0], plotter.edges[-1], 100)
+                # xs_new = np.linspace(plotter.edges[0], plotter.edges[-1], 100)
+                # xs_new = np.array(np.copy(plotter.xs[:]))
+                xs_new = plotter.xs * np.ones(plotter.xs.size)
                 output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_new, plotter.coeff_mat, M, plotter.edges, uncollided)
                 phi_new = output_maker.make_phi(uncollided_class)
                 e_new = output_maker.make_e()
@@ -545,7 +552,9 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
 
             
             if s2 == True and problem_name =='su_olson_s2':
-                xs_new = np.linspace(plotter.edges[0], plotter.edges[-1], 100)
+                # xs_new = np.linspace(plotter.edges[0], plotter.edges[-1], 100)
+                xs_new = plotter.xs * np.ones(plotter.xs.size)
+                # xs_new = plotter.xs
                 output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_new, plotter.coeff_mat, M, plotter.edges, uncollided)
                 phi_new = output_maker.make_phi(uncollided_class)
                 e_new = output_maker.make_e()
@@ -558,6 +567,113 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
                 print(phi_RMS, 'rmse')
                 print(e_RMS, 'rmse e')
                 print('--- --- --- --- --- --- --- ---')
+
+            # from scipy.interpolate import interp1d
+            # interp_phi = interp1d(xs, phi_new, kind = 'cubic')
+            # RMSE = np.sqrt(np.mean(phi - interp_phi(np.abs(xs)))**2)
+            # print(RMSE, 'RMSE', '------', tfinal)
+
+            # plt.plot(xs_list, phi_new)
+            # plt.plot(xs, phi, 'o')
+            # plt.show()
+            fign+=1
+    
+    with open('tables/' + filenames[0], 'w') as file:
+        writer = csv.writer(file)
+        # data_phi_trunc = trunc(data_phi, 6)
+        writer.writerows(data_phi)
+
+    with open('tables/' + filenames[1], 'w') as file:
+        writer = csv.writer(file)
+        # data_e_trunc = trunc(data_e, 6)
+        writer.writerows(data_e)
+
+
+
+def make_tables_thick_problems(Ms=[10], N_spaces = [32], problem_name = 'su_olson', rad_or_transport = 'rad', 
+                                c = 0.0, s2 = False, cv0=0.0, x0_or_sigma = 0.5, mat_or_rad ='rad', filenames = ['su_olson_phi.csv','su_olson_e.csv'], source_name_list = ['gaussian_s'], uncollided = True, moving = False):
+
+    # xs_list = 
+    # source_name_list = ['square_s']
+    npnts = 20
+    su_square_edge = 1.1
+    su_gauss_edge = 1.6
+    nl_gauss_edge = 3.8
+    if problem_name in ['su_olson_thick', 'su_olson_thick_s2']:
+        if source_name_list[0] == 'square_s':
+            edge_point = su_square_edge
+        elif source_name_list[0] == 'gaussian_s':
+            edge_point = su_gauss_edge
+    elif problem_name in ['transfer_const_cv=0.03_thick', 'transfer_const_cv=0.03_thick_s2']:
+        edge_point = nl_gauss_edge
+    
+    xs_list = np.linspace(0, edge_point, npnts)
+    xs_list = np.round(xs_list, 4)
+
+
+    tfinal_list = np.array([0.3, 3.0, 30.0])
+    decimals = 6
+    fign = 1
+    delim = '_'
+    path = Path("moving_mesh_transport")
+    csv_file = filenames[0]
+
+
+    data_phi = np.zeros((xs_list.size+1, tfinal_list.size+1))
+    data_e = np.zeros((xs_list.size+1, tfinal_list.size+1))
+    data_phi[0,1:] = tfinal_list
+    data_e[0,1:] = tfinal_list
+    data_phi[1:,0] = xs_list
+    data_e[1:,0] = xs_list
+
+
+    # data_phi = np.zeros((N_space, tfinal_list.size))
+    # data_e = np.zeros((N_space, tfinal_list.size))
+
+    for count, tfinal in enumerate(tfinal_list):
+        print('t=',tfinal)
+        for source_name in source_name_list:
+            
+            string = problem_name + delim + str(tfinal) + delim + source_name + delim + 'x0='+ str(x0_or_sigma) + delim + 'cv0=' + str(cv0) 
+
+            name = str(path / 'plots' / 'solution_plots') + '/' + string
+            print(problem_name, 'problem name')
+            M = Ms[count]
+            N_space = N_spaces[count]
+            plotter = plot(tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2, 
+            cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
+
+            xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
+            ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
+            t_quad = quadpy.c1.gauss_legendre(40).points
+            t_ws = quadpy.c1.gauss_legendre(40).weights
+
+            xs, phi = plotter.plot()
+            l = 1.0
+      
+            quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad,  np.array([1.0]),  np.array([1.0]), 
+            np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0.5, 1.0, 
+            1, 0, False, np.zeros((1,1,1)), 1.0, 1.0, 1.0, 0, 0, 0, np.zeros(3), np.zeros(3))
+
+
+            uncollided_class = uncollided_solution(quick_build)
+
+
+
+            output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_list, plotter.coeff_mat, M, plotter.edges, uncollided)
+
+            phi_new = output_maker.make_phi(uncollided_class)
+            e_new = output_maker.make_e()
+
+            # print(plotter.N_ang, 'angle')
+            # print(plotter.edges, 'edges')
+
+                
+
+            data_phi[1:, count+1] = trunc(phi_new, decimals)
+            data_e[1:, count+1] = trunc(e_new, decimals)
+
+            
 
             # from scipy.interpolate import interp1d
             # interp_phi = interp1d(xs, phi_new, kind = 'cubic')
