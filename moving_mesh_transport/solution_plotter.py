@@ -598,7 +598,7 @@ def make_tables_thick_problems(Ms=[10], N_spaces = [32], problem_name = 'su_olso
     npnts = 20
     su_square_edge = 1.1
     su_gauss_edge = 1.6
-    nl_gauss_edge = 3.8
+    nl_gauss_edge = 1.5
     if problem_name in ['su_olson_thick', 'su_olson_thick_s2']:
         if source_name_list[0] == 'square_s':
             edge_point = su_square_edge
@@ -960,7 +960,7 @@ def plot_coeffs_nov28_crc():
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
-    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [32,32], 
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[10,10], source_name = 'square_s',   N_spaces = [64,32], 
     problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -981,7 +981,7 @@ def plot_coeffs_nov28_crc():
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
-    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[8,8], source_name = 'square_s',   N_spaces = [32,32], 
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[10,10], source_name = 'square_s',   N_spaces = [64,32], 
     problem_name = 'transfer_const_cv=0.03_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)

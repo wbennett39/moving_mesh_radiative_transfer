@@ -668,6 +668,10 @@ class rms_plotter:
      x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend = True, pc = 0, fign = 1, ifshow = False):
 
         print('here')
+        # if tfinal == 30.0 and problem_name == 'transfer_const_cv=0.03_thick':
+        #     file_name = 'run_data_crc_dec13.hdf5'
+        #     data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0)
+        # else:
         if (source_name == 'square_s' or x0_or_sigma == 0.375) and problem_name != 'su_olson_thick_s2':
             data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0)
         else:
