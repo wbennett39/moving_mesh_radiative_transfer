@@ -41,9 +41,9 @@ plt.close()
 
 
 t_list = [31.6228, 100.0]
-N_spaces_list = [16,16]
-Ms_list = [10,10]
-pad_list = [10,13]
+N_spaces_list = [64,64]
+Ms_list = [8,8]
+pad_list = [10.5,13]
 
 # t_list = [0.3, 3.0, 30.0]
 # factor_list = [2.5, 3.0, 6.0] # for thick gaussians nonlinear

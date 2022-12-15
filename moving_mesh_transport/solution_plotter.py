@@ -8,6 +8,7 @@ from .solver_classes import make_phi, build_problem
 from .solver_classes.uncollided_solutions import uncollided_solution
 from .loading_and_saving.load_bench import load_bench
 from pathlib import Path
+from scipy.interpolate import interp1d
 import quadpy
 import csv
 
@@ -345,13 +346,14 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
     # source_name_list = ['square_s']\
     decimals = 6
     xs_list = su_xs_list
+
     tfinal_list = su_tfinal_list
     fign = 1
     delim = '_'
     path = Path("moving_mesh_transport")
     csv_file = filenames[0]
     if s2 == True:
-        plus = 2
+        plus = 3
     else:
         plus = 1
 
@@ -360,8 +362,8 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
     if s2 == True:
         data_phi[0,1:] = tfinal_list
         data_e[0,1:] = tfinal_list
-        data_phi[1:-1,0] = xs_list
-        data_e[1:-1,0] = xs_list
+        data_phi[1:-2,0] = xs_list
+        data_e[1:-2,0] = xs_list
         # data_phi[-1, 0] = 'RMSE'
         # data_e[-1, 0] = 'RMSE'
     else:
@@ -423,8 +425,8 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
             # RMSE = np.sqrt(np.mean(phi - interp_phi(np.abs(xs)))**2)
             # print(RMSE, 'RMSE', '------', tfinal)
             if s2 == True:
-                data_phi[1:-1, count+1] = trunc(phi_new, decimals)
-                data_e[1:-1, count+1] = trunc(e_new, decimals)
+                data_phi[1:-2, count+1] = trunc(phi_new, decimals)
+                data_e[1:-2, count+1] = trunc(e_new, decimals)
                 
             else:
                 data_phi[1:, count+1] = trunc(phi_new, decimals)
@@ -432,20 +434,99 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
 
             
             if s2 == True and problem_name =='su_olson_s2':
-                # xs_new = np.linspace(plotter.edges[0], plotter.edges[-1], 100)
-                # xs_new = np.array(np.copy(plotter.xs[:]))
-                xs_new = plotter.xs * np.ones(plotter.xs.size)
+                res = [ele for ele in plotter.xs if ele >= 1e-10]
+                # xs_new = np.sort(res) * np.ones(int(plotter.xs.size/2))
+                # xs_new = np.sort(np.append(xs_new, xs_list))
+                # xs_new = xs_list
+       
+                xs_new = np.sort(xs_list) * np.ones(xs_list.size)
+                # xs_points = np.array(xs_list)
+                xs_points = np.copy(xs_new)
+                # xs_new = plotter.xs
                 output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_new, plotter.coeff_mat, M, plotter.edges, uncollided)
                 phi_new = output_maker.make_phi(uncollided_class)
                 e_new = output_maker.make_e()
-  
-                phi_RMS = np.sqrt(np.mean((phi_new - benchmark_phi(np.abs(xs_new))[0])**2))
+
+                output_maker2 = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_new, plotter.coeff_mat, M, plotter.edges, uncollided)
+                # if len(xs_new) == len(set(xs_new)):
+                #     print('no dupes')
+                # else:
+                #     print('dupeys!')
+                phi_new2_intp = interp1d(xs_new, output_maker2.make_phi(uncollided_class), kind = 'cubic')
+                e_new2_intp = interp1d(xs_new, output_maker2.make_e(), kind = 'cubic')
+
+                phi_new2 = xs_points * 0 
+                e_new2 = xs_points * 0
+                bench_array = xs_points * 0
+                for ix in range(xs_points.size):
+                    if xs_points[ix] <= xs_new[-1]:
+                        phi_new2[ix] = phi_new2_intp(xs_points[ix])
+                        e_new2[ix] = e_new2_intp(xs_points[ix])
+                        
+                        if xs_points[ix] == 1.0 and tfinal == 1.0:
+                            print(phi_new2[ix], 'phi')
+                            print(benchmark_phi(np.array([1.0]))[0], 'bench')
+                            print(phi_new2[ix] - benchmark_phi(np.array([1.0]))[0], 'error')
+
+                bench_phi_xnew = benchmark_phi(np.abs(xs_new))[0]
+                bench_phi_xlist = benchmark_phi(np.abs(xs_points))[0]
+
+
+                phi_RMS = np.sqrt(np.mean((phi_new - bench_phi_xnew )**2))
+                print(bench_phi_xnew, 'bench phi')
+                print(phi_new2, 'phi sol')
+                phi_RMS_2 = np.sqrt(np.mean((phi_new2 - bench_phi_xlist)**2))
+                print(phi_RMS_2, 'phi error here')
+                print(phi_new2)
+                
+
                 e_RMS = np.sqrt(np.mean((e_new - benchmark_e(np.abs(xs_new))[0])**2))
-                data_e[-1,count+1] = '{:0.3e}'.format(e_RMS)
-                data_phi[-1, count+1] = '{:0.3e}'.format(phi_RMS)
+                e_RMS_2 = np.sqrt(np.mean((e_new2 - benchmark_e(np.abs(xs_points))[0])**2))
+                error_e2 = e_new2 - benchmark_e(np.abs(xs_points))[0]
+                max_error_e2 = max(error_e2)
+                
+                index_of_max_2 = np.argmin(np.abs(e_new2 - benchmark_e(np.abs(xs_points))[0]- max_error_e2))
+                x_of_max_2 = xs_points[index_of_max_2]
+
+                error_e = e_new - benchmark_e(np.abs(xs_new))[0]
+                max_error_e = max(error_e)
+                
+                index_of_max = np.argmin(np.abs(e_new - benchmark_e(np.abs(xs_new))[0]- max_error_e))
+                x_of_max = xs_new[index_of_max]
+                if max_error_e2 > 1e-5:
+                    print('---   ---   ---   ---   ---   ---   ---')
+                    print(' ')
+                    print(' ')
+                    print(' ')
+                    
+                    print(x_of_max_2, 'x', max_error_e2, 'error')
+                    print('error e2', error_e2)
+                    print('full')
+                    print(x_of_max, 'x', max_error_e, 'error')
+                    print('error e2', error_e)
+                    print(' ')
+                    print(' ')
+                    print(xs_new, 'xnew')
+                    print(' ')
+                    print('---   ---   ---   ---   ---   ---   ---')
+
+                data_e[-2,count+1] = '{:0.3e}'.format(e_RMS)
+                data_phi[-2, count+1] = '{:0.3e}'.format(phi_RMS)
+
+                data_e[-1,count+1] = '{:0.3e}'.format(e_RMS_2)
+                data_phi[-1, count+1] = '{:0.3e}'.format(phi_RMS_2)
                 print('--- --- --- --- --- --- --- ---')
                 print(phi_RMS, 'rmse')
+                print(e_RMS, 'rmse e')
                 print('--- --- --- --- --- --- --- ---')
+
+                if tfinal == 1.0:
+                    plt.figure(27)
+                    plt.plot(xs_new, e_new, 'bo', mfc = 'none')
+                    plt.plot(xs_points, e_new2, 'rx')
+                    plt.show()
+
+
 
             # plt.figure(fign)
             # plt.plot(xs_list, phi_new)
@@ -476,7 +557,7 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
     path = Path("moving_mesh_transport")
     csv_file = filenames[0]
     if s2 == True:
-        plus = 2
+        plus = 3
     else:
         plus = 1
 
@@ -485,8 +566,8 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
     if s2 == True:
         data_phi[0,1:] = tfinal_list
         data_e[0,1:] = tfinal_list
-        data_phi[1:-1,0] = xs_list
-        data_e[1:-1,0] = xs_list
+        data_phi[1:-2,0] = xs_list
+        data_e[1:-2,0] = xs_list
         # data_phi[-1, 0] = 'RMSE'
         # data_e[-1, 0] = 'RMSE'
     else:
@@ -543,8 +624,8 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
             # print(plotter.N_ang, 'angle')
             # print(plotter.edges, 'edges')
             if s2 == True:
-                data_phi[1:-1, count+1] = phi_new
-                data_e[1:-1, count+1] = e_new
+                data_phi[1:-2, count+1] = phi_new
+                data_e[1:-2, count+1] = e_new
                 
             else:
                 data_phi[1:, count+1] = trunc(phi_new, decimals)
@@ -554,15 +635,27 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
             if s2 == True and problem_name =='su_olson_s2':
                 # xs_new = np.linspace(plotter.edges[0], plotter.edges[-1], 100)
                 xs_new = plotter.xs * np.ones(plotter.xs.size)
+                xs_points = xs_list
                 # xs_new = plotter.xs
                 output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_new, plotter.coeff_mat, M, plotter.edges, uncollided)
                 phi_new = output_maker.make_phi(uncollided_class)
                 e_new = output_maker.make_e()
 
+                output_maker2 = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_list, plotter.coeff_mat, M, plotter.edges, uncollided)
+                phi_new2 = interpolate.interp1d(output_maker2.make_phi(uncollided_class), xs_list, kind = 'cubic')(xs_points)
+                e_new2 = interpolate.interp1d(output_maker2.make_e(), xs_list, kind = 'cubic')(xs_points)
+
                 phi_RMS = np.sqrt(np.mean((phi_new - benchmark_phi(np.abs(xs_new))[0])**2))
+                phi_RMS_2 = np.sqrt(np.mean((phi_new2 - benchmark_phi(np.abs(xs_points))[0])**2))
+
                 e_RMS = np.sqrt(np.mean((e_new - benchmark_e(np.abs(xs_new))[0])**2))
-                data_e[-1,count+1] = '{:0.3e}'.format(e_RMS)
-                data_phi[-1, count+1] = '{:0.3e}'.format(phi_RMS)
+                e_RMS_2 = np.sqrt(np.mean((e_new2 - benchmark_e(np.abs(xs_points))[0])**2))
+
+                data_e[-2,count+1] = '{:0.3e}'.format(e_RMS)
+                data_phi[-2, count+1] = '{:0.3e}'.format(phi_RMS)
+
+                data_e[-1,count+1] = '{:0.3e}'.format(e_RMS_2)
+                data_phi[-1, count+1] = '{:0.3e}'.format(phi_RMS_2)
                 print('--- --- --- --- --- --- --- ---')
                 print(phi_RMS, 'rmse')
                 print(e_RMS, 'rmse e')
@@ -960,7 +1053,7 @@ def plot_coeffs_nov28_crc():
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
-    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[10,10], source_name = 'square_s',   N_spaces = [64,32], 
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[10,10], source_name = 'square_s',   N_spaces = [16,16], 
     problem_name = 'transfer_const_cv=0.03', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
@@ -981,7 +1074,7 @@ def plot_coeffs_nov28_crc():
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = True, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
 
-    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[10,10], source_name = 'square_s',   N_spaces = [64,32], 
+    plot_coefficients(tfinals = [31.6228, 100.0],  Ms=[4,4], source_name = 'square_s',   N_spaces = [64,64], 
     problem_name = 'transfer_const_cv=0.03_s2', rad_or_transport ='transfer', x0_or_sigma = 0.5,
     c = 0.0, cv0=0.03,mat_or_rad = 'rad', uncollided = False, s2 = False, moving = True, line = '-',
     legend = True, fign = 1)
