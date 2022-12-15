@@ -1,7 +1,7 @@
 #!/bin/bash
 #$ -M wbennet2@nd.edu
 #$ -m abe
-#$ -N NLsqLater128
+#$ -N NLsqLater32
 #$ -q long@@mcclarren 
 
 
