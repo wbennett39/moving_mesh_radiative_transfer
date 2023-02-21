@@ -23,7 +23,7 @@ from ..solver_classes.mesh import mesh_class
 from ..solver_classes.rhs_class import rhs_class
 from ..solver_classes.make_phi import make_output
 from ..solver_classes.radiative_transfer import T_function
-from ..solver_classes.opacity import sigma
+from ..solver_classes.opacity import sigma_integrator
 
 from timeit import default_timer as timer
 from .wavespeed_estimator import wavespeed_estimator
@@ -129,7 +129,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
     flux = scalar_flux(initialize)
     rhs = rhs_class(initialize)
     transfer = T_function(initialize)
-    sigma_class = sigma(initialize)
+    sigma_class = sigma_integrator(initialize)
     
     def RHS(t, V):
         return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer, sigma_class)

@@ -166,7 +166,7 @@ from .phi_class import scalar_flux
 from .uncollided_solutions import uncollided_solution
 from .numerical_flux import LU_surf
 from .radiative_transfer import T_function
-from .opacity import sigma
+from .opacity import sigma_integrator
 
 from numba.experimental import jitclass
 from numba import int64, float64, deferred_type, prange
@@ -186,7 +186,7 @@ uncollided_solution_type.define(uncollided_solution.class_type.instance_type)
 transfer_class_type = deferred_type()
 transfer_class_type.define(T_function.class_type.instance_type)
 sigma_class_type = deferred_type()
-sigma_class_type.define(sigma.class_type.instance_type)
+sigma_class_type.define(sigma_integrator.class_type.instance_type)
 
 
 data = [('N_ang', int64), 
@@ -249,9 +249,9 @@ class rhs_class():
         self.test_dimensional_rhs = False
         self.told = 0.0
        
-        self.c_a = build.sigma_a / build.sigma_t[0]
+        self.c_a = build.sigma_a / build.sigma_t
         print(self.c_a, 'c_a')
-        self.mean_free_time = 1/build.sigma_t[0]
+        self.mean_free_time = 1/build.sigma_t
         self.division = 1000
         self.counter = 0
         self.delta_tavg = 0.0

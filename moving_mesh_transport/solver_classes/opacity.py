@@ -11,8 +11,9 @@ build_type.define(build.class_type.instance_type)
 data = [('N_ang', int64), 
         ('N_space', int64),
         ('M', int64),
-        ('sigma_t', float64[:]),
-        ('sigma_s', float64[:]),
+        ('sigma_t', float64),
+        ('sigma_s', float64),
+        ('sigma_a', float64),
         ('mus', float64[:]),
         ('ws', float64[:]),
         ('x0', float64),
@@ -32,10 +33,10 @@ data = [('N_ang', int64),
 
 
 @ jitclass(data)
-class sigma():
+class sigma_integrator():
     def __init__(self, build):
         self.sigma_t = build.sigma_t
-        self.sigma_s = buuld.sigma_s
+        self.sigma_s = build.sigma_s
         self.sigma_a = self.sigma_t - self.sigma_s
         self.sigma_func = build.sigma_func
         self.M = build.M
