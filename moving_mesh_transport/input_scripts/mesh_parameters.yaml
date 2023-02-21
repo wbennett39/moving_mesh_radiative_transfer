@@ -15,5 +15,5 @@
 'boundary_source_strength': 1.0
 'boundary_source': True
 'boundary_source_loc': [10,0]
-'sigma_func': [1, 0, 0] # [constant, gaussian, blank]
-'Msigma': 3
+'sigma_func': [0, 1, 0] # [constant, gaussian, blank]
+'Msigma': 2

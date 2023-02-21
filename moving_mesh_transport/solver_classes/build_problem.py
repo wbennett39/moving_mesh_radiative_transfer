@@ -84,6 +84,7 @@ class build(object):
         self.sigma_s = sigma_s
         self.sigma_a = sigma_t-sigma_s
         self.scattering_ratio = self.sigma_s / self.sigma_t
+        print(self.scattering_ratio, 'scattering ratio')
         self.mus = mus
         self.ws = ws/np.sum(ws)
         self.xs_quad = xs_quad

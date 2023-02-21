@@ -198,6 +198,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         xs = specified_xs
     print(xs, 'xs')
     output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
+    psi = output.psi_out # this is the collided psi
     phi = output.make_phi(uncollided_sol)
     if thermal_couple == 1:
         e = output.make_e()
@@ -206,7 +207,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
     
     computation_time = end-start
     
-    return xs, phi, e, computation_time, sol_last, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
+    return xs, phi, psi, e, computation_time, sol_last, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
 
 
 

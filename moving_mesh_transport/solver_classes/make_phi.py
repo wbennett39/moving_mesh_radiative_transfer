@@ -22,7 +22,10 @@ data = [('N_ang', int64),
         ('u', float64[:,:,:]),
         ('edges', float64[:]),
         ('uncollided', int64),
-        ('dx_e', float64[:])
+        ('dx_e', float64[:]),
+        ('psi_out', float64[:,:]),
+        ('phi_out', float64[:]), 
+        ('e_out', float64[:])
         ]
 @jitclass(data)
 class make_output:
@@ -52,6 +55,8 @@ class make_output:
         if self.uncollided == True:
             uncol = uncollided_solution.uncollided_solution(self.xs, self.t)
             output += uncol
+        self.psi_out = psi
+        self.phi_out = output
         return output
     
     def make_e(self):
@@ -68,4 +73,7 @@ class make_output:
                     e[count] += self.u[self.N_ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
                     if self.M <=11:
                         self.dx_e[count] += self.u[self.N_ang,idx-1,i] * dx_normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
+        self.e_out = e
         return e
+
+    

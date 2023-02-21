@@ -250,7 +250,6 @@ class rhs_class():
         self.told = 0.0
        
         self.c_a = build.sigma_a / build.sigma_t
-        print(self.c_a, 'c_a')
         self.mean_free_time = 1/build.sigma_t
         self.division = 1000
         self.counter = 0
