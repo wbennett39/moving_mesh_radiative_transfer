@@ -121,6 +121,7 @@ class mesh_class(object):
         self.span_speed = 0.0
         self.leader_pad = leader_pad
         self.t0 = 10.0
+        print(self.t0, 't0')
     
 
     def move(self, t):
@@ -140,9 +141,10 @@ class mesh_class(object):
                 #     self.Dedges = self.edges/self.edges[-1] * self.speed
             if self.move_func == 0: # simple linear
                 if self.source_type[2] == 1:
-                    if t >= self.t0:
+                    if t >= 10:
+   
                         self.move_middle_edges(t)
-                        tnew = t - self.t0 
+                        tnew1 = t - self.t0 
 
                         ### uncomment this to go back to the old mesh
 
@@ -156,19 +158,18 @@ class mesh_class(object):
 
                         ### uncomment this for acceleration case
 
-                        self.edges = 0.5 * self.c1s * (tnew) ** 2 + self.Dedges_const * tnew + self.edges0_2
-                        self.Dedges = self.c1s * tnew + self.Dedges_const
+                        self.edges = 0.5 * self.c1s * (tnew1) ** 2 + self.Dedges_const * tnew1 + self.edges0_2
+                        self.Dedges = self.c1s * tnew1 + self.Dedges_const
 
 
                     if (t < self.t0):
+
                         # self.Dedges = self.Dedges_const
                         self.edges = self.edges0 + self.Dedges*t
 
                 else:
 
                     self.edges = self.edges0 + self.Dedges*t
-
-
 
 
             elif self.move_func == 1: 
@@ -189,6 +190,7 @@ class mesh_class(object):
             else:
                 print("no move function selected")
                 assert(0)
+
 
             # if self.debugging == True:
             #     for itest in range(self.edges.size()):
@@ -225,6 +227,7 @@ class mesh_class(object):
             # print(self.tfinal, 'tfinal')
             # print(self.edges0_2, 'second edges0')
             tnew = self.tfinal - self.t0
+            # print(self.t0, 't0 in move middle' )
             self.c1s = 2 * (self.Dedges_const * (self.t0) -self.tfinal * self.Dedges_const - self.edges0_2 + final_array) / ((self.t0-self.tfinal)**2)       
 
     
@@ -348,6 +351,7 @@ class mesh_class(object):
         Initializes initial mesh edges and initial edge derivatives. This function determines
         how the mesh will move
         """
+        print('initializing mesh')
         # if self.problem_type in ['plane_IC']:
         if self.source_type[0] == 1:
             self.simple_moving_init_func()
@@ -359,7 +363,12 @@ class mesh_class(object):
                 self.simple_moving_init_func()
             # elif self.problem_type in ['square_IC', 'square_source']:
             if self.source_type[1] == 1 or self.source_type[2] == 1:
+                print('calling thin square init')
                 self.thin_square_init_func_legendre()
+            
+            if np.all(self.source_type) == 0:
+                self.boundary_source_init_func()
+
 
         elif self.thick == True:
             # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
@@ -397,6 +406,7 @@ class mesh_class(object):
             if self.thick == True:
                 self.delta_t = self.tfinal 
             self.move(self.tfinal)
+            print(self.Dedges, 'Dedges')
             self.Dedges = self.Dedges*0
             self.moving = False
             # self.edges[-1] = self.x0 + self.tfinal * self.speed
@@ -548,8 +558,8 @@ class mesh_class(object):
         # right = np.linspace(self.x0, self.x0 + dx, sidebin + 1)
         left_old = self.thick_quad_edge
         right_old = self.thick_quad_edge
-        right =(right_old*(self.x0-self.x0-dx)-self.x0-dx-self.x0)/-2
-        left =(left_old*(-self.x0-dx+self.x0)+self.x0+dx+self.x0)/-2
+        right = (right_old*(self.x0-self.x0-dx)-self.x0-dx-self.x0)/-2
+        left = (left_old*(-self.x0-dx+self.x0)+self.x0+dx+self.x0)/-2
 
         # if self.N_space == 32 and self.move_func == 2:
         #     middle = np.array([-0.99057548, -0.95067552, -0.88023915, -0.781514  , -0.65767116,
@@ -574,6 +584,7 @@ class mesh_class(object):
         self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
         self.Dedges = self.Dedges * self.speed 
         self.Dedges_const = np.copy(self.Dedges)
+        print(self.Dedges, 'Dedges')
 
 
     def simple_thick_square_init_func_2(self):
@@ -712,7 +723,14 @@ class mesh_class(object):
 
 
             self.delta_t = self.wave_loc_array[0,0,1] - self.wave_loc_array[0,0,0]
+
             # print(self.delta_t, 'delta_t')
+
+
+
+    def boundary_source_init_func(self):
+        self.edges = np.linspace(-self.x0, self.x0, self.N_space+1)
+        self.Dedges = self.edges/self.edges[-1] * self.speed * 0
 
 
     

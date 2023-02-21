@@ -166,6 +166,7 @@ from .phi_class import scalar_flux
 from .uncollided_solutions import uncollided_solution
 from .numerical_flux import LU_surf
 from .radiative_transfer import T_function
+from .opacity import sigma
 
 from numba.experimental import jitclass
 from numba import int64, float64, deferred_type, prange
@@ -184,6 +185,8 @@ uncollided_solution_type = deferred_type()
 uncollided_solution_type.define(uncollided_solution.class_type.instance_type)
 transfer_class_type = deferred_type()
 transfer_class_type.define(T_function.class_type.instance_type)
+sigma_class_type = deferred_type()
+sigma_class_type.define(sigma.class_type.instance_type)
 
 
 data = [('N_ang', int64), 
@@ -227,7 +230,8 @@ data = [('N_ang', int64),
         ('save_derivative', int64),
         ('e_list', float64[:]),
         ('e_xs_list', float64[:]),
-        ('wave_loc_list', float64[:])
+        ('wave_loc_list', float64[:]),
+        ('sigma_func', int64[:])
         ]
 ##############################################################################
 @jitclass(data)
@@ -257,6 +261,8 @@ class rhs_class():
         self.e_xs_list = np.array([0.0])
         self.wave_loc_list = np.array([0.0])
         self.save_derivative = build.save_wave_loc
+        self.sigma_func = build.sigma_func
+
 
     
     def time_step_counter(self, t, mesh):
@@ -292,7 +298,7 @@ class rhs_class():
             self.times_list = np.append(self.times_list,t)
             # print(heat_wave_loc, 'wave x')
         
-    def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer_class):
+    def call(self,t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer_class, sigma_class):
         self.time_step_counter(t, mesh)
         if self. thermal_couple == 0:
             V_new = V.copy().reshape((self.N_ang, self.N_space, self.M+1))
@@ -325,8 +331,7 @@ class rhs_class():
             S = source.S
 
             ######### solve thermal couple ############
-            if self.thermal_couple == 1 and self.N_ang !=2:
-        
+            if self.thermal_couple == 1:
                 U = np.zeros(self.M+1).transpose()
                 U[:] = V_old[self.N_ang,space,:]
                 num_flux.make_LU(t, mesh, V_old[self.N_ang,:,:], space, 0.0)
@@ -338,17 +343,17 @@ class rhs_class():
                 
                 if self.uncollided == True:
                     RHS_energy += self.c_a * source.S /self.l
-                V_new[self.N_ang ,space,:] = RHS_energy
+                V_new[self.N_ang,space,:] = RHS_energy
                 
-            elif self.thermal_couple == 1 and self.N_ang == 2:
-                U = np.zeros(self.M+1).transpose()
-                U[:] = V_old[self.N_ang,space,:]
-                num_flux.make_LU(t, mesh, V_old[self.N_ang,:,:], space, 0.0)
-                RU = num_flux.LU
-                RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H) / self.l
-                if self.uncollided == True:
-                    RHS_energy += self.c_a * source.S / self.l
-                V_new[self.N_ang ,space,:] = RHS_energy
+            # elif self.thermal_couple == 1 and self.N_ang == 2:
+            #     U = np.zeros(self.M+1).transpose()
+            #     U[:] = V_old[self.N_ang,space,:]
+            #     num_flux.make_LU(t, mesh, V_old[self.N_ang,:,:], space, 0.0)
+            #     RU = num_flux.LU
+            #     RHS_energy = np.dot(G,U) - RU + self.c_a * (2.0 * P  - H) / self.l
+            #     if self.uncollided == True:
+            #         RHS_energy += self.c_a * source.S / self.l
+            #     V_new[self.N_ang ,space,:] = RHS_energy
                 
             ########## Loop over angle ############
             for angle in range(self.N_ang):
@@ -363,10 +368,15 @@ class rhs_class():
                 if self.thermal_couple == 0:
                     
                     deg_freedom = self.N_ang * self.N_space * (self.M+1)
-                    if self.uncollided == False:
-                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * P + 0.5*S 
-                    elif self.uncollided == True:
-                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * (P + 0.5*S)
+                    if self.sigma_func[0] == 1:
+                        if self.uncollided == False:
+                            RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * P + 0.5*S 
+                        elif self.uncollided == True:
+                            RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * (P + 0.5*S)
+                    else:
+                        VV, VP = sigma_class.make_vectors(mesh.edges, V_old[angle,space,:], space)
+                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - VV + VP + 0.5*S
+
                     V_new[angle,space,:] = RHS
                     
                 elif self.thermal_couple == 1:

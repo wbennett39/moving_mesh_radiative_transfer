@@ -2,8 +2,8 @@
 'all':
     'problem_name': 'rad_transfer_constant_cv_thick_s2'
     'tfinal': 31.6228 #31.6228                       # evaluation time
-    'c': 0.0                            # scattering ratio
     'sigma_t': 800.0
+    'sigma_s': 800.0
     'c_scaling': False
     't0': 0.0125                          # time the source is turned off
     'N_spaces': [8]                   # number of cells

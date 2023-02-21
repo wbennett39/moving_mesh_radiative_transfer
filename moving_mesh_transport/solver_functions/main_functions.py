@@ -23,6 +23,8 @@ from ..solver_classes.mesh import mesh_class
 from ..solver_classes.rhs_class import rhs_class
 from ..solver_classes.make_phi import make_output
 from ..solver_classes.radiative_transfer import T_function
+from ..solver_classes.opacity import sigma
+
 from timeit import default_timer as timer
 from .wavespeed_estimator import wavespeed_estimator
 from .wave_loc_estimator import find_wave
@@ -85,10 +87,11 @@ def plot_p1_su_olson_mathematica():
     
     return [su_olson_rad, su_olson_mat]
 
-def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scattering_ratio, source_type, 
+def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_type, 
           uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, 
           weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, 
-          find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad, leader_pad, xs_quad_order, eval_times, eval_array):
+          find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad, leader_pad, xs_quad_order, 
+          eval_times, eval_array, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma):
 
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
@@ -105,10 +108,11 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     quad_thick_source = quadpy.c1.gauss_lobatto(int(N_space/2+1)).points
     quad_thick_edge = quadpy.c1.gauss_lobatto(int(N_space/4+1)).points
     # quad_thick_source = ([quad_thick_source_inside, quad_thick_source_outside])
-    initialize = build(N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad,
+    initialize = build(N_ang, N_space, M, tfinal, x0, t0, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
                        thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, 
-                       wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source, quad_thick_edge)
+                       wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source,
+                        quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma)
                        
     initialize.make_IC()
     IC = initialize.IC
@@ -125,9 +129,10 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, scatteri
     flux = scalar_flux(initialize)
     rhs = rhs_class(initialize)
     transfer = T_function(initialize)
+    sigma_class = sigma(initialize)
     
     def RHS(t, V):
-        return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer)
+        return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer, sigma_class)
     
     start = timer()
     reshaped_IC = IC.reshape(deg_freedom)

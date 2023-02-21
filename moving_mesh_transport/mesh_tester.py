@@ -3,8 +3,9 @@ import matplotlib.pyplot as plt
 import quadpy
 
 from .solver_classes import build_problem, mesh
+from .plots.plot_functions.show import show
 
-def test_square_mesh(tfinal = 10.0, N_space = 8, x0 = 0.5, moving = True, move_type = np.array([1,0,0]), source_type = np.array([0, 0, 1]), edge_v = 1.0 / np.sqrt(3), thick = False, move_factor = 1.0, wave_loc_array = np.zeros((1,1,1)), pad = 25.0, leader_pad = 0.0 ):
+def test_square_mesh(tfinal = 10.0, N_space = 8, x0 = 0.5, moving = True, move_type = np.array([1,0,0]), source_type = np.array([0, 0, 1]), edge_v = 1.0 / np.sqrt(3), thick = False, move_factor = 1.0, wave_loc_array = np.zeros((1,1,1)), pad = 15.0, leader_pad = 0.0 ):
     quad_thick_source = quadpy.c1.gauss_lobatto(int(N_space/2+1)).points
     quad_thick_edge = quadpy.c1.gauss_lobatto(int(N_space/4+1)).points
 
@@ -27,10 +28,12 @@ def test_square_mesh(tfinal = 10.0, N_space = 8, x0 = 0.5, moving = True, move_t
         if ( N_space / 4 <= iedge  <= 3 * N_space / 4):
             mkr = 'b^--'
         plt.plot(edges_array[:, iedge],eval_times, mkr , mfc = 'none')
-        plt.plot(np.linspace(-pad, pad, 50), np.ones(50) * 10.0, 'k--')
+    plt.plot(np.linspace(-pad, pad, 50), np.ones(50) * 10.0, 'k--', label = r'$t_0$')
     plt.scatter(np.linspace(-pad, pad, N_space+1), eval_times[-1] * np.ones(N_space+1), marker = '|', c= 'k', s= 64 )
-    plt.xlabel('t')
-    plt.ylabel('edge_pos')
+    plt.xlabel('x', fontsize = 20)
+    plt.ylabel('t', fontsize = 20)
+    plt.legend()
+    show('edge_xvst')
     plt.show()
 
 

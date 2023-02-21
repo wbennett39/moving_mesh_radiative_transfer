@@ -26,8 +26,8 @@ data = [('N_ang', int64),
         ('N_space', int64),
         ('M', int64),
         ('tfinal', float64),
-        ('sigma_t', float64[:]),
-        ('sigma_s', float64[:]),
+        ('sigma_t', float64),
+        ('sigma_s', float64),
         ('IC', float64[:,:,:]),
         ('mus', float64[:]),
         ('ws', float64[:]),
@@ -61,22 +61,29 @@ data = [('N_ang', int64),
         ('pad', float64),
         ('leader_pad', float64),
         ('quad_thick_source', float64[:]),
-        ('quad_thick_edge', float64[:])
+        ('quad_thick_edge', float64[:]),
+        ('boundary_on', int64[:]), 
+        ('boundary_source_strength', float64),
+        ('boundary_source', int64),
+        ('sigma_func', int64[:]),
+        ('Msigma', int64)
         ]
 ###############################################################################
 
 @jitclass(data)
 class build(object):
-    def __init__(self, N_ang, N_space, M, tfinal, x0, t0, scattering_ratio, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, 
+    def __init__(self, N_ang, N_space, M, tfinal, x0, t0, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, 
     source_type, uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, 
-    edge_v, cv0, thick, wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source, quad_thick_edge):
+    edge_v, cv0, thick, wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source,
+     quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma):
         self.N_ang = N_ang
         self.N_space = N_space
         self.M = M
         self.tfinal = tfinal
         self.sigma_t = sigma_t
         self.sigma_s = sigma_s
-        self.sigma_a = sigma_t[0]-sigma_s[0]
+        self.sigma_a = sigma_t-sigma_s
+        self.scattering_ratio = self.sigma_s / self.sigma_t
         self.mus = mus
         self.ws = ws/np.sum(ws)
         self.xs_quad = xs_quad
@@ -89,7 +96,8 @@ class build(object):
         self.t_quad = t_quad
         self.t_ws = t_ws
         self.t0 = t0
-        self.scattering_ratio = scattering_ratio
+        self.sigma_func = sigma_func
+
         self.thermal_couple = thermal_couple
         self.temp_function = temp_function
         self.sigma = sigma
@@ -106,6 +114,10 @@ class build(object):
         self.leader_pad = leader_pad
         self.quad_thick_source = quad_thick_source
         self.quad_thick_edge = quad_thick_edge
+        self.boundary_on = boundary_on
+        self.boundary_source = boundary_source
+        self.boundary_source_strength = boundary_source_strength
+        self.Msigma = Msigma
         
         
         if self.thermal_couple == 0:

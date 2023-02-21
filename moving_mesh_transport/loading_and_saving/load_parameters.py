@@ -25,7 +25,7 @@ class parameter_load_class:
         self.rt = float(parameters['all']['rt'])
         self.at = float(parameters['all']['at'])
         self.t0 = float(parameters['all']['t0'])
-        self.scattering_ratio = float(parameters['all']['c'])
+        # self.scattering_ratio = float(parameters['all']['c'])
         self.major = str(parameters['all']['major'])
         self.thermal_couple = int(parameters['all']['radiative_transfer'])
         self.temp_function = np.array(parameters['all']['temperature_dependence'])
@@ -36,6 +36,8 @@ class parameter_load_class:
         self.cv0 = float(parameters['all']['cv_const'])
         self.problem_type = str(parameters['all']['problem_name'])
         self.sigma_t = float(parameters['all']['sigma_t'])
+        self.sigma_s = float(parameters['all']['sigma_s'])
+        self.scattering_ratio = self.sigma_s/self.sigma_t
         self.integrator = str(parameters['all']['integrator'])
         
 
@@ -103,8 +105,11 @@ class parameter_load_class:
         self.xs_quad = int(mesh_parameters['xs_quad'])
         self.eval_times = int(mesh_parameters['eval_times'])
         self.eval_array = np.array(mesh_parameters['eval_array'])
-        
-
+        self.boundary_on = np.array(mesh_parameters['boundary_on'])
+        self.boundary_source = int(mesh_parameters['boundary_source'])
+        self.boundary_source_strength = float(mesh_parameters['boundary_source_strength'])
+        self.sigma_func = np.array(mesh_parameters['sigma_func'])
+        self.Msigma = int(mesh_parameters['Msigma'])
 
         if not (len(self.N_spaces) == len(self.N_angles) == len(self.Ms)):
             print('Spaces, Ms, and N_angles should be the same length')

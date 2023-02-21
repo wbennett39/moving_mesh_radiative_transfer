@@ -668,17 +668,26 @@ class rms_plotter:
      x0_or_sigma, c, cv0, uncollided, s2, mat_or_rad, moving, line, legend = True, pc = 0, fign = 1, ifshow = False):
 
         print('here')
-        # if tfinal == 30.0 and problem_name == 'transfer_const_cv=0.03_thick':
-        #     file_name = 'run_data_crc_dec13.hdf5'
+        # if tfinal == 100.0 and problem_name == 'transfer_const_cv=0.03':
+        #     file_name = 'run_data_crc_nov15.hdf5'
         #     data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0)
         # else:
         if (source_name == 'square_s' or x0_or_sigma == 0.375) and problem_name != 'su_olson_thick_s2':
             data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0)
         else:
             if source_name == 'gaussian_s' and x0_or_sigma == 0.5:
-                file_name = 'run_data_crc_nov23.hdf5'
+                if problem_name in ['transfer_const_cv=0.03', 'transfer_const_cv=0.03_s2']:
+                    if tfinal >=10.0:
+                        file_name = 'run_data_crc_dec7-4.hdf5'
+                    else:
+                        file_name = 'run_data_crc_nov23.hdf5'
+                else:
+                    file_name = 'run_data_crc_nov23.hdf5'
+                    
             elif problem_name == 'su_olson_thick_s2':
                 file_name = 'run_data_crc_dec7-4.hdf5'
+            # elif self.tfinal >= 10.0 and self.source_name == 'gaussian_s' and x0_or_sigma == 0.5 and problem_name in ['transfer_const_cv=0.03', 'transfer_const_cv=0.03_s2'] :
+                
             print('loading', file_name)
             data = load_sol(problem_name, source_name, rad_or_transport, c, s2, cv0, file_name)
 

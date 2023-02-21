@@ -1,13 +1,19 @@
 'find_edges_tol': 1000000000. # tolerance is this many times smaller than the max value of the derivative
-'sqrt_t_move_factor': 2.5   # the constant in front of the sqrt(t)
+'sqrt_t_move_factor': 2.0   # the constant in front of the sqrt(t)
 'save_wave_loc': False       # Defunct
 'estimate_wavespeed': False
 'find_wave_loc': False
 'choose_xs': False        # Allows the user to select points to return a solution
-'pad': 10.0                 # parameter for thick source meshes
+'pad': 0.0                 # parameter for thick source meshes
 'leader_pad': 0.025             #parameter for thick source meshes
 
 'xs_list': [0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.0, 1.33352, 1.77828, 3.16228, 5.62341, 10.0, 17.78279]
 'xs_quad': 25
 'eval_times': False
 'eval_array': [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
+'boundary_on': [1,0]
+'boundary_source_strength': 1.0
+'boundary_source': True
+'boundary_source_loc': [10,0]
+'sigma_func': [1, 0, 0] # [constant, gaussian, blank]
+'Msigma': 3

@@ -26,8 +26,8 @@ import csv
 
 # font = fm.FontProperties(family = 'Gill Sans', fname = '/users/wbenn/Anaconda3/Library/Fonts/GillSans.ttc', size = 20)
 # axisfont = fm.FontProperties(family = 'Gill Sans', fname = '/users/wbenn/Anaconda3/Library/Fonts/GillSans.ttc', size = 14)
-axisfont = fm.FontProperties(size = 30)
-font = fm.FontProperties(size = 30)
+axisfont = fm.FontProperties(size = 20)
+font = fm.FontProperties(size = 20)
 
 
 matplotlib.rcParams['pdf.fonttype'] = 42

@@ -31,7 +31,7 @@ class run:
         
     def plane_IC(self, uncollided = True, moving = True, All = False):
         plt.ion()
-        plt.figure(1)
+        # plt.figure(1)
         source_name = "plane_IC"
         print("---  ---  ---  ---  ---  ---  ---")
         print("running plane IC")
@@ -46,13 +46,13 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
-        plt.title("plane IC")
-        plt.legend()
-        plt.show(block = False)
+        # plt.title("plane IC")
+        # plt.legend()
+        # plt.show(block = False)
         
     def square_IC(self, uncollided = True, moving = True, All = False):
         plt.ion()
-        plt.figure(2)
+        # plt.figure(2)
         source_name = "square_IC"
         print("---  ---  ---  ---  ---  ---  ---")
         print("running square IC")
@@ -66,13 +66,13 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
-        plt.title("square IC")
-        plt.legend()
-        plt.show(block = False)
+        # plt.title("square IC")
+        # plt.legend()
+        # plt.show(block = False)
         
     def square_source(self, uncollided = True, moving = True, All = False):
         plt.ion()
-        plt.figure(3)
+        # plt.figure(3)
         source_name = "square_source"
         print("---  ---  ---  ---  ---  ---  ---")
         print("running square source")
@@ -86,13 +86,13 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
-        plt.title("square source")
-        plt.legend()
-        plt.show(block = False)
+        # plt.title("square source")
+        # plt.legend()
+        # plt.show(block = False)
         
     def gaussian_IC(self, uncollided = True, moving = True, All = False):
         plt.ion()
-        plt.figure(4)
+        # plt.figure(4)
         source_name = "gaussian_IC"
         print("---  ---  ---  ---  ---  ---  ---")
         print("running Gaussian IC")
@@ -106,9 +106,9 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
-        plt.title("Gaussian IC")
-        plt.legend()
-        plt.show(block = False)
+        # plt.title("Gaussian IC")
+        # plt.legend()
+        # plt.show(block = False)
         
     def gaussian_source(self, uncollided = True, moving = True, All = False):
         plt.ion()
@@ -126,13 +126,13 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
-        plt.title("Gaussian source")
-        plt.legend()
-        plt.show(block = False)
+        # plt.title("Gaussian source")
+        # plt.legend()
+        # plt.show(block = False)
         
     def MMS(self, uncollided = False, moving = True, All = False):
         plt.ion()
-        plt.figure(6)
+        # plt.figure(6)
         source_name = "MMS"
         print("---  ---  ---  ---  ---  ---  ---")
         print("running MMS problem")
@@ -146,9 +146,35 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
-        plt.title("MMS")
-        plt.legend()
-        plt.show(block = False)
+        # plt.title("MMS")
+        # plt.legend()
+        # plt.show(block = False)
+
+
+    def boundary_source(self, uncollided = False, moving = True, All = False):
+        plt.ion()
+        # plt.figure(6)
+        source_name = "boundary_source"
+        print("---  ---  ---  ---  ---  ---  ---")
+        print("running boundary source problem")
+        print("---  ---  ---  ---  ---  ---  ---")
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
+        if All == True:
+            solver.main(True, True)
+            solver.main(False, True)
+            solver.main(True, False)
+            solver.main(False, False)
+        else:
+            solver.main(uncollided, moving)
+            self.get_results(solver)
+        # plt.title("boundary source")
+        # plt.legend()
+        # plt.show(block = False)
+        # import numpy as np
+        # xs = np.linspace(-10,10)
+        # plt.plot(xs, np.exp(-xs-10), 'rx')
+        # plt.show()
+
 
     def get_results(self, solver):
         self.xs = solver.xs

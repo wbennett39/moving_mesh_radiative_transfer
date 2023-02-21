@@ -152,8 +152,8 @@ class main_class(parameter_load_class):
                 print(N_ang, "angles")
                 print("---  ---  ---  ---  ---  ---  ---")
     
-                sigma_t = np.ones(N_space)*self.sigma_t
-                sigma_s = np.ones(N_space)*self.scattering_ratio*self.sigma_t
+                # sigma_t = np.ones(N_space)*self.sigma_t
+                # sigma_s = np.ones(N_space)*self.scattering_ratio*self.sigma_t
                 
                 if self.choose_xs == True:
                     choose_xs = True
@@ -162,12 +162,13 @@ class main_class(parameter_load_class):
                     choose_xs = False
                     specified_xs = 0.0
                     
-                xs, phi, e, time, sol_matrix, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location = solve(self.tfinal,N_space, N_ang, M, x0_new, self.t0, sigma_t, 
-                sigma_s, self.t_nodes, self.scattering_ratio, self.source_type, uncollided, moving, self.move_type,
+                xs, phi, e, time, sol_matrix, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location = solve(self.tfinal,N_space, N_ang, M, x0_new, self.t0, self.sigma_t, 
+                self.sigma_s, self.t_nodes, self.source_type, uncollided, moving, self.move_type,
                 self.thermal_couple,self.temp_function, self.rt, self.at, self.e_initial, choose_xs, specified_xs, 
                 self.weights, self.sigma, self.particle_v, self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, 
                 self.thick, self.mxstp, self.wave_loc_array, self.find_edges_tol, self.source_strength, self.move_factor, 
-                self.integrator, self.l, self.save_wave_loc, self.pad, self.leader_pad, self.xs_quad, self.eval_times, self.eval_array)
+                self.integrator, self.l, self.save_wave_loc, self.pad, self.leader_pad, self.xs_quad, self.eval_times, self.eval_array,
+                self.boundary_on, self.boundary_source_strength, self.boundary_source, self.sigma_func, self.Msigma)
                 
                 # print(edges, "edges")
                 print(wave_tpnts, wave_xpnts, "wave points")
@@ -195,7 +196,7 @@ class main_class(parameter_load_class):
                 
 
                 ##################################################################
-                plt.figure(1)
+                plt.figure(3)
                 plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
                 plt.xlabel("x")
                 plt.ylabel("scalar flux")
@@ -254,7 +255,7 @@ class main_class(parameter_load_class):
                             
                             
                             ##################################################################
-                            plt.figure(1)
+                            plt.figure(3)
                             plt.plot(e_xs, phi_bench, "-k")
                             plt.plot(-e_xs, phi_bench, "-k")
                             plt.plot(e_xs, e_bench, "--k")

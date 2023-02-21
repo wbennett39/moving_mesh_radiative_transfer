@@ -42,6 +42,15 @@ def normPn(n,x,a=-1.0,b=1.0):
         tmp[count] = numba_eval_legendre_float64(n, z)
     return tmp * fact
 
+@njit('float64[:](int64, float64[:], float64, float64)')
+def Pn(n,x,a=-1.0,b=1.0):
+    tmp = 0*x
+    for count in prange(x.size):
+        z = x[count]
+        # tmp[count] = sc.eval_legendre(n,z)*fact
+        tmp[count] = numba_eval_legendre_float64(n, z)
+    return tmp
+
 @njit
 def dx_normPn(n, x, a = -1.0, b = 1.0):
     tmp = 0*x
@@ -253,6 +262,8 @@ def uncollided_su_olson_s2(x,t,x0,t0):
             arg2 = max(t - (x+x0)*3/math.sqrt(3),0)
             arg = min(arg, edge)
             arg2 = min(arg2, edge)
+            print(arg, arg2)
+            print('here')
             return s2_F(t,  arg) - s2_F(t, arg2)
 
         # elif x < x0 + math.sqrt(3)*(t-T0)/3.0:
@@ -350,7 +361,8 @@ def uncollided_su_olson_s2_2(x,t,x0,t0):
 def test_s2_sol(t = 10, t0 = 10):
     import scipy.integrate as integrate
     
-    xs = np.linspace(0, t+0.5, 500)
+    # xs = np.linspace(0, t+0.5, 500)
+    xs = np.linspace(50,60, 500)
     phi = xs*0
     phi_test = xs*0
     phi_exact = xs*0

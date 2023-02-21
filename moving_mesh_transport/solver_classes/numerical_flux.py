@@ -45,7 +45,10 @@ data = [("M", int64),
         ('moving', int64),
         ('e_init', float64),
         ('speed', float64),
-        ('test_dimensional_rhs', int64)
+        ('test_dimensional_rhs', int64),
+        ('boundary_on', int64[:]), 
+        ('boundary_source_strength', float64),
+        ('boundary_source', int64)
         ]
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
@@ -54,7 +57,6 @@ build_type.define(build.class_type.instance_type)
 class LU_surf(object):
     def __init__(self, build):
         self.test_dimensional_rhs = False
-
         self.LU = np.zeros(build.M+1).transpose()
         self.M = build.M
         self.source_type = build.source_type
@@ -71,6 +73,9 @@ class LU_surf(object):
         self.moving = build.moving
         self.e_init = build.e_init
         self.speed = 1.0
+        self.boundary_source = build.boundary_source
+        self.boundary_on = build.boundary_on # [left, right]
+        self.boundary_source_strength = build.boundary_source_strength
         if self.test_dimensional_rhs == False:
             self.speed = 299.98
 
@@ -97,6 +102,9 @@ class LU_surf(object):
             temp = np.exp(-xs*xs/2)/(t + 1)/2.0
         elif (self.thermal_couple == 1) and (self.moving == 1):
             temp = np.ones(xs.size) * self.e_init 
+        elif self.boundary_source == True:
+            temp = np.ones(xs.size) * self.boundary_source_strength
+
         return temp
     
     def make_h(self, space):
@@ -122,16 +130,31 @@ class LU_surf(object):
         xR = self.edges[space+1]
         xL = self.edges[space]
         dx = xR - xL
-            
         self.xL_minus = self.edges[0] - dx
         self.xR_plus = self.edges[-1] + dx
-    
+        
+    def is_boundary_source_on(self, space):
+        returnval = False
+        if self.source_type[4] == 1:
+            returnval = True
+        elif self.thermal_couple == 1:
+            returnval = True
+        elif self.boundary_source == True:
+            if space == 0:
+                if self.boundary_on[0] == 1:
+                    returnval = True
+            elif space == self.N_space - 1:
+                if self.boundary_on[1] == 1:
+                    returnval = True
+        return returnval
+
+
     def make_sol(self, space, u, t):
         for j in range(self.M+1):
                 if space != 0:
                     self.v0 += self.B_LR_func(j, self.hm)[1]*(u[space-1,j])
                     
-                elif space == 0 and (self.source_type[4] == 1 or self.thermal_couple == 1): # special MMS case
+                elif space == 0 and self.is_boundary_source_on(space): # special MMS case
                     self.v0 += self.integrate_quad(t, self.xL_minus, self.edges[space], j, "l") * self.B_LR_func(j, self.h)[1] 
                     
                 self.v1 += self.B_LR_func(j, self.h)[0]*(u[space, j])
@@ -140,7 +163,7 @@ class LU_surf(object):
                 if space != self.N_space - 1:
                     self.v3 += self.B_LR_func(j, self.hp)[0]*(u[space+1,j])
                     
-                elif space == self.N_space - 1 and (self.source_type[4] == 1 or self.thermal_couple == 1):
+                elif space == self.N_space - 1 and self.is_boundary_source_on(space):
                     self.v3 += self.integrate_quad(t, self.edges[space+1], self.xR_plus, j, "r") * self.B_LR_func(j, self.h)[0] 
             
     
@@ -167,6 +190,7 @@ class LU_surf(object):
             psi_plus = self.v2
         elif rightspeed < 0:
             psi_plus = self.v3
+
         for i in range(0,self.M+1):
             B_left, B_right = self.B_LR_func(i, self.h)
             self.LU[i] = (B_right*rightspeed*psi_plus - B_left*leftspeed*psi_minus)
