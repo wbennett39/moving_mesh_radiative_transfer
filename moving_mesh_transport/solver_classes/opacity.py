@@ -1,5 +1,5 @@
 import numpy as np
-
+import math
 from .build_problem import build
 
 from numba.experimental import jitclass
@@ -37,7 +37,9 @@ class sigma_integrator():
     def __init__(self, build):
         self.sigma_t = build.sigma_t
         self.sigma_s = build.sigma_s
+        print(self.sigma_s,'sigma_s')
         self.sigma_a = self.sigma_t - self.sigma_s
+        print(self.sigma_a,'sigma_a')
         self.sigma_func = build.sigma_func
         self.M = build.M
         self.Msigma = build.Msigma
@@ -83,16 +85,15 @@ class sigma_integrator():
         for i in range(self.M + 1):
             for j in range(self.M + 1):
                 for k in range(self.Msigma + 1):
-                    # if (j + k >= i) and (self.both_even_or_odd(i, j, k)):
-                    self.integrate_quad(-1, 1, i, j, k)
-        print(self.AAA)
+                    if (j + k >= i) and (self.both_even_or_odd(i, j, k)):
+                        self.integrate_quad(-1, 1, i, j, k)
+        # print(self.AAA)
     
     def sigma_moments(self, edges):
         for i in range(self.N_space):
             if (edges[i] != self.edges[i]) or (edges[i+1] != self.edges[i+1]):
                 for j in range(self.Msigma + 1):
                     self.integrate_moments(edges[i], edges[i+1], j, i)
-                print(self.cs, 'cs')
         self.edges = edges
         
 
@@ -100,21 +101,21 @@ class sigma_integrator():
         if self.sigma_func[0] == 1:
             return x * 0 + 1.0
         elif self.sigma_func[1] == 1:
-            # return np.exp(- x**2 /(2* self.std**2)) * self.sigma_a
-            return x * 0 + 1.0
+            return np.exp(- x**2 /(2* self.std**2)) * self.sigma_a
+            # return x * 0 + 1.0
     
     def make_vectors(self, edges, u, space):
         VV = u * 0
-        self.sigma_moments(edges) # take moments of the opacity
+        # self.sigma_moments(edges) # take moments of the opacity
         xL = edges[space]
         xR = edges[space+1]
-        dx = np.sqrt(xR-xL)
+        dx = math.sqrt(xR-xL)
         
         for i in range(self.M + 1):
             for j in range(self.M + 1):
                 for k in range(self.Msigma + 1):
-                    VV[i] += self.cs[space, k] * u[j] * self.AAA[i, j, k] / dx
-        return VV, self.VP
+                    VV[i] +=   self.cs[space, k] * u[j] * self.AAA[i, j, k] / dx
+        return VV
 
 
 

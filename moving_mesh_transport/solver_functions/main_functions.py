@@ -130,6 +130,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
     rhs = rhs_class(initialize)
     transfer = T_function(initialize)
     sigma_class = sigma_integrator(initialize)
+    flux.load_AAA(sigma_class.AAA)
     
     def RHS(t, V):
         return rhs.call(t, V, mesh, matrices, num_flux, source, uncollided_sol, flux, transfer, sigma_class)
@@ -198,8 +199,9 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         xs = specified_xs
     print(xs, 'xs')
     output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
-    psi = output.psi_out # this is the collided psi
+
     phi = output.make_phi(uncollided_sol)
+    psi = output.psi_out # this is the collided psi
     if thermal_couple == 1:
         e = output.make_e()
     else:
@@ -207,7 +209,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
     
     computation_time = end-start
     
-    return xs, phi, psi, e, computation_time, sol_last, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
+    return xs, phi, psi, e, computation_time, sol_last, mus, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
 
 
 

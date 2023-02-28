@@ -9,7 +9,12 @@ import matplotlib.pyplot as plt
 from ..solver import main_class
 from pathlib import Path
 import yaml
+from scipy.special import erf
+import math
+import numpy as np
 
+# I could take all of the plotting out of the solver, group problems here by 
+# infinite medium, finite etc. to simplify things
 
 class run:
     def __init__(self):
@@ -167,19 +172,29 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
-        # plt.title("boundary source")
-        # plt.legend()
-        # plt.show(block = False)
-        # import numpy as np
-        # xs = np.linspace(-10,10)
-        # plt.plot(xs, np.exp(-xs-10), 'rx')
-        # plt.show()
+            import numpy as np
+            f = lambda x: np.exp(-x**2 /(2 * 0.5**2))
+            fsol = lambda x, mu: np.exp(x * 1/mu) 
+            plt.figure(3)
+            if solver.sigma_func[0] == 1:
+                plt.plot(self.xs, self.psi[-1,:], '-^')
+                plt.plot(self.xs, fsol(self.xs+self.x0, -1), 'rx')
+                plt.show()
+            elif solver.sigma_func[1] == 1:
+                self.steady_state_gaussian_benchmark()
+
+                
+      
 
 
     def get_results(self, solver):
         self.xs = solver.xs
         self.phi = solver.phi
         self.e = solver.e
+        self.psi = solver.psi
+        self.ws = solver.ws
+        self.mus = solver.angles
+        self.x0 = solver.x0
 
         
     def run_all(self):
@@ -218,3 +233,17 @@ class run:
 
 
     
+    def steady_state_gaussian_benchmark(self):
+        f = lambda x1, x2, sigma: np.sqrt(np.pi/2)*sigma*(erf(x2/math.sqrt(2)/sigma) - erf(x1/math.sqrt(2)/sigma))
+        fsol = lambda x, x0, mu: np.exp((f(-x0, x, 0.5)) / mu) 
+        phi_sol = self.xs * 0 
+        for ix in range(self.xs.size):
+            for l in range(self.ws.size):
+                if self.mus[l] < 0:
+                    phi_sol[ix] += self.ws[l] * fsol(self.xs[ix], self.x0, self.mus[l])
+            
+
+
+        # plt.plot(self.xs, self.psi[-1,:], '-^')
+        plt.plot(self.xs, phi_sol, 'ko', mfc = 'none', label = 'scalar flux')
+        plt.legend()

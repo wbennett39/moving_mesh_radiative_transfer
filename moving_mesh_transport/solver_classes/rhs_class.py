@@ -262,7 +262,6 @@ class rhs_class():
         self.save_derivative = build.save_wave_loc
         self.sigma_func = build.sigma_func
 
-
     
     def time_step_counter(self, t, mesh):
         delta_t = abs(self.told - t)
@@ -305,6 +304,8 @@ class rhs_class():
             V_new = V.copy().reshape((self.N_ang + 1, self.N_space, self.M+1))
         V_old = V_new.copy()
         mesh.move(t)
+        sigma_class.sigma_moments(mesh.edges)
+        flux.get_coeffs(sigma_class)
 
         for space in range(self.N_space):            
             xR = mesh.edges[space+1]
@@ -316,7 +317,13 @@ class rhs_class():
             L = matrices.L
             G = matrices.G
             flux.make_P(V_old[:,space,:])
-            P = flux.P
+
+            if (self.sigma_func[0] == 1) or (self.c == 0.0):
+                P = flux.P
+            else:
+                flux.make_P_nonconstant_opacity(V_old[:, space, :], space)
+
+
             if self.source_type[4] != 1: # MMS source 
                 source.make_source(t, xL, xR, uncollided_sol)
             if self.thermal_couple == 1:
@@ -373,8 +380,9 @@ class rhs_class():
                         elif self.uncollided == True:
                             RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * (P + 0.5*S)
                     else:
-                        VV, VP = sigma_class.make_vectors(mesh.edges, V_old[angle,space,:], space)
-                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - VV + VP + 0.5*S
+                        VV = sigma_class.make_vectors(mesh.edges, V_old[angle,space,:], space)
+                        PV = flux.call_P_noncon(xL, xR)
+                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - VV + PV*0 
 
                     V_new[angle,space,:] = RHS
                     

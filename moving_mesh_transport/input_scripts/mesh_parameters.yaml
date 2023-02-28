@@ -16,4 +16,4 @@
 'boundary_source': True
 'boundary_source_loc': [10,0]
 'sigma_func': [0, 1, 0] # [constant, gaussian, blank]
-'Msigma': 2
+'Msigma': 4

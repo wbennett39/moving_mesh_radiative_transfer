@@ -162,7 +162,7 @@ class main_class(parameter_load_class):
                     choose_xs = False
                     specified_xs = 0.0
                     
-                xs, phi, psi, e, time, sol_matrix, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location = solve(self.tfinal,N_space, N_ang, M, x0_new, self.t0, self.sigma_t, 
+                xs, phi, psi, e, time, sol_matrix, angles, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location = solve(self.tfinal,N_space, N_ang, M, x0_new, self.t0, self.sigma_t, 
                 self.sigma_s, self.t_nodes, self.source_type, uncollided, moving, self.move_type,
                 self.thermal_couple,self.temp_function, self.rt, self.at, self.e_initial, choose_xs, specified_xs, 
                 self.weights, self.sigma, self.particle_v, self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, 
@@ -173,9 +173,10 @@ class main_class(parameter_load_class):
                 # print(edges, "edges")
                 print(wave_tpnts, wave_xpnts, "wave points")
                 
-                self.xs_out = xs
-                self.phi_out = phi
-                self.psi_out = psi
+                # self.xs_out = xs
+                # self.phi_out = phi
+                # self.psi_out = psi
+                print(psi, psi)
                 
 
                 # if self.sigma_t == 800:
@@ -234,6 +235,9 @@ class main_class(parameter_load_class):
                     self.xs = xs
                     self.phi = phi
                     self.e = e
+                    self.psi = psi
+                    self.ws = ws
+                    self.angles = angles
                 ##################################################################
                 if self.save_wave_loc == True:
                     plt.figure(7)
@@ -340,7 +344,7 @@ class main_class(parameter_load_class):
                 plt.plot(-xsb, bench, "k-")
                 plt.show()
                 
-            elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0[0] == 400:
+            elif (self.weights == "gauss_legendre" or self.sigma == 300 or self.x0[0] == 400) and self.thermal_couple == 1:
                 plt.figure(1)
                 phi_bench_plot = benchmark(np.abs(xsb))[0]
                 e_bench_plot = benchmark_mat(np.abs(xsb))[0]
