@@ -142,7 +142,6 @@ class mesh_class(object):
             if self.move_func == 0: # simple linear
                 if self.source_type[2] == 1:
                     if t >= 10:
-   
                         self.move_middle_edges(t)
                         tnew1 = t - self.t0 
 
@@ -163,7 +162,6 @@ class mesh_class(object):
 
 
                     if (t < self.t0):
-
                         # self.Dedges = self.Dedges_const
                         self.edges = self.edges0 + self.Dedges*t
 
@@ -366,8 +364,9 @@ class mesh_class(object):
                 print('calling thin square init')
                 self.thin_square_init_func_legendre()
             
-            if np.all(self.source_type) == 0:
+            if np.all(self.source_type == 0):
                 self.boundary_source_init_func()
+                print('calling boundary source func')
 
 
         elif self.thick == True:
@@ -393,8 +392,8 @@ class mesh_class(object):
                     elif self.move_func == 2:
                         self.thin_square_init_func()
 
-        self.edges0 = np.copy(self.edges)
-        self.Dedges_const = np.copy(self.Dedges)
+        # self.edges0 = self.edges
+        self.Dedges_const = self.Dedges
 
 
 
@@ -548,6 +547,7 @@ class mesh_class(object):
 
 
     def thin_square_init_func_legendre(self):
+        print('calling mesh with legendre spacing')
         if self.N_space == 2:
             print("don't run this problem with 2 spaces")
             assert(0)
@@ -568,7 +568,7 @@ class mesh_class(object):
         #                 0.95067552,  0.99057548]) 
         # else:
         # if self.move_func == 2:
-        middle = 0.5 * self.thick_quad
+        middle = self.x0 * self.thick_quad
 
             # left = roots_legendre(siebin+1)[0]
             # right = roots_legendre(siebin+1)[0]
@@ -585,6 +585,8 @@ class mesh_class(object):
         self.Dedges = self.Dedges * self.speed 
         self.Dedges_const = np.copy(self.Dedges)
         print(self.Dedges, 'Dedges')
+        print(self.edges, 'edges')
+        self.edges0 = self.edges
 
 
     def simple_thick_square_init_func_2(self):
