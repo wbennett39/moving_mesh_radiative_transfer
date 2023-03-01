@@ -553,7 +553,7 @@ class mesh_class(object):
             assert(0)
         middlebin = int(self.N_space/2)   # edges inside the source - static
         sidebin = int(middlebin/2) # edges outside the source - moving
-        dx = 1e-8
+        dx = 1e-1
         # left = np.linspace(-self.x0-dx, -self.x0, sidebin + 1)
         # right = np.linspace(self.x0, self.x0 + dx, sidebin + 1)
         left_old = self.thick_quad_edge

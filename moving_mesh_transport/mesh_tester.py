@@ -17,9 +17,9 @@ def test_square_mesh(tfinal = 10.0, N_space = 8, x0 = 0.5, moving = True, move_t
 
     for count, t in enumerate(eval_times):
         mesh_ob.move(t)
-        print(mesh_ob.edges)
+        # print(mesh_o)
         edges_array[count, :] = mesh_ob.edges
-    print(mesh_ob.edges, 'edges in func')
+    # print(mesh_ob.edges, 'edges in func')
     print(np.linspace(-pad, pad, N_space + 1) - mesh_ob.edges, 'error')
 
     plt.ion()    
@@ -33,7 +33,7 @@ def test_square_mesh(tfinal = 10.0, N_space = 8, x0 = 0.5, moving = True, move_t
     plt.scatter(np.linspace(-pad, pad, N_space+1), eval_times[-1] * np.ones(N_space+1), marker = '|', c= 'k', s= 64 )
     plt.xlabel('x', fontsize = 20)
     plt.ylabel('t', fontsize = 20)
-    plt.legend()
+    # plt.legend()
     show('edge_xvst')
     plt.show()
 
