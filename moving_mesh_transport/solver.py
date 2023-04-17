@@ -161,14 +161,15 @@ class main_class(parameter_load_class):
                 else:
                     choose_xs = False
                     specified_xs = 0.0
-                    
-                xs, phi, psi, e, time, sol_matrix, angles, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location = solve(self.tfinal,N_space, N_ang, M, x0_new, self.t0, self.sigma_t, 
+                print(self.finite_domain, 'finite domain')
+                xs, phi, psi, exit_dist, e, time, sol_matrix, angles, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location = solve(self.tfinal,N_space, N_ang, M, x0_new, self.t0, self.sigma_t, 
                 self.sigma_s, self.t_nodes, self.source_type, uncollided, moving, self.move_type,
                 self.thermal_couple,self.temp_function, self.rt, self.at, self.e_initial, choose_xs, specified_xs, 
                 self.weights, self.sigma, self.particle_v, self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, 
                 self.thick, self.mxstp, self.wave_loc_array, self.find_edges_tol, self.source_strength, self.move_factor, 
                 self.integrator, self.l, self.save_wave_loc, self.pad, self.leader_pad, self.xs_quad, self.eval_times, self.eval_array,
-                self.boundary_on, self.boundary_source_strength, self.boundary_source, self.sigma_func, self.Msigma)
+                self.boundary_on, self.boundary_source_strength, self.boundary_source, self.sigma_func, self.Msigma, self.finite_domain,
+                self.domain_width)
                 
                 # print(edges, "edges")
                 print(wave_tpnts, wave_xpnts, "wave points")
@@ -176,13 +177,14 @@ class main_class(parameter_load_class):
                 # self.xs_out = xs
                 # self.phi_out = phi
                 # self.psi_out = psi
-                print(psi, psi)
+                # print(psi, psi)
                 
 
                 # if self.sigma_t == 800:
                 #     print('re-scaling thick solution')
                 #     xs = xs * self.sigma_t
-
+                plt.figure(1)
+                plt.plot(xs, phi, 'o', mfc = 'none')
                 if self.sigma == 0:
                     x0_or_sigma = self.x0[0]
                 else:
@@ -202,7 +204,7 @@ class main_class(parameter_load_class):
 
                 ##################################################################
                 plt.figure(3)
-                plt.plot(xs, phi, "-o", label = f"{N_space} spaces", mfc = "none")
+                plt.plot(xs, phi, "o", label = f"{N_space} spatial cells", mfc = "none")
                 plt.xlabel("x")
                 plt.ylabel("scalar flux")
                 if count == len(self.N_angles)-1:
@@ -236,6 +238,7 @@ class main_class(parameter_load_class):
                     self.phi = phi
                     self.e = e
                     self.psi = psi
+                    self.exit_dist = exit_dist
                     self.ws = ws
                     self.angles = angles
                 ##################################################################
@@ -261,7 +264,7 @@ class main_class(parameter_load_class):
                             phi_bench = benchmark(np.abs(xs))[2][:,1]
                             e_bench = benchmark(np.abs(xs))[2][:,2]
                             
-                            
+                      
                             ##################################################################
                             plt.figure(3)
                             plt.plot(e_xs, phi_bench, "-k")
@@ -333,13 +336,13 @@ class main_class(parameter_load_class):
     
     
         if self.benchmarking == True:
-            if self.bench_type == 'S2':
-                saving.save_RMS_P1_su_olson(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times, self.N_angles[0])
-            else:
-                saving.save_RMS(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times)
-                
+            # if self.bench_type == 'S2':
+            #     saving.save_RMS_P1_su_olson(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times, self.N_angles[0])
+            # else:
+            #     saving.save_RMS(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times)
+            
             if ((self.benchmarking == True) and self.thermal_couple == 0):
-                plt.figure(1)
+                plt.figure(3)
                 plt.plot(xsb, bench, "k-")#, label = "benchmark")
                 plt.plot(-xsb, bench, "k-")
                 plt.show()

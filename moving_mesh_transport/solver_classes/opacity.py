@@ -101,8 +101,12 @@ class sigma_integrator():
         if self.sigma_func[0] == 1:
             return x * 0 + 1.0
         elif self.sigma_func[1] == 1:
-            return np.exp(- x**2 /(2* self.std**2)) * self.sigma_a
+            return np.exp(- x**2 /(2* self.std**2))  # probably shouldn't have sigma_a here
             # return x * 0 + 1.0
+        elif self.sigma_func[2] == 1: # siewert with omega_0 = 1, s = 1
+            return np.exp(-x - 2.5)
+        elif self.sigma_func[3] == 1:
+            return np.exp(-x/100000000000)
     
     def make_vectors(self, edges, u, space):
         VV = u * 0
@@ -114,7 +118,7 @@ class sigma_integrator():
         for i in range(self.M + 1):
             for j in range(self.M + 1):
                 for k in range(self.Msigma + 1):
-                    VV[i] +=   self.cs[space, k] * u[j] * self.AAA[i, j, k] / dx
+                    VV[i] +=   (self.sigma_a + self.sigma_s) * self.cs[space, k] * u[j] * self.AAA[i, j, k] / dx
         return VV
 
 

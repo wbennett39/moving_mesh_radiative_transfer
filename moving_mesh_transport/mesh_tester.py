@@ -34,7 +34,9 @@ def test_square_mesh(tfinal = 10.0, N_space = 8, x0 = 0.5, moving = True, move_t
     plt.xlabel('x', fontsize = 20)
     plt.ylabel('t', fontsize = 20)
     # plt.legend()
-    show('edge_xvst')
+    plt.ylim(-0.05, 0.51)
+    plt.xlim(-0.9, 0.9)
+    show('edge_xvst_early')
     plt.show()
 
 def square_mesh_init(tfinal = 10, N_space = 8, x0 = 0.5, moving = True, move_type = np.array([1,0,0]), source_type = np.array([0, 0, 1]), edge_v = 1.0 / np.sqrt(3), thick = False, move_factor = 1.0, wave_loc_array = np.zeros((1,1,1)), pad = 15.0, leader_pad = 0.0 ):

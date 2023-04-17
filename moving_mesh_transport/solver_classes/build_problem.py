@@ -66,7 +66,9 @@ data = [('N_ang', int64),
         ('boundary_source_strength', float64),
         ('boundary_source', int64),
         ('sigma_func', int64[:]),
-        ('Msigma', int64)
+        ('Msigma', int64),
+        ('domain_width', float64),
+        ('finite_domain', int64)
         ]
 ###############################################################################
 
@@ -75,7 +77,7 @@ class build(object):
     def __init__(self, N_ang, N_space, M, tfinal, x0, t0, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, 
     source_type, uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, 
     edge_v, cv0, thick, wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source,
-     quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma):
+     quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma, finite_domain, domain_width):
         self.N_ang = N_ang
         self.N_space = N_space
         self.M = M
@@ -85,6 +87,7 @@ class build(object):
         self.sigma_a = sigma_t-sigma_s
         self.scattering_ratio = self.sigma_s / self.sigma_t
         print(self.scattering_ratio, 'scattering ratio')
+        print(mus, 'mus')
         self.mus = mus
         self.ws = ws/np.sum(ws)
         self.xs_quad = xs_quad
@@ -119,6 +122,9 @@ class build(object):
         self.boundary_source = boundary_source
         self.boundary_source_strength = boundary_source_strength
         self.Msigma = Msigma
+        self.finite_domain = finite_domain
+        print(self.finite_domain, 'finite domain')
+        self.domain_width = domain_width
         
         
         if self.thermal_couple == 0:
@@ -145,7 +151,8 @@ class build(object):
                 
     def make_IC(self):
         edges = mesh_class(self.N_space, self.x0, self.tfinal, self.moving, self.move_type, self.source_type, 
-        self.edge_v, self.thick, self.move_factor, self.wave_loc_array, self.pad,  self.leader_pad, self.quad_thick_source, self.quad_thick_edge)
+        self.edge_v, self.thick, self.move_factor, self.wave_loc_array, self.pad,  self.leader_pad, self.quad_thick_source, 
+        self.quad_thick_edge, self.finite_domain, self.domain_width)
         edges_init = edges.edges
         
         if self.moving == False and self.source_type[0] == 1 and self.uncollided == False and self.N_space%2 == 0:

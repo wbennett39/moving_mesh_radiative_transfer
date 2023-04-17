@@ -71,6 +71,7 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
+
         # plt.title("square IC")
         # plt.legend()
         # plt.show(block = False)
@@ -91,6 +92,13 @@ class run:
         else:
             solver.main(uncollided, moving)
             self.get_results(solver)
+        if self.x0 == 2.5:
+            self.olson_henderson_bench(self.tfinal)
+            plt.figure(9)
+            plt.plot(self.xs, self.phi, '-.', label = 'scalar flux', mfc = 'none')
+            plt.legend()
+            plt.show()
+     
         # plt.title("square source")
         # plt.legend()
         # plt.show(block = False)
@@ -177,11 +185,14 @@ class run:
             fsol = lambda x, mu: np.exp(x * 1/mu) 
             plt.figure(3)
             if solver.sigma_func[0] == 1:
-                plt.plot(self.xs, self.psi[-1,:], '-^')
+                # plt.plot(self.xs, self.psi[-1,:], '-^')
                 plt.plot(self.xs, fsol(self.xs+self.x0, -1), 'rx')
                 plt.show()
             elif solver.sigma_func[1] == 1:
                 self.steady_state_gaussian_benchmark()
+            
+            elif solver.sigma_func[2] == 1 or solver.sigma_func[3] == 1:
+                self.siewert_bench(solver.sigma_func)
 
                 
       
@@ -195,6 +206,8 @@ class run:
         self.ws = solver.ws
         self.mus = solver.angles
         self.x0 = solver.x0
+        self.exit_dist = solver.exit_dist
+        self.tfinal = solver.tfinal
 
         
     def run_all(self):
@@ -245,5 +258,83 @@ class run:
 
 
         # plt.plot(self.xs, self.psi[-1,:], '-^')
-        plt.plot(self.xs, phi_sol, 'ko', mfc = 'none', label = 'scalar flux')
+        plt.plot(self.xs, phi_sol, 'kx', mfc = 'none', label = 'scalar flux benchmark')
         plt.legend()
+
+    def siewert_bench(self, sigma):
+        self.psibenchpsis = np.array([0.05, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0])
+        self.psi0bench = np.array([0.58966, 0.53112, 0.44328, 0.38031, 0.33296, 
+                                0.29609, 0.26656, 0.24239, 0.22223, 0.20517, 0.19055])
+        self.psi1bench = np.array([0.6075e-5, 0.62952e-5, 0.96423e-5, 0.16234e-4, 
+        0.43858e-4, 0.16937e-3, 0.57347e-3, 0.15128e-2, 0.32437e-2, 0.59604e-2, 0.97712e-2 ])
+
+        self.psi0benchinf = np.array([0.89780, 0.88784, 0.86958, 0.85230, 0.83550, 0.81900, 0.80278, 
+                                    0.78649, 0.77043, 0.75450, 0.73872])
+
+        self.psi1benchinf = np.array([0.10220, 0.11216, 0.13042, 0.14770, 0.16450, 0.18100, 0.19732, 
+                                    0.21351, 0.22957, 0.24550, 0.26128])
+
+
+
+        if sigma[2] == 1: 
+            resultsfigns = [9,10]
+            plt.figure(9)
+            plt.plot(self.psibenchpsis, self.psi0bench, 'kx', label = 'benchmark s = 1')
+            plt.legend()
+            plt.show()
+            plt.figure(10)
+            plt.plot(self.psibenchpsis, self.psi1bench, 'kx', label = 'benchmark s = 1')
+            plt.legend()
+            plt.show()
+        elif sigma[3] == 1: 
+            resultsfigns = [11,12]
+            plt.figure(11)
+            plt.plot(self.psibenchpsis, self.psi0benchinf, 'kx', label = 'benchmark s = inf')
+            plt.legend()
+            plt.show()
+            plt.figure(12)
+            plt.plot(self.psibenchpsis, self.psi1benchinf, 'kx', label = 'benchmark s = inf')
+            plt.legend()
+            plt.show()
+
+
+
+
+
+        plt.figure(resultsfigns[0])
+        plt.plot(-self.mus, self.exit_dist[:,0], '--b', mfc = 'none', label = 'left exit distribution')
+        # plt.plot(self.mus, self.exit_dist[:,-1], '-or', mfc = 'none', label = 'right exit distribution')
+        plt.xlabel(r'$\mu$')
+        plt.ylabel(r'$\phi$')
+        plt.xlim(0.0, 1.1)
+        plt.legend()
+        plt.show()
+
+
+        plt.figure(resultsfigns[1])
+        # plt.plot(self.mus, self.exit_dist[:,0], '-ob', mfc = 'none', label = 'left exit distribution')
+        plt.plot(self.mus, self.exit_dist[:,-1], '--r', mfc = 'none', label = 'right exit distribution')
+        plt.xlabel(r'$\mu$')
+        plt.ylabel(r'$\phi$')
+        plt.legend()
+        plt.xlim(0.1, 1.1)
+        plt.show()
+
+
+    def olson_henderson_bench(self, tfinal):
+        self.xs_bench = np.array([0, 0.5, 1.0, 1.5, 2, 2.5, 3, 3.5, 4, 4.5, 5, 5.5, 6, 6.5, 7, 7.5, 8, 8.5,
+                                    9, 9.5, 10 ]) - 5.0 
+        self.phi_bench = self.xs_bench*0
+
+        if tfinal == 1.0:
+            self.phi_bench = np.array([0.0, 0.0, 0, 0, 0.052, 0.476, 0.899, 0.952, 0.952, 0.952, 0.952, 0.952, 0.952, 0.952, 0.899, 0.476, 0.052, 0,
+                                    0, 0, 0]) 
+        elif tfinal == 5.0:
+            self.phi_bench=np.array([0.051, 0.138, 0.290, 0.562, 1.035, 1.968, 2.900, 3.371, 3.636, 3.771, 
+            3.812, 3.771, 3.636, 3.371, 2.900, 1.968, 1.035, 0.562, 0.290, 0.138, 0.051])
+        plt.figure(9)
+        plt.plot(self.xs_bench, self.phi_bench, 'kx', label = 'benchmark scalar flux')
+        plt.legend()
+        plt.xlabel('x')
+        plt.ylabel(r'$\phi$')
+        plt.show()

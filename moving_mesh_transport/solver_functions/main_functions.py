@@ -91,7 +91,8 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
           uncollided, moving, move_type, thermal_couple, temp_function, rt, at, e_initial, choose_xs, specified_xs, 
           weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, 
           find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad, leader_pad, xs_quad_order, 
-          eval_times, eval_array, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma):
+          eval_times, eval_array, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma,
+          finite_domain, domain_width):
 
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
@@ -112,7 +113,8 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
                        thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, 
                        wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source,
-                        quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma)
+                        quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma,
+                        finite_domain, domain_width)
                        
     initialize.make_IC()
     IC = initialize.IC
@@ -121,7 +123,9 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         deg_freedom = N_ang*N_space*(M+1)
     elif thermal_couple == 1:
         deg_freedom = (N_ang+1)*N_space*(M+1)
-    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array, pad, leader_pad, quad_thick_source, quad_thick_edge) 
+    mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor,
+                      wave_loc_array, pad, leader_pad, quad_thick_source, quad_thick_edge, finite_domain,
+                      domain_width) 
     matrices = G_L(initialize)
     num_flux = LU_surf(initialize)
     source = source_class(initialize)
@@ -202,6 +206,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
 
     phi = output.make_phi(uncollided_sol)
     psi = output.psi_out # this is the collided psi
+    exit_dist = output.get_exit_dist()
     if thermal_couple == 1:
         e = output.make_e()
     else:
@@ -209,7 +214,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
     
     computation_time = end-start
     
-    return xs, phi, psi, e, computation_time, sol_last, mus, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
+    return xs, phi, psi, exit_dist, e, computation_time, sol_last, mus, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
 
 
 

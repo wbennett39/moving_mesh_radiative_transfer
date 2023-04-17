@@ -107,9 +107,6 @@ class make_benchmark:
             elif t == 100.0:
                 self.xs = np.linspace(0.0, 43.9, npnts)
 
-
-
-
     
         self.uncollided_sol = self.call_uncollided(self.xs, t)
         self.collided_sol = self.call_collided(self.xs, t, self.c)

@@ -110,6 +110,10 @@ class parameter_load_class:
         self.boundary_source_strength = float(mesh_parameters['boundary_source_strength'])
         self.sigma_func = np.array(mesh_parameters['sigma_func'])
         self.Msigma = int(mesh_parameters['Msigma'])
+        self.finite_domain = int(mesh_parameters['finite'])
+        self.domain_width = -1
+        if self.finite_domain == True:
+            self.domain_width = float(mesh_parameters['domain_width'])
 
         if not (len(self.N_spaces) == len(self.N_angles) == len(self.Ms)):
             print('Spaces, Ms, and N_angles should be the same length')

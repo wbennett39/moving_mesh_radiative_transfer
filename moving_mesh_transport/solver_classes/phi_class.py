@@ -32,13 +32,15 @@ data = [("P", float64[:]),
         ('N_ang', int64),
         ('Msigma', int64),
         ('cs', float64[:,:]),
-        ('edges', float64)
+        ('edges', float64),
+        ('PV', float64[:])
         ]
 ###############################################################################
 @jitclass(data)
 class scalar_flux(object):
     def __init__(self, build):
         self.P = np.zeros(build.M+1).transpose()
+        self.PV = np.zeros(build.M+1).transpose()
         self.M = build.M
         self.ws = build.ws
         self.thermal_couple = build.thermal_couple
@@ -57,15 +59,19 @@ class scalar_flux(object):
         return self.P
 
     def make_P_nonconstant_opacity(self, u, space):
-        for l in range(self.N_ang):
-            for i in range(self.M+1):
+        self.PV = self.PV*0
+        for i in range(self.M+1):
+            for l in range(self.N_ang):
                 for j in range(self.M+1):
-                    for k in range(self.Msigma):
-                        self.P[i] += (self.sigma_s) * self.cs[space, k] * u[l,j] * self.AAA[i, j, k]
+                    for k in range(self.Msigma + 1):
+                        self.PV[i] += (self.sigma_s) * self.cs[space, k] * u[l,j] * self.ws[l] * self.AAA[i, j, k] 
+                            # self.PV[i] += self.ws[l] * u[l,i]
+
+        # print(self.PV)
     
     def call_P_noncon(self, xL, xR):
         dx = math.sqrt(xR - xL)
-        return self.P / math.sqrt(xR - xL)
+        return self.PV/dx
 
 
 
@@ -73,7 +79,8 @@ class scalar_flux(object):
         """ Gets the tensor of integrals over Bi Bj Bk from opacity_class
         """
         self.AAA = AAA
-    
+
+
     def get_coeffs(self, opacity_class):
         self.cs = opacity_class.cs
 

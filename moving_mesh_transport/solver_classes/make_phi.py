@@ -25,7 +25,8 @@ data = [('N_ang', int64),
         ('dx_e', float64[:]),
         ('psi_out', float64[:,:]),
         ('phi_out', float64[:]), 
-        ('e_out', float64[:])
+        ('e_out', float64[:]),
+        ('exit_dist', float64[:,:])
         ]
 @jitclass(data)
 class make_output:
@@ -75,5 +76,26 @@ class make_output:
                         self.dx_e[count] += self.u[self.N_ang,idx-1,i] * dx_normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         self.e_out = e
         return e
+    
+    def get_exit_dist(self):
+        psi = np.zeros((self.N_ang, 2))
+        self.exit_dist = np.zeros((self.N_ang, 2))
+        x_eval = np.array([self.edges[0], self.edges[-1]])
+        for ang in range(self.N_ang):
+            for count in range(2):
+                idx = np.searchsorted(self.edges[:], x_eval[count])
+                if (idx == 0):
+                    idx = 1
+                if (idx >= self.edges.size):
+                    idx = self.edges.size - 1
+                if self.edges[0] <= x_eval[count] <= self.edges[-1]:
+                    for i in range(self.M+1):
+                        psi[ang, count] += self.u[ang,idx-1,i] * normPn(i,x_eval[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
+        
+        self.exit_dist = psi
+        return self.exit_dist
+        
+
+
 
     

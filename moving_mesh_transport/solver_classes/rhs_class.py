@@ -158,6 +158,7 @@ Created on Mon Jan 31 11:25:35 2022
 @author: bennett
 """
 import numpy as np
+import math
 
 from .build_problem import build
 from .matrices import G_L
@@ -194,8 +195,8 @@ data = [('N_ang', int64),
         ('M', int64),
         ('source_type', int64[:]),
         ('t', float64),
-        ('sigma_t', float64[:]),
-        ('sigma_s', float64[:]),
+        ('sigma_t', float64),
+        ('sigma_s', float64),
         ('IC', float64[:,:,:]),
         ('mus', float64[:]),
         ('ws', float64[:]),
@@ -207,6 +208,7 @@ data = [('N_ang', int64),
         ("L", float64[:,:]),
         ("G", float64[:,:]),
         ("P", float64[:]),
+        ("PV", float64[:]),
         ("S", float64[:]),
         ("LU", float64[:]),
         ("U", float64[:]),
@@ -248,6 +250,7 @@ class rhs_class():
         self.uncollided = build.uncollided
         self.test_dimensional_rhs = False
         self.told = 0.0
+        self.sigma_s = build.sigma_s
        
         self.c_a = build.sigma_a / build.sigma_t
         self.mean_free_time = 1/build.sigma_t
@@ -379,10 +382,24 @@ class rhs_class():
                             RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * P + 0.5*S 
                         elif self.uncollided == True:
                             RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * (P + 0.5*S)
+
+                    elif self.sigma_func[2]== 1: #siewert problem
+                        VV = sigma_class.make_vectors(mesh.edges, V_old[angle,space,:], space)
+                        PV = flux.call_P_noncon(xL, xR)
+                        # Q = np.zeros(PV.size) # this is for testing the steady state source problem
+                        # Q[0] = math.sqrt(xR-xL)
+                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + PV
+                    
                     else:
                         VV = sigma_class.make_vectors(mesh.edges, V_old[angle,space,:], space)
                         PV = flux.call_P_noncon(xL, xR)
-                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - VV + PV*0 
+                        # PV =  self.sigma_s*flux.P
+                        # PV = VV*0
+                        # print(np.abs(PV-flux.P))
+                        assert(np.abs(flux.cs[space,:] - sigma_class.cs[space,:]).all() <= 1e-10)
+                        # if (np.abs(self.sigma_s * flux.P - PV).all() > 1e-6):
+                        #     print(flux.P - PV)
+                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - VV + PV
 
                     V_new[angle,space,:] = RHS
                     

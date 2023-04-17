@@ -246,7 +246,7 @@ class uncollided_solution(object):
                 else:
                     self.uncollided_solution_return = (self.gaussian_source_uncollided_solution(xs, t) * self.source_strength)
         else:
-            self.uncollided_solution_return = (xs*0)
+            self.uncollided_solution_return = np.zeros(xs.size)
 
         return self.uncollided_solution_return
         

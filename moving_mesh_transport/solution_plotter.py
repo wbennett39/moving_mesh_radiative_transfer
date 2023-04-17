@@ -11,9 +11,33 @@ from pathlib import Path
 from scipy.interpolate import interp1d
 import quadpy
 import csv
+from .misc_functions import source_name_finder
 
 def trunc(values, decs=0):
     return np.trunc(values*10**decs)/(10**decs)
+
+def sparsify(xlist, ylist, num = 50):
+    print('calling sparsify')
+    def every_other(xlist, ylist):
+        start = np.argmin(np.abs(xlist))
+        xlist_new = np.linspace(xlist[0], xlist[-1])
+        yint = interp1d(xlist, ylist, 'cubic')
+        ylist_new = yint(xlist_new)
+        return np.array(xlist_new), np.array(ylist_new)
+
+    xlist = np.array(xlist)
+    ylist = np.array(ylist)
+    
+    while xlist.size > num:
+        assert(xlist.size == ylist.size)
+        xlist, ylist = every_other(xlist, ylist)
+    return xlist, ylist
+
+
+
+
+
+
 
 
 su_tfinal_list = np.array([0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228,  100.0])
@@ -21,7 +45,7 @@ su_xs_list = np.array([0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.
         
 class plot:
     def __init__(self,tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2,
-                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec15-3.hdf5' ):
+                cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name, mkr1='k-', mkr2='k--', mkr3 = 'k:', mkr4 = '-.k', mkr5 = ":k", mkr6 = "-*k", file_name = 'run_data_crc_dec15-3.hdf5'):
         self.tfinal = tfinal
         self.M = M
         self.problem_name = problem_name
@@ -43,6 +67,8 @@ class plot:
         self.mkr4 = mkr4
         self.mkr5 = mkr5
         self.mkr6 = mkr6
+
+
         if self.problem_name == 'su_olson_thick_s2':
             self.file_name = 'run_data_crc_dec7-4.hdf5'
         else:
@@ -56,7 +82,7 @@ class plot:
                 self.file_name = 'run_data_crc_nov23.hdf5'
 
 
-    def plot(self):
+    def load(self):
         data = load_sol(self.problem_name, self.source_name, self.rad_or_transport, self.c, self.s2, self.cv0, file_name = self.file_name)
         data.call_sol(self.tfinal, self.M, self.x0_or_sigma, self.N_space, self.mat_or_rad, self.uncollided, self.moving)
         self.N_ang = np.shape(data.coeff_mat)[0] -1
@@ -64,18 +90,22 @@ class plot:
         self.ws = data.ws
         self.edges = data.edges
         self.e = data.e
+        self.phi = data.phi
         self.xs = data.xs
 
         print('loading solutions for', self.N_space, 'spaces',self.N_ang, 'angles', self.M, 'M')
         
+        return data.xs, data.phi
+    
+    def plot(self, uncollided_class):
         plt.ion()
         plt.figure(self.fign)
 
-        middle = np.argmin(np.abs(data.xs))
-        xs_plot = data.xs[middle:]
+        middle = np.argmin(np.abs(self.xs))
+        xs_plot = self.xs[middle:]
         print(xs_plot[-1], 'edge')
-        phi_plot = data.phi[middle:]
-        e_plot = data.e[middle:]
+        phi_plot = self.phi[middle:]
+        e_plot = self.e[middle:]
     
         if self.s2 == True:
             xs_plot = - xs_plot
@@ -86,10 +116,6 @@ class plot:
         marker1 = self.mkr1
         marker2 = self.mkr2
         marker3 = self.mkr3
-
-        
-  
-
         if self.problem_name in ['transfer_const_cv=0.03', 'transfer_const_cv=0.03_s2', 'transfer_const_cv=0.03_thick', 'transfer_const_cv=0.03_thick_s2', 'transfer_const_cv=0.03_s2']:
             a = 0.01372
             cvbar = 0.03/a
@@ -99,6 +125,9 @@ class plot:
             maxT = max(T)
             maxphi = max(phi_plot**.25)
             height = max(maxT, maxphi)
+            uncollided_sol = uncollided_class.uncollided_solution(xs_plot, self.tfinal)
+            if max(uncollided_sol > 1e-8):
+                plt.plot(xs_plot, np.power(uncollided_sol, 0.25), 'k-.', mfc = 'none')
 
         elif self.problem_name in ['su_olson', 'su_olson_s2', 'su_olson_thick', 'su_olson_thick_s2']:
             T = np.power(e_plot, .25)
@@ -107,11 +136,11 @@ class plot:
             height = max(maxe, maxphi)
             plt.plot(xs_plot, phi_plot, marker1, mfc = 'none')
             plt.plot(xs_plot, e_plot, marker2, mfc = 'none')
-            
-        
+            # sparse_xs = np.linspace(0, xs_plot[-1], 25)
+            uncollided_sol = uncollided_class.uncollided_solution(xs_plot, self.tfinal)
+            if max(uncollided_sol > 1e-6):
+                plt.plot(xs_plot, uncollided_sol, 'k-.', mfc = 'none')
         # plt.plot(xs_plot, T, marker3, mfc = 'none')
-
-
         if self.s2 == False:
             plt.xlim(-xs_plot[-1] - 0.05, xs_plot[-1] + 0.05)
             left = -xs_plot[-1]/3
@@ -137,13 +166,54 @@ class plot:
             plt.text(left, txtheight, r'$S_2$', fontsize = 'xx-large', horizontalalignment = 'center' )
             plt.text(right, txtheight, 'Transport', fontsize = 'xx-large', horizontalalignment = 'center' )
             plt.axvline(x = 0, color = 'tab:gray')
+        
+        # diffusion results
+
+        if self.problem_name in ['su_olson_thick'] and self.source_name == 'square_s' and self.s2 == False:
+            xvals = []
+            T_vals = []
+            with open(f'diffusion_results/t_diff_t={self.tfinal}.csv', 'r') as file:
+                reader = csv.reader(file)
+                for i, line in enumerate(reader):
+                    if i > 0:
+                        xvals.append(float(line[1]))
+                        T_vals.append(float(line[0]))
+            xvals, T_vals = sparsify(xvals, T_vals)
+            plt.plot(xvals, T_vals, 'k^', mfc = 'none')
+        
+        elif self.problem_name in ['su_olson_thick'] and self.source_name == 'gaussian_s' and self.s2 == False:
+            xvals = []
+            T_vals = []
+            with open(f'diffusion_results/t_diff_gauss_t={self.tfinal}.csv', 'r') as file:
+                reader = csv.reader(file)
+                for i, line in enumerate(reader):
+                    if i > 0:
+                        xvals.append(float(line[1]))
+                        T_vals.append(float(line[0]))
+            xvals, T_vals = sparsify(xvals, T_vals)
+            plt.plot(xvals, T_vals, 'k^', mfc = 'none')
+
+        elif self.problem_name in ['transfer_const_cv=0.03_thick'] and self.source_name == 'gaussian_s' and self.s2 == False:
+            xvals = []
+            T_vals = []
+            with open(f'diffusion_results/t_diff_gauss_nonlin_t={self.tfinal}.csv', 'r') as file:
+                reader = csv.reader(file)
+                for i, line in enumerate(reader):
+                    if i > 0:
+                        xvals.append(float(line[1]))
+                        T_vals.append(float(line[0]))
+            xvals, T_vals = sparsify(xvals, T_vals)
+            plt.plot(xvals, T_vals, 'k^', mfc = 'none')
+
+
+            # data_phi_trunc = trunc(data_phi, 15)
+
+
 
         if self.s2 == True:
             show(self.name)
             plt.show()
             plt.close()
-
-        return data.xs, data.phi
 
 # plot(1,4,16,'transport', 'square_s', 'transport', 1.0, False, 0.0, 0.5, 'rad', True, True )
 
@@ -413,23 +483,36 @@ def make_tables_su_olson(Ms=[10], N_spaces = [32], problem_name = 'su_olson', ra
             print(problem_name, 'problem name')
             M = Ms[count]
             N_space = N_spaces[count]
-            plotter = plot(tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2, 
-            cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
+
 
             xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
             ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
             t_quad = quadpy.c1.gauss_legendre(40).points
             t_ws = quadpy.c1.gauss_legendre(40).weights
 
-            xs, phi = plotter.plot()
+
             l = 1.0
 
-            quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad,  np.array([1.0]),  np.array([1.0]), 
-            np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0, 1.0, 
-            1, 0, False, np.zeros((1,1,1)), 1.0, 1.0, 1.0, 0, 0, 0, np.zeros(3), np.zeros(3))
+            plotter = plot(tfinal, M,  N_space, problem_name, source_name, rad_or_transport, c, s2, 
+            cv0, x0_or_sigma , mat_or_rad, uncollided, moving, fign, name)
+            xs, phi = plotter.load()
+ 
+
+            quick_build = build_problem.build(N_ang = plotter.N_ang, N_space= N_space, M=M, tfinal = tfinal, x0 = 0.5, 
+            t0 = 10.0, mus = np.array([0.0,0.0 ]), ws = plotter.ws, xs_quad = xs_quad, ws_quad= ws_quad,  sigma_t = 1.0, 
+            sigma_s = 0.0, source_type = np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided = uncollided, moving = moving,
+            move_type = np.array([1]), t_quad = t_quad, t_ws = t_ws, thermal_couple = 1.0, temp_function =  np.array([1,0]), 
+            e_initial = 0.0, sigma =  0, particle_v = 1.0, edge_v = 1, cv0 = 0, thick = False, wave_loc_array = np.zeros((1,1,1)),
+            source_strength = 1.0, move_factor = 1.0, l = 1.0, save_wave_loc= 0, pad =0, leader_pad = 0, quad_thick_source = np.zeros(3),
+            quad_thick_edge = np.zeros(3), boundary_on = np.array([0]), boundary_source_strength = 0, boundary_source = 0, sigma_func = np.array([1]),  Msigma = 0)
 
 
             uncollided_class = uncollided_solution(quick_build)
+            plotter.plot(uncollided_class)
+
+       
+            
+
 
 
 
@@ -626,15 +709,25 @@ def make_tables_gaussian_thin(Ms=[10], N_spaces = [32], problem_name = 'su_olson
             t_quad = quadpy.c1.gauss_legendre(40).points
             t_ws = quadpy.c1.gauss_legendre(40).weights
 
-            xs, phi = plotter.plot()
+            xs, phi = plotter.load()
             l = 1.0
 
-            quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad,  np.array([1.0]),  np.array([1.0]), 
-            np.array([0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0.5, 1.0, 
-            1, 0, False, np.zeros((1,1,1)), 1.0, 1.0, 1.0, 0, 0, 0, np.zeros(3), np.zeros(3))
+            # quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad,  np.array([1.0]),  np.array([1.0]), 
+            # np.array([0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0.5, 1.0, 
+            # 1, 0, False, np.zeros((1,1,1)), 1.0, 1.0, 1.0, 0, 0, 0, np.zeros(3), np.zeros(3))
+
+
+            quick_build = build_problem.build(N_ang = plotter.N_ang, N_space= N_space, M=M, tfinal = tfinal, x0 = 0.5, 
+            t0 = 10.0, mus = np.array([0.0,0.0 ]), ws = plotter.ws, xs_quad = xs_quad, ws_quad= ws_quad,  sigma_t = 1.0, 
+            sigma_s = 0.0, source_type = np.array([0,0,0,0,0,1,0,0,0,0,0,0,0,0,0]), uncollided = uncollided, moving = moving,
+            move_type = np.array([1]), t_quad = t_quad, t_ws = t_ws, thermal_couple = 1.0, temp_function =  np.array([1,0]), 
+            e_initial = 0.0, sigma =  0.5, particle_v = 1.0, edge_v = 1, cv0 = 0, thick = False, wave_loc_array = np.zeros((1,1,1)),
+            source_strength = 1.0, move_factor = 1.0, l = 1.0, save_wave_loc= 0, pad =0, leader_pad = 0, quad_thick_source = np.zeros(3),
+            quad_thick_edge = np.zeros(3), boundary_on = np.array([0]), boundary_source_strength = 0, boundary_source = 0, sigma_func = np.array([1]),  Msigma = 0)
 
 
             uncollided_class = uncollided_solution(quick_build)
+            plotter.plot(uncollided_class)
 
 
 
@@ -763,17 +856,23 @@ def make_tables_thick_problems(Ms=[10], N_spaces = [32], problem_name = 'su_olso
             t_quad = quadpy.c1.gauss_legendre(40).points
             t_ws = quadpy.c1.gauss_legendre(40).weights
 
-            xs, phi = plotter.plot()
+            xs, phi = plotter.load()
             l = 1.0
       
-            quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad,  np.array([1.0]),  np.array([1.0]), 
-            np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0.375, 1.0, 
-            1, 0, False, np.zeros((1,1,1)), 1.0, 1.0, 1.0, 0, 0, 0, np.zeros(3), np.zeros(3))
+            # quick_build = build_problem.build(plotter.N_ang, N_space, M, tfinal, 0.5, 10.0, 1.0, np.array([0.0]), plotter.ws, xs_quad, ws_quad,  np.array([1.0]),  np.array([1.0]), 
+            # np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided, moving,  np.array([1]), t_quad, t_ws, 1.0, np.array([1,0]), 0.0, 0.375, 1.0, 
+            # 1, 0, False, np.zeros((1,1,1)), 1.0, 1.0, 1.0, 0, 0, 0, np.zeros(3), np.zeros(3))
+            quick_build = build_problem.build(N_ang = plotter.N_ang, N_space= N_space, M=M, tfinal = tfinal, x0 = 0.5, 
+            t0 = 10.0, mus = np.array([0.0,0.0 ]), ws = plotter.ws, xs_quad = xs_quad, ws_quad= ws_quad,  sigma_t = 1.0, 
+            sigma_s = 0.0, source_type = np.array([0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]), uncollided = uncollided, moving = moving,
+            move_type = np.array([1]), t_quad = t_quad, t_ws = t_ws, thermal_couple = 1.0, temp_function =  np.array([1,0]), 
+            e_initial = 0.0, sigma =  0.5, particle_v = 1.0, edge_v = 1, cv0 = 0, thick = True, wave_loc_array = np.zeros((1,1,1)),
+            source_strength = 1.0, move_factor = 1.0, l = 1.0, save_wave_loc= 0, pad =0, leader_pad = 0, quad_thick_source = np.zeros(3),
+            quad_thick_edge = np.zeros(3), boundary_on = np.array([0]), boundary_source_strength = 0, boundary_source = 0, sigma_func = np.array([1]),  Msigma = 0)
 
 
             uncollided_class = uncollided_solution(quick_build)
-
-
+            plotter.plot(uncollided_class)
 
             output_maker = make_phi.make_output(tfinal, plotter.N_ang, plotter.ws, xs_list, plotter.coeff_mat, M, plotter.edges, uncollided)
 

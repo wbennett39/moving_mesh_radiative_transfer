@@ -24,9 +24,9 @@ def square_IC(t, npnts):
     bench_class.save()
     bench_class.plot(fign)
     
-def square_source(t, npnts):
+def square_source(t, npnts, x0 = 0.5):
     fign = 3
-    bench_class = make_benchmark('square_source', 0.5, 5.0, 0)
+    bench_class = make_benchmark('square_source', x0, 5.0, 0)
     bench_class.integrate(t, npnts)
     bench_class.save()
     bench_class.plot(fign)

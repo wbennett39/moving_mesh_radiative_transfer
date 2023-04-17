@@ -33,7 +33,6 @@ class IC_func(object):
         self.source_strength = source_strength
         self.sigma = sigma
 
-        
 
     def function(self, x):
         if self.uncollided == True:

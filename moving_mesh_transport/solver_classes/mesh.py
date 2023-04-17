@@ -54,16 +54,21 @@ data = [('N_ang', int64),
         ('thick_quad_edge', float64[:]),
         ('t0', float64),
         ('edges0_2', float64[:]),
-        ('c1s', float64[:])
+        ('c1s', float64[:]),
+        ('finite_domain', int64),
+        ('domain_width', float64),
+        ('mesh_stopped', int64)
         # ('problem_type', int64)
         ]
 #################################################################################################
 
 
-    
+# Really need a better mesh function 
 @jitclass(data)
 class mesh_class(object):
-    def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor, wave_loc_array, pad, leader_pad, thick_quad, thick_quad_edge):
+    def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v,
+     thick, move_factor, wave_loc_array, pad, leader_pad, thick_quad, thick_quad_edge, 
+     finite_domain, domain_width):
         
         self.debugging = True
         self.test_dimensional_rhs = False
@@ -122,6 +127,10 @@ class mesh_class(object):
         self.leader_pad = leader_pad
         self.t0 = 10.0
         print(self.t0, 't0')
+        self.finite_domain = finite_domain
+        self.domain_width = domain_width
+
+        self.mesh_stopped = False
     
 
     def move(self, t):
@@ -139,55 +148,88 @@ class mesh_class(object):
             # if self.source_type[1] == 1 or self.source_type[2] == 1:
                 # if t > 10.0:
                 #     self.Dedges = self.edges/self.edges[-1] * self.speed
-            if self.move_func == 0: # simple linear
-                if self.source_type[2] == 1:
-                    if t >= 10:
-                        self.move_middle_edges(t)
-                        tnew1 = t - self.t0 
-
-                        ### uncomment this to go back to the old mesh
-
-                        # self.edges = self.edges0_2 + self.Dedges_const * (t-self.t0)
-                        # self.Dedges = self.Dedges_const
-
-
-                        ### uncomment this for constant vel. 
-
-                        # self.edges = self.edges0_2 + self.Dedges * (t-self.t0)
-
-                        ### uncomment this for acceleration case
-
-                        self.edges = 0.5 * self.c1s * (tnew1) ** 2 + self.Dedges_const * tnew1 + self.edges0_2
-                        self.Dedges = self.c1s * tnew1 + self.Dedges_const
-
-
-                    if (t < self.t0):
-                        # self.Dedges = self.Dedges_const
-                        self.edges = self.edges0 + self.Dedges*t
-
-                else:
-
-                    self.edges = self.edges0 + self.Dedges*t
-
-
-            elif self.move_func == 1: 
-                """
-                This mode has the wavefront tracking edges moving at a constant speed
-                and interior edges tracking the diffusive wave
-                """
-                # self.thick_square_moving_func(t)
-                self.thick_square_moving_func_2(t)
+            if self.source_type[1] == 1:
                 
-
-            elif self.move_func == 2:
-                self.square_source_static_func_sqrt_t(t)
+                if self.finite_domain == True and t == self.tfinal:
 
 
-        
+                # print(self.edges0[-1] + t * self.speed, "###### final edge ######")
+                
+                # if self.edges0[-1] + t * self.speed > 5 and self.finite_domain == True:
+                    print('here ############')
+                    self.edges = np.linspace(-self.domain_width/2, self.domain_width/2, self.N_space+1)
+                    print(self.edges)
 
-            else:
-                print("no move function selected")
-                assert(0)
+                elif (self.finite_domain == True) and (self.edges[-1] >= self.domain_width/2 or abs(self.edges[-1]-self.domain_width/2)<=1e-2):
+                    self.edges = self.edges
+                    self.Dedges = self.Dedges_const*0
+                else:
+                    self.edges = self.edges0 + self.Dedges_const*t
+                    self.Dedges = self.Dedges_const
+
+            elif self.source_type[2] == 1:
+                self.finite_domain = True
+                if self.finite_domain == True:
+                    if (self.finite_domain == True) and (self.edges[-1] >= self.domain_width/2 or abs(self.edges[-1]-self.domain_width/2)<=1e-2):
+                        self.edges = self.edges
+                        self.Dedges = self.Dedges_const*0
+                    # if t == self.tfinal:
+                    #     self.edges = np.linspace(-5, 5, self.N_space+1)
+                    #     self.Dedges = self.Dedges_const*0
+                    # else:
+                    else:
+                        if self.move_func == 0:
+                            if t >= self.t0:
+                                self.move_middle_edges(t)
+                                tnew1 = t - self.t0 
+
+                            ### uncomment this to go back to the old mesh
+
+                            # self.edges = self.edges0_2 + self.Dedges_const * (t-self.t0)
+                            # self.Dedges = self.Dedges_const
+
+
+                            ### uncomment this for constant vel. 
+
+                            # self.edges = self.edges0_2 + self.Dedges * (t-self.t0)
+
+                            ### uncomment this for acceleration case
+
+                                self.edges = 0.5 * self.c1s * (tnew1) ** 2 + self.Dedges_const * tnew1 + self.edges0_2
+                                self.Dedges = self.c1s * tnew1 + self.Dedges_const
+
+
+                            elif (t < self.t0):
+                            
+                                self.edges = self.edges0 + self.Dedges*t
+
+
+                            # self.Dedges = self.Dedges_const
+                            
+
+                    # else:
+
+                    #         self.edges = self.edges0 + self.Dedges*t
+
+
+                        elif self.move_func == 1: 
+                            """
+                            This mode has the wavefront tracking edges moving at a constant speed
+                            and interior edges tracking the diffusive wave
+                            """
+                            # self.thick_square_moving_func(t)
+                            self.thick_square_moving_func_2(t)
+                    
+
+                        elif self.move_func == 2:
+                            self.square_source_static_func_sqrt_t(t)
+
+
+            
+
+                        else:
+                            print("no move function selected")
+                            assert(0)
 
 
             # if self.debugging == True:
@@ -553,7 +595,7 @@ class mesh_class(object):
             assert(0)
         middlebin = int(self.N_space/2)   # edges inside the source - static
         sidebin = int(middlebin/2) # edges outside the source - moving
-        dx = 1e-1
+        dx = 1e-2
         # left = np.linspace(-self.x0-dx, -self.x0, sidebin + 1)
         # right = np.linspace(self.x0, self.x0 + dx, sidebin + 1)
         left_old = self.thick_quad_edge
@@ -733,6 +775,7 @@ class mesh_class(object):
     def boundary_source_init_func(self):
         self.edges = np.linspace(-self.x0, self.x0, self.N_space+1)
         self.Dedges = self.edges/self.edges[-1] * self.speed * 0
+        self.edges0 = self.edges
 
 
     
