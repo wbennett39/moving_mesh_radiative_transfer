@@ -64,11 +64,16 @@ class parameter_load_class:
         self.saving = int(parameters['all']['save_solution'])
     
         self.N_angles = np.array(parameters[source_name]['N_angles'])
-        self.x0 = np.array(parameters[source_name]['x0'])
+        
         self.source_type = np.array(parameters[source_name]['source_type'])
         self.source_strength = float(parameters[source_name]['source_strength'])
-        if self.source_type[0] == 1:
-            self.x0 = np.array([1e-14])
+        
+        if self.source_type[0] != 0:
+            self.x0 = np.zeros(np.array(parameters[source_name]['x0']).size)
+            for ix, xx in enumerate(self.x0):
+                self.x0[ix] = float(np.array(parameters[source_name]['x0'])[ix])
+        else:
+            self.x0 = np.array(parameters[source_name]['x0'])
         self.move_type = np.array(parameters[source_name]['move_type'])
         self.benchmarking = int(parameters[source_name]['benchmarking'])
         self.r_times = np.zeros(len(self.N_angles))
@@ -112,6 +117,7 @@ class parameter_load_class:
         self.Msigma = int(mesh_parameters['Msigma'])
         self.finite_domain = int(mesh_parameters['finite'])
         self.domain_width = -1
+        self.fake_sedov_v0 = float(mesh_parameters['fake_sedov_v0'])
         if self.finite_domain == True:
             self.domain_width = float(mesh_parameters['domain_width'])
 
@@ -119,11 +125,11 @@ class parameter_load_class:
             print('Spaces, Ms, and N_angles should be the same length')
             assert(0)
 
-        if (0.82 <self.tfinal <0.84):
-            self.tfinal = 1./1.2
-        if 0.415 <self.x0_or_sigma <0.417:
-            self.x0_or_sigma = 0.5/1.2
-            self.sigma = 0.5/1.2
+        # if (0.82 <self.tfinal <0.84):
+        #     self.tfinal = 1./1.2
+        # if 0.415 <self.x0_or_sigma <0.417:
+        #     self.x0_or_sigma = 0.5/1.2
+        #     self.sigma = 0.5/1.2
 
 
 

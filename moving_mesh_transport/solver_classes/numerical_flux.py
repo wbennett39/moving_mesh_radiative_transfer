@@ -48,7 +48,9 @@ data = [("M", int64),
         ('test_dimensional_rhs', int64),
         ('boundary_on', int64[:]), 
         ('boundary_source_strength', float64),
-        ('boundary_source', int64)
+        ('boundary_source', int64),
+        ('uncollided', int64),
+        ('t0', float64)
         ]
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
@@ -63,6 +65,7 @@ class LU_surf(object):
         self.ws_quad = build.ws_quad
         self.xs_quad = build.xs_quad
         self.N_space = build.N_space
+        self.t0 = build.t0
         self.v0 = 0.0 
         self.v1 = 0.0
         self.v2 = 0.0
@@ -76,6 +79,7 @@ class LU_surf(object):
         self.boundary_source = build.boundary_source
         self.boundary_on = build.boundary_on # [left, right]
         self.boundary_source_strength = build.boundary_source_strength
+        self.uncollided = build.uncollided
         if self.test_dimensional_rhs == False:
             self.speed = 299.98
 
@@ -133,19 +137,21 @@ class LU_surf(object):
         self.xL_minus = self.edges[0] - dx
         self.xR_plus = self.edges[-1] + dx
         
-    def is_boundary_source_on(self, space):
+    def is_boundary_source_on(self, space, t):
         returnval = False
         if self.source_type[4] == 1:
             returnval = True
         elif self.thermal_couple == 1:
             returnval = True
         elif self.boundary_source == True:
-            if space == 0:
-                if self.boundary_on[0] == 1:
-                    returnval = True
-            elif space == self.N_space - 1:
-                if self.boundary_on[1] == 1:
-                    returnval = True
+            if self.uncollided == False:
+                if t <= self.t0:
+                    if space == 0:
+                        if self.boundary_on[0] == 1:
+                            returnval = True
+                    elif space == self.N_space - 1:
+                        if self.boundary_on[1] == 1:
+                            returnval = True
         return returnval
 
 
@@ -154,7 +160,7 @@ class LU_surf(object):
                 if space != 0:
                     self.v0 += self.B_LR_func(j, self.hm)[1]*(u[space-1,j])
                     
-                elif space == 0 and self.is_boundary_source_on(space): # special MMS case
+                elif space == 0 and self.is_boundary_source_on(space, t): # special MMS case
                     self.v0 += self.integrate_quad(t, self.xL_minus, self.edges[space], j, "l") * self.B_LR_func(j, self.h)[1] 
                     
                 self.v1 += self.B_LR_func(j, self.h)[0]*(u[space, j])
@@ -163,7 +169,7 @@ class LU_surf(object):
                 if space != self.N_space - 1:
                     self.v3 += self.B_LR_func(j, self.hp)[0]*(u[space+1,j])
                     
-                elif space == self.N_space - 1 and self.is_boundary_source_on(space):
+                elif space == self.N_space - 1 and self.is_boundary_source_on(space, t):
                     self.v3 += self.integrate_quad(t, self.edges[space+1], self.xR_plus, j, "r") * self.B_LR_func(j, self.h)[0] 
             
     

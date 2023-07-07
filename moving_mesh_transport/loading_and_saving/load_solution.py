@@ -14,7 +14,7 @@ import numpy as np
 class load_sol:
     def __init__(self, problem_name = 'transport', source_name = 'square_s', rad_or_transfer = 'rad', c = 1.0, s2 = False, cv0 = 0.0, file_name = 'run_data_crc_dec15-3.hdf5' ):
 
-        data_folder = Path("moving_mesh_transport/crc_run_data/")
+        data_folder = Path("moving_mesh_transport/local_run_data/")
 
         self.data_file_path = data_folder / file_name
         # self.data_file_path = data_folder / 'run_data.h5' 
@@ -37,19 +37,18 @@ class load_sol:
     def call_sol(self, tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving):
         # full_str = self.rad_or_transfer
         full_str = ''
-        # if self.s2 == True:
-        #     full_str += '_s2'
+
         full_str += "/" + str(self.source_name) + '_uncollided_' * (uncollided) + 'moving_mesh_' * (moving) + 'N_space = ' + str(N_space) + '_t = ' + str(tfinal) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
         f = h5py.File(self.data_file_path, "r+")
         f2 = h5py.File(self.final_sol_path, 'a')
-        # print(f[self.problem_name]['solution'].keys())
-        # print(full_str)
-        # print(f[self.problem_name]['solution'].keys())
+
         sol_data = f[self.problem_name]['solution/'+full_str]
 
         self.xs = sol_data[0]
         self.phi = sol_data[1]
         self.e = sol_data[2]
+        # self.psi = f[self.problem_name]['psi/'+full_str]
+
       
         self.ws = f[self.problem_name]['weights/' + full_str][:]
         self.edges = f[self.problem_name]['edges/' + full_str][:]

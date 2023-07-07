@@ -12,9 +12,29 @@ import yaml
 from scipy.special import erf
 import math
 import numpy as np
+from scipy import integrate
+import scipy.interpolate as interp
 
 # I could take all of the plotting out of the solver, group problems here by 
 # infinite medium, finite etc. to simplify things
+#-----------------------------------------------------------------------------
+# Next steps for this code:
+
+# Special mesh function for Fake Sedov  [x] doesn't seem to work
+# Get Sedov loaded  []
+# Update readme for info on every problem   []
+# Clean up the output so people can use it  []
+# Put these benchmarks in benchmark module  []
+# New saving routine?   []
+# Unit tests!
+
+#-----------------------------------------------------------------------------
+
+
+
+
+def RMSE(list1, list2):
+    return np.sqrt(np.mean((list1-list2)**2))
 
 class run:
     def __init__(self):
@@ -193,6 +213,70 @@ class run:
             
             elif solver.sigma_func[2] == 1 or solver.sigma_func[3] == 1:
                 self.siewert_bench(solver.sigma_func)
+            
+            elif solver.sigma_func[4] == 1:
+                plt.figure(4)
+                mu2 = self.mus[np.argmin(np.abs(self.mus - 0.6))]
+                plt.plot(self.xs, self.psi[-1], '--', label = 'mu = 1 from solver')
+                plt.plot(self.xs, self.psi[np.argmin(np.abs(self.mus - 0.6))], '--', label = f'mu = {round(mu2,2)} from solver')
+                plt.plot(self.xs, self.phi)
+                plt.legend()
+                plt.show()
+                self.fake_sedov_benchmark()
+                print(self.mus[-1], 'last mu')
+
+                plt.figure(5)
+                plt.plot(self.mus, self.exit_dist[:,0], '--b', mfc = 'none', label = 'left exit distribution')
+                plt.legend()
+                plt.show()
+                # plt.plot(self.exit_dist[-1], "right exit")
+                # plt.show()
+
+                plt.figure(6)
+                plt.plot(self.mus, self.exit_dist[:,1], '--b', mfc = 'none', label = 'right exit distribution')
+                plt.legend()
+                plt.show()
+                # plt.plot(self.exit_dist[0], "left exit")
+    def dipole(self, uncollided = True, moving = True, All = False):
+        plt.ion()
+        # plt.figure(1)
+        source_name = "dipole"
+        print("---  ---  ---  ---  ---  ---  ---")
+        print("running dipole")
+        print("---  ---  ---  ---  ---  ---  ---")
+        
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
+        if All == True:
+            solver.main(True, True)
+            solver.main(False, True)
+            solver.main(True, False)
+            solver.main(False, False)
+        else:
+            solver.main(uncollided, moving)
+            self.get_results(solver)
+        # plt.title("plane IC")
+        # plt.legend()
+        # plt.show(block = False)
+    def self_sim_plane(self, uncollided = True, moving = True, All = False):
+        plt.ion()
+        # plt.figure(1)
+        source_name = "self_sim_plane"
+        print("---  ---  ---  ---  ---  ---  ---")
+        print("running self_sim_plane")
+        print("---  ---  ---  ---  ---  ---  ---")
+        
+        solver = main_class(source_name, self.parameters, self.mesh_parameters) 
+        if All == True:
+            solver.main(True, True)
+            solver.main(False, True)
+            solver.main(True, False)
+            solver.main(False, False)
+        else:
+            solver.main(uncollided, moving)
+            self.get_results(solver)
+        # plt.title("plane IC")
+        # plt.legend()
+        # plt.show(block = False)
 
                 
       
@@ -208,6 +292,8 @@ class run:
         self.x0 = solver.x0
         self.exit_dist = solver.exit_dist
         self.tfinal = solver.tfinal
+        self.v0 = solver.fake_sedov_v0
+        self.t0_source = solver.t0
 
         
     def run_all(self):
@@ -338,3 +424,112 @@ class run:
         plt.xlabel('x')
         plt.ylabel(r'$\phi$')
         plt.show()
+    
+    def moving_gaussian_shock(self, tfinal, x, mu):
+        sigma_v = -0.25
+        
+        left_bound = - 5.0
+        x0 = -5 
+        t0 =  (x0-x)/mu + tfinal # time the particle is emitted
+        # right_bound = x - sigma_v * (tfinal - t0)
+        right_bound = x
+
+        eta_func = lambda s, mu: (s - x0) / mu + t0
+        sigma_func = lambda s, t: np.exp(-(s-sigma_v * t)**2/(2*2**2))
+        integrand = lambda s, t, mu: sigma_func(s, eta_func(s, mu))
+
+        mfp = integrate.quad(integrand, left_bound, right_bound, args = (tfinal, mu))[0]
+
+        return np.exp(-mfp / abs(mu)) * np.heaviside(abs(mu) - abs((x - x0)/ tfinal), 0)
+
+    def fake_sedov(self, mu, tfinal, x):
+        c1 = 1.0
+        v0 = self.v0
+        x0 = -5 
+        t0 =  (x0-x)/mu + tfinal # time the particle is emitted
+        x02 = 0.0
+        sqrt_pi = math.sqrt(math.pi)
+        kappa = 2
+        rho0 = 0.2
+        # beta = c1 * (v0-1) - v0 * (x0/mu + t0)
+        
+        # b2 =  v0 * (-x0/mu - t0 + c1) / (1+v0/mu)
+        b2 = ((v0*x0) - t0*v0*mu)/(v0 + mu)
+        b1 = max(x, b2)
+        # b2 = 0
+
+        b4 = x0
+        # b3 = min(x,0)
+
+        b3 =  min(x, b2)
+
+        # print(b1, b2, b3, b4, 'bs', x, 'x', t0, 't0')
+
+        # t1 = lambda s: -0.5*(mu*sqrt_pi*kappa*erf((beta - (s*(mu + v0))/mu)/kappa))/(mu + v0)
+        t1 = lambda s: (sqrt_pi*kappa*mu*erf((v0*(s - x0) + (c1 + s + t0*v0)*mu)/(kappa*mu)))/(2.*(v0 + mu))
+        t2 = lambda s: rho0 * s
+
+        mfp = t1(b1) - t1(b2) + t2(b3) - t2(b4) 
+        # mfp = rho0 * x - rho0 * (-x0)
+        # print(mfp, x, 'mfp')
+
+        return np.exp(-mfp / mu) * np.heaviside(mu - abs(x - x0)/ (tfinal), 0) * np.heaviside(abs(x0-x) - (tfinal-self.t0_source)*mu,0)
+
+ 
+
+    def moving_gaussian_shock_benchmark(self):
+        psi1 = np.zeros(25)
+        psi2 = np.zeros(25)
+        mu1 = 1
+        mu2 = self.mus[np.argmin(np.abs(self.mus - 0.6))]
+        sparse_xs = np.linspace(self.xs[0], self.xs[-1], 25)
+        for ix, xx in enumerate(sparse_xs):
+            psi1[ix] = self.moving_gaussian_shock(self.tfinal, xx, mu1)
+            psi2[ix] = self.moving_gaussian_shock(self.tfinal, xx, mu2)
+
+        plt.figure(4)
+        plt.plot(sparse_xs, psi1,'o', mfc = 'none', label = 'benchmark mu = 1')
+        plt.plot(sparse_xs, psi2,'o', mfc = 'none', label = f'benchmark mu = {round(mu2,2)}')
+        plt.legend()
+        plt.xlabel('x', fontsize = 16)
+        plt.ylabel(r'$\psi$', fontsize = 16)
+        plt.show()
+
+    def fake_sedov_benchmark(self):
+        psi1 = np.zeros(50)
+        psi2 = np.zeros(50)
+        mu1 = 1
+        mu2 = self.mus[np.argmin(np.abs(self.mus - 0.6))]
+        sparse_xs = np.linspace(self.xs[0], self.xs[-1], 50)
+        for ix, xx in enumerate(sparse_xs):
+            psi1[ix] = self.fake_sedov(mu1, self.tfinal, xx)
+            psi2[ix] = self.fake_sedov(mu2, self.tfinal, xx)
+
+
+        psi_all = np.zeros((sparse_xs.size, self.mus.size))
+        for imu, mu in enumerate(self.mus):
+            for ix, xx in enumerate(sparse_xs):
+                psi_all[ix, imu] = self.fake_sedov(mu, self.tfinal, xx)
+        phi = np.zeros(sparse_xs.size)
+        for ix in range(sparse_xs.size):
+            # phi[ix] = integrate.quad(self.fake_sedov, -1, 1, args = (self.tfinal, xx))[0]
+            # print(phi[ix])
+            phi[ix] = np.sum(self.ws * psi_all[ix, :])
+        
+        plt.figure(4)
+        plt.plot(sparse_xs, psi1,'o', mfc = 'none', label = 'benchmark mu = 1')
+        plt.plot(sparse_xs, psi2,'o', mfc = 'none', label = f'benchmark mu = {round(mu2,2)}')
+        plt.plot(sparse_xs, phi, 's', mfc = 'none', label = 'phi benchmark')
+        plt.legend()
+        plt.xlabel('x', fontsize = 16)
+        plt.ylabel(r'$\psi$', fontsize = 16)
+        plt.show()
+
+        print("#--- --- --- --- --- --- --- --- ---#")
+        phi_interp = interp.interp1d(self.xs, self.phi)
+        phi_eval = phi_interp(sparse_xs)
+        print('RMSE', RMSE(phi_eval, phi))
+        print()
+
+
+

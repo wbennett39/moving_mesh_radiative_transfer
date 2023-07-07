@@ -12,8 +12,8 @@ from pathlib import Path
 class save_output:
     def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major,
                  thermal_couple, temp_function, c, sigma, x0, cv_const, problem_type, N_angles):
-        data_folder = Path("moving_mesh_transport")
-        self.solution_file_path = data_folder / 'run_data_crc_dec7-4.hdf5'
+        data_folder = Path("moving_mesh_transport/local_run_data")
+        self.solution_file_path = data_folder / 'run_data.hdf5'
         self.wavepoints_file_path = data_folder / 'wavepoints_crc.hdf5'
         self.problem_type = problem_type              
         self.Ms = Ms
@@ -152,7 +152,7 @@ class save_output:
                 dset[5] = energy_RMS_list
                 f.close()
                 
-    def save_solution(self, xs, phi, e, sol_matrix, edges,  x0_or_sigma, ws, N_space, s2):
+    def save_solution(self, xs, phi, e, sol_matrix, edges,  x0_or_sigma, ws, N_space, s2, psi):
         print("saving solution")
         "transport or transfer/source_name/t = {tfinal}/c = {c}/ x0(or sigma) = {val}"
         
@@ -192,13 +192,20 @@ class save_output:
         print('###  ###  ###  ###  ###  ###  ###  ###  ###')
         dset = f[folder_name].create_dataset('solution/' + full_str, (4, len(xs)))
 
-        
+        if f[folder_name].__contains__('psi/' + full_str):
+            del f[folder_name]['psi/' + full_str]
         print("saving solution")
         dset[0] = xs
         dset[1] = phi
-        dset[2] = e
+        if folder_name != 'transport':
+            dset[2] = e
+        dsetpsi = f[folder_name].create_dataset('psi/' + full_str, (psi[0].size, len(xs)))
+        dsetpsi = psi
+        # dset[3] = psi
         # dset[2] = self.ws
         # dset[3] = sol_matrix
+
+
         
         if f[folder_name].__contains__('coefficients/' + full_str):
             del f[folder_name]['coefficients/' + full_str]

@@ -250,7 +250,8 @@ def plot_all_benchmarks(tfinal):
         # source_list = ["plane_IC", "square_IC", "square_source", "gaussian_IC",
         # "gaussian_source", "MMS", "gaussian_IC_2D", "line_source", "square_IC_c_not_one", 
         # "gaussian_IC_c_not_one", 'square_source_s2','gaussian_source_s2', 'square_source_s2_thick', 'gaussian_source_s2_thick' ]
-        source_list = ['square_source_s2','gaussian_source_s2']
+        # source_list = ['square_source_s2','gaussian_source_s2']
+        source_list = ['square_IC', 'plane_IC']
     elif tfinal >=100:
         source_list = ['square_source_s2_thick', 'gaussian_source_s2_thick']
 

@@ -1,15 +1,15 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'su_olson_thick_s2'
-    'tfinal': 30.0 #31.6228               # evaluation time
+    'tfinal': 2048.0 #31.6228               # evaluation time
     'sigma_t': 800.0
     'sigma_s': 800.0
     'c_scaling': False
     't0': 0.0125                           # time the source is turned off
-    'N_spaces': [128]                     # number of cells
+    'N_spaces': [32]                     # number of cells
 #    'N_spaces': [4,4,4,4,4,4,4,4,4,4,4,4]                     # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
-    'Ms': [10]                           # number of basis functions -
+    'Ms': [6]                           # number of basis functions -
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
     'at': 1e-11                         # abs tolerance for ODE integrator
@@ -30,14 +30,16 @@
 # Actually a thin source until I change sigma
 'plane_IC':
     'x0': 1e-10                         # source initial width/2
+    'source_strength': 1.0
+    'l': 0.00125
     'source_type': [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [2, 2, 2]    # corresponds to N_spaces
-    'move_type': [1,0]              # moving mesh function selector
+    'N_angles': [2]    # corresponds to N_spaces
+    'move_type': [0,0,1]              # moving mesh function selector
     'benchmarking': False                # If 'True', will attempt to load benchmark and calculate RMSE
     
 # square pulse source
 'square_IC':
-    'x0': [400]
+    'x0': [0.5]
     'source_type': [0,1,0,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [2]
 #    'N_angles': [128]

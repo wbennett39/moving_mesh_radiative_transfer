@@ -8,6 +8,7 @@ from .mesh_functions import set_func, _interp1d
 import quadpy
 import numpy.polynomial as nply
 from scipy.special import roots_legendre
+from .mesh_functions import boundary_source_init_func_outside
 
 
 #################################################################################################
@@ -57,7 +58,11 @@ data = [('N_ang', int64),
         ('c1s', float64[:]),
         ('finite_domain', int64),
         ('domain_width', float64),
-        ('mesh_stopped', int64)
+        ('mesh_stopped', int64),
+        ('vnaught', float64),
+        ('boundary_on', int64[:]),
+        ('vv0', float64),
+        ('t0', float64)
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -68,7 +73,7 @@ data = [('N_ang', int64),
 class mesh_class(object):
     def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v,
      thick, move_factor, wave_loc_array, pad, leader_pad, thick_quad, thick_quad_edge, 
-     finite_domain, domain_width):
+     finite_domain, domain_width, fake_sedov_v, boundary_on, t0):
         
         self.debugging = True
         self.test_dimensional_rhs = False
@@ -84,6 +89,7 @@ class mesh_class(object):
         self.Dedges = np.zeros(N_space+1)
         self.N_space = N_space
         self.speed = edge_v
+
         self.move_factor = move_factor
         if self.test_dimensional_rhs == True:
             self.speed = 299.98
@@ -99,7 +105,7 @@ class mesh_class(object):
         elif self.move_type[2] == True:
             self.move_func = 2 # sqrt t static
         elif self.move_type[3] == True:
-            self.move_func = 3 # sqrt t static
+            self.move_func = 3
         
         # self.problem_type = problem_identifier(self.source_typem, self.x0)
         self.thick = thick
@@ -116,7 +122,7 @@ class mesh_class(object):
         self.sidebin = int(self.N_space/4)
         self.middlebin = int(self.N_space/2)
         
-        self.initialize_mesh()
+
         self.tactual = -1.
         self.told = 0.0
         self.index_old = 0
@@ -125,13 +131,24 @@ class mesh_class(object):
         self.leader_speed = 0.0
         self.span_speed = 0.0
         self.leader_pad = leader_pad
-        self.t0 = 10.0
+        self.t0 = t0
         print(self.t0, 't0')
         self.finite_domain = finite_domain
+        if self.finite_domain == True:
+            print('finite domain')
         self.domain_width = domain_width
+        
+        self.boundary_on = boundary_on
 
         self.mesh_stopped = False
-    
+        self.vnaught = fake_sedov_v
+
+        if fake_sedov_v != 0 and np.all(self.source_type == 0):
+            self.speed = fake_sedov_v
+            print('speed is ', self.speed)
+
+        self.initialize_mesh()
+
 
     def move(self, t):
         # print(self.edges)pr
@@ -148,15 +165,16 @@ class mesh_class(object):
             # if self.source_type[1] == 1 or self.source_type[2] == 1:
                 # if t > 10.0:
                 #     self.Dedges = self.edges/self.edges[-1] * self.speed
-            if self.source_type[1] == 1:
-                
-                if self.finite_domain == True and t == self.tfinal:
 
+            if self.source_type[0] == 1 or self.source_type[0]==2:
+                self.edges = self.edges0 + self.Dedges_const*t
+
+            if self.source_type[1] == 1:
+                if self.finite_domain == True and t == self.tfinal:
 
                 # print(self.edges0[-1] + t * self.speed, "###### final edge ######")
                 
                 # if self.edges0[-1] + t * self.speed > 5 and self.finite_domain == True:
-                    print('here ############')
                     self.edges = np.linspace(-self.domain_width/2, self.domain_width/2, self.N_space+1)
                     print(self.edges)
 
@@ -167,18 +185,17 @@ class mesh_class(object):
                     self.edges = self.edges0 + self.Dedges_const*t
                     self.Dedges = self.Dedges_const
 
-            elif self.source_type[2] == 1:
-                self.finite_domain = True
-                if self.finite_domain == True:
-                    if (self.finite_domain == True) and (self.edges[-1] >= self.domain_width/2 or abs(self.edges[-1]-self.domain_width/2)<=1e-2):
+            elif self.source_type[2] == 1 or self.source_type[1] == 1 or self.source_type[0]!=0:
+                # self.finite_domain = True # what is the deal with this?
+                if (self.finite_domain == True) and (self.edges[-1] >= self.domain_width/2 or abs(self.edges[-1]-self.domain_width/2)<=1e-2):
                         self.edges = self.edges
                         self.Dedges = self.Dedges_const*0
                     # if t == self.tfinal:
                     #     self.edges = np.linspace(-5, 5, self.N_space+1)
                     #     self.Dedges = self.Dedges_const*0
                     # else:
-                    else:
-                        if self.move_func == 0:
+                else:
+                    if self.move_func == 0:
                             if t >= self.t0:
                                 self.move_middle_edges(t)
                                 tnew1 = t - self.t0 
@@ -212,7 +229,7 @@ class mesh_class(object):
                     #         self.edges = self.edges0 + self.Dedges*t
 
 
-                        elif self.move_func == 1: 
+                    elif self.move_func == 1: 
                             """
                             This mode has the wavefront tracking edges moving at a constant speed
                             and interior edges tracking the diffusive wave
@@ -221,16 +238,18 @@ class mesh_class(object):
                             self.thick_square_moving_func_2(t)
                     
 
-                        elif self.move_func == 2:
+                    elif self.move_func == 2:
                             self.square_source_static_func_sqrt_t(t)
 
 
             
 
-                        else:
+                    else:
                             print("no move function selected")
                             assert(0)
-
+            elif np.all(self.source_type == 0):
+                # print(self.Dedges)
+                self.edges = self.edges0 + self.Dedges*t
 
             # if self.debugging == True:
             #     for itest in range(self.edges.size()):
@@ -386,75 +405,7 @@ class mesh_class(object):
         # print(self.edges[-2], "|", self.wave_loc_array[0,3,index+1])
 
 
-    def initialize_mesh(self):
-        """
-        Initializes initial mesh edges and initial edge derivatives. This function determines
-        how the mesh will move
-        """
-        print('initializing mesh')
-        # if self.problem_type in ['plane_IC']:
-        if self.source_type[0] == 1:
-            self.simple_moving_init_func()
-
-        if self.thick == False:     # thick and thin sources have different moving functions
-
-            # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
-            if self.source_type[3] == 1 or self.source_type[5] == 1:
-                self.simple_moving_init_func()
-            # elif self.problem_type in ['square_IC', 'square_source']:
-            if self.source_type[1] == 1 or self.source_type[2] == 1:
-                print('calling thin square init')
-                self.thin_square_init_func_legendre()
-            
-            if np.all(self.source_type == 0):
-                self.boundary_source_init_func()
-                print('calling boundary source func')
-
-
-        elif self.thick == True:
-            # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
-            if self.source_type[3] == 1 or self.source_type[5] == 1:
-                if self.moving == True:
-                    self.simple_moving_init_func()
-                elif self.moving == False:
-                    self.thick_gaussian_static_init_func()
-
-            elif self.source_type[1] == 1 or self.source_type[2] == 1:
-                if self.move_func == 0:
-                    self.simple_moving_init_func()
-
-                if self.moving == False:
-                    if self.move_func == 1:
-                        self.simple_thick_square_init_func()
-                    elif self.move_func == 2:
-                        self.thin_square_init_func()
-                elif self.moving == True:
-                    if self.move_func == 1:
-                        self.thick_square_moving_init_func()
-                    elif self.move_func == 2:
-                        self.thin_square_init_func()
-
-        # self.edges0 = self.edges
-        self.Dedges_const = self.Dedges
-
-
-
-        if self.moving == False:
-            self.tactual = 0.0
-            # static mesh -- puts the edges at the final positions that the moving mesh would occupy
-            # sets derivatives to 0
-            self.moving = True
-            if self.thick == True:
-                self.delta_t = self.tfinal 
-            self.move(self.tfinal)
-            print(self.Dedges, 'Dedges')
-            self.Dedges = self.Dedges*0
-            self.moving = False
-            # self.edges[-1] = self.x0 + self.tfinal * self.speed
-            # self.edges[0] = -self.x0 + -self.tfinal * self.speed
-
-
-            print(self.edges[-1], "final edges -- last edge")
+    
 
             
 
@@ -498,8 +449,8 @@ class mesh_class(object):
         self.Dedges[sidebin:sidebin+middlebin] = 0       
         self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
         self.Dedges = self.Dedges * self.speed * 0 
+ 
 
-        
     def square_source_static_func_sqrt_t(self, t):
         # only to be used to estimate the wavespeed
         move_factor = self.move_factor
@@ -512,6 +463,7 @@ class mesh_class(object):
         # move the interior edges
         self.Dedges = self.Dedges_const * move_factor * 0.5 / sqrt_t
         self.edges = self.edges0 + self.Dedges_const * move_factor * sqrt_t
+        print(self.edges, 'edges')
     
 
         # move the wavefront edges
@@ -533,6 +485,8 @@ class mesh_class(object):
     def simple_moving_init_func(self):
             self.edges = np.linspace(-self.x0, self.x0, self.N_space+1)
             self.Dedges = self.edges/self.edges[-1] * self.speed
+            if self.source_type[0] == 2:
+                self.edges += 0.01
 
     # def thick_square_moving_func(self, t):
     #     middlebin = int(self.N_space/2)
@@ -572,7 +526,7 @@ class mesh_class(object):
             assert(0)
         middlebin = int(self.N_space/2)   # edges inside the source - static
         sidebin = int(middlebin/2) # edges outside the source - moving
-        dx = 1e-14
+        dx = 1e-12
         left = np.linspace(-self.x0-dx, -self.x0, sidebin + 1)
         right = np.linspace(self.x0, self.x0 + dx, sidebin + 1)
 
@@ -586,6 +540,7 @@ class mesh_class(object):
         self.Dedges[sidebin:sidebin+middlebin] = 0       
         self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
         self.Dedges = self.Dedges * self.speed
+        self.edges0 = self.edges
 
 
     def thin_square_init_func_legendre(self):
@@ -772,10 +727,122 @@ class mesh_class(object):
 
 
 
-    def boundary_source_init_func(self):
+    def boundary_source_init_func(self, v0):
+        mid = int(self.N_space/2)
         self.edges = np.linspace(-self.x0, self.x0, self.N_space+1)
-        self.Dedges = self.edges/self.edges[-1] * self.speed * 0
+        self.Dedges = np.copy(self.edges)*0
+        if self.moving == False:
+            v0 = 0
+        # self.Dedges[mid] = - self.fake_sedov_v0
+        ### First attempt -- Even spacing
+        final_shock_point = - self.tfinal * v0
+        final_edges_left_of_shock = np.linspace(-self.x0, final_shock_point, int(self.N_space/2+1))
+        final_edges_right_of_shock = np.linspace(final_shock_point, self.x0, int(self.N_space/2+1))
+        final_edges = np.concatenate((final_edges_left_of_shock[:-1], final_edges_right_of_shock))
+        self.Dedges = (final_edges - self.edges) / self.tfinal
         self.edges0 = self.edges
+
+        ### Second -- squared  spacing
+
+        # xsi = ((np.linspace(0,1, mid + 1))**2)
+        # final_shock_point = - self.tfinal * v0
+        # initial_edges_right = ((xsi*2-1)*(-self.x0)-self.x0)/(-2)
+        # initial_edges_left = ((xsi*2-1)*(self.x0)+self.x0)/(-2)
+        # self.edges = np.concatenate((np.flip(initial_edges_left), initial_edges_right[1:]))
+        # print(self.edges)
+        # final_shock_point = - self.tfinal * v0
+        # # final_edges_left_of_shock = np.linspace(-self.x0, final_shock_point, int(self.N_space/2+1))
+        # # final_edges_right_of_shock = np.linspace(final_shock_point, self.x0, int(self.N_space/2+1))
+        # final_edges_right_of_shock = ((xsi*2-1)*(final_shock_point-self.x0)-final_shock_point-self.x0)/(-2)
+        # final_edges_left_of_shock = np.flip(((xsi*2-1)*(final_shock_point+self.x0)+ self.x0-final_shock_point)/(-2))
+        # print(final_edges_left_of_shock)
+        # final_edges = np.concatenate((final_edges_left_of_shock[:-1], final_edges_right_of_shock))
+        # print(final_edges, 'final edges')
+        # self.Dedges = (final_edges - self.edges) / self.tfinal
+        # self.edges0 = self.edges
+
+
+        
+    def initialize_mesh(self):
+
+        """
+        Initializes initial mesh edges and initial edge derivatives. This function determines
+        how the mesh will move
+        """
+        print('initializing mesh')
+        # if self.problem_type in ['plane_IC']:
+        if self.source_type[0] == 1 or self.source_type[0] == 2:
+            self.simple_moving_init_func()
+
+        if self.thick == False:     # thick and thin sources have different moving functions
+
+            # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
+            if self.source_type[3] == 1 or self.source_type[5] == 1:
+                self.simple_moving_init_func()
+            # elif self.problem_type in ['square_IC', 'square_source']:
+            elif self.source_type[1] == 1 or self.source_type[2] == 1:
+                print('calling thin square init')
+                self.thin_square_init_func_legendre()
+            
+            elif np.all(self.source_type == 0):
+                self.boundary_source_init_func(self.vnaught)
+                # boundary_source_init_func_outside(self.vnaught, self.N_space, self.x0, self.tfinal) 
+                print('calling boundary source func')
+            # if self.
+
+
+        elif self.thick == True:
+            # if self.problem_type in ['gaussian_IC', 'gaussian_source']:
+            if self.source_type[3] == 1 or self.source_type[5] == 1:
+                if self.moving == True:
+                    self.simple_moving_init_func()
+                elif self.moving == False:
+                    self.thick_gaussian_static_init_func()
+
+            elif self.source_type[1] == 1 or self.source_type[2] == 1 or self.source_type[0]!= 0:
+                if self.move_func == 0:
+                    self.simple_moving_init_func()
+
+                if self.moving == False:
+
+                    if self.move_func == 1:
+
+                        self.simple_thick_square_init_func()
+                    elif self.move_func == 2:
+
+                        if self.source_type[0] != 0:
+
+                            self.simple_moving_init_func()
+                        else:
+                            self.thin_square_init_func()
+                elif self.moving == True:
+                    if self.move_func == 1:
+                        self.thick_square_moving_init_func()
+                    elif self.move_func == 2:
+                            self.thin_square_init_func()
+
+        # self.edges0 = self.edges
+        self.Dedges_const = self.Dedges
+
+
+
+        if self.moving == False:
+            self.tactual = 0.0
+            # static mesh -- puts the edges at the final positions that the moving mesh would occupy
+            # sets derivatives to 0
+            self.moving = True
+            if self.thick == True:
+                self.delta_t = self.tfinal 
+            self.move(self.tfinal)
+            self.Dedges = self.Dedges*0
+            self.moving = False
+            # self.edges[-1] = self.x0 + self.tfinal * self.speed
+            # self.edges[0] = -self.x0 + -self.tfinal * self.speed
+
+
+            print(self.edges[-1], "final edges -- last edge")
+
+
 
 
     

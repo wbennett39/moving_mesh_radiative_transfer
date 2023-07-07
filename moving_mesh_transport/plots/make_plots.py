@@ -822,7 +822,7 @@ class rms_plotter:
             xs2 = np.append(xs, np.array([tfinal + .0000001]))
             plt.plot(xs2, interp_bench2, "-k")
             plt.plot(-xs2, interp_bench2, "-k")
-            if tfinal == 1:
+            if max(uncol2)>= 1e-5:
                 plt.plot(xs2, uncol2, "-.k")
                 plt.plot(-xs2, uncol2, "-.k")
             
@@ -837,7 +837,7 @@ class rms_plotter:
             uncol = bench(xs)[1]
             plt.plot(xs, interp_bench, "-k")
             plt.plot(-xs, interp_bench, "-k")
-            if tfinal == 1:
+            if max(uncol)>= 1e-5:
                 plt.plot(xs, uncol, "-.k")
                 plt.plot(-xs, uncol, "-.k")
             show(file_path_string + f"/square_IC_t_{tfinal}_benchmark")

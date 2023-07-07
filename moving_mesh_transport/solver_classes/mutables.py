@@ -8,6 +8,7 @@ Created on Thu Jan 27 15:34:07 2022
 from numba import njit, jit, int64, float64
 from numba.experimental import jitclass
 import numpy as np
+import math
 
 
 ###############################################################################
@@ -22,16 +23,18 @@ data = [('N_ang', int64),
         ("uncollided", int64),
         ('x', float64[:]),
         ('source_strength', float64),
-        ('sigma', float64)
+        ('sigma', float64),
+        ('x1', float64)
         ]
 @jitclass(data)
 class IC_func(object):
-    def __init__(self, source_type, uncollided, x0, source_strength, sigma):
+    def __init__(self, source_type, uncollided, x0, source_strength, sigma, x1 = 0):
         self.source_type = source_type
         self.uncollided = uncollided
         self.x0 = x0
         self.source_strength = source_strength
         self.sigma = sigma
+        self.x1 = x1
 
 
     def function(self, x):
@@ -47,6 +50,10 @@ class IC_func(object):
             return self.gaussian_IC(x)
         elif self.source_type[4] == 1:
             return self.MMS_IC(x)
+        elif self.source_type[0] == 2:
+            return self.dipole(x)
+        elif self.source_type[0] == 3:
+            return self.self_sim_plane(x)
         else:
             return np.zeros(x.size)
         
@@ -63,5 +70,21 @@ class IC_func(object):
         # temp = np.greater(x, -self.x0)*1.0 - np.greater(x, self.x0)*1.0 * np.exp(-x*x/2)/(2)
         temp = np.exp(-x*x/2)/(2)
         return temp
+    
+    def dipole(self, x):
+        x1 = self.x1
+        temp = (np.greater(x, -self.x0-x1) - np.greater(x, -self.x0 + x1))*self.source_strength +  (np.greater(x, self.x0-x1) - np.greater(x, self.x0 + x1))*self.source_strength 
+        return temp
+    
+    def self_sim_plane(self, x):
+        c = 29.998
+        kappa = 800
+        A = c/3/kappa
+        t = 0.01
+        arg = -x**2/4/A/t
+        temp = 1 / math.sqrt(math.pi) / math.sqrt(A * t) * np.exp(arg)
+        return temp / 2.0
+
+
         
         

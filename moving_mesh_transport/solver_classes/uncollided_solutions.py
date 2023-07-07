@@ -11,6 +11,7 @@ import math
 from .build_problem import build
 from .functions import normPn, numba_expi, uncollided_su_olson_s2, uncollided_square_s2
 from .functions import uncollided_s2_gaussian, uncollided_s2_gaussian_thick
+from.functions import heaviside_vector, heaviside_scalar
 # from scipy.special import expi as expi2
 
 from numba import float64, int64, deferred_type
@@ -45,7 +46,11 @@ data = [("S", float64[:]),
         ("N_ang", int64),
         ("sigma", float64),
         ('source_strength', float64),
-        ('uncollided_solution_return', float64[:])
+        ('uncollided_solution_return', float64[:]),
+        ('v0', float64),
+        ('ws', float64[:]),
+        ('mus', float64[:]),
+        ('t0_source', float64)
         ]
 ###############################################################################
 @jitclass(data)
@@ -70,6 +75,11 @@ class uncollided_solution(object):
         self.sigma = build.sigma
         self.source_strength = build.source_strength
         self.uncollided_solution_return = np.zeros(1)
+        self.v0 = build.fake_sedov_v0
+        self.ws = build.ws
+        self.mus = build.mus
+        self.t0_source = build.t0
+        print(build.t0, 'source duration')
 ###############################################################################
         
     def integrate_quad_gaussian_source(self, t, x, a, b, func):
@@ -77,6 +87,16 @@ class uncollided_solution(object):
         """
         argument = (b-a)/2 * self.t_quad + (a+b)/2
         return(b-a)/2 * np.sum(self.t_ws * func(argument, t, x)) 
+    
+    def integrate_quad_sedov_source(self, t, x, a, b, func):
+
+        # argument = (b-a)/2 * self.t_quad + (a+b)/2
+        argument = self.mus
+        funcval = argument * 0
+        for imu, xmu in enumerate(argument):
+            funcval[imu] = func(xmu, t, x)
+        # return (b-a)/2 * np.sum(self.t_ws * funcval) 
+        return 2*np.sum(np.multiply(self.ws, funcval))
         
     def gaussian_source_integrand(self, tau, t, x):
         abx = abs(x)
@@ -91,6 +111,27 @@ class uncollided_solution(object):
             else:
                 temp[i] = 0.0
         return temp
+
+    def fake_sedov_integrand(self, mu, t, x):
+        c1 = 1.0
+        v0 = self.v0
+        x0 = -self.x0
+        t0 =  (x0-x)/mu + t # time the particle is emitted
+        x02 = 0.0
+        sqrt_pi = math.sqrt(math.pi)
+        kappa = 2
+        rho0 = 0.2
+        b2 = ((v0*x0) - t0*v0*mu)/(v0 + mu)
+        b1 = max(x, b2)
+        b4 = x0
+        b3 =  min(x, b2)
+        def t1(s):
+            return (sqrt_pi*kappa*mu*math.erf((v0*(s - x0) + (c1 + s + t0*v0)*mu)/(kappa*mu)))/(2.*(v0 + mu))
+        def t2(s):
+            return rho0 * s
+
+        mfp = t1(b1) - t1(b2) + t2(b3) - t2(b4) 
+        return np.exp(-mfp / mu) * heaviside_scalar(mu - abs((x - x0)/ (t+1e-10))) * heaviside_scalar(abs(x0-x) - mu*(t-self.t0_source))
     
         
     def gaussian_source_uncollided_solution(self, xs, t):
@@ -100,6 +141,7 @@ class uncollided_solution(object):
         for ix in range(xs.size):
             x = xs[ix]
             result = self.integrate_quad_gaussian_source(t, x, 0.0, t_ceiling, self.gaussian_source_integrand)
+
             temp[ix] = result
         return temp * sqrtpi * self.sigma   
     
@@ -221,7 +263,14 @@ class uncollided_solution(object):
             else:
                 temp[ix] = self.integrate_quad_gaussian_source(t, xs[ix], 0.0, min(t,self.t0), self.gaussian_s2_thick_integrand)
         return temp
-        
+    
+    def fake_sedov(self, xs, t):
+        temp = xs*0
+        for ix, xx in enumerate(xs):
+            temp[ix] = self.integrate_quad_sedov_source(t, xx, -1, 1, self.fake_sedov_integrand)
+        return temp
+
+    
         
     def uncollided_solution(self, xs, t):
         if self.uncollided == True:
@@ -245,6 +294,8 @@ class uncollided_solution(object):
                     self.uncollided_solution_return = (self.gaussian_s2(xs,t) * self.source_strength)
                 else:
                     self.uncollided_solution_return = (self.gaussian_source_uncollided_solution(xs, t) * self.source_strength)
+            elif np.all(self.source_type==0):
+                self.uncollided_solution_return = self.fake_sedov(xs,t) * self.source_strength
         else:
             self.uncollided_solution_return = np.zeros(xs.size)
 

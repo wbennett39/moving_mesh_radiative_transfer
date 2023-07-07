@@ -169,8 +169,8 @@ class main_class(parameter_load_class):
                 self.thick, self.mxstp, self.wave_loc_array, self.find_edges_tol, self.source_strength, self.move_factor, 
                 self.integrator, self.l, self.save_wave_loc, self.pad, self.leader_pad, self.xs_quad, self.eval_times, self.eval_array,
                 self.boundary_on, self.boundary_source_strength, self.boundary_source, self.sigma_func, self.Msigma, self.finite_domain,
-                self.domain_width)
-                
+                self.domain_width, self.fake_sedov_v0)
+                print(edges, 'final edges')
                 # print(edges, "edges")
                 print(wave_tpnts, wave_xpnts, "wave points")
                 
@@ -183,8 +183,8 @@ class main_class(parameter_load_class):
                 # if self.sigma_t == 800:
                 #     print('re-scaling thick solution')
                 #     xs = xs * self.sigma_t
-                plt.figure(1)
-                plt.plot(xs, phi, 'o', mfc = 'none')
+                # plt.figure(1)
+                # plt.plot(xs, phi, 'o', mfc = 'none')
                 if self.sigma == 0:
                     x0_or_sigma = self.x0[0]
                 else:
@@ -195,44 +195,58 @@ class main_class(parameter_load_class):
                         s2 = True
                     else:
                         s2 = False
-                        
-                    saving.save_solution(xs, phi, e, sol_matrix, edges, x0_or_sigma, ws, N_space, s2)
+                    
+                    if self.eval_times ==False:
+                        saving.save_solution(xs, phi, e, sol_matrix, edges, x0_or_sigma, ws, N_space, s2 , psi)
+                    else:
+                        for it, tt in enumerate(self.eval_array):
+                            saving = save_output(tt, self.N_spaces, self.Ms, self.source_type, 
+                            moving, uncollided, self.major, self.thermal_couple, 
+                            self.temp_function, self.scattering_ratio, self.sigma,
+                            self.x0, self.cv0, self.problem_type, self.N_angles)
+
+                            saving.save_solution(xs, phi[it], e, sol_matrix, edges, x0_or_sigma, ws, N_space, s2, psi)
                 
                 
                 self.r_times[count] += (time)/self.N_runs
                 
 
                 ##################################################################
-                plt.figure(3)
-                plt.plot(xs, phi, "o", label = f"{N_space} spatial cells", mfc = "none")
+                plt.figure(1)
+                if self.eval_times == False:
+                    plt.plot(xs, phi, "-o", label = f"{N_space} spatial cells", mfc = "none")
+                else:
+                    plt.plot(xs, phi[-1,:], "-o", label = f"{N_space} spatial cells", mfc = "none")
+                    plt.plot(xs, phi[0,:], "-o", label = f"{N_space} spatial cells", mfc = "none")
+
                 plt.xlabel("x")
                 plt.ylabel("scalar flux")
                 if count == len(self.N_angles)-1:
                     plot_edges(edges, 1)
-                if self.thermal_couple == 1:
-                    plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
-                if self.temp_function[0]==1:
-                        plt.plot(xs, np.power(e,0.25), '-s', mfc = 'none', label = 'T')
-                elif self.temp_function[1] == 1:
-                        plt.plot(xs, e/self.cv0, '-s', mfc = 'none', label = 'T')
-                        plt.plot(xs, (e/self.cv0)**4, '-s', mfc = 'none', label = 'T^4')
+                # if self.thermal_couple == 1:
+                #     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
+                # if self.temp_function[0]==1:
+                #         plt.plot(xs, np.power(e,0.25), '-s', mfc = 'none', label = 'T')
+                # elif self.temp_function[1] == 1:
+                #         plt.plot(xs, e/self.cv0, '-s', mfc = 'none', label = 'T')
+                #         plt.plot(xs, (e/self.cv0)**4, '-s', mfc = 'none', label = 'T^4')
                 plt.legend()
 
                 plt.show()
 
                 
-                if count == len(self.N_angles)-1:
-                    plot_edges(edges, 3)
-                if self.thermal_couple == 1:
-                    plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
-                    if self.temp_function[0]==1:
-                        plt.plot(xs, np.power(e,0.25), '-s', mfc = 'none', label = 'T')
-                    elif self.temp_function[1] == 1:
-                        plt.plot(xs, e/self.cv0* 0.0137225, '-s', mfc = 'none', label = 'T')
-                if self.thick == True and self.sigma_t ==1 and (self.source_type[1] == 1 or self.source_type[2] == 1) :
-                    plt.xlim(self.x0[0] - self.x0[0]/8, edges[-1])
-                plt.legend()
-                plt.show()
+                # # if count == len(self.N_angles)-1:
+                # #     plot_edges(edges, 3)
+                # if self.thermal_couple == 1:
+                #     plt.plot(xs, e, "-^", label = "energy density", mfc = "none")
+                #     if self.temp_function[0]==1:
+                #         plt.plot(xs, np.power(e,0.25), '-s', mfc = 'none', label = 'T')
+                #     elif self.temp_function[1] == 1:
+                #         plt.plot(xs, e/self.cv0* 0.0137225, '-s', mfc = 'none', label = 'T')
+                # if self.thick == True and self.sigma_t ==1 and (self.source_type[1] == 1 or self.source_type[2] == 1) :
+                #     plt.xlim(self.x0[0] - self.x0[0]/8, edges[-1])
+                # plt.legend()
+                # plt.show()
                 if count == len(self.N_angles)-1:
                     self.xs = xs
                     self.phi = phi
@@ -242,11 +256,11 @@ class main_class(parameter_load_class):
                     self.ws = ws
                     self.angles = angles
                 ##################################################################
-                if self.save_wave_loc == True:
-                    plt.figure(7)
-                    plt.plot(wave_tpnts[1:], wave_xpnts[1:], label = f'{N_space} spaces')
-                    plt.legend()
-                    plt.show()
+                # if self.save_wave_loc == True:
+                #     plt.figure(7)
+                #     plt.plot(wave_tpnts[1:], wave_xpnts[1:], label = f'{N_space} spaces')
+                #     plt.legend()
+                #     plt.show()
                 ##################################################################
                     
                 if self.benchmarking == True:
@@ -265,15 +279,15 @@ class main_class(parameter_load_class):
                             e_bench = benchmark(np.abs(xs))[2][:,2]
                             
                       
-                            ##################################################################
-                            plt.figure(3)
-                            plt.plot(e_xs, phi_bench, "-k")
-                            plt.plot(-e_xs, phi_bench, "-k")
-                            plt.plot(e_xs, e_bench, "--k")
-                            plt.plot(-e_xs, e_bench, "--k")
+                            # ##################################################################
+                            # plt.figure(3)
+                            # plt.plot(e_xs, phi_bench, "-k")
+                            # plt.plot(-e_xs, phi_bench, "-k")
+                            # plt.plot(e_xs, e_bench, "--k")
+                            # plt.plot(-e_xs, e_bench, "--k")
                    
 
-                            plt.show()
+                            # plt.show()
                             ##################################################################
                             
                         elif self.weights == "gauss_legendre" or self.sigma == 300 or self.x0[0] == 400:
@@ -335,31 +349,31 @@ class main_class(parameter_load_class):
     
     
     
-        if self.benchmarking == True:
+        # if self.benchmarking == True:
             # if self.bench_type == 'S2':
             #     saving.save_RMS_P1_su_olson(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times, self.N_angles[0])
             # else:
             #     saving.save_RMS(self.RMS_list, self.RMS_list_energy, self.N_angles, self.r_times)
             
-            if ((self.benchmarking == True) and self.thermal_couple == 0):
-                plt.figure(3)
-                plt.plot(xsb, bench, "k-")#, label = "benchmark")
-                plt.plot(-xsb, bench, "k-")
-                plt.show()
+            # if ((self.benchmarking == True) and self.thermal_couple == 0):
+                # plt.figure(3)
+                # plt.plot(xsb, bench, "k-")#, label = "benchmark")
+                # plt.plot(-xsb, bench, "k-")
+                # plt.show()
                 
-            elif (self.weights == "gauss_legendre" or self.sigma == 300 or self.x0[0] == 400) and self.thermal_couple == 1:
-                plt.figure(1)
-                phi_bench_plot = benchmark(np.abs(xsb))[0]
-                e_bench_plot = benchmark_mat(np.abs(xsb))[0]
+            # elif (self.weights == "gauss_legendre" or self.sigma == 300 or self.x0[0] == 400) and self.thermal_couple == 1:
+                # plt.figure(1)
+                # phi_bench_plot = benchmark(np.abs(xsb))[0]
+                # e_bench_plot = benchmark_mat(np.abs(xsb))[0]
                 
-                plt.plot(xsb, phi_bench_plot, "-k")
-                plt.plot(-xsb, phi_bench_plot, "-k")
-                plt.plot(xsb, e_bench_plot, "--k")
-                plt.plot(-xsb, e_bench_plot, "--k")
-                if self.x0[0] == 400:
-                    plt.xlim(self.x0[0] -50, xs[-1])
+                # plt.plot(xsb, phi_bench_plot, "-k")
+                # plt.plot(-xsb, phi_bench_plot, "-k")
+                # plt.plot(xsb, e_bench_plot, "--k")
+                # plt.plot(-xsb, e_bench_plot, "--k")
+                # if self.x0[0] == 400:
+                #     plt.xlim(self.x0[0] -50, xs[-1])
 
-                plt.show()
+                # plt.show()
                 # if int(self.x0[0]) == 400:
                 #     plt.xlim(self.x0[0]-10, self.x0[0] + 4 * math.sqrt(self.tfinal) /math.sqrt(3) + 10)
     

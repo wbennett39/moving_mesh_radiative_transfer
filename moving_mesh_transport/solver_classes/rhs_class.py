@@ -307,7 +307,7 @@ class rhs_class():
             V_new = V.copy().reshape((self.N_ang + 1, self.N_space, self.M+1))
         V_old = V_new.copy()
         mesh.move(t)
-        sigma_class.sigma_moments(mesh.edges)
+        sigma_class.sigma_moments(mesh.edges, t)
         flux.get_coeffs(sigma_class)
 
         for space in range(self.N_space):            
@@ -396,10 +396,10 @@ class rhs_class():
                         # PV =  self.sigma_s*flux.P
                         # PV = VV*0
                         # print(np.abs(PV-flux.P))
-                        assert(np.abs(flux.cs[space,:] - sigma_class.cs[space,:]).all() <= 1e-10)
+                        # assert(np.abs(flux.cs[space,:] - sigma_class.cs[space,:]).all() <= 1e-10)
                         # if (np.abs(self.sigma_s * flux.P - PV).all() > 1e-6):
                         #     print(flux.P - PV)
-                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - VV + PV
+                        RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - VV + PV + 0.5*self.c*S
 
                     V_new[angle,space,:] = RHS
                     

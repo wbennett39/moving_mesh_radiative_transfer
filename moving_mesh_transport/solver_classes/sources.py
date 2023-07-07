@@ -108,6 +108,7 @@ class source_class(object):
             else:
                 for j in range(self.M+1):
                     self.integrate_quad(t, xL, xR, j, uncollided_solution.uncollided_solution)
+
                                   
         elif self.uncollided == False:
             if self.source_type[2] == 1:

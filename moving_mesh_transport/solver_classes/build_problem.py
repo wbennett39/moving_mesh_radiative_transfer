@@ -68,7 +68,9 @@ data = [('N_ang', int64),
         ('sigma_func', int64[:]),
         ('Msigma', int64),
         ('domain_width', float64),
-        ('finite_domain', int64)
+        ('finite_domain', int64),
+        ('fake_sedov_v0', float64),
+        ('x01', float64)
         ]
 ###############################################################################
 
@@ -77,7 +79,8 @@ class build(object):
     def __init__(self, N_ang, N_space, M, tfinal, x0, t0, mus, ws, xs_quad, ws_quad, sigma_t, sigma_s, 
     source_type, uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, 
     edge_v, cv0, thick, wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source,
-     quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma, finite_domain, domain_width):
+     quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma, finite_domain, domain_width, 
+     fake_sedov_v0):
         self.N_ang = N_ang
         self.N_space = N_space
         self.M = M
@@ -86,8 +89,6 @@ class build(object):
         self.sigma_s = sigma_s
         self.sigma_a = sigma_t-sigma_s
         self.scattering_ratio = self.sigma_s / self.sigma_t
-        print(self.scattering_ratio, 'scattering ratio')
-        print(mus, 'mus')
         self.mus = mus
         self.ws = ws/np.sum(ws)
         self.xs_quad = xs_quad
@@ -123,9 +124,8 @@ class build(object):
         self.boundary_source_strength = boundary_source_strength
         self.Msigma = Msigma
         self.finite_domain = finite_domain
-        print(self.finite_domain, 'finite domain')
         self.domain_width = domain_width
-        
+        self.fake_sedov_v0 = fake_sedov_v0
         
         if self.thermal_couple == 0:
             self.IC = np.zeros((N_ang, N_space, M+1))
@@ -152,7 +152,7 @@ class build(object):
     def make_IC(self):
         edges = mesh_class(self.N_space, self.x0, self.tfinal, self.moving, self.move_type, self.source_type, 
         self.edge_v, self.thick, self.move_factor, self.wave_loc_array, self.pad,  self.leader_pad, self.quad_thick_source, 
-        self.quad_thick_edge, self.finite_domain, self.domain_width)
+        self.quad_thick_edge, self.finite_domain, self.domain_width, self.fake_sedov_v0, self.boundary_on, self.t0)
         edges_init = edges.edges
         
         if self.moving == False and self.source_type[0] == 1 and self.uncollided == False and self.N_space%2 == 0:
@@ -166,9 +166,25 @@ class build(object):
             for space in range(self.N_space):
                 for j in range(self.M + 1):
                     self.integrate_e(edges_init[space], edges_init[space+1], space, j)
-            
-            
-        ic = IC_func(self.source_type, self.uncollided, self.x0, self.source_strength, self.sigma)
+
+        if self.moving == False and self.source_type[0] == 2 and self.uncollided == False and self.N_space%2 == 0:
+            print('in loop')
+            i = 0
+            it = 0
+            while i==0:
+                if edges_init[it] <= -self.x0 <= edges_init[it+1]:
+                    i = 1
+                else:
+                    it += 1
+                if it > edges_init.size:
+                    assert(0)
+
+            x1 = edges_init[it+1] - edges_init[it]
+            ic = IC_func(self.source_type, self.uncollided, self.x0, self.source_strength, self.sigma, x1)
+        
+        else:
+            ic = IC_func(self.source_type, self.uncollided, self.x0, self.source_strength, self.sigma, 0.0)
+
 
         for ang in range(self.N_ang):
             for space in range(self.N_space):

@@ -118,4 +118,29 @@ def _interp1d(xnew, xvals, yvals, ynew):
 #     ['float64[:], float64[:], float64[:], float64[:]'],
 #     "(),(n),(n) -> ()", nopython=True)(_interp1d)
 
+@njit
+def boundary_source_init_func_outside(v0, N_space, x0, tfinal):
+        mid = int(N_space/2)
+        edges = np.linspace(-x0, x0, N_space+1)
+        Dedges = np.copy(edges)*0
+        print(v0, 'v0 in init outside')
+        # self.Dedges[mid] = - self.fake_sedov_v0
+        final_shock_point = - tfinal * v0
+        final_edges_left_of_shock = np.linspace(-x0, final_shock_point, int(N_space/2+1))
+        final_edges_right_of_shock = np.linspace(final_shock_point, x0, int(N_space/2+1))
+        final_edges = np.concatenate((final_edges_left_of_shock[:-1], final_edges_right_of_shock))
+        Dedges = (final_edges - edges) / tfinal
+
+        # self.Dedges = self.edges/self.edges[-1] * self.speed 
+        
+        edges0 = edges
+
+        return edges, edges0, Dedges
+
+@njit
+def mesh_cluster_blast_wave(x0, N_spaces, v0, t):
+    mid = int(N_space/2)
+    shock_loc = v0 * t
+    xs = (np.linspace(0, x0, mid + 1))**2
+    
 

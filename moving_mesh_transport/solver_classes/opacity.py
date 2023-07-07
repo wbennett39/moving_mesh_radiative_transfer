@@ -28,7 +28,10 @@ data = [('N_ang', int64),
         ('std', float64), 
         ('cs', float64[:,:]), 
         ('VV', float64[:]),
-        ('VP', float64[:])
+        ('VP', float64[:]),
+        ('moving', float64),
+        ('sigma_v', float64), 
+        ('fake_sedov_v0', float64)
         ]
 
 
@@ -45,13 +48,18 @@ class sigma_integrator():
         self.Msigma = build.Msigma
         self.xs_quad = build.xs_quad
         self.ws_quad = build.ws_quad
-        self.std = 0.5
+        self.std = 2
         self.N_space = build.N_space
         self.edges = np.zeros(self.N_space + 1)
         self.cs = np.zeros((self.N_space, self.Msigma+ 1))
         self.VV = np.zeros(self.M+1)
         self.VP = np.zeros(self.M+1)
         self.AAA = np.zeros((self.M+1, self.M + 1, self.Msigma + 1))
+        self.moving = False
+        if self.sigma_func[4] == 1:
+            self.moving = True
+        # self.sigma_v = 0.005
+        self.sigma_v = build.fake_sedov_v0
 
         # initialize integrals of Basis Legendre polynomials
         self.create_integral_matrices()
@@ -61,9 +69,9 @@ class sigma_integrator():
         fact = np.sqrt(2*i + 1) * np.sqrt(2*j + 1) * np.sqrt(2*k + 1) / 2
         self.AAA[i,j,k] = fact * (b-a)/2 * np.sum(self.ws_quad *  Pn(i, argument, a, b) * Pn(j, argument, a, b) * Pn(k, argument, a, b))
     
-    def integrate_moments(self, a, b, j, k):
+    def integrate_moments(self, a, b, j, k, t):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
-        self.cs[k, j] = (b-a)/2 * np.sum(self.ws_quad * self.sigma_function(argument) * normPn(j, argument, a, b))
+        self.cs[k, j] = (b-a)/2 * np.sum(self.ws_quad * self.sigma_function(argument, t) * normPn(j, argument, a, b))
 
     def both_even_or_odd(self, i, j, k):
         if i % 2 == 0:
@@ -89,15 +97,30 @@ class sigma_integrator():
                         self.integrate_quad(-1, 1, i, j, k)
         # print(self.AAA)
     
-    def sigma_moments(self, edges):
+    def sigma_moments(self, edges, t):
         for i in range(self.N_space):
-            if (edges[i] != self.edges[i]) or (edges[i+1] != self.edges[i+1]):
+            if (edges[i] != self.edges[i]) or (edges[i+1] != self.edges[i+1]) or self.moving == True :
                 for j in range(self.Msigma + 1):
-                    self.integrate_moments(edges[i], edges[i+1], j, i)
+                    self.integrate_moments(edges[i], edges[i+1], j, i, t)
         self.edges = edges
-        
+    
+    def xi2(self, x, t, x0, c1, v0tilde):
+        return -x - c1 - v0tilde*(t)
 
-    def sigma_function(self, x):
+    def heaviside(self,x):
+        if x < 0.0:
+            return 0.0
+        else:
+            return 1.0
+
+    def heaviside_vector(self, x):
+        return_array = np.ones(x.size)
+        for ix, xx in enumerate(x):
+            if xx < 0:
+                return_array[ix] = 0.0
+        return return_array
+
+    def sigma_function(self, x, t):
         if self.sigma_func[0] == 1:
             return x * 0 + 1.0
         elif self.sigma_func[1] == 1:
@@ -107,6 +130,27 @@ class sigma_integrator():
             return np.exp(-x - 2.5)
         elif self.sigma_func[3] == 1:
             return np.exp(-x/100000000000)
+        elif self.sigma_func[4] == 1:
+            # return np.exp(-(x- self.sigma_v * t)**2/(2*self.std**2))
+            c1 = 1
+            xi2x = self.xi2(x, t, 0, c1, self.sigma_v)
+            rho2 = 0.2
+            res = np.exp(-xi2x**2/self.std**2) * self.heaviside_vector(-xi2x - c1) + rho2*self.heaviside_vector(xi2x + c1)
+            # vec_test = self.heaviside_vector(-xi2x - c1)
+            # found = False
+            # index = 0
+            # if np.any(vec_test == 0):
+            #     while found == False and index < x.size:
+            #         if vec_test[index] == 1:
+            #             found == True
+            #             print(x[index], 'location of shock', t, 't')
+            #             print(vec_test)
+            #             print(-self.sigma_v*t - x[index])
+            #             print("#--- --- --- --- --- --- ---#")
+            #         index += 1
+
+
+            return res
     
     def make_vectors(self, edges, u, space):
         VV = u * 0

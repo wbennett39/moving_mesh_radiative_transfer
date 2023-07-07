@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from ..plots.plot_functions.show import show
 
 
+
 @njit 
 def integrate_quad(a, b, xs, ws, func1, func2):
     return (b-a)/2 * np.sum(ws * func1((b-a)/2*xs + (a+b)/2) * func2((b-a)/2*xs + (a+b)/2))
@@ -402,7 +403,20 @@ def test_square_sol(t = 31.6228, t0 = 10):
     plt.show()
 
 # def time_step_counter(t, division):
+@njit    
+def heaviside_vector(x):
+    return_array = np.ones(x.size)
+    for ix, xx in enumerate(x):
+        if xx < 0:
+            return_array[ix] = 0.0
+    return return_array
     
+@njit    
+def heaviside_scalar(x):
+    returnval = 1.0
+    if x < 0:
+        returnval = 0.0
+    return returnval
     
     
         
