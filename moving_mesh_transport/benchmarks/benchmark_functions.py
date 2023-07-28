@@ -297,9 +297,9 @@ def F_gaussian_source(args):
         return 0.0
 
 @njit 
-def point_collided_2(u, r, t):
+def point_collided_2(u, r, t, c):
     eta = r/t
-    c = 1
+
     if eta >= 1:
         return 0.0
     else:
@@ -316,10 +316,10 @@ def point_collided_2(u, r, t):
     return result 
 
 @njit
-def point_collided_1(r,t):
+def point_collided_1(r,t,c):
     
     eta = r/t
-    c = 1
+    # c = 1
     if eta >= 1:
         return 0.0
     else:
@@ -332,13 +332,14 @@ def F_line_source_2(args):
     u = args[1]
     r = args[2]
     t = args[3]
+    c = args[4]
     
     eta = r/t
     
     if eta < 1:
         r_arg = t * math.sqrt(eta**2 + omega**2)
         
-        return 2 * t * point_collided_2(u, r_arg, t)
+        return 2 * t * point_collided_2(u, r_arg, t, c)
     else:
         return 0.0
 @jit_F1
@@ -346,13 +347,14 @@ def F_line_source_1(args):
     omega = args[0]
     r = args[1]
     t = args[2]
+    c = args[3]
     
     eta = r/t
     
     if eta < 1:
         r_arg = t * math.sqrt(eta**2 + omega**2)
         
-        return 2 * t * point_collided_1(r_arg, t)
+        return 2 * t * point_collided_1(r_arg, t, c)
     else:
         return 0.0
     
@@ -367,6 +369,7 @@ def F2_2D_gaussian_pulse(args):
     theta = args[5]
     t = args[6]
     x0 = args[7]
+    c = args[8]
     
     x = rho * math.cos(theta)
     y = rho * math.sin(theta)
@@ -377,7 +380,7 @@ def F2_2D_gaussian_pulse(args):
     
     if eta < 1:
         r_arg = t * math.sqrt(eta**2 + omega**2)
-        return s * 2 * t * point_collided_2(u, r_arg, t) * math.exp(-s**2/x0**2)
+        return s * 2 * t * point_collided_2(u, r_arg, t, c) * math.exp(-s**2/x0**2)
     else: 
         return 0 
 @jit_F1
@@ -389,6 +392,7 @@ def F1_2D_gaussian_pulse(args):
     theta = args[4]
     t = args[5]
     x0 = args[6]
+    c = args[7]
     
     x = rho * math.cos(theta)
     y = rho * math.sin(theta)
@@ -399,7 +403,7 @@ def F1_2D_gaussian_pulse(args):
     
     if eta < 1:
         r_arg = t * math.sqrt(eta**2 + omega**2)
-        return s * 2 * t * point_collided_1(r_arg, t) * math.exp(-s**2/x0**2)
+        return s * 2 * t * point_collided_1(r_arg, t, c) * math.exp(-s**2/x0**2)
     else: 
         return 0 
     

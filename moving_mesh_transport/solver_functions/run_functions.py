@@ -217,26 +217,31 @@ class run:
             elif solver.sigma_func[4] == 1:
                 plt.figure(4)
                 mu2 = self.mus[np.argmin(np.abs(self.mus - 0.6))]
-                plt.plot(self.xs, self.psi[-1], '--', label = 'mu = 1 from solver')
-                plt.plot(self.xs, self.psi[np.argmin(np.abs(self.mus - 0.6))], '--', label = f'mu = {round(mu2,2)} from solver')
-                plt.plot(self.xs, self.phi)
+                plt.plot(self.xs, self.psi[-1,-1], '--', label = 'mu = 1 from solver')
+                plt.plot(self.xs, self.psi[-1,np.argmin(np.abs(self.mus - 0.6))], '--', label = f'mu = {round(mu2,2)} from solver')
+                plt.plot(self.xs, self.phi[-1], label = 'phi from solver')
                 plt.legend()
                 plt.show()
                 self.fake_sedov_benchmark()
                 print(self.mus[-1], 'last mu')
 
                 plt.figure(5)
-                plt.plot(self.mus, self.exit_dist[:,0], '--b', mfc = 'none', label = 'left exit distribution')
+                plt.plot(self.eval_array, self.exit_phi[:,0], '--b', mfc = 'none', label = 'left exit distribution')
+                plt.xlabel('t')
                 plt.legend()
                 plt.show()
                 # plt.plot(self.exit_dist[-1], "right exit")
                 # plt.show()
 
                 plt.figure(6)
-                plt.plot(self.mus, self.exit_dist[:,1], '--b', mfc = 'none', label = 'right exit distribution')
+                plt.plot(self.eval_array, self.exit_phi[:,-1], '--b', mfc = 'none', label = f'right exit distribution')
                 plt.legend()
+                plt.xlabel('t')
                 plt.show()
                 # plt.plot(self.exit_dist[0], "left exit")
+
+
+
     def dipole(self, uncollided = True, moving = True, All = False):
         plt.ion()
         # plt.figure(1)
@@ -294,6 +299,8 @@ class run:
         self.tfinal = solver.tfinal
         self.v0 = solver.fake_sedov_v0
         self.t0_source = solver.t0
+        self.eval_array = solver.eval_array
+        self.exit_phi = solver.exit_phi
 
         
     def run_all(self):

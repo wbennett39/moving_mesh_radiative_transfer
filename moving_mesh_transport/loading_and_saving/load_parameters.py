@@ -39,6 +39,7 @@ class parameter_load_class:
         self.sigma_s = float(parameters['all']['sigma_s'])
         self.scattering_ratio = self.sigma_s/self.sigma_t
         self.integrator = str(parameters['all']['integrator'])
+        self.epsilon = float(parameters['all']['epsilon'])
         
 
 
@@ -59,6 +60,7 @@ class parameter_load_class:
             self.particle_v = 1.0
         elif self.particle_v == 'sqrt_3':
             self.particle_v = 1.0/math.sqrt(3)
+
         
 
         self.saving = int(parameters['all']['save_solution'])
@@ -130,6 +132,12 @@ class parameter_load_class:
         # if 0.415 <self.x0_or_sigma <0.417:
         #     self.x0_or_sigma = 0.5/1.2
         #     self.sigma = 0.5/1.2
+        if int(parameters['all']['epsilon_scaling']) == True:
+             self.particle_v = self.particle_v * 29.998
+            #  self.sigma_s = self.sigma_s / self.epsilon
+             self.test_dimensional_rhs = True
+        else:
+            self.test_dimensional_rhs = False
 
 
 

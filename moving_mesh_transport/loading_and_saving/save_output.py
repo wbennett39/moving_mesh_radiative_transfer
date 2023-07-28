@@ -11,7 +11,7 @@ from pathlib import Path
 
 class save_output:
     def __init__(self, tfinal, N_spaces, Ms, source_type, moving, uncollided, major,
-                 thermal_couple, temp_function, c, sigma, x0, cv_const, problem_type, N_angles):
+                 thermal_couple, temp_function, c, sigma, x0, cv_const, problem_type, N_angles, epsilon):
         data_folder = Path("moving_mesh_transport/local_run_data")
         self.solution_file_path = data_folder / 'run_data.hdf5'
         self.wavepoints_file_path = data_folder / 'wavepoints_crc.hdf5'
@@ -29,6 +29,7 @@ class save_output:
         self.sigma = sigma
         self.cv_const = cv_const
         self.N_angles = N_angles
+        self.epsilon = epsilon
 
         if self.problem_type == 'transport':
             self.config_file_path = data_folder / 'run_data_transport_RMS.h5'
@@ -152,10 +153,10 @@ class save_output:
                 dset[5] = energy_RMS_list
                 f.close()
                 
-    def save_solution(self, xs, phi, e, sol_matrix, edges,  x0_or_sigma, ws, N_space, s2, psi):
+    def save_solution(self, xs, phi, e, sol_matrix, edges,  x0_or_sigma, ws, N_space, s2, psi, epsilon):
         print("saving solution")
         "transport or transfer/source_name/t = {tfinal}/c = {c}/ x0(or sigma) = {val}"
-        
+        epsilon = self.epsilon
         f = h5py.File(self.solution_file_path, 'r+')
         
         if self.problem_type == 'transport':
@@ -185,6 +186,9 @@ class save_output:
         full_str = ''
 
         full_str += "/" + str(self.source_name) + '_uncollided_' * (self.uncollided) + 'moving_mesh_' * (self.moving) + 'N_space = ' + str(N_space) + '_t = ' + str(self.tfinal) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
+        if epsilon != 1.0:
+            full_str += '_epsilon=' + str(epsilon)
+
         if f[folder_name].__contains__('solution/' + full_str):
             del f[folder_name]['solution/'+full_str]
         print('###  ###  ###  ###  ###  ###  ###  ###  ###')

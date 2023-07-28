@@ -41,7 +41,7 @@ font = fm.FontProperties(size = 18);
 
 matplotlib.rcParams['pdf.fonttype'] = 42;
 matplotlib.rcParams['ps.fonttype'] = 42;
-def hide_spines(intx=False,inty=False):
+def hide_spines(choose_ticks, ticks,intx=False,inty=False):
     """Hides the top and rightmost axis spines from view for all active
     figures and their respective axes."""
 
@@ -64,7 +64,8 @@ def hide_spines(intx=False,inty=False):
             # ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("v" % v)))
             # ax.xaxis.set_major_formatter(mtick.ScalarFormatter())
             ax.xaxis.set_major_formatter(StrMethodFormatter('{x:.0f}'));
-            ax.set_xticks([2, 4, 8,12]);
+            if choose_ticks == True:
+                ax.set_xticks(ticks);
             
             
             
@@ -80,8 +81,8 @@ def hide_spines(intx=False,inty=False):
                 ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%d'));
             if (intx):
                 ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%d'));
-def show_loglog(nm,xlimleft,xlimright,a=0,b=0):
-    hide_spines(a,b);
+def show_loglog(nm,xlimleft,xlimright,a=0,b=0, choose_ticks = False, ticks = [0,1,2]):
+    hide_spines(choose_ticks, ticks, a,b);
     # plt.locator_params(axis = 'x', nbins=4)
     # plt.locator_params(axis = 'y', nbins=4)
     plt.xlim(xlimleft,xlimright);

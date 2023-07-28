@@ -90,7 +90,7 @@ class collided_class:
     
     ################## 2D #####################################################
     
-    def gaussian_pulse_2D_double_integral(self, s, thetap, rho, t, theta, x0):
+    def gaussian_pulse_2D_double_integral(self, s, thetap, rho, t, theta, x0, c):
         """ integrates over u, omega
         """
         x = rho * math.cos(theta)
@@ -104,12 +104,12 @@ class collided_class:
         
         if eta < 1:
             omega_b = math.sqrt(1-eta**2)
-            rest_collided = integrate.nquad(F2_2D_gaussian_pulse, [[0, math.pi], [omega_a, omega_b]], args = (thetap, s, rho, theta, t,  x0), opts = [opts0, opts0])[0]
-            first_collided = integrate.nquad(F1_2D_gaussian_pulse, [[omega_a, omega_b]], args = (thetap, s, rho, theta, t,  x0), opts = [opts0])[0]
+            rest_collided = integrate.nquad(F2_2D_gaussian_pulse, [[0, math.pi], [omega_a, omega_b]], args = (thetap, s, rho, theta, t,  x0, c), opts = [opts0, opts0])[0]
+            first_collided = integrate.nquad(F1_2D_gaussian_pulse, [[omega_a, omega_b]], args = (thetap, s, rho, theta, t,  x0, c), opts = [opts0])[0]
             res = rest_collided + first_collided
         return res
 
-    def collided_gauss_2D_s(self, thetap, rho, t, x0):
+    def collided_gauss_2D_s(self, thetap, rho, t, x0, c):
         """ integrates over s
         """
         theta = 0
@@ -117,48 +117,48 @@ class collided_class:
         # b = rho + t
         # interval = [a, b]
         interval = find_intervals_2D_gaussian_s(rho, t, theta, thetap)
-        res = integrate.nquad(self.gaussian_pulse_2D_double_integral, [interval], args = (thetap, rho, t, theta, x0), opts = [opts1])[0]
+        res = integrate.nquad(self.gaussian_pulse_2D_double_integral, [interval], args = (thetap, rho, t, theta, x0, c), opts = [opts1])[0]
         
         return res
 
-    def collided_gauss_2D_theta(self, rho, t, x0):
+    def collided_gauss_2D_theta(self, rho, t, x0, c):
         """ integrates over thetap
         """
 
-        res = integrate.nquad(self.collided_gauss_2D_s, [[0, math.pi*2]], args = (rho, t, x0), opts = [opts1])[0]
+        res = integrate.nquad(self.collided_gauss_2D_s, [[0, math.pi*2]], args = (rho, t, x0, c), opts = [opts1])[0]
         
         return res
     
-    def F_line_source_2_first_integral(self, u, rho, t):
+    def F_line_source_2_first_integral(self, u, rho, t, c):
         eta = rho/t
         res = 0.0
         if eta <1:
             omega_b = math.sqrt(1-eta**2)
-            res = integrate.nquad(F_line_source_2, [[0, omega_b]], args = (u, rho, t), opts = [opts1])[0]
+            res = integrate.nquad(F_line_source_2, [[0, omega_b]], args = (u, rho, t, c), opts = [opts1])[0]
         return res
     
-    def collided_line_source(self, rho, t):
+    def collided_line_source(self, rho, t, c):
         
-        res1  = integrate.nquad(self.F_line_source_2_first_integral, [[0, math.pi]], args = (rho, t), opts = [opts0])[0]
-        res2 = integrate.nquad(F_line_source_1, [[0, math.pi]], args = (rho, t), opts = [opts1])[0]
+        res1  = integrate.nquad(self.F_line_source_2_first_integral, [[0, math.pi]], args = (rho, t, c), opts = [opts0])[0]
+        res2 = integrate.nquad(F_line_source_1, [[0, math.pi]], args = (rho, t, c), opts = [opts1])[0]
         
         return res1 + res2
     
-    def gaussian_IC_2D(self, rhos, t):
+    def gaussian_IC_2D(self, rhos, t, c):
         # standard deviation is not set with this one, varies with x0
         # multiply integrand by s?
         temp = rhos*0
         for ix in range(rhos.size):
             rho = rhos[ix]
-            temp[ix] = self.collided_gauss_2D_theta(rho, t, self.x0)
+            temp[ix] = self.collided_gauss_2D_theta(rho, t, self.x0, c)
         return temp
     
     
-    def line_source(self, rhos, t):
+    def line_source(self, rhos, t, c):
         temp = rhos*0
         for ix in range(rhos.size):
             rho = rhos[ix]
-            temp[ix] = self.collided_line_source(rho, t)
+            temp[ix] = self.collided_line_source(rho, t, c)
         return temp
     
     ########## su olson problem ########################################
@@ -251,9 +251,9 @@ class collided_class:
         elif self.source_type == 'gaussian_source':
             return self.gaussian_source(xs, t, c)
         elif self.source_type == 'gaussian_IC_2D':
-            return self.gaussian_IC_2D(xs, t)
+            return self.gaussian_IC_2D(xs, t, c)
         elif self.source_type == "line_source":
-            return self.line_source(xs, t)
+            return self.line_source(xs, t, c)
         elif self.source_type == "P1_su_olson_rad":
             return self.P1_su_olson_rad(xs, t)
         elif self.source_type == "P1_su_olson_mat":

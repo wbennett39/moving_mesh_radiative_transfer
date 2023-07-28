@@ -1,12 +1,14 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'transport'
-    'tfinal': 5000  #0.8333333333333334 #31.6228                       # evaluation time
+    'tfinal': 16384.0  #0.8333333333333334 #31.6228                       # evaluation time
     'c_scaling': False
-    'sigma_t': 800.0
-    'sigma_s': 800.0
-    't0': 5000                        # time the source is turned off
-    'N_spaces': [128]                   # number of cells
+    'epsilon_scaling': True  # This isn't going to work for moving mesh or for scattering != 1 -- need to implement still
+    'epsilon': 0.0625
+    'sigma_t': 1.0
+    'sigma_s': 1.0
+    't0': 500000000000                        # time the source is turned off
+    'N_spaces': [32]                   # number of cells
     'tnodes': 40                        # quadrature divisions for uncol. Gauss. source
     'Ms': [8]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
@@ -19,8 +21,8 @@
     'e_initial': 0.0000000001
     'weights': 'gauss_legendre'          # usually 'gauss_lobatto'. Set to 'gauss_legendre' for S2 calculations
     'save_solution': True
-    'particle_v': 'one'
-    'edge_v': 'one'
+    'particle_v': 'sqrt_3'
+    'edge_v': 'sqrt_3'
     'cv_const': 0.0
     'estimate_wavespeed': False
     'thick': True            # optically thick or thin
@@ -28,7 +30,7 @@
     
 # plane pulse source
 'plane_IC':
-    'x0': [1e-14]
+    'x0': [1e-12]
     'l': 1.0
     'source_strength': 1.0                    # source initial width/2
     'source_type': [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
@@ -57,14 +59,16 @@
     
 # gaussian pulse source
 'gaussian_IC':
-    'sigma': 0.4166666666666667
-    'source_strength': 1.2
-    'x0': [2.5, 2.5, 2.5, 2.5, 2.5]
+    'sigma': 4.0
+    'l': 1.0
+    'source_strength': 1.0
+    
+    'x0': [700, 2.5, 2.5, 2.5, 2.5] # location of last mesh edge
 #    'x0': [2.9, 2.9, 2.9, 2.9, 3.0, 2.8]
-    'source_type': [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [64, 128, 256, 256, 512]
+    'source_type': [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0] #set 4 to 1 for non-isotropic IC
+    'N_angles': [2]
     'move_type': [1,0,0,0,0]
-    'benchmarking': True
+    'benchmarking': False
     
 # gaussian  source
 'gaussian_source':
@@ -88,7 +92,7 @@
     'x0': [5]  # Here x0 is half the domain width
     'source_strength': 1.0
     'source_type': [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [128]
+    'N_angles': [512]
     'move_type': [1,0]              # moving mesh function selector
     'bench_type': 'full'          # 'S2' or 'full'
     'benchmarking': False
@@ -104,9 +108,9 @@
     'benchmarking': False                # If 'True', will attempt to load benchmark and calculate RMSE
 
 'self_sim_plane':
-    'x0': [1e-1]
+    'x0': [0.1]
     'l': 1.0
-    'source_strength': 1.0                    # source initial width/2
+    'source_strength': 1.0                   # source initial width/2
     'source_type': [3,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
     'N_angles': [2]    # corresponds to N_spaces
     'move_type': [0,0,1]              # moving mesh function selector

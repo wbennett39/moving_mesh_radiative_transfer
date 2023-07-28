@@ -92,7 +92,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
           weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, 
           find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad, leader_pad, xs_quad_order, 
           eval_times, eval_array, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma,
-          finite_domain, domain_width, fake_sedov_v0):
+          finite_domain, domain_width, fake_sedov_v0, test_dimensional_rhs, epsilon):
 
     if weights == "gauss_lobatto":
         mus = quadpy.c1.gauss_lobatto(N_ang).points
@@ -114,7 +114,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
                        thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, 
                        wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source,
                         quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma,
-                        finite_domain, domain_width, fake_sedov_v0)
+                        finite_domain, domain_width, fake_sedov_v0, test_dimensional_rhs, epsilon)
                        
     initialize.make_IC()
     IC = initialize.IC
@@ -214,25 +214,28 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
         phi = output.make_phi(uncollided_sol)
         psi = output.psi_out # this is the collided psi
-        exit_dist = output.get_exit_dist()
+        exit_dist = output.get_exit_dist(uncollided_sol)
         if thermal_couple == 1:
             e = output.make_e()
         else:
             e = phi*0
     else:
         phi = np.zeros((eval_array.size, xs.size))
+        psi = np.zeros((eval_array.size, N_ang, xs.size))
+        exit_dist = np.zeros((eval_array.size, N_ang, 2))
+        exit_phi = np.zeros((eval_array.size, 2))
         for it, tt in enumerate(eval_array):
             output = make_output(tt, N_ang, ws, xs, sol.y[:,it].reshape((N_ang+extra_deg_freedom,N_space,M+1)), M, edges, uncollided)
             phi[it,:] = output.make_phi(uncollided_sol)
-            psi = output.psi_out # this is the collided psi
-            exit_dist = output.get_exit_dist()
+            psi[it, :, :] = output.psi_out # this is the collided psi
+            exit_dist[it], exit_phi[it] = output.get_exit_dist(uncollided_sol)
             if thermal_couple == 1:
                 e = output.make_e()
             else:
                 e = phi*0
     computation_time = end-start
     
-    return xs, phi, psi, exit_dist, e, computation_time, sol_last, mus, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
+    return xs, phi, psi, exit_dist, exit_phi,  e, computation_time, sol_last, mus, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
 
 
 

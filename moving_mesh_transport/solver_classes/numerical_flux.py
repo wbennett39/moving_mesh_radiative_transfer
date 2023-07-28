@@ -58,7 +58,7 @@ build_type.define(build.class_type.instance_type)
 @jitclass(data)
 class LU_surf(object):
     def __init__(self, build):
-        self.test_dimensional_rhs = False
+        self.test_dimensional_rhs = build.test_dimensional_rhs
         self.LU = np.zeros(build.M+1).transpose()
         self.M = build.M
         self.source_type = build.source_type
@@ -80,8 +80,10 @@ class LU_surf(object):
         self.boundary_on = build.boundary_on # [left, right]
         self.boundary_source_strength = build.boundary_source_strength
         self.uncollided = build.uncollided
-        if self.test_dimensional_rhs == False:
-            self.speed = 299.98
+        # if build.test_dimensional_rhs == True:
+        #     self.speed = build.particle_v
+
+ 
 
     def integrate_quad(self, t, a, b, j, side):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
@@ -181,8 +183,8 @@ class LU_surf(object):
         self.edges = mesh_class.edges
         self.Dedges = mesh_class.Dedges
         
-        leftspeed = mul - self.Dedges[space]
-        rightspeed = mul - self.Dedges[space+1]
+        leftspeed = self.speed * mul - self.Dedges[space]
+        rightspeed = self.speed * mul - self.Dedges[space+1]
         
         self.make_h(space)
         self.extend_mesh(space)

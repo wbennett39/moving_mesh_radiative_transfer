@@ -70,7 +70,9 @@ data = [('N_ang', int64),
         ('domain_width', float64),
         ('finite_domain', int64),
         ('fake_sedov_v0', float64),
-        ('x01', float64)
+        ('x01', float64),
+        ('test_dimensional_rhs', int64),
+        ('epsilon', float64)
         ]
 ###############################################################################
 
@@ -80,7 +82,7 @@ class build(object):
     source_type, uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, 
     edge_v, cv0, thick, wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source,
      quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma, finite_domain, domain_width, 
-     fake_sedov_v0):
+     fake_sedov_v0, test_dimensional_rhs, epsilon):
         self.N_ang = N_ang
         self.N_space = N_space
         self.M = M
@@ -102,6 +104,7 @@ class build(object):
         self.t_ws = t_ws
         self.t0 = t0
         self.sigma_func = sigma_func
+        self.test_dimensional_rhs = test_dimensional_rhs
 
         self.thermal_couple = thermal_couple
         self.temp_function = temp_function
@@ -131,6 +134,7 @@ class build(object):
             self.IC = np.zeros((N_ang, N_space, M+1))
         elif self.thermal_couple == 1:
             self.IC = np.zeros((N_ang + 1, N_space, M+1))
+        self.epsilon = epsilon
             
        
         self.e_init = e_initial
@@ -139,7 +143,8 @@ class build(object):
         
     def integrate_quad(self, a, b, ang, space, j, ic):
         argument = (b-a)/2*self.xs_quad + (a+b)/2
-        self.IC[ang,space,j] = (b-a)/2 * np.sum(self.ws_quad * ic.function(argument) * normPn(j, argument, a, b))
+        mu = self.mus[ang]
+        self.IC[ang,space,j] = (b-a)/2 * np.sum(self.ws_quad * ic.function(argument, mu) * normPn(j, argument, a, b))
         
         
     def integrate_e(self, a, b, space, j):
@@ -156,11 +161,11 @@ class build(object):
         edges_init = edges.edges
         
         if self.moving == False and self.source_type[0] == 1 and self.uncollided == False and self.N_space%2 == 0:
-            # print(edges[self.N_space/2 + 1] - edges[self.N_space/2 - 1]) 
+
             right_edge_index = int(self.N_space/2 + 1)
             left_edge_index = int(self.N_space/2 - 1)
             self.x0 = edges_init[right_edge_index] - edges_init[left_edge_index]
-            # temp = (edges_init[self.N_space/2 + 1] - edges_init[self.N_space/2 - 1]) 
+            # temp = (edges_init[int(self.N_space/2 + 1)] - edges_init[self.N_space/2 - 1]) 
             
         if self.thermal_couple == 1:
             for space in range(self.N_space):
@@ -168,7 +173,6 @@ class build(object):
                     self.integrate_e(edges_init[space], edges_init[space+1], space, j)
 
         if self.moving == False and self.source_type[0] == 2 and self.uncollided == False and self.N_space%2 == 0:
-            print('in loop')
             i = 0
             it = 0
             while i==0:
@@ -179,7 +183,7 @@ class build(object):
                 if it > edges_init.size:
                     assert(0)
 
-            x1 = edges_init[it+1] - edges_init[it]
+            x1 = edges_init[int(self.N_space/2)] - edges_init[int(self.N_space/2)+1]
             ic = IC_func(self.source_type, self.uncollided, self.x0, self.source_strength, self.sigma, x1)
         
         else:

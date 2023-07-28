@@ -176,7 +176,7 @@ class mesh_class(object):
                 
                 # if self.edges0[-1] + t * self.speed > 5 and self.finite_domain == True:
                     self.edges = np.linspace(-self.domain_width/2, self.domain_width/2, self.N_space+1)
-                    print(self.edges)
+                    
 
                 elif (self.finite_domain == True) and (self.edges[-1] >= self.domain_width/2 or abs(self.edges[-1]-self.domain_width/2)<=1e-2):
                     self.edges = self.edges
@@ -241,8 +241,6 @@ class mesh_class(object):
                     elif self.move_func == 2:
                             self.square_source_static_func_sqrt_t(t)
 
-
-            
 
                     else:
                             print("no move function selected")
@@ -463,7 +461,7 @@ class mesh_class(object):
         # move the interior edges
         self.Dedges = self.Dedges_const * move_factor * 0.5 / sqrt_t
         self.edges = self.edges0 + self.Dedges_const * move_factor * sqrt_t
-        print(self.edges, 'edges')
+
     
 
         # move the wavefront edges
@@ -581,8 +579,6 @@ class mesh_class(object):
         self.Dedges[middlebin+sidebin + 1:] = (self.edges[middlebin+sidebin + 1:] - self.x0)/(self.edges[-1] - self.x0)
         self.Dedges = self.Dedges * self.speed 
         self.Dedges_const = np.copy(self.Dedges)
-        print(self.Dedges, 'Dedges')
-        print(self.edges, 'edges')
         self.edges0 = self.edges
 
 
@@ -640,8 +636,7 @@ class mesh_class(object):
         self.Dedges[sidebin:sidebin+middlebin] = 0       
         self.Dedges[middlebin+sidebin + 1:] =  - np.flip(np.copy(self.Dedges[0:sidebin]))
         self.Dedges = self.Dedges * self.speed
-        print(self.Dedges, 'dedges 0')
-        print(self.edges, 'edges 0')
+
 
 
     def thick_square_init_func(self):

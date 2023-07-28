@@ -34,11 +34,13 @@ class load_sol:
         
         print('file_name', file_name)
     
-    def call_sol(self, tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving):
+    def call_sol(self, tfinal, M, x0_or_sigma, N_space, mat_or_rad, uncollided, moving, epsilon = 1.0):
         # full_str = self.rad_or_transfer
         full_str = ''
 
         full_str += "/" + str(self.source_name) + '_uncollided_' * (uncollided) + 'moving_mesh_' * (moving) + 'N_space = ' + str(N_space) + '_t = ' + str(tfinal) + '_c = ' + str(self.c) + '_x0_or_sigma = ' + str(x0_or_sigma)
+        if epsilon != 1.0:
+            full_str += '_epsilon=' + str(epsilon)
         f = h5py.File(self.data_file_path, "r+")
         f2 = h5py.File(self.final_sol_path, 'a')
 

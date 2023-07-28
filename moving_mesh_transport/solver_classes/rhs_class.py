@@ -233,7 +233,9 @@ data = [('N_ang', int64),
         ('e_list', float64[:]),
         ('e_xs_list', float64[:]),
         ('wave_loc_list', float64[:]),
-        ('sigma_func', int64[:])
+        ('sigma_func', int64[:]),
+        ('particle_v', float64),
+        ('epsilon', float64)
         ]
 ##############################################################################
 @jitclass(data)
@@ -248,9 +250,11 @@ class rhs_class():
         self.c = build.scattering_ratio
         self.thermal_couple = build.thermal_couple
         self.uncollided = build.uncollided
-        self.test_dimensional_rhs = False
+        self.test_dimensional_rhs = build.test_dimensional_rhs
         self.told = 0.0
         self.sigma_s = build.sigma_s
+        self.sigma_a = build.sigma_a
+        self.particle_v = build.particle_v
        
         self.c_a = build.sigma_a / build.sigma_t
         self.mean_free_time = 1/build.sigma_t
@@ -264,6 +268,7 @@ class rhs_class():
         self.wave_loc_list = np.array([0.0])
         self.save_derivative = build.save_wave_loc
         self.sigma_func = build.sigma_func
+        self.epsilon = build.epsilon
 
     
     def time_step_counter(self, t, mesh):
@@ -379,7 +384,13 @@ class rhs_class():
                     deg_freedom = self.N_ang * self.N_space * (self.M+1)
                     if self.sigma_func[0] == 1:
                         if self.uncollided == False:
-                            RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * P + 0.5*S 
+                            if self.test_dimensional_rhs == False:
+                                RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * P + 0.5*S 
+                            else:
+                                epsilon = self.epsilon
+                                RHS = np.dot(G,U)  - LU/ epsilon + mul*np.dot(L,U)/ epsilon - U/epsilon**2 + self.c * P/ epsilon**2 + 0.5*S 
+                                # RHS = np.dot(G,U)  - LU/epsilon + mul*np.dot(L,U)/epsilon - self.sigma_s*U/epsilon**2 + self.sigma_s * P/epsilon**2 + 0.5*S 
+
                         elif self.uncollided == True:
                             RHS = np.dot(G,U)  - LU + mul*np.dot(L,U) - U + self.c * (P + 0.5*S)
 

@@ -77,8 +77,9 @@ class make_output:
         self.e_out = e
         return e
     
-    def get_exit_dist(self):
+    def get_exit_dist(self, uncollided_solution):
         psi = np.zeros((self.N_ang, 2))
+        phi = np.zeros(2)
         self.exit_dist = np.zeros((self.N_ang, 2))
         x_eval = np.array([self.edges[0], self.edges[-1]])
         for ang in range(self.N_ang):
@@ -93,7 +94,11 @@ class make_output:
                         psi[ang, count] += self.u[ang,idx-1,i] * normPn(i,x_eval[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         
         self.exit_dist = psi
-        return self.exit_dist
+        output = np.sum(np.multiply(psi.transpose(), self.ws), axis = 1)
+        if self.uncollided == True:
+            uncol = uncollided_solution.uncollided_solution(self.xs, self.t)
+            output += uncol
+        return self.exit_dist, output
         
 
 

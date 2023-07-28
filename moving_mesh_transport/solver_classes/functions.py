@@ -51,6 +51,22 @@ def Pn(n,x,a=-1.0,b=1.0):
         # tmp[count] = sc.eval_legendre(n,z)*fact
         tmp[count] = numba_eval_legendre_float64(n, z)
     return tmp
+@njit('float64(int64, float64, float64, float64)')
+def normPn_scalar(n,x,a=-1.0,b=1.0):
+    tmp = 0.0
+    z = (b+a-2*x)/(a-b)
+    fact = np.sqrt((2*n+1)/(b-a)) #*(x>=a)*(x<=b)
+    # tmp[count] = sc.eval_legendre(n,z)*fact
+    tmp = numba_eval_legendre_float64(n, z)
+    return tmp * fact
+@njit('float64(int64, float64, float64, float64)')
+def Pn_scalar(n,x,a=-1.0,b=1.0):
+    tmp = 0.0
+    z = x
+
+    # tmp[count] = sc.eval_legendre(n,z)*fact
+    tmp = numba_eval_legendre_float64(n, z)
+    return tmp 
 
 @njit
 def dx_normPn(n, x, a = -1.0, b = 1.0):

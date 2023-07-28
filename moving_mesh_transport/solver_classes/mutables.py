@@ -24,7 +24,8 @@ data = [('N_ang', int64),
         ('x', float64[:]),
         ('source_strength', float64),
         ('sigma', float64),
-        ('x1', float64)
+        ('x1', float64),
+        ('mu', float64)
         ]
 @jitclass(data)
 class IC_func(object):
@@ -37,21 +38,25 @@ class IC_func(object):
         self.x1 = x1
 
 
-    def function(self, x):
+    def function(self, x, mu):
         if self.uncollided == True:
             return np.zeros(x.size)
         elif self.uncollided == False and self.source_type[0] == 1:
             return self.plane_and_square_IC(x)/self.x0/2.0
+            # return self.gaussian_plane(x)/2.0
         elif self.uncollided == False and self.source_type[1] == 1:
             return self.plane_and_square_IC(x)
         elif self.uncollided == False and self.source_type[2] == 1:
             return np.zeros(x.size)
         elif self.uncollided == False and self.source_type[3] == 1:
-            return self.gaussian_IC(x)
-        elif self.source_type[4] == 1:
+            if self.source_type[4] == 1:
+                return self.gaussian_IC_noniso(x,mu)
+            else:
+                return self.gaussian_IC(x)
+        elif self.source_type[4] == 1 and self.source_type[3] == 0:
             return self.MMS_IC(x)
         elif self.source_type[0] == 2:
-            return self.dipole(x)
+            return self.dipole(x)/abs(self.x1)
         elif self.source_type[0] == 3:
             return self.self_sim_plane(x)
         else:
@@ -61,9 +66,18 @@ class IC_func(object):
         temp = (np.greater(x, -self.x0) - np.greater(x, self.x0))*self.source_strength
             # temp = x/x
         return temp/2.0
+
+    def gaussian_plane(self, x):
+        RES = math.sqrt(1/math.pi/2.0)/self.x0 * np.exp(-0.5 * x**2/self.x0**2)
+        print(RES)
+        return RES
     
     def gaussian_IC(self, x):
         temp = np.exp(-x*x/self.sigma**2)*self.source_strength
+        return temp/2.0
+
+    def gaussian_IC_noniso(self, x, mu):
+        temp = np.exp(-x*x/self.sigma**2)*self.source_strength * np.greater(mu,0)
         return temp/2.0
     
     def MMS_IC(self, x):
@@ -72,9 +86,10 @@ class IC_func(object):
         return temp
     
     def dipole(self, x):
-        x1 = self.x1
-        temp = (np.greater(x, -self.x0-x1) - np.greater(x, -self.x0 + x1))*self.source_strength +  (np.greater(x, self.x0-x1) - np.greater(x, self.x0 + x1))*self.source_strength 
-        return temp
+        x1 = abs(self.x1)
+        dx = 1e-10
+        temp = -(np.greater(x, -x1) - np.greater(x, 0))*self.source_strength +  (np.greater(x, 0) - np.greater(x, x1))*self.source_strength 
+        return temp/2
     
     def self_sim_plane(self, x):
         c = 29.998
@@ -82,8 +97,8 @@ class IC_func(object):
         A = c/3/kappa
         t = 0.01
         arg = -x**2/4/A/t
-        temp = 1 / math.sqrt(math.pi) / math.sqrt(A * t) * np.exp(arg)
-        return temp / 2.0
+        temp = 1 / math.sqrt(math.pi*0.5) / math.sqrt(A * t) * np.exp(arg)
+        return temp / 2.0 
 
 
         

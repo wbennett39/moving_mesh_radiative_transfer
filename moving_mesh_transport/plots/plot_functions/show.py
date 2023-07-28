@@ -26,8 +26,8 @@ import csv
 
 # font = fm.FontProperties(family = 'Gill Sans', fname = '/users/wbenn/Anaconda3/Library/Fonts/GillSans.ttc', size = 20)
 # axisfont = fm.FontProperties(family = 'Gill Sans', fname = '/users/wbenn/Anaconda3/Library/Fonts/GillSans.ttc', size = 14)
-axisfont = fm.FontProperties(size = 20)
-font = fm.FontProperties(size = 20)
+axisfont = fm.FontProperties(size = 10)
+font = fm.FontProperties(size = 12)
 
 
 matplotlib.rcParams['pdf.fonttype'] = 42
@@ -58,14 +58,15 @@ def hide_spines(intx=False,inty=False):
             ax.set_xlabel(ax.get_xlabel() )
             ax.set_ylabel(ax.get_ylabel())
             ax.set_title(ax.get_title())
+            # ax.rc('legend', fontsize=8) 
             if (inty):
                 ax.yaxis.set_major_formatter(mtick.FormatStrFormatter('%d'))
             if (intx):
                 ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%d'))
 def show(nm,a=0,b=0):
     hide_spines(a,b)
-    plt.locator_params(axis = 'x', nbins=4)
-    plt.locator_params(axis = 'y', nbins=4)
+    # plt.locator_params(axis = 'x', nbins=4)
+    # plt.locator_params(axis = 'y', nbins=4)
     
     
     #ax.xaxis.set_major_formatter(mtick.FuncFormatter(lambda v,_: ("10$^{%d}$" % math.log(v,10)) ))
