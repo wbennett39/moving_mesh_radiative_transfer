@@ -49,10 +49,10 @@ class IC_func(object):
         elif self.uncollided == False and self.source_type[2] == 1:
             return np.zeros(x.size)
         elif self.uncollided == False and self.source_type[3] == 1:
-            if self.source_type[4] == 1:
+            if self.source_type[-1] == 1:
                 return self.gaussian_IC_noniso(x,mu)
             else:
-                return self.gaussian_IC(x)
+                return self.gaussian_IC(x,mu)
         elif self.source_type[4] == 1 and self.source_type[3] == 0:
             return self.MMS_IC(x)
         elif self.source_type[0] == 2:
@@ -72,12 +72,12 @@ class IC_func(object):
         print(RES)
         return RES
     
-    def gaussian_IC(self, x):
+    def gaussian_IC(self, x, mu):
         temp = np.exp(-x*x/self.sigma**2)*self.source_strength
         return temp/2.0
 
     def gaussian_IC_noniso(self, x, mu):
-        temp = np.exp(-x*x/self.sigma**2)*self.source_strength * np.greater(mu,0)
+        temp = 2*np.exp(-x*x/self.sigma**2)*self.source_strength*np.greater(mu, 0)
         return temp/2.0
     
     def MMS_IC(self, x):

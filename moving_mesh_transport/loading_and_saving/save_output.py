@@ -153,7 +153,7 @@ class save_output:
                 dset[5] = energy_RMS_list
                 f.close()
                 
-    def save_solution(self, xs, phi, e, sol_matrix, edges,  x0_or_sigma, ws, N_space, s2, psi, epsilon):
+    def save_solution(self, xs, phi, e, sol_matrix, edges,  x0_or_sigma, ws, N_space, s2, psi, epsilon, mus):
         print("saving solution")
         "transport or transfer/source_name/t = {tfinal}/c = {c}/ x0(or sigma) = {val}"
         epsilon = self.epsilon
@@ -195,16 +195,25 @@ class save_output:
         print(folder_name + 'solution/' + full_str)
         print('###  ###  ###  ###  ###  ###  ###  ###  ###')
         dset = f[folder_name].create_dataset('solution/' + full_str, (4, len(xs)))
+        
+        if not f[folder_name].__contains__(full_str):
+            f.create_group(full_str)
 
-        if f[folder_name].__contains__('psi/' + full_str):
-            del f[folder_name]['psi/' + full_str]
+
+
+        if f[folder_name][full_str].__contains__('psi/'):
+            del f[folder_name][full_str]['psi/']
+        if f[folder_name][full_str].__contains__('mus/'):
+            del f[folder_name][full_str]['mus/']
         print("saving solution")
         dset[0] = xs
         dset[1] = phi
         if folder_name != 'transport':
             dset[2] = e
-        dsetpsi = f[folder_name].create_dataset('psi/' + full_str, (psi[0].size, len(xs)))
-        dsetpsi = psi
+        
+        dsetpsi = f[folder_name][full_str].create_dataset('psi/', data = psi)
+        dsetmus = f[folder_name][full_str].create_dataset('mus/', data = mus)
+        # dsetpsi = psi
         # dset[3] = psi
         # dset[2] = self.ws
         # dset[3] = sol_matrix

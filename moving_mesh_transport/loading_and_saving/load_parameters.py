@@ -57,7 +57,7 @@ class parameter_load_class:
         elif self.edge_v == 'sqrt_3':
             self.edge_v = 1.0/math.sqrt(3)
         if self.particle_v == 'one':
-            self.particle_v = 1.0
+            self.particle_v = 1.0 
         elif self.particle_v == 'sqrt_3':
             self.particle_v = 1.0/math.sqrt(3)
 
@@ -133,9 +133,10 @@ class parameter_load_class:
         #     self.x0_or_sigma = 0.5/1.2
         #     self.sigma = 0.5/1.2
         if int(parameters['all']['epsilon_scaling']) == True:
-             self.particle_v = self.particle_v * 29.998
+            #  self.particle_v = self.particle_v * 29.998
             #  self.sigma_s = self.sigma_s / self.epsilon
-             self.test_dimensional_rhs = True
+            # self.edge_v = self.edge_v / self.epsilon**2
+            self.test_dimensional_rhs = True
         else:
             self.test_dimensional_rhs = False
 

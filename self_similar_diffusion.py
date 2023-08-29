@@ -74,6 +74,14 @@ def gaussian_IC_bench_full(z, tau, omega, A):
     exponential_term = -z**2/(omega**2 + 4* A*tau)
     return  np.exp(exponential_term) / np.sqrt(A * tau) / np.sqrt(4/omega**2 + 1/A/tau)
 
+def noniso_part_bench(z, tau, omega, epsilon, mu):
+    u = np.exp(-z**2/omega**2)*np.greater(mu,0)
+    ubar = np.exp(-z**2/omega**2)
+    
+
+    return np.exp(-tau/epsilon**2) * (u-ubar/2)
+
+
 
 
 
@@ -371,10 +379,11 @@ def ss_transport_epsilon(N_spaces, epsilon = 1.0, scaled=True, tfinal_list_2 = [
         if scaled == True:
             # if t == tfinal_list_2[0]:
             #     plt.plot(xi_sol, benchmark(xi_sol), 'o', mfc = 'none', label = 'benchmark')
-            plt.plot(xi_sol, transport_phi / dimensionalize * sigma   , label = f't = {t}, {N_spaces} spatial cells')
+            plt.plot(xi_sol, transport_phi / dimensionalize * sigma , label = r'$\epsilon = $' +f'{epsilon}')
         
         else:
-            plt.plot(x, transport_phi, label = f't = {t}, {N_spaces} spatial cells')
+            plt.plot(x, transport_phi, label = r'$\epsilon = $' +f'{epsilon}')
+            
 
         # RMS_list_transport_2.append(RMSE(transport_phi / dimensionalize2 * sigma * 2 , benchmark(xi_sol2)))
         # plt.plot(x, transport_phi)
@@ -386,7 +395,7 @@ def ss_transport_epsilon(N_spaces, epsilon = 1.0, scaled=True, tfinal_list_2 = [
         else:
             plt.xlabel('x')
             plt.ylabel(r'$\phi$')
-            plt.xlim(-0.15, 0.15)
+            # plt.xlim(-0.15, 0.15)
             plt.legend(prop={'size':8})
 
 
@@ -417,19 +426,21 @@ def ss_transport_epsilon(N_spaces, epsilon = 1.0, scaled=True, tfinal_list_2 = [
         print('### ### ###')
 
     # return loglog_converge(np.array(tfinal_list_2), RMS_list_transport)
-    return RMSE(transport_phi / dimensionalize*sigma, gaussian_IC_benchmark(xi_sol))
-def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = False, tfinal_list_2  = [1024.0]):
+    return RMSE(transport_phi / dimensionalize*sigma, benchmark(xi_sol))
+
+
+def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = True, tfinal_list_2  = [0.001, 0.01, 0.1, 1.0]):
     loader_transport = load_sol('transport', 'gaussian_IC', 'transport', s2 = True, file_name = 'run_data.hdf5')
     RMS_list_transport = []
     sigma = 1
     A = c/3/sigma
     omega = 4.0
     for it, t in enumerate(tfinal_list_2):
-    
         loader_transport.call_sol(t, 8, omega, N_spaces, 'rad', False, False, epsilon)
         x = loader_transport.xs / sigma
         tau = t /c /sigma
         transport_phi = loader_transport.phi
+        transport_psi = loader_transport.psi
         plt.figure(3)
         dimensionalize = math.sqrt(1/omega**2) * math.sqrt(A*tau)
         xi_sol = x / math.sqrt(A*tau)
@@ -443,9 +454,9 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = False, tfinal_list_2  =
         # RMS_list_transport.append())
         plt.ion()
         if scaled == True:
-            plt.plot(xi_sol, transport_phi * dimensionalize *sigma -gaussian_IC_benchmark(xi_sol)  , label = r'$\epsilon =$'+ f'{epsilon}')
-            # if t == tfinal_list_2[0]:
-            #     plt.plot(xi_sol, gaussian_IC_benchmark(xi_sol), 'o', mfc = 'none', label = 'benchmark')
+            plt.plot(xi_sol, transport_phi * dimensionalize *sigma, label = r'$\epsilon =$'+ f'{epsilon}')
+            if t == tfinal_list_2[0]:
+                plt.plot(xi_sol, gaussian_IC_benchmark(xi_sol), 'o', mfc = 'none', label = 'benchmark')
             # plt.xlim(0,5)
             # plt.ylim(0,0.3)
         # plt.ylim(0,1)
@@ -454,19 +465,55 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = False, tfinal_list_2  =
             plt.legend(prop={'size':8})
             plt.xlim(-10,10)
             show(f'dipole_scaled_{N_spaces}_cells')
+
+
+
             return RMSE(transport_phi * dimensionalize*sigma, gaussian_IC_benchmark(xi_sol))
         else:
-            plt.plot(x, transport_phi * sigma, label = f't = {t}')
-            plt.plot(x, gaussian_IC_bench_full(x, tau, omega, A), 'o', mfc = 'none')
+            mu = loader_transport.mus[4]
+            print(mu)
+            print(epsilon)
+            print(t)
+            
+            # plt.plot(x, gaussian_IC_bench_full(x, tau, omega, A)/2 + noniso_part_bench(x, t, omega, epsilon, mu), 'o', mfc = 'none')
+            # plt.plot(x, transport_phi/2 + noniso_part_bench(x, t, omega, epsilon, mu) , '--')
+            # plt.plot(x, transport_psi[0,:] * sigma, label = f't = {t}')
+            xmid = int(len(x)/2)
+            plt.plot(loader_transport.mus, abs(transport_psi[:, xmid] -  noniso_part_bench(x[xmid], t, omega, epsilon, loader_transport.mus)+0.5 *  gaussian_IC_bench_full(x[xmid], tau, omega, A)*np.ones(len(loader_transport.mus))), label = f'epsilon = {epsilon}, t = {t}')
+            # plt.plot(loader_transport.mus, 0.5*transport_phi[xmid]*np.ones(len(loader_transport.mus)))
+            # plt.plot(loader_transport.mus,np.exp(-t/epsilon**2)*(np.greater(loader_transport.mus,0)-0.5)+0.5* transport_phi[xmid]*np.ones(len(loader_transport.mus)), 'o', mfc = 'none')
+            # plt.plot(loader_transport.mus,  noniso_part_bench(x[xmid], t, omega, epsilon, loader_transport.mus)+0.5 *  transport_phi[xmid]*np.ones(len(loader_transport.mus)), 'x', mfc = 'none')
+            # plt.plot(loader_transport.mus,  noniso_part_bench(x[xmid], t, omega, epsilon, loader_transport.mus)+0.5 *  gaussian_IC_bench_full(x[xmid], tau, omega, A)*np.ones(len(loader_transport.mus)), 'x', mfc = 'none')
             plt.xlabel(r'$x$')
             plt.ylabel(r'$\phi$')
             # plt.xlim(0, 30)
             # plt.ylim(0, 0.075)
             plt.legend(prop={'size':8})
-            show(f'dipole_notscaled_{N_spaces}_cells')
-    # 
-    
-            return RMSE(transport_phi * sigma, gaussian_IC_bench_full(x, tau, omega, A))
+            # plt.xlim(-0.25, 0.25)
+            # show(f'dipole_notscaled_{N_spaces}_cells')
+            RMSE_val_iso = 0
+            RMSE_val_noniso = 0
+
+            N_ang = len(transport_psi[:,0])
+            print(N_ang)
+            for iang in range(0, N_ang):
+                mu = loader_transport.mus[iang]
+                RMSE_val_iso += RMSE(transport_psi[iang,:] * sigma, gaussian_IC_bench_full(x, tau, omega, A)/2)/N_ang
+                RMSE_val_noniso += RMSE(transport_psi[iang,:] * sigma, gaussian_IC_bench_full(x, tau, omega, A)/2 + noniso_part_bench(x, t, omega, epsilon, mu))/N_ang
+                print(RMSE_val_iso, RMSE_val_noniso, 'rms')
+                plt.figure(20)
+                plt.plot(x, transport_psi[iang,:] * sigma - gaussian_IC_bench_full(x, tau, omega, A)/2 - noniso_part_bench(x, t, omega, epsilon, mu), '--')
+                plt.figure(21)
+                plt.plot(x, transport_psi[iang,:] * sigma - gaussian_IC_bench_full(x, tau, omega, A)/2, '--')
+                # plt.plot(x, transport_psi[iang,:] * sigma - gaussian_IC_bench_full(x, tau, omega, A)/2, 'o', mfc = 'none')
+                # plt.plot(x, gaussian_IC_bench_full(x, tau, omega, A)/2 + noniso_part_bench(x, t, omega, epsilon, mu), 'o', mfc = 'none', label = f'mu = {np.round(mu,2)}')
+                # plt.plot(x, gaussian_IC_bench_full(x, tau, omega, A)/2, '^', mfc = 'none', label = f'mu = {np.round(mu,2)}')
+            plt.legend()
+            plt.show()
+
+
+
+            return [RMSE_val_iso, RMSE_val_noniso]
             
 
 
@@ -556,34 +603,57 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = False, tfinal_list_2  =
 # plt.close()
 
 
-def epsilon_convergence_gauss(N_spaces = 32, epsilon_list = [0.5], scaled = True, tfinal_list = [1024.0]):
-    rmse_list = []
-    for iep, ep in enumerate(epsilon_list):
-        rmse_list.append(ss_gaussian_noniso(N_spaces, ep, scaled = scaled, tfinal_list_2 = tfinal_list))
-    
+def epsilon_convergence_gauss(N_spaces = 32, epsilon_list = [1.0, 0.5, 0.05, 0.005], scaled = False, tfinal_list = [0.001, 0.01, 0.1, 1.0]):
+    # scaled = True does not work yet
+    rmse_list = np.zeros((len(tfinal_list), len(epsilon_list)))
+    rmse_list_noniso = np.zeros((len(tfinal_list), len(epsilon_list)))
+    for it, tt in enumerate(tfinal_list):
+        for iep, ep in enumerate(epsilon_list):
+            res = ss_gaussian_noniso(N_spaces, ep, scaled = scaled, tfinal_list_2 = [tfinal_list[it]])
+            rmse_list[it, iep] = res[0]
+            rmse_list_noniso[it, iep] = res[1]
+
+    clr_list = ['tab:blue', 'tab:green', 'tab:red', 'tab:orange', 'tab:gray', 'tab:pink']
+
     plt.figure(11)
-    plt.loglog(epsilon_list, rmse_list, '-o')
-    shift = 0.494
-    # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-0.002), label = r'$c_1\: \epsilon^{-0.002}$')
+    for it, tt in enumerate(tfinal_list):
+        plt.loglog(epsilon_list, rmse_list[it], '-o', label = f't = {tfinal_list[it]}',c = clr_list[it] )
+        plt.loglog(epsilon_list, rmse_list_noniso[it], '-*', c = clr_list[it])
+        print('###       convergence order            ###')
+        print(loglog_converge(np.array(epsilon_list), rmse_list[it], 0))
+        print('###                                    ###')
+    shift = 0.0194
+    plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(2), '--k', label = r'$c_1\: \epsilon^{2}$')
     # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-1), label = r'$c_1\: \epsilon^{-1}$')
     # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-3), label = r'$c_1\: \epsilon^{-3}$')
     plt.legend()
     plt.xlabel(r'$\epsilon$')
     plt.ylabel('RMSE')
     plt.show()
-    print('###       convergence order            ###')
-    print(loglog_converge(np.array(epsilon_list), rmse_list, 0))
-    print('###                                    ###')
 
-def epsilon_convergence_pl(N_spaces = 32, epsilon_list = [0.5], scaled = True, tfinal_list = [1024.0]):
+
+    plt.figure(13)
+    for iep, ep in enumerate(epsilon_list):
+        plt.loglog(tfinal_list, rmse_list[:, iep], '-o', label = f'epsilon = {epsilon_list[iep]}', c = clr_list[iep])
+        plt.loglog(tfinal_list, rmse_list_noniso[:, iep], '-*', c = clr_list[iep])
+    plt.loglog(tfinal_list, shift*np.array(tfinal_list)**(1), '--k', label = r'$c_1\: t^{1}$')
+    plt.xlabel('time')
+    plt.ylabel('RMSE')
+    plt.legend()
+    plt.show()
+
+
+
+def epsilon_convergence_pl(N_spaces = 64, epsilon_list = [1.0, 0.5, 0.05, 0.005], scaled = True, tfinal_list = [5.0]):
     rmse_list = []
     for iep, ep in enumerate(epsilon_list):
         rmse_list.append(ss_transport_epsilon(N_spaces, ep, scaled = scaled, tfinal_list_2 = tfinal_list))
     
     plt.figure(11)
     plt.loglog(epsilon_list, rmse_list, '-o')
-    shift = 0.494
-    # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-0.002), label = r'$c_1\: \epsilon^{-0.002}$')
+    
+    shift = 0.00494
+    plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(2), '--k', label = r'$c_1\: \epsilon^{2}$')
     # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-1), label = r'$c_1\: \epsilon^{-1}$')
     # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-3), label = r'$c_1\: \epsilon^{-3}$')
     plt.legend()

@@ -49,7 +49,11 @@ class load_sol:
         self.xs = sol_data[0]
         self.phi = sol_data[1]
         self.e = sol_data[2]
-        # self.psi = f[self.problem_name]['psi/'+full_str]
+
+        self.psi = f[self.problem_name][full_str]['psi/'][:,:]
+        print(self.psi)
+
+        self.mus = f[self.problem_name][full_str]['mus/'][:]
 
       
         self.ws = f[self.problem_name]['weights/' + full_str][:]

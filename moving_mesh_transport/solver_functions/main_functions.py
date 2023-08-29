@@ -7,11 +7,11 @@ Created on Mon May 16 07:02:38 2022
 """
 import numpy as np
 import scipy.integrate as integrate
-import quadpy
+# import quadpy 
 import matplotlib.pyplot as plt
 from pathlib import Path
 from ..solver_classes.functions import find_nodes
-
+from ..solver_classes.functions import Pn
 
 from ..solver_classes.build_problem import build
 from ..solver_classes.matrices import G_L
@@ -28,6 +28,10 @@ from ..solver_classes.opacity import sigma_integrator
 from timeit import default_timer as timer
 from .wavespeed_estimator import wavespeed_estimator
 from .wave_loc_estimator import find_wave
+from scipy.special import roots_legendre
+import numpy.polynomial as poly
+import scipy.special as sps
+from functools import partial
 
 """
 This file contains functions used by solver
@@ -94,21 +98,31 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
           eval_times, eval_array, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma,
           finite_domain, domain_width, fake_sedov_v0, test_dimensional_rhs, epsilon):
 
-    if weights == "gauss_lobatto":
-        mus = quadpy.c1.gauss_lobatto(N_ang).points
-        ws = quadpy.c1.gauss_lobatto(N_ang).weights
-    elif weights == "gauss_legendre":
-        mus = quadpy.c1.gauss_legendre(N_ang).points
-        ws = quadpy.c1.gauss_legendre(N_ang).weights
+    # if weights == "gauss_lobatto":
+    #     mus = quadpy.c1.gauss_lobatto(N_ang).points
+    #     ws = quadpy.c1.gauss_lobatto(N_ang).weights
+    # elif weights == "gauss_legendre":
+    #     mus = quadpy.c1.gauss_legendre(N_ang).points
+    #     ws = quadpy.c1.gauss_legendre(N_ang).weights
     # if N_ang == 2:
+    mus, ws = quadrature(N_ang, weights, testing = True)
     #     print("mus =", mus)
-    xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
-    ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
-    t_quad = quadpy.c1.gauss_legendre(t_nodes).points
-    t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
-    quad_thick_source = quadpy.c1.gauss_lobatto(int(N_space/2+1)).points
-    quad_thick_edge = quadpy.c1.gauss_lobatto(int(N_space/4+1)).points
+
+    # xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
+    # ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
+
+    xs_quad, ws_quad = quadrature(2*M+1, 'gauss_legendre')
+
+    # t_quad = quadpy.c1.gauss_legendre(t_nodes).points
+    t_quad, t_ws = quadrature(t_nodes, 'gauss_legendre')
+
+    # t_ws = quadpy.c1.gauss_legendre(t_nodes).weights
+    quad_thick_source, blank = quadrature(int(N_space/2+1), 'gauss_lobatto')
+    quad_thick_edge, blank = quadrature(int(N_space/4+1), 'gauss_lobatto')
+    # quad_thick_source = quadpy.c1.gauss_lobatto(int(N_space/2+1)).points
+    # quad_thick_edge = quadpy.c1.gauss_lobatto(int(N_space/4+1)).points
     # quad_thick_source = ([quad_thick_source_inside, quad_thick_source_outside])
+    
     initialize = build(N_ang, N_space, M, tfinal, x0, t0, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
                        thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, 
@@ -195,8 +209,6 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
 
 
     
-
-    
     if sol.t.size > 1:
         timesteps = time_step_function(sol.t)
         print(np.max(timesteps), "max time step")
@@ -214,7 +226,8 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
         phi = output.make_phi(uncollided_sol)
         psi = output.psi_out # this is the collided psi
-        exit_dist = output.get_exit_dist(uncollided_sol)
+        exit_dist, exit_phi = output.get_exit_dist(uncollided_sol)
+        xs_ret = xs
         if thermal_couple == 1:
             e = output.make_e()
         else:
@@ -224,18 +237,26 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         psi = np.zeros((eval_array.size, N_ang, xs.size))
         exit_dist = np.zeros((eval_array.size, N_ang, 2))
         exit_phi = np.zeros((eval_array.size, 2))
+        xs_ret = np.zeros((eval_array.size, xs.size))
         for it, tt in enumerate(eval_array):
+            mesh.move(tt)
+            edges = mesh.edges
+            if choose_xs == False:
+                xs = find_nodes(edges, M)
+            elif choose_xs == True:
+                xs = specified_xs
             output = make_output(tt, N_ang, ws, xs, sol.y[:,it].reshape((N_ang+extra_deg_freedom,N_space,M+1)), M, edges, uncollided)
             phi[it,:] = output.make_phi(uncollided_sol)
             psi[it, :, :] = output.psi_out # this is the collided psi
             exit_dist[it], exit_phi[it] = output.get_exit_dist(uncollided_sol)
+            xs_ret[it] = xs
             if thermal_couple == 1:
                 e = output.make_e()
             else:
                 e = phi*0
     computation_time = end-start
     
-    return xs, phi, psi, exit_dist, exit_phi,  e, computation_time, sol_last, mus, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location
+    return xs_ret, phi, psi, exit_dist, exit_phi,  e, computation_time, sol_last, mus, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location, mus
 
 
 
@@ -253,3 +274,67 @@ def x0_function(x0, source_type, count):
         else:
             x0_new = x0[0]
         return x0_new
+
+
+def quadrature(n, name, testing = True):
+    ws = np.zeros(n)
+    xs = np.zeros(n)
+    # roots, weights = roots_legendre(n-1)
+    roots = np.zeros(n)
+    brackets = sps.legendre(n-1).weights[:, 0]
+    for i in range(n-2):
+        roots[i+1] = bisection(partial(eval_legendre_deriv, n-1),brackets[i], brackets[i+1])
+
+    # mesh = np.linspace(-1, 1, 300)
+
+    # plt.plot(mesh, eval_legendre_deriv(n-1, mesh))
+    # plt.plot(roots, 0*roots, "o")
+    if name == 'gauss_lobatto':
+        xs = roots
+        xs[0] = -1
+        xs[-1] = 1
+        for nn in range(1, n-1):
+            inn = nn + 1
+            ws[nn] = 2 / (n*(n-1)) / (Pn(n-1, np.array([roots[nn]]), -1.0, 1.0)[0])**2
+            ws[0] = 2/ (n*(n-1))
+            ws[-1] = 2/ (n*(n-1))
+        # if testing == True:
+        #     testxs = quadpy.c1.gauss_lobatto(n).points
+        #     testws = quadpy.c1.gauss_lobatto(n).weights
+        #     np.testing.assert_allclose(testxs, xs)
+        #     np.testing.assert_allclose(testws, ws)
+
+    elif name == 'gauss_legendre':
+        xs, ws = poly.legendre.leggauss(n)
+        # if testing == True:
+        #     # testxs = quadpy.c1.gauss_legendre(n).points
+        #     # testws = quadpy.c1.gauss_legendre(n).weights
+        #     np.testing.assert_allclose(testxs, xs)
+        #     np.testing.assert_allclose(testws, ws)
+
+
+
+        
+    return xs, ws
+
+
+
+
+
+def bisection(f, a, b, tol=1e-14):
+    assert np.sign(f(a)) != np.sign(f(b))
+    while b-a > tol:
+        m = a + (b-a)/2
+        fm = f(m)
+        if np.sign(f(a)) != np.sign(fm):
+            b = m
+        else:
+            a = m
+            
+    return m
+
+def eval_legendre_deriv(n, x):
+    return (
+        (x*sps.eval_legendre(n, x) - sps.eval_legendre(n-1, x))
+        /
+        ((x**2-1)/n))

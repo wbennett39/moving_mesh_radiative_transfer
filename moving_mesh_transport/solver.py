@@ -65,6 +65,37 @@ long term goals:
 [] finite domain for ganapol? 
 
 """
+"""
+Next release:
+[] spherical 
+[] multi-group 
+[] no quadpy?
+[] adaptive mesh? Does this require a new integrator or can I force the integrator to restart?
+[] unit tests with benchmarks --
+        add Siewert
+            Olson-Henderson
+            fake shock tube
+[] integrator?
+[] auto prime numba
+[] file save names in the input script
+[] simplify the source selector and mesh selector vectors to be readable
+
+
+
+
+
+
+
+
+"""
+
+
+
+
+
+
+
+
 # ###############################################################################
 # data_folder = Path("moving_mesh_transport")
 # config_file_path = data_folder / "config.yaml"
@@ -162,7 +193,7 @@ class main_class(parameter_load_class):
                     choose_xs = False
                     specified_xs = 0.0
                 print(self.finite_domain, 'finite domain')
-                xs, phi, psi, exit_dist, exit_phi, e, time, sol_matrix, angles, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location = solve(self.tfinal,N_space, N_ang, M, x0_new, self.t0, self.sigma_t, 
+                xs, phi, psi, exit_dist, exit_phi, e, time, sol_matrix, angles, ws, edges, wavespeed_array, tpnts, left_edges, right_edges, wave_tpnts, wave_xpnts, T_front_location, mus = solve(self.tfinal,N_space, N_ang, M, x0_new, self.t0, self.sigma_t, 
                 self.sigma_s, self.t_nodes, self.source_type, uncollided, moving, self.move_type,
                 self.thermal_couple,self.temp_function, self.rt, self.at, self.e_initial, choose_xs, specified_xs, 
                 self.weights, self.sigma, self.particle_v, self.edge_v, self.cv0, self.estimate_wavespeed, self.find_wave_loc, 
@@ -197,7 +228,7 @@ class main_class(parameter_load_class):
                         s2 = False
                     
                     if self.eval_times ==False:
-                        saving.save_solution(xs, phi, e, sol_matrix, edges, x0_or_sigma, ws, N_space, s2 , psi)
+                        saving.save_solution(xs, phi, e, sol_matrix, edges, x0_or_sigma, ws, N_space, s2 , psi, self.epsilon, mus )
                     else:
                         for it, tt in enumerate(self.eval_array):
                             saving = save_output(tt, self.N_spaces, self.Ms, self.source_type, 
@@ -205,7 +236,7 @@ class main_class(parameter_load_class):
                             self.temp_function, self.scattering_ratio, self.sigma,
                             self.x0, self.cv0, self.problem_type, self.N_angles, self.epsilon)
 
-                            saving.save_solution(xs, phi[it], e, sol_matrix, edges, x0_or_sigma, ws, N_space, s2, psi, self.epsilon)
+                            saving.save_solution(xs[it], phi[it], e, sol_matrix, edges, x0_or_sigma, ws, N_space, s2, psi[it, :, :], self.epsilon, mus)
                 
                 
                 self.r_times[count] += (time)/self.N_runs
@@ -215,9 +246,14 @@ class main_class(parameter_load_class):
                 plt.figure(1)
                 if self.eval_times == False:
                     plt.plot(xs, phi, "-o", label = f"{N_space} spatial cells", mfc = "none")
+                    if self.benchmarking == True:
+                        plt.plot(xs, benchmark(np.abs(xs))[0], '-k')
+
                 else:
-                    plt.plot(xs, phi[-1,:], "-o", label = f"{N_space} spatial cells", mfc = "none")
-                    plt.plot(xs, phi[0,:], "-o", label = f"{N_space} spatial cells", mfc = "none")
+                    plt.plot(xs[-1], phi[-1,:], "-o", label = f"{N_space} spatial cells", mfc = "none")
+                    plt.plot(xs[0], phi[0,:], "-o", label = f"{N_space} spatial cells", mfc = "none")
+                    if self.benchmarking == True:
+                        plt.plot(xs, benchmark(np.abs(xs))[0], '-k')
 
                 plt.xlabel("x")
                 plt.ylabel("scalar flux")
