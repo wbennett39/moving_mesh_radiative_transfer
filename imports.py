@@ -6,21 +6,21 @@ from moving_mesh_transport import solver
 import matplotlib.pyplot as plt
 
 # from moving_mesh_transport.plots.plot_square_s_times import main as plot_square_s_times
-from moving_mesh_transport.solution_plotter import plot_thin_nonlinear_problems as plot_thin
-from moving_mesh_transport.solution_plotter import plot_thin_nonlinear_problems_s2 as plot_thin_s2
-from moving_mesh_transport.solution_plotter import plot_thick_nonlinear_problems as plot_thick
-from moving_mesh_transport.solution_plotter import plot_thick_nonlinear_problems_s2 as plot_thick_s2
-from moving_mesh_transport.solution_plotter import plot_thick_suolson_problems as plot_sut
-from moving_mesh_transport.solution_plotter import plot_su_olson as plot_su
-from moving_mesh_transport.solution_plotter import plot_su_olson_gaussian as plot_sug
-from moving_mesh_transport.solution_plotter import plot_coeffs_nov28_crc as pca_28
-from moving_mesh_transport.solution_plotter import plot_coeffs_nov23_crc as pca_23
-from moving_mesh_transport.solution_plotter import plot_coeffs_nov31_crc as pca_31
-from moving_mesh_transport.solution_plotter import plot_coeffs_all_local as pca_loc
-from moving_mesh_transport.table_script import make_all_tables as mat
+# from moving_mesh_transport.solution_plotter import plot_thin_nonlinear_problems as plot_thin
+# from moving_mesh_transport.solution_plotter import plot_thin_nonlinear_problems_s2 as plot_thin_s2
+# from moving_mesh_transport.solution_plotter import plot_thick_nonlinear_problems as plot_thick
+# from moving_mesh_transport.solution_plotter import plot_thick_nonlinear_problems_s2 as plot_thick_s2
+# from moving_mesh_transport.solution_plotter import plot_thick_suolson_problems as plot_sut
+# from moving_mesh_transport.solution_plotter import plot_su_olson as plot_su
+# from moving_mesh_transport.solution_plotter import plot_su_olson_gaussian as plot_sug
+# from moving_mesh_transport.solution_plotter import plot_coeffs_nov28_crc as pca_28
+# from moving_mesh_transport.solution_plotter import plot_coeffs_nov23_crc as pca_23
+# from moving_mesh_transport.solution_plotter import plot_coeffs_nov31_crc as pca_31
+# from moving_mesh_transport.solution_plotter import plot_coeffs_all_local as pca_loc
+# from moving_mesh_transport.table_script import make_all_tables as mat
 from moving_mesh_transport.solver_classes.functions import test_square_sol
 from moving_mesh_transport.solver_classes.functions import test_s2_sol
-from moving_mesh_transport.mesh_tester import test_square_mesh as test_mesh
+# from moving_mesh_transport.mesh_tester import test_square_mesh as test_mesh
 # from moving_mesh_transport.solution_plotter import make_tables_su_olson as tab_sus
 
 # from moving_mesh_transport.solver_classes.functions import test_s2_sol

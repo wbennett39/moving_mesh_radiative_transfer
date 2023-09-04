@@ -1,5 +1,5 @@
 from numba import njit, types, prange
-import quadpy
+# import quadpy
 import ctypes
 from numba.extending import get_cython_function_address
 import numpy as np
@@ -7,6 +7,8 @@ import math
 from scipy.special import expi
 import matplotlib.pyplot as plt
 from ..plots.plot_functions.show import show
+import numpy.polynomial as poly
+
 
 
 
@@ -174,8 +176,9 @@ def LU_surf_func(u,space,N_space,mul,M,xL,xR,dxL,dxR):
     return LU 
 
 def find_nodes(edges, M):
-    scheme = quadpy.c1.gauss_legendre(M+1)
-    xs_quad = scheme.points
+    # scheme = quadpy.c1.gauss_legendre(M+1)
+    xs_quad, ws_quad = poly.legendre.leggauss(M+1)
+    # xs_quad = scheme.points
     ixx = xs_quad.size
     xs_list = np.zeros(ixx*(edges.size-1))
     for k in range(edges.size-1):

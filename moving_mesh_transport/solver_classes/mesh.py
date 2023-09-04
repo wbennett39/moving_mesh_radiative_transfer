@@ -5,7 +5,7 @@ from numba.experimental import jitclass
 import math
 from .functions import problem_identifier 
 from .mesh_functions import set_func, _interp1d
-import quadpy
+# import quadpy
 import numpy.polynomial as nply
 from scipy.special import roots_legendre
 from .mesh_functions import boundary_source_init_func_outside

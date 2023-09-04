@@ -311,10 +311,6 @@ def quadrature(n, name, testing = True):
         #     # testws = quadpy.c1.gauss_legendre(n).weights
         #     np.testing.assert_allclose(testxs, xs)
         #     np.testing.assert_allclose(testws, ws)
-
-
-
-        
     return xs, ws
 
 
