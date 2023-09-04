@@ -217,9 +217,9 @@ class run:
             elif solver.sigma_func[4] == 1:
                 plt.figure(4)
                 mu2 = self.mus[np.argmin(np.abs(self.mus - 0.6))]
-                plt.plot(self.xs, self.psi[-1,-1], '--', label = 'mu = 1 from solver')
-                plt.plot(self.xs, self.psi[-1,np.argmin(np.abs(self.mus - 0.6))], '--', label = f'mu = {round(mu2,2)} from solver')
-                plt.plot(self.xs, self.phi[-1], label = 'phi from solver')
+                # plt.plot(self.xs[-1], self.psi[-1,-1], '--', label = 'mu = 1 from solver')
+                # plt.plot(self.xs[-1], self.psi[-1,np.argmin(np.abs(self.mus - 0.6))], '--', label = f'mu = {round(mu2,2)} from solver')
+                plt.plot(self.xs[-1], self.phi[-1])
                 plt.legend()
                 plt.show()
                 self.fake_sedov_benchmark()
@@ -507,7 +507,8 @@ class run:
         psi2 = np.zeros(50)
         mu1 = 1
         mu2 = self.mus[np.argmin(np.abs(self.mus - 0.6))]
-        sparse_xs = np.linspace(self.xs[0], self.xs[-1], 50)
+        sparse_xs = np.linspace(self.xs[-1,0], self.xs[-1,-1], 50)
+
         for ix, xx in enumerate(sparse_xs):
             psi1[ix] = self.fake_sedov(mu1, self.tfinal, xx)
             psi2[ix] = self.fake_sedov(mu2, self.tfinal, xx)
@@ -524,16 +525,19 @@ class run:
             phi[ix] = np.sum(self.ws * psi_all[ix, :])
         
         plt.figure(4)
-        plt.plot(sparse_xs, psi1,'o', mfc = 'none', label = 'benchmark mu = 1')
-        plt.plot(sparse_xs, psi2,'o', mfc = 'none', label = f'benchmark mu = {round(mu2,2)}')
-        plt.plot(sparse_xs, phi, 's', mfc = 'none', label = 'phi benchmark')
+        # plt.plot(sparse_xs, psi1,'o', mfc = 'none', label = 'benchmark mu = 1')
+        # plt.plot(sparse_xs, psi2,'o', mfc = 'none', label = f'benchmark mu = {round(mu2,2)}')
+        plt.plot(sparse_xs, phi, 's', mfc = 'none', label = r'$\phi$ benchmark ' + f't = {self.tfinal}')
+        print(phi)
+        print('--- --- --- --- --- --- --- ')
+        print(psi_all[:,:])
         plt.legend()
         plt.xlabel('x', fontsize = 16)
-        plt.ylabel(r'$\psi$', fontsize = 16)
+        plt.ylabel(r'$\phi$', fontsize = 16)
         plt.show()
 
         print("#--- --- --- --- --- --- --- --- ---#")
-        phi_interp = interp.interp1d(self.xs, self.phi)
+        phi_interp = interp.interp1d(self.xs[-1], self.phi)
         phi_eval = phi_interp(sparse_xs)
         print('RMSE', RMSE(phi_eval, phi))
         print()

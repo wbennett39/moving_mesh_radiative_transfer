@@ -281,7 +281,10 @@ def quadrature(n, name, testing = True):
     xs = np.zeros(n)
     # roots, weights = roots_legendre(n-1)
     roots = np.zeros(n)
-    brackets = sps.legendre(n-1).weights[:, 0]
+    if n > 1:
+        brackets = sps.legendre(n-1).weights[:, 0]
+    else:
+        brackets = np.array([-1,1])
     for i in range(n-2):
         roots[i+1] = bisection(partial(eval_legendre_deriv, n-1),brackets[i], brackets[i+1])
 
