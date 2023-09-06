@@ -596,14 +596,14 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = True, tfinal_list_2  = 
 # ss_dipole(384)
 
 
-# ss_special_IC(64)
+# ss_special_IC(64
 # ss_special_IC(32)
 
 # ss_gaussian_noniso(16, 1.0)
 # plt.close()
 
 
-def epsilon_convergence_gauss(N_spaces = 32, epsilon_list = [1.0, 0.5, 0.05, 0.005], scaled = False, tfinal_list = [0.001, 0.01, 0.1, 1.0]):
+def epsilon_convergence_gauss(N_spaces = 128, epsilon_list = [1.0], scaled = False, tfinal_list = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05,  0.1, 0.5,  1.0, 5.0, 10.0, 50.0, 100.0, 250.0, 500.0]):
     # scaled = True does not work yet
     rmse_list = np.zeros((len(tfinal_list), len(epsilon_list)))
     rmse_list_noniso = np.zeros((len(tfinal_list), len(epsilon_list)))
@@ -615,21 +615,21 @@ def epsilon_convergence_gauss(N_spaces = 32, epsilon_list = [1.0, 0.5, 0.05, 0.0
 
     clr_list = ['tab:blue', 'tab:green', 'tab:red', 'tab:orange', 'tab:gray', 'tab:pink']
 
-    plt.figure(11)
-    for it, tt in enumerate(tfinal_list):
-        plt.loglog(epsilon_list, rmse_list[it], '-o', label = f't = {tfinal_list[it]}',c = clr_list[it] )
-        plt.loglog(epsilon_list, rmse_list_noniso[it], '-*', c = clr_list[it])
-        print('###       convergence order            ###')
-        print(loglog_converge(np.array(epsilon_list), rmse_list[it], 0))
-        print('###                                    ###')
+    # plt.figure(11)
+    # for it, tt in enumerate(tfinal_list):
+    #     plt.loglog(epsilon_list, rmse_list[it], '-o', label = f't = {tfinal_list[it]}',c = clr_list[it] )
+    #     plt.loglog(epsilon_list, rmse_list_noniso[it], '-*', c = clr_list[it])
+    #     print('###       convergence order            ###')
+    #     print(loglog_converge(np.array(epsilon_list), rmse_list[it], 0))
+    #     print('###                                    ###')
     shift = 0.0194
-    plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(2), '--k', label = r'$c_1\: \epsilon^{2}$')
+    # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(2), '--k', label = r'$c_1\: \epsilon^{2}$')
     # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-1), label = r'$c_1\: \epsilon^{-1}$')
     # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-3), label = r'$c_1\: \epsilon^{-3}$')
-    plt.legend()
-    plt.xlabel(r'$\epsilon$')
-    plt.ylabel('RMSE')
-    plt.show()
+    # plt.legend()
+    # plt.xlabel(r'$\epsilon$')
+    # plt.ylabel('RMSE')
+    # plt.show()
 
 
     plt.figure(13)

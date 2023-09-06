@@ -67,7 +67,9 @@ class parameter_load_class:
     
         self.N_angles = np.array(parameters[source_name]['N_angles'])
         
-        self.source_type = np.array(parameters[source_name]['source_type'])
+        self.source_type = (np.array(parameters[source_name]['source_type']))
+        for iele, ele, in enumerate(self.source_type):
+            self.source_type[iele] = np.int64(self.source_type[iele])
         self.source_strength = float(parameters[source_name]['source_strength'])
         
         if self.source_type[0] != 0:
