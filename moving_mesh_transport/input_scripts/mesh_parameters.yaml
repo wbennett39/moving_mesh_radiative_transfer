@@ -11,7 +11,7 @@
 #'xs_list': [0.01, 0.1, 0.17783, 0.31623, 0.45, 0.5, 0.56234, 0.75, 1.0, 1.33352, 1.77828, 3.16228, 5.62341, 10.0, 17.78279]
 'xs_list': [0.0, 0.5, 1.0]
 'xs_quad': 25
-'eval_times': True
+'eval_times': False
 #'eval_array': [0.1, 0.31623, 1.0, 3.16228, 10.0, 31.6228, 100.0]
 #'eval_array': [2.0, 4.0, 8.0, 16.0, 32.0, 64.0, 128.0, 256.0, 512.0, 1024.0, 2048.0, 4096.0, 8192.0, 16384.0]
 #'eval_array': [10.0, 20.0, 30.0, 40.0, 100.0]
@@ -19,7 +19,7 @@
 
 
 
-'finite': False # Finite or infinite domain
+'finite': True # Finite or infinite domain
 'domain_width': 10.0
 'boundary_on': [0,0]
 'boundary_source_strength': 1.0

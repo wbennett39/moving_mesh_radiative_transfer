@@ -1,10 +1,10 @@
 # parameters shared by all source types
 'all':
     'problem_name': 'transport'
-    'tfinal': 5000.0
+    'tfinal': 1.0
     'c_scaling': False
-    'epsilon_scaling': True  # This isn't going to work for moving mesh or for scattering != 1 -- need to implement still
-    'epsilon': 0.5
+    'epsilon_scaling': False  # This isn't going to work for moving mesh or for scattering != 1 -- need to implement still
+    'epsilon': 0.125
     'sigma_t': 1.0
     'sigma_s': 1.0
     't0': 5.0                       # time the source is turned off
@@ -13,7 +13,7 @@
     'Ms': [8]                         # number of basis functions -1
     'N_runs': 1                         # number of iterations over N_spaces. For error vs time plot
     'rt': 5e-13                         # rel tolerance for ODE integrator
-    'at': 1e-12                         # abs tolerance for ODE integrator
+    'at': 1e-11                         # abs tolerance for ODE integrator
     'mxstp': 1.0
     'major': 'cells'                       # whether the solver iterates over spaces or M's
     'radiative_transfer': 0             # material temperature feedback. 1-True, 0 - False
@@ -63,7 +63,7 @@
     'l': 1.0
     'source_strength': 1.0
     
-    'x0': [85.5, 2.5, 2.5, 2.5, 2.5] # location of last mesh edge
+    'x0': [185.5, 2.5, 2.5, 2.5, 2.5] # location of last mesh edge
 #    'x0': [2.9, 2.9, 2.9, 2.9, 3.0, 2.8]
     'source_type': [0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,1] #set last entry 4 to 1 for non-isotropic IC
     'N_angles': [16]

@@ -201,18 +201,18 @@ class save_output:
 
 
 
-        if f[folder_name][full_str].__contains__('psi/'):
-            del f[folder_name][full_str]['psi/']
-        if f[folder_name][full_str].__contains__('mus/'):
-            del f[folder_name][full_str]['mus/']
+        if f[folder_name][full_str].__contains__('psi'):
+            del f[folder_name][full_str]['psi']
+        if f[folder_name][full_str].__contains__('mus'):
+            del f[folder_name][full_str]['mus']
         print("saving solution")
         dset[0] = xs
         dset[1] = phi
         if folder_name != 'transport':
             dset[2] = e
         
-        dsetpsi = f[folder_name][full_str].create_dataset('psi/', data = psi)
-        dsetmus = f[folder_name][full_str].create_dataset('mus/', data = mus)
+        dsetpsi = f[folder_name][full_str].create_dataset('psi', data = psi)
+        dsetmus = f[folder_name][full_str].create_dataset('mus', data = mus)
         # dsetpsi = psi
         # dset[3] = psi
         # dset[2] = self.ws

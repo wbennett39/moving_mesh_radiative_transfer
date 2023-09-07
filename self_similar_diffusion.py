@@ -603,7 +603,7 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = True, tfinal_list_2  = 
 # plt.close()
 
 
-def epsilon_convergence_gauss(N_spaces = 128, epsilon_list = [1.0], scaled = False, tfinal_list = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05,  0.1, 0.5,  1.0, 5.0, 10.0, 50.0, 100.0, 250.0, 500.0]):
+def epsilon_convergence_gauss(N_spaces = 64, epsilon_list = [1.0, 0.5, 0.25], scaled = False, tfinal_list = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05,  0.1, 0.5,  1.0, 5.0, 10.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0]):
     # scaled = True does not work yet
     rmse_list = np.zeros((len(tfinal_list), len(epsilon_list)))
     rmse_list_noniso = np.zeros((len(tfinal_list), len(epsilon_list)))
@@ -613,23 +613,26 @@ def epsilon_convergence_gauss(N_spaces = 128, epsilon_list = [1.0], scaled = Fal
             rmse_list[it, iep] = res[0]
             rmse_list_noniso[it, iep] = res[1]
 
-    clr_list = ['tab:blue', 'tab:green', 'tab:red', 'tab:orange', 'tab:gray', 'tab:pink']
+    clr_list = ['tab:blue', 'tab:green', 'tab:red', 'tab:orange', 'tab:gray', 'tab:pink', 'black', 'yellow', 'tab:purple', 
+                'tab:brown', 'orange', 'tab:blue']
 
-    # plt.figure(11)
-    # for it, tt in enumerate(tfinal_list):
-    #     plt.loglog(epsilon_list, rmse_list[it], '-o', label = f't = {tfinal_list[it]}',c = clr_list[it] )
-    #     plt.loglog(epsilon_list, rmse_list_noniso[it], '-*', c = clr_list[it])
-    #     print('###       convergence order            ###')
-    #     print(loglog_converge(np.array(epsilon_list), rmse_list[it], 0))
-    #     print('###                                    ###')
+    plt.figure(11)
+    tfinal_list_2 = [0.0001, 0.001, 0.01,  0.1,  1.0, 10.0, 100.0, 1000.0, 5000.0]
+    for it, tt in enumerate(tfinal_list_2):
+
+        plt.loglog(epsilon_list, rmse_list[it, :], '-o', label = f't = {tfinal_list_2[it]}',c = clr_list[it] )
+        plt.loglog(epsilon_list, rmse_list_noniso[it, :], '-*', c = clr_list[it])
+        print('###       convergence order            ###')
+        print(loglog_converge(np.array(epsilon_list), rmse_list[it], 0))
+        print('###                                    ###')
     shift = 0.0194
-    # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(2), '--k', label = r'$c_1\: \epsilon^{2}$')
+    plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(2), '--k', label = r'$c_1\: \epsilon^{2}$')
     # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-1), label = r'$c_1\: \epsilon^{-1}$')
     # plt.loglog(epsilon_list, shift*np.array(epsilon_list)**(-3), label = r'$c_1\: \epsilon^{-3}$')
-    # plt.legend()
-    # plt.xlabel(r'$\epsilon$')
-    # plt.ylabel('RMSE')
-    # plt.show()
+    plt.legend()
+    plt.xlabel(r'$\epsilon$')
+    plt.ylabel('RMSE')
+    plt.show()
 
 
     plt.figure(13)
@@ -637,6 +640,7 @@ def epsilon_convergence_gauss(N_spaces = 128, epsilon_list = [1.0], scaled = Fal
         plt.loglog(tfinal_list, rmse_list[:, iep], '-o', label = f'epsilon = {epsilon_list[iep]}', c = clr_list[iep])
         plt.loglog(tfinal_list, rmse_list_noniso[:, iep], '-*', c = clr_list[iep])
     plt.loglog(tfinal_list, shift*np.array(tfinal_list)**(1), '--k', label = r'$c_1\: t^{1}$')
+    plt.loglog(tfinal_list, shift*np.array(tfinal_list)**(-math.sqrt(2)/2), '--k', label = r'$c_1\: t^{\sqrt{2}/2}$')
     plt.xlabel('time')
     plt.ylabel('RMSE')
     plt.legend()
