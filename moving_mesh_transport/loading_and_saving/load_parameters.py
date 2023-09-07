@@ -68,6 +68,7 @@ class parameter_load_class:
         self.N_angles = np.array(parameters[source_name]['N_angles'])
         
         self.source_type = (np.array(parameters[source_name]['source_type']))
+        
         for iele, ele, in enumerate(self.source_type):
             self.source_type[iele] = np.int64(self.source_type[iele])
         self.source_strength = float(parameters[source_name]['source_strength'])
@@ -76,6 +77,7 @@ class parameter_load_class:
             self.x0 = np.zeros(np.array(parameters[source_name]['x0']).size)
             for ix, xx in enumerate(self.x0):
                 self.x0[ix] = float(np.array(parameters[source_name]['x0'])[ix])
+
         else:
             self.x0 = np.array(parameters[source_name]['x0'])
         self.move_type = np.array(parameters[source_name]['move_type'])
