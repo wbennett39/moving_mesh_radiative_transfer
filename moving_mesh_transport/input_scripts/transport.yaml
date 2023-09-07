@@ -52,7 +52,7 @@
     'x0': [2.5]
     'source_strength': 1.0
     'source_type': [0,0,1,0,0,0,0,0,0,0,0,0,0,0,0]
-    'N_angles': [512]
+    'N_angles': [64]
     'move_type': [1,0]              # moving mesh function selector
     'bench_type': 'full'          # 'S2' or 'full'
     'benchmarking': False
