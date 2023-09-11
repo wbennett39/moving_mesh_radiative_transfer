@@ -7,6 +7,7 @@ Created on Mon May 16 07:02:38 2022
 """
 import numpy as np
 import scipy.integrate as integrate
+from numba import njit
 # import quadpy 
 import matplotlib.pyplot as plt
 from pathlib import Path
@@ -304,7 +305,7 @@ def quadrature(n, name, testing = True):
         xs[-1] = 1
         for nn in range(1, n-1):
             inn = nn + 1
-            ws[nn] = 2 / (n*(n-1)) / (Pn(n-1, np.array([roots[nn]]), -1.0, 1.0)[0])**2
+            ws[nn] = 2 / (n*(n-1)) / (sps.eval_legendre(n-1, roots[nn]))**2
             ws[0] = 2/ (n*(n-1))
             ws[-1] = 2/ (n*(n-1))
         # if testing == True:
