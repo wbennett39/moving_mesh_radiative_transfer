@@ -281,18 +281,24 @@ def quadrature(n, name, testing = True):
     xs = np.zeros(n)
     # roots, weights = roots_legendre(n-1)
     roots = np.zeros(n)
-    if n > 1:
-        brackets = sps.legendre(n-1).weights[:, 0]
-    else:
-        brackets = np.array([-1,1])
-    for i in range(n-2):
-        roots[i+1] = bisection(partial(eval_legendre_deriv, n-1),brackets[i], brackets[i+1])
+    if name == 'gauss_legendre':
+        xs, ws = poly.legendre.leggauss(n)
+    elif name == 'gauss_lobatto':
+        if n > 1:
+            # brackets = sps.legendre(n-1).weights[:, 0]
+            xs_brackets, blanl = poly.legendre.leggauss(n-1)
+            brackets = xs_brackets
+        else:
+            brackets = np.array([-1,1])
+        for i in range(n-2):
+            roots[i+1] = bisection(partial(eval_legendre_deriv, n-1),brackets[i], brackets[i+1])
 
     # mesh = np.linspace(-1, 1, 300)
 
     # plt.plot(mesh, eval_legendre_deriv(n-1, mesh))
     # plt.plot(roots, 0*roots, "o")
-    if name == 'gauss_lobatto':
+
+
         xs = roots
         xs[0] = -1
         xs[-1] = 1
@@ -307,8 +313,7 @@ def quadrature(n, name, testing = True):
         #     np.testing.assert_allclose(testxs, xs)
         #     np.testing.assert_allclose(testws, ws)
 
-    elif name == 'gauss_legendre':
-        xs, ws = poly.legendre.leggauss(n)
+
         # if testing == True:
         #     # testxs = quadpy.c1.gauss_legendre(n).points
         #     # testws = quadpy.c1.gauss_legendre(n).weights

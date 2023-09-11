@@ -96,7 +96,7 @@ class build(object):
         self.xs_quad = xs_quad
         self.ws_quad = ws_quad
         self.x0 = x0
-        self.source_type = source_type
+        self.source_type = np.array(list(source_type), dtype = np.int64)
         self.uncollided = uncollided 
         self.moving = moving
         self.move_type = move_type

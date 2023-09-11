@@ -479,16 +479,16 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = True, tfinal_list_2  = 
             # plt.plot(x, transport_phi/2 + noniso_part_bench(x, t, omega, epsilon, mu) , '--')
             # plt.plot(x, transport_psi[0,:] * sigma, label = f't = {t}')
             xmid = int(len(x)/2)
-            plt.plot(loader_transport.mus, abs(transport_psi[:, xmid] -  noniso_part_bench(x[xmid], t, omega, epsilon, loader_transport.mus)+0.5 *  gaussian_IC_bench_full(x[xmid], tau, omega, A)*np.ones(len(loader_transport.mus))), label = f'epsilon = {epsilon}, t = {t}')
+            # plt.plot(loader_transport.mus, abs(transport_psi[:, xmid] -  noniso_part_bench(x[xmid], t, omega, epsilon, loader_transport.mus)+0.5 *  gaussian_IC_bench_full(x[xmid], tau, omega, A)*np.ones(len(loader_transport.mus))), label = f'epsilon = {epsilon}, t = {t}')
             # plt.plot(loader_transport.mus, 0.5*transport_phi[xmid]*np.ones(len(loader_transport.mus)))
             # plt.plot(loader_transport.mus,np.exp(-t/epsilon**2)*(np.greater(loader_transport.mus,0)-0.5)+0.5* transport_phi[xmid]*np.ones(len(loader_transport.mus)), 'o', mfc = 'none')
             # plt.plot(loader_transport.mus,  noniso_part_bench(x[xmid], t, omega, epsilon, loader_transport.mus)+0.5 *  transport_phi[xmid]*np.ones(len(loader_transport.mus)), 'x', mfc = 'none')
             # plt.plot(loader_transport.mus,  noniso_part_bench(x[xmid], t, omega, epsilon, loader_transport.mus)+0.5 *  gaussian_IC_bench_full(x[xmid], tau, omega, A)*np.ones(len(loader_transport.mus)), 'x', mfc = 'none')
-            plt.xlabel(r'$x$')
-            plt.ylabel(r'$\phi$')
+            # plt.xlabel(r'$x$')
+            # plt.ylabel(r'$\phi$')
             # plt.xlim(0, 30)
             # plt.ylim(0, 0.075)
-            plt.legend(prop={'size':8})
+            # plt.legend(prop={'size':8})
             # plt.xlim(-0.25, 0.25)
             # show(f'dipole_notscaled_{N_spaces}_cells')
             RMSE_val_iso = 0
@@ -501,15 +501,15 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = True, tfinal_list_2  = 
                 RMSE_val_iso += RMSE(transport_psi[iang,:] * sigma, gaussian_IC_bench_full(x, tau, omega, A)/2)/N_ang
                 RMSE_val_noniso += RMSE(transport_psi[iang,:] * sigma, gaussian_IC_bench_full(x, tau, omega, A)/2 + noniso_part_bench(x, t, omega, epsilon, mu))/N_ang
                 print(RMSE_val_iso, RMSE_val_noniso, 'rms')
-                plt.figure(20)
-                plt.plot(x, transport_psi[iang,:] * sigma - gaussian_IC_bench_full(x, tau, omega, A)/2 - noniso_part_bench(x, t, omega, epsilon, mu), '--')
-                plt.figure(21)
-                plt.plot(x, transport_psi[iang,:] * sigma - gaussian_IC_bench_full(x, tau, omega, A)/2, '--')
+                # plt.figure(20)
+                # plt.plot(x, transport_psi[iang,:] * sigma - gaussian_IC_bench_full(x, tau, omega, A)/2 - noniso_part_bench(x, t, omega, epsilon, mu), '--')
+                # plt.figure(21)
+                # plt.plot(x, transport_psi[iang,:] * sigma - gaussian_IC_bench_full(x, tau, omega, A)/2, '--')
                 # plt.plot(x, transport_psi[iang,:] * sigma - gaussian_IC_bench_full(x, tau, omega, A)/2, 'o', mfc = 'none')
                 # plt.plot(x, gaussian_IC_bench_full(x, tau, omega, A)/2 + noniso_part_bench(x, t, omega, epsilon, mu), 'o', mfc = 'none', label = f'mu = {np.round(mu,2)}')
                 # plt.plot(x, gaussian_IC_bench_full(x, tau, omega, A)/2, '^', mfc = 'none', label = f'mu = {np.round(mu,2)}')
-            plt.legend()
-            plt.show()
+            # plt.legend()
+            # plt.show()
 
 
 
@@ -603,7 +603,7 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = True, tfinal_list_2  = 
 # plt.close()
 
 
-def epsilon_convergence_gauss(N_spaces = 64, epsilon_list = [1.0, 0.5, 0.25], scaled = False, tfinal_list = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05,  0.1, 0.5,  1.0, 5.0, 10.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0]):
+def epsilon_convergence_gauss(N_spaces = 64, epsilon_list = [1.0, 0.5, 0.25, 0.125, 0.0625], scaled = False, tfinal_list = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05,  0.1, 0.5,  1.0, 5.0, 10.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0]):
     # scaled = True does not work yet
     rmse_list = np.zeros((len(tfinal_list), len(epsilon_list)))
     rmse_list_noniso = np.zeros((len(tfinal_list), len(epsilon_list)))
@@ -620,8 +620,8 @@ def epsilon_convergence_gauss(N_spaces = 64, epsilon_list = [1.0, 0.5, 0.25], sc
     tfinal_list_2 = [0.0001, 0.001, 0.01,  0.1,  1.0, 10.0, 100.0, 1000.0, 5000.0]
     for it, tt in enumerate(tfinal_list_2):
 
-        plt.loglog(epsilon_list, rmse_list[it, :], '-o', label = f't = {tfinal_list_2[it]}',c = clr_list[it] )
-        plt.loglog(epsilon_list, rmse_list_noniso[it, :], '-*', c = clr_list[it])
+        plt.loglog(epsilon_list, rmse_list[it, :], '-o', label = f't = {tfinal_list_2[it]}',c = clr_list[it], mfc = 'none' )
+        plt.loglog(epsilon_list, rmse_list_noniso[it, :], '-s', c = clr_list[it], mfc = 'none')
         print('###       convergence order            ###')
         print(loglog_converge(np.array(epsilon_list), rmse_list[it], 0))
         print('###                                    ###')
@@ -637,13 +637,14 @@ def epsilon_convergence_gauss(N_spaces = 64, epsilon_list = [1.0, 0.5, 0.25], sc
 
     plt.figure(13)
     for iep, ep in enumerate(epsilon_list):
-        plt.loglog(tfinal_list, rmse_list[:, iep], '-o', label = f'epsilon = {epsilon_list[iep]}', c = clr_list[iep])
-        plt.loglog(tfinal_list, rmse_list_noniso[:, iep], '-*', c = clr_list[iep])
+        plt.loglog(tfinal_list, rmse_list[:, iep], '-o', label = r'$\epsilon$' + f' = {epsilon_list[iep]}', c = clr_list[iep], mfc = 'none')
+        plt.loglog(tfinal_list, rmse_list_noniso[:, iep], '-s', c = clr_list[iep], mfc = 'none')
     plt.loglog(tfinal_list, shift*np.array(tfinal_list)**(1), '--k', label = r'$c_1\: t^{1}$')
     plt.loglog(tfinal_list, shift*np.array(tfinal_list)**(-math.sqrt(2)/2), '--k', label = r'$c_1\: t^{\sqrt{2}/2}$')
-    plt.xlabel('time')
+    plt.xlabel(r'$\tau$')
     plt.ylabel('RMSE')
-    plt.legend()
+    plt.legend(prop={'size':6})
+    # plt.legend()
     plt.show()
 
 
