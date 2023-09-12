@@ -292,7 +292,10 @@ def quadrature(n, name, testing = True):
         else:
             brackets = np.array([-1,1])
         for i in range(n-2):
-            roots[i+1] = bisection(partial(eval_legendre_deriv, n-1),brackets[i], brackets[i+1])
+            # roots[i+1] = bisection(partial(eval_legendre_deriv, n-1), brackets[i], brackets[i+1])
+            x0 = (brackets[i]+ brackets[i+1])*0.5
+            roots[i+1] =  newtons(x0, partial(eval_legendre_deriv, n-1), partial(eval_second_legendre_deriv, n-1))
+
 
     # mesh = np.linspace(-1, 1, 300)
 
@@ -343,3 +346,26 @@ def eval_legendre_deriv(n, x):
         (x*sps.eval_legendre(n, x) - sps.eval_legendre(n-1, x))
         /
         ((x**2-1)/n))
+
+def eval_second_legendre_deriv(n, x):
+    return (n*(-((1 + x**2)*sps.eval_legendre(n, x)) + 2*x*sps.eval_legendre(n-1, x) + (-1 + x**2)*(x*eval_legendre_deriv(n, x) - eval_legendre_deriv(n-1, x))))/(-1 + x**2)**2
+
+def newtons2(x0, f, fprime, tol = 1e-16):
+    old_guess = x0
+    new_guess = 1000
+    it = 0
+    while abs(old_guess-new_guess) > tol:
+        new_guess = old_guess - f(old_guess) / fprime(old_guess)
+        old_guess = new_guess
+    return old_guess
+
+def newtons(x0, f, fprime, tol = 1e-14):
+    def iterate(x0, f, fprime):
+        return x0 - f(x0) / fprime(x0)
+    tol_met = False
+    while tol_met == False:
+        new_x0 = iterate(x0, f, fprime)
+        if abs(new_x0-x0) <= tol:
+            tol_met = True
+        x0 = new_x0
+    return x0
