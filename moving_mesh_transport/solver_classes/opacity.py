@@ -43,7 +43,7 @@ class sigma_integrator():
         print(self.sigma_s,'sigma_s')
         self.sigma_a = self.sigma_t - self.sigma_s
         print(self.sigma_a,'sigma_a')
-        self.sigma_func = build.sigma_func
+        self.sigma_func = np.array(list(build.sigma_func), dtype = np.int64) 
         self.M = build.M
         self.Msigma = build.Msigma
         self.xs_quad = build.xs_quad

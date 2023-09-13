@@ -99,15 +99,15 @@ class build(object):
         self.source_type = np.array(list(source_type), dtype = np.int64)
         self.uncollided = uncollided 
         self.moving = moving
-        self.move_type = move_type
+        self.move_type = np.array(list(move_type), dtype = np.int64)
         self.t_quad = t_quad
         self.t_ws = t_ws
         self.t0 = t0
-        self.sigma_func = sigma_func
+        self.sigma_func = np.array(list(sigma_func), dtype = np.int64)
         self.test_dimensional_rhs = test_dimensional_rhs
 
         self.thermal_couple = thermal_couple
-        self.temp_function = temp_function
+        self.temp_function = np.array(list(temp_function), dtype = np.int64)
         self.sigma = sigma
         self.particle_v = particle_v
         self.edge_v = edge_v
@@ -122,7 +122,7 @@ class build(object):
         self.leader_pad = leader_pad
         self.quad_thick_source = quad_thick_source
         self.quad_thick_edge = quad_thick_edge
-        self.boundary_on = boundary_on
+        self.boundary_on = np.array(list(boundary_on), dtype = np.int64)
         self.boundary_source = boundary_source
         self.boundary_source_strength = boundary_source_strength
         self.Msigma = Msigma

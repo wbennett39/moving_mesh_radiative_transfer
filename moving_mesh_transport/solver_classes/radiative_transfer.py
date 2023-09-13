@@ -46,7 +46,7 @@ data = [('temp_function', int64[:]),
 @jitclass(data)
 class T_function(object):
     def __init__(self, build):
-        self.temp_function = build.temp_function
+        self.temp_function = np.array(list(build.temp_function), dtype = np.int64) 
         self.H = np.zeros(build.M+1).transpose()
         self.M = build.M
         

@@ -44,7 +44,7 @@ class scalar_flux(object):
         self.M = build.M
         self.ws = build.ws
         self.thermal_couple = build.thermal_couple
-        self.sigma_func = build.sigma_func
+        self.sigma_func = np.array(list(build.sigma_func), dtype = np.int64)
         self.sigma_s = build.sigma_s
         self.N_ang = build.N_ang
         self.Msigma = build.Msigma

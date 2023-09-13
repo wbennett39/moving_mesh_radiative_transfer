@@ -246,7 +246,7 @@ class rhs_class():
         self.M = build.M
         self.mus = build.mus
         self.ws = build.ws
-        self.source_type = build.source_type
+        self.source_type = np.array(list(build.source_type), dtype = np.int64) 
         self.c = build.scattering_ratio
         self.thermal_couple = build.thermal_couple
         self.uncollided = build.uncollided
@@ -267,7 +267,7 @@ class rhs_class():
         self.e_xs_list = np.array([0.0])
         self.wave_loc_list = np.array([0.0])
         self.save_derivative = build.save_wave_loc
-        self.sigma_func = build.sigma_func
+        self.sigma_func = np.array(list(build.sigma_func), dtype = np.int64) 
         self.epsilon = build.epsilon
 
     

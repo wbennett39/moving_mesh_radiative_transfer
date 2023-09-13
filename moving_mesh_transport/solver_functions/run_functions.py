@@ -477,10 +477,20 @@ class run:
         t2 = lambda s: rho0 * s
 
         mfp = t1(b1) - t1(b2) + t2(b3) - t2(b4) 
+        if mfp/mu >40:
+            mfp = 40 * mu
+            # print(np.exp(-mfp/mu))
+            return 0.0
         # mfp = rho0 * x - rho0 * (-x0)
         # print(mfp, x, 'mfp')
-
-        return np.exp(-mfp / mu) * np.heaviside(mu - abs(x - x0)/ (tfinal), 0) * np.heaviside(abs(x0-x) - (tfinal-self.t0_source)*mu,0)
+        if np.isnan(np.exp(-mfp / mu) * np.heaviside(mu - abs(x - x0)/ (tfinal), 0) * np.heaviside(abs(x0-x) - (tfinal-self.t0_source)*mu,0)):
+            print(mu, tfinal, x)
+            print(mfp/mu)
+            print('--- --- ---')
+        if mu > 0:
+            return np.exp(-mfp / mu) * np.heaviside(mu - abs(x - x0)/ (tfinal), 0) * np.heaviside(abs(x0-x) - (tfinal-self.t0_source)*mu,0)
+        else:
+            return 0.0
 
  
 

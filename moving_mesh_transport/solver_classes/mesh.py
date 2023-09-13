@@ -83,7 +83,7 @@ class mesh_class(object):
         self.N_space = N_space
         self.x0 = x0
         self.moving = moving
-        self.move_type = move_type
+        self.move_type = np.array(list(move_type), dtype = np.int64)
         self.edges = np.zeros(N_space+1)
         self.edges0 = np.zeros(N_space+1)
         self.Dedges = np.zeros(N_space+1)
@@ -95,7 +95,7 @@ class mesh_class(object):
             self.speed = 299.98
 
         print('mesh edge velocity: ', edge_v)
-        self.source_type = source_type
+        self.source_type = np.array(list(source_type), dtype = np.int64)
 
         if self.move_type[0] == True:
             self.move_func = 0 # simple linear
@@ -122,7 +122,6 @@ class mesh_class(object):
         self.sidebin = int(self.N_space/4)
         self.middlebin = int(self.N_space/2)
         
-
         self.tactual = -1.
         self.told = 0.0
         self.index_old = 0
@@ -138,7 +137,7 @@ class mesh_class(object):
             print('finite domain')
         self.domain_width = domain_width
         
-        self.boundary_on = boundary_on
+        self.boundary_on = np.array(list(boundary_on), dtype = np.int64)
 
         self.mesh_stopped = False
         self.vnaught = fake_sedov_v

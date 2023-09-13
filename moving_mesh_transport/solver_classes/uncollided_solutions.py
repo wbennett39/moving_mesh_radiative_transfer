@@ -56,7 +56,7 @@ data = [("S", float64[:]),
 @jitclass(data)
 class uncollided_solution(object):
     def __init__(self, build):
-        self.source_type = build.source_type
+        self.source_type =np.array(list(build.source_type), dtype = np.int64) 
         self.uncollided = build.uncollided
         self.x0 = build.x0
         self.M = build.M

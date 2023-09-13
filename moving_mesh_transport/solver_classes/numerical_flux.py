@@ -61,7 +61,7 @@ class LU_surf(object):
         self.test_dimensional_rhs = build.test_dimensional_rhs
         self.LU = np.zeros(build.M+1).transpose()
         self.M = build.M
-        self.source_type = build.source_type
+        self.source_type = np.array(list(build.source_type), dtype = np.int64)
         self.ws_quad = build.ws_quad
         self.xs_quad = build.xs_quad
         self.N_space = build.N_space
@@ -77,7 +77,7 @@ class LU_surf(object):
         self.e_init = build.e_init
         self.speed = 1.0
         self.boundary_source = build.boundary_source
-        self.boundary_on = build.boundary_on # [left, right]
+        self.boundary_on = np.array(list(build.boundary_on), dtype = np.int64) # [left, right]
         self.boundary_source_strength = build.boundary_source_strength
         self.uncollided = build.uncollided
         # if build.test_dimensional_rhs == True:

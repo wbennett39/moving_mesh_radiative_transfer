@@ -56,7 +56,7 @@ data = [("S", float64[:]),
 class source_class(object):
     def __init__(self, build):
         self.S = np.zeros(build.M+1).transpose()
-        self.source_type = build.source_type
+        self.source_type = np.array(list(build.source_type), dtype = np.int64) 
         self.uncollided = build.uncollided
         self.x0 = build.x0
         self.M = build.M

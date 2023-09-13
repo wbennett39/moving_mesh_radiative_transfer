@@ -30,7 +30,7 @@ data = [('N_ang', int64),
 @jitclass(data)
 class IC_func(object):
     def __init__(self, source_type, uncollided, x0, source_strength, sigma, x1 = 0):
-        self.source_type = source_type
+        self.source_type = np.array(list(source_type), dtype = np.int64)
         self.uncollided = uncollided
         self.x0 = x0
         self.source_strength = source_strength
