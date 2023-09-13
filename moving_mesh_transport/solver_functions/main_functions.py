@@ -350,7 +350,7 @@ def eval_legendre_deriv(n, x):
 def eval_second_legendre_deriv(n, x):
     return (n*(-((1 + x**2)*sps.eval_legendre(n, x)) + 2*x*sps.eval_legendre(n-1, x) + (-1 + x**2)*(x*eval_legendre_deriv(n, x) - eval_legendre_deriv(n-1, x))))/(-1 + x**2)**2
 
-def newtons2(x0, f, fprime, tol = 1e-16):
+def newtons2(x0, f, fprime, tol = 1e-14):
     old_guess = x0
     new_guess = 1000
     it = 0
