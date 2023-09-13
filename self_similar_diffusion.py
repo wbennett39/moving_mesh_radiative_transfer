@@ -436,7 +436,7 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = True, tfinal_list_2  = 
     A = c/3/sigma
     omega = 4.0
     for it, t in enumerate(tfinal_list_2):
-        loader_transport.call_sol(t, 8, omega, N_spaces, 'rad', False, False, epsilon)
+        loader_transport.call_sol(t, 0, omega, N_spaces, 'rad', False, False, epsilon)
         x = loader_transport.xs / sigma
         tau = t /c /sigma
         transport_phi = loader_transport.phi
@@ -603,7 +603,7 @@ def ss_gaussian_noniso(N_spaces, epsilon = 1.0, scaled = True, tfinal_list_2  = 
 # plt.close()
 
 
-def epsilon_convergence_gauss(N_spaces = 64, epsilon_list = [1.0, 0.5, 0.25, 0.125, 0.0625], scaled = False, tfinal_list = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05,  0.1, 0.5,  1.0, 5.0, 10.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0]):
+def epsilon_convergence_gauss(N_spaces = 16, epsilon_list = [0.5], scaled = False, tfinal_list = [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05,  0.1, 0.5,  1.0, 5.0, 10.0, 50.0, 100.0, 250.0, 500.0, 1000.0, 5000.0]):
     # scaled = True does not work yet
     rmse_list = np.zeros((len(tfinal_list), len(epsilon_list)))
     rmse_list_noniso = np.zeros((len(tfinal_list), len(epsilon_list)))
@@ -637,11 +637,11 @@ def epsilon_convergence_gauss(N_spaces = 64, epsilon_list = [1.0, 0.5, 0.25, 0.1
 
     plt.figure(13)
     for iep, ep in enumerate(epsilon_list):
-        plt.loglog(tfinal_list, rmse_list[:, iep], '-o', label = r'$\epsilon$' + f' = {epsilon_list[iep]}', c = clr_list[iep], mfc = 'none')
-        plt.loglog(tfinal_list, rmse_list_noniso[:, iep], '-s', c = clr_list[iep], mfc = 'none')
+        plt.loglog(np.array(tfinal_list)/epsilon_list[iep], rmse_list[:, iep], '-o', label = r'$\epsilon$' + f' = {epsilon_list[iep]}', c = clr_list[iep], mfc = 'none')
+        plt.loglog(np.array(tfinal_list)/epsilon_list[iep], rmse_list_noniso[:, iep], '-s', c = clr_list[iep], mfc = 'none')
     plt.loglog(tfinal_list, shift*np.array(tfinal_list)**(1), '--k', label = r'$c_1\: t^{1}$')
     plt.loglog(tfinal_list, shift*np.array(tfinal_list)**(-math.sqrt(2)/2), '--k', label = r'$c_1\: t^{\sqrt{2}/2}$')
-    plt.xlabel(r'$\tau$')
+    plt.xlabel(r'$\tau/\epsilon$')
     plt.ylabel('RMSE')
     plt.legend(prop={'size':6})
     # plt.legend()
