@@ -10,9 +10,11 @@ import scipy.integrate as integrate
 from numba import njit
 # import quadpy 
 import matplotlib.pyplot as plt
+import math
 from pathlib import Path
 from ..solver_classes.functions import find_nodes
-from ..solver_classes.functions import Pn
+from ..solver_classes.functions import Pn, normTn
+from .Chebyshev_matrix_reader import file_reader
 
 from ..solver_classes.build_problem import build
 from ..solver_classes.matrices import G_L
@@ -21,7 +23,10 @@ from ..solver_classes.sources import source_class
 from ..solver_classes.uncollided_solutions import uncollided_solution
 from ..solver_classes.phi_class import scalar_flux
 from ..solver_classes.mesh import mesh_class
-from ..solver_classes.rhs_class import rhs_class
+from ..solver_classes.rhs_class_1 import rhs_class
+from ..solver_classes.functions import quadrature
+# from ..solver_classes.rhs_class import rhs_class
+
 from ..solver_classes.make_phi import make_output
 from ..solver_classes.radiative_transfer import T_function
 from ..solver_classes.opacity import sigma_integrator
@@ -29,10 +34,8 @@ from ..solver_classes.opacity import sigma_integrator
 from timeit import default_timer as timer
 from .wavespeed_estimator import wavespeed_estimator
 from .wave_loc_estimator import find_wave
-from scipy.special import roots_legendre
-import numpy.polynomial as poly
-import scipy.special as sps
-from functools import partial
+
+
 
 """
 This file contains functions used by solver
@@ -97,7 +100,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
           weights, sigma, particle_v, edge_v, cv0, estimate_wavespeed, find_wave_loc, thick, mxstp, wave_loc_array, 
           find_edges_tol, source_strength, move_factor, integrator, l, save_wave_loc, pad, leader_pad, xs_quad_order, 
           eval_times, eval_array, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma,
-          finite_domain, domain_width, fake_sedov_v0, test_dimensional_rhs, epsilon):
+          finite_domain, domain_width, fake_sedov_v0, test_dimensional_rhs, epsilon, geometry):
 
     # if weights == "gauss_lobatto":
     #     mus = quadpy.c1.gauss_lobatto(N_ang).points
@@ -111,8 +114,10 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
 
     # xs_quad = quadpy.c1.gauss_legendre(2*M+1).points
     # ws_quad = quadpy.c1.gauss_legendre(2*M+1).weights
-
-    xs_quad, ws_quad = quadrature(2*M+1, 'gauss_legendre')
+    if geometry['slab'] == True:
+        xs_quad, ws_quad = quadrature(2*M+1, 'gauss_legendre')
+    elif geometry['sphere'] == True:
+        xs_quad, ws_quad = quadrature(2*M+1, 'chebyshev')
 
     # t_quad = quadpy.c1.gauss_legendre(t_nodes).points
     t_quad, t_ws = quadrature(t_nodes, 'gauss_legendre')
@@ -123,25 +128,35 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
     # quad_thick_source = quadpy.c1.gauss_lobatto(int(N_space/2+1)).points
     # quad_thick_edge = quadpy.c1.gauss_lobatto(int(N_space/4+1)).points
     # quad_thick_source = ([quad_thick_source_inside, quad_thick_source_outside])
-    
+
+    reader = file_reader()
+    give = reader()
+    # ob = matrix_builder()
+
+
+
     initialize = build(N_ang, N_space, M, tfinal, x0, t0, mus, ws, xs_quad,
                        ws_quad, sigma_t, sigma_s, source_type, uncollided, moving, move_type, t_quad, t_ws,
                        thermal_couple, temp_function, e_initial, sigma, particle_v, edge_v, cv0, thick, 
                        wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source,
                         quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma,
-                        finite_domain, domain_width, fake_sedov_v0, test_dimensional_rhs, epsilon)
-                       
+                        finite_domain, domain_width, fake_sedov_v0, test_dimensional_rhs, epsilon, geometry)
+
+
     initialize.make_IC()
     IC = initialize.IC
 
-    if thermal_couple == 0:
+    if thermal_couple['none'] == 1:
         deg_freedom = N_ang*N_space*(M+1)
-    elif thermal_couple == 1:
+    else:
         deg_freedom = (N_ang+1)*N_space*(M+1)
+
     mesh = mesh_class(N_space, x0, tfinal, moving, move_type, source_type, edge_v, thick, move_factor,
                       wave_loc_array, pad, leader_pad, quad_thick_source, quad_thick_edge, finite_domain,
-                      domain_width, fake_sedov_v0, boundary_on, t0) 
-    matrices = G_L(initialize)
+                      domain_width, fake_sedov_v0, boundary_on, t0, geometry) 
+
+
+    matrices = G_L(initialize, give[0], give[1], give[2], give[3], give[4], give[5], give[6], give[7], give[8], give[9], give[10], give[11], give[12])
     num_flux = LU_surf(initialize)
     source = source_class(initialize)
     uncollided_sol = uncollided_solution(initialize)
@@ -165,8 +180,8 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         tpnts = eval_array
         print(tpnts, 'time points')
 
-    
     sol = integrate.solve_ivp(RHS, [0.0,tfinal], reshaped_IC, method=integrator, t_eval = tpnts , rtol = rt, atol = at, max_step = mxstp)
+    print(sol)
     print(sol.y.shape,'sol y shape')
     print(eval_times, 'eval times')
     end = timer()
@@ -196,13 +211,13 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
         T_front_location = np.zeros(1)
 
     
-    if thermal_couple == 0:
+    if thermal_couple['none'] == 1:
         extra_deg_freedom = 0
        
         sol_last = sol.y[:,-1].reshape((N_ang,N_space,M+1))
         if eval_times ==True:
             sol_array = sol.y.reshape((eval_array.size, N_ang,N_space,M+1)) 
-    elif thermal_couple == 1:
+    elif thermal_couple['none'] != 1:
         extra_deg_freedom = 1
         sol_last = sol.y[:,-1].reshape((N_ang+1,N_space,M+1))
         if eval_times == True:
@@ -218,13 +233,13 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
     edges = mesh.edges
     
     if choose_xs == False:
-        xs = find_nodes(edges, M)
+        xs = find_nodes(edges, M, geometry)
         
     elif choose_xs == True:
         xs = specified_xs
     # print(xs, 'xs')
     if eval_times == False:
-        output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided)
+        output = make_output(tfinal, N_ang, ws, xs, sol_last, M, edges, uncollided, geometry)
         phi = output.make_phi(uncollided_sol)
         psi = output.psi_out # this is the collided psi
         exit_dist, exit_phi = output.get_exit_dist(uncollided_sol)
@@ -246,7 +261,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
                 xs = find_nodes(edges, M)
             elif choose_xs == True:
                 xs = specified_xs
-            output = make_output(tt, N_ang, ws, xs, sol.y[:,it].reshape((N_ang+extra_deg_freedom,N_space,M+1)), M, edges, uncollided)
+            output = make_output(tt, N_ang, ws, xs, sol.y[:,it].reshape((N_ang+extra_deg_freedom,N_space,M+1)), M, edges, uncollided, geometry)
             phi[it,:] = output.make_phi(uncollided_sol)
             psi[it, :, :] = output.psi_out # this is the collided psi
             exit_dist[it], exit_phi[it] = output.get_exit_dist(uncollided_sol)
@@ -277,95 +292,25 @@ def x0_function(x0, source_type, count):
         return x0_new
 
 
-def quadrature(n, name, testing = True):
-    ws = np.zeros(n)
-    xs = np.zeros(n)
-    # roots, weights = roots_legendre(n-1)
-    roots = np.zeros(n)
-    if name == 'gauss_legendre':
-        xs, ws = poly.legendre.leggauss(n)
-    elif name == 'gauss_lobatto':
-        if n > 1:
-            # brackets = sps.legendre(n-1).weights[:, 0]
-            xs_brackets, blanl = poly.legendre.leggauss(n-1)
-            brackets = xs_brackets
-        else:
-            brackets = np.array([-1,1])
-        for i in range(n-2):
-            # roots[i+1] = bisection(partial(eval_legendre_deriv, n-1), brackets[i], brackets[i+1])
-            x0 = (brackets[i]+ brackets[i+1])*0.5
-            roots[i+1] =  newtons(x0, partial(eval_legendre_deriv, n-1), partial(eval_second_legendre_deriv, n-1))
-
-
-    # mesh = np.linspace(-1, 1, 300)
-
-    # plt.plot(mesh, eval_legendre_deriv(n-1, mesh))
-    # plt.plot(roots, 0*roots, "o")
-
-
-        xs = roots
-        xs[0] = -1
-        xs[-1] = 1
-        for nn in range(1, n-1):
-            inn = nn + 1
-            ws[nn] = 2 / (n*(n-1)) / (sps.eval_legendre(n-1, roots[nn]))**2
-            ws[0] = 2/ (n*(n-1))
-            ws[-1] = 2/ (n*(n-1))
-        # if testing == True:
-        #     testxs = quadpy.c1.gauss_lobatto(n).points
-        #     testws = quadpy.c1.gauss_lobatto(n).weights
-        #     np.testing.assert_allclose(testxs, xs)
-        #     np.testing.assert_allclose(testws, ws)
-
-
-        # if testing == True:
-        #     # testxs = quadpy.c1.gauss_legendre(n).points
-        #     # testws = quadpy.c1.gauss_legendre(n).weights
-        #     np.testing.assert_allclose(testxs, xs)
-        #     np.testing.assert_allclose(testws, ws)
-    return xs, ws
 
 
 
 
 
-def bisection(f, a, b, tol=1e-14):
-    assert np.sign(f(a)) != np.sign(f(b))
-    while b-a > tol:
-        m = a + (b-a)/2
-        fm = f(m)
-        if np.sign(f(a)) != np.sign(fm):
-            b = m
-        else:
-            a = m
-            
-    return m
 
-def eval_legendre_deriv(n, x):
-    return (
-        (x*sps.eval_legendre(n, x) - sps.eval_legendre(n-1, x))
-        /
-        ((x**2-1)/n))
 
-def eval_second_legendre_deriv(n, x):
-    return (n*(-((1 + x**2)*sps.eval_legendre(n, x)) + 2*x*sps.eval_legendre(n-1, x) + (-1 + x**2)*(x*eval_legendre_deriv(n, x) - eval_legendre_deriv(n-1, x))))/(-1 + x**2)**2
 
-def newtons2(x0, f, fprime, tol = 1e-14):
-    old_guess = x0
-    new_guess = 1000
-    it = 0
-    while abs(old_guess-new_guess) > tol:
-        new_guess = old_guess - f(old_guess) / fprime(old_guess)
-        old_guess = new_guess
-    return old_guess
+# def matmul(a,b):
 
-def newtons(x0, f, fprime, tol = 1e-14):
-    def iterate(x0, f, fprime):
-        return x0 - f(x0) / fprime(x0)
-    tol_met = False
-    while tol_met == False:
-        new_x0 = iterate(x0, f, fprime)
-        if abs(new_x0-x0) <= tol:
-            tol_met = True
-        x0 = new_x0
-    return x0
+#     res = [[0 for x in range(3)] for y in range(3)] 
+    
+#     # explicit for loops
+#     for i in range(len(matrix1)):
+#         for j in range(len(matrix2[0])):
+#             for k in range(len(matrix2)):
+    
+#                 # resulted matrix
+#     return res
+
+
+ 

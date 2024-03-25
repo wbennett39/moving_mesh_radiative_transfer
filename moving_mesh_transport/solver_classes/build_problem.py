@@ -8,19 +8,25 @@ Created on Wed Jan 26 07:24:05 2022
 import numpy as np
 from numba import int64, float64, jit, njit, deferred_type
 from numba.experimental import jitclass
+from numba import types, typed
 # from main import IC_func 
 from .mesh import mesh_class
-from .functions import normPn
+from .functions import normPn, normTn
 from .mutables import IC_func
+from .functions import weight_func_Tn
 
 import yaml
 from pathlib import Path
+import numba as nb
 
 ###############################################################################
 mesh_class_type = deferred_type()
 mesh_class_type.define(mesh_class.class_type.instance_type)
 IC_func_type = deferred_type()
 IC_func_type.define(IC_func.class_type.instance_type)
+kv_ty = (types.int64, types.unicode_type)
+# Explicitly define the types of the key and value:
+params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 
 data = [('N_ang', int64), 
         ('N_space', int64),
@@ -44,7 +50,7 @@ data = [('N_ang', int64),
         ("t_quad", float64[:]),
         ("t_ws", float64[:]),
         ('scattering_ratio', float64),
-        ('thermal_couple', int64),
+        ('thermal_couple', nb.typeof(params_default)),
         ('temp_function', int64[:]),
         ('e_init', float64),
         ('sigma', float64),
@@ -65,14 +71,16 @@ data = [('N_ang', int64),
         ('boundary_on', int64[:]), 
         ('boundary_source_strength', float64),
         ('boundary_source', int64),
-        ('sigma_func', int64[:]),
+        # ('sigma_func', int64[:]),
+        ('sigma_func', nb.typeof(params_default)),
         ('Msigma', int64),
         ('domain_width', float64),
         ('finite_domain', int64),
         ('fake_sedov_v0', float64),
         ('x01', float64),
         ('test_dimensional_rhs', int64),
-        ('epsilon', float64)
+        ('epsilon', float64), 
+        ('geometry', nb.typeof(params_default)),
         ]
 ###############################################################################
 
@@ -82,7 +90,7 @@ class build(object):
     source_type, uncollided, moving, move_type, t_quad, t_ws, thermal_couple, temp_function, e_initial, sigma, particle_v, 
     edge_v, cv0, thick, wave_loc_array, source_strength, move_factor, l, save_wave_loc, pad, leader_pad, quad_thick_source,
      quad_thick_edge, boundary_on, boundary_source_strength, boundary_source, sigma_func, Msigma, finite_domain, domain_width, 
-     fake_sedov_v0, test_dimensional_rhs, epsilon):
+     fake_sedov_v0, test_dimensional_rhs, epsilon, geometry):
         self.N_ang = N_ang
         self.N_space = N_space
         self.M = M
@@ -103,7 +111,9 @@ class build(object):
         self.t_quad = t_quad
         self.t_ws = t_ws
         self.t0 = t0
-        self.sigma_func = np.array(list(sigma_func), dtype = np.int64)
+        # self.sigma_func = np.array(list(sigma_func), dtype = np.int64)
+        self.sigma_func = sigma_func
+
         self.test_dimensional_rhs = test_dimensional_rhs
 
         self.thermal_couple = thermal_couple
@@ -130,12 +140,12 @@ class build(object):
         self.domain_width = domain_width
         self.fake_sedov_v0 = fake_sedov_v0
         
-        if self.thermal_couple == 0:
+        if self.thermal_couple['none'] == 1:
             self.IC = np.zeros((N_ang, N_space, M+1))
-        elif self.thermal_couple == 1:
+        elif self.thermal_couple['none'] != 1:
             self.IC = np.zeros((N_ang + 1, N_space, M+1))
         self.epsilon = epsilon
-            
+        self.geometry = geometry
        
         self.e_init = e_initial
         # self.e_initial = 1e-4
@@ -144,9 +154,14 @@ class build(object):
     def integrate_quad(self, a, b, ang, space, j, ic):
         argument = (b-a)/2*self.xs_quad + (a+b)/2
         mu = self.mus[ang]
-        self.IC[ang,space,j] = (b-a)/2 * np.sum(self.ws_quad * ic.function(argument, mu) * normPn(j, argument, a, b))
+        self.IC[ang,space,j] = 0.5 * (b-a) * np.sum(self.ws_quad * ic.function(argument, mu) * normPn(j, argument, a, b))
+
+    def integrate_quad_sphere(self, a, b, ang, space, j, ic):
+        argument = (b-a)/2*self.xs_quad + (a+b)/2
+        mu = self.mus[ang]
+        self.IC[ang,space,j] = 0.5 * (b-a) * np.sum(self.ws_quad * ic.function(argument, mu) * 2.0 * normTn(j, argument, a, b) )
         
-        
+
     def integrate_e(self, a, b, space, j):
         argument = (b-a)/2*self.xs_quad + (a+b)/2
         self.IC[self.N_ang,space,j] = (b-a)/2 * np.sum(self.ws_quad * self.IC_e_func(argument) * normPn(j, argument, a, b))
@@ -157,17 +172,21 @@ class build(object):
     def make_IC(self):
         edges = mesh_class(self.N_space, self.x0, self.tfinal, self.moving, self.move_type, self.source_type, 
         self.edge_v, self.thick, self.move_factor, self.wave_loc_array, self.pad,  self.leader_pad, self.quad_thick_source, 
-        self.quad_thick_edge, self.finite_domain, self.domain_width, self.fake_sedov_v0, self.boundary_on, self.t0)
+        self.quad_thick_edge, self.finite_domain, self.domain_width, self.fake_sedov_v0, self.boundary_on, self.t0, self.geometry)
         edges_init = edges.edges
-        
-        if self.moving == False and self.source_type[0] == 1 and self.uncollided == False and self.N_space%2 == 0:
 
-            right_edge_index = int(self.N_space/2 + 1)
-            left_edge_index = int(self.N_space/2 - 1)
-            self.x0 = edges_init[right_edge_index] - edges_init[left_edge_index]
+        # The current method for handling delta functions
+        if self.moving == False and self.source_type[0] == 1 and self.uncollided == False and self.N_space%2 == 0:
+            if self.geometry['slab'] == True:
+                right_edge_index = int(self.N_space/2 + 1)
+                left_edge_index = int(self.N_space/2 - 1)
+                self.x0 = edges_init[right_edge_index] - edges_init[left_edge_index]
             # temp = (edges_init[int(self.N_space/2 + 1)] - edges_init[self.N_space/2 - 1]) 
+            elif self.geometry['sphere'] == True:
+                self.x0 = edges_init[1] - edges_init[0]
+                print(self.x0, 'x0')
             
-        if self.thermal_couple == 1:
+        if self.thermal_couple['none'] != 1:
             for space in range(self.N_space):
                 for j in range(self.M + 1):
                     self.integrate_e(edges_init[space], edges_init[space+1], space, j)
@@ -184,16 +203,20 @@ class build(object):
                     assert(0)
 
             x1 = edges_init[int(self.N_space/2)] - edges_init[int(self.N_space/2)+1]
-            ic = IC_func(self.source_type, self.uncollided, self.x0, self.source_strength, self.sigma, x1)
+            ic = IC_func(self.source_type, self.uncollided, self.x0, self.source_strength, self.sigma, x1, self.geometry)
         
         else:
-            ic = IC_func(self.source_type, self.uncollided, self.x0, self.source_strength, self.sigma, 0.0)
+            ic = IC_func(self.source_type, self.uncollided, self.x0, self.source_strength, self.sigma, 0.0, self.geometry)
 
 
         for ang in range(self.N_ang):
             for space in range(self.N_space):
                 for j in range(self.M + 1):
-                    self.integrate_quad(edges_init[space], edges_init[space+1], ang, space, j, ic)
+                    if self.geometry['slab'] == True:
+                        self.integrate_quad(edges_init[space], edges_init[space+1], ang, space, j, ic)
+                    elif self.geometry['sphere'] == True:
+                        self.integrate_quad_sphere(edges_init[space], edges_init[space+1], ang, space, j, ic)
+
     
         
         

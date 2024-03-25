@@ -18,89 +18,18 @@ from .solver_functions.main_functions import plot_edges, x0_function
 from .plots.plot_functions.show import show
 import math
 ###############################################################################
-""" 
-to do:
-
-[] update README
-
-[x] write a new mesh notebook
-[] move some parameters to the mesh notebook
-[] turn solver function into a class for brevities sake 
-[] plotting class to clean up solver
-[] have benchmarks load in the same shape 
-[] add debugging mode
-[] more functionality to mesh script
-[] simplify rhs class
-
-
-
-
-[] make functions to plot all of the graphs in a paper?
-[] either s or source, pick one
-[] get source type array under control 
-[x] plot final edges
-[x] problem identifier
-
-
-
-ideas for tests:
-    source - check if integrator returns analytic integral of plane uncollided for x inside t 
-    G, and L, check against integrated normPns -
-    check normPns
-
-long term goals:
-[] comments for all classes, functions
-[] fix np dot contiguous warning
-[] mu mapping for the cases that have smooth but discontinuous $\psi_u$
-[] uncollided_solution -- make temp[ix] self
-[] x0 function for the gaussian and plane 
-[] benchmarking class
-[] sigma_t and sigma_s functions of space
-[] usability - make functions that are used for IC, benchmarking, source, mesh, easy to modify 
-[] mesh function to better capture square,, delta function
-[] mesh function to move with uncollided sol for square, truncated <--------
-[] ability to automatically add other benchmark times
-[] is jitclass RHS any faster?
-[] pycuda for integrator
-[] finite domain for ganapol? 
 
 """
-"""
-Next release:
-[] spherical 
-[] multi-group 
-[] no quadpy?
-[] adaptive mesh? Does this require a new integrator or can I force the integrator to restart?
-[] unit tests with benchmarks --
-        add Siewert
-            Olson-Henderson
-            fake shock tube
-[] integrator?
-[] auto prime numba
-[] file save names in the input script
-[] simplify the source selector and mesh selector vectors to be readable
-
-
-
-
-
+NEW TO DO:
 
 
 
 """
-
-
-
-
-
-
-
 
 # ###############################################################################
 # data_folder = Path("moving_mesh_transport")
 # config_file_path = data_folder / "config.yaml"
 # ###############################################################################
-
 
 
 class main_class(parameter_load_class):
@@ -200,7 +129,7 @@ class main_class(parameter_load_class):
                 self.thick, self.mxstp, self.wave_loc_array, self.find_edges_tol, self.source_strength, self.move_factor, 
                 self.integrator, self.l, self.save_wave_loc, self.pad, self.leader_pad, self.xs_quad, self.eval_times, self.eval_array,
                 self.boundary_on, self.boundary_source_strength, self.boundary_source, self.sigma_func, self.Msigma, self.finite_domain,
-                self.domain_width, self.fake_sedov_v0, self.test_dimensional_rhs, self.epsilon)
+                self.domain_width, self.fake_sedov_v0, self.test_dimensional_rhs, self.epsilon, self.geometry)
                 print(edges, 'final edges')
                 # print(edges, "edges")
                 print(wave_tpnts, wave_xpnts, "wave points")

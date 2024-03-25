@@ -15,9 +15,14 @@ from numba.experimental import jitclass
 from numba import int64, float64, deferred_type, prange
 import numpy as np
 import math
+from numba import types, typed
+import numba as nb
 
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
+kv_ty = (types.int64, types.unicode_type)
+params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
+
 
 
 
@@ -37,7 +42,8 @@ data = [('temp_function', int64[:]),
         ('test_dimensional_rhs', int64),
         ('save_derivative', int64),
         ('xs_points', float64[:]),
-        ('e_points', float64[:])
+        ('e_points', float64[:]),
+        ('thermal_couple', nb.typeof(params_default)),
 
 
         ]
@@ -61,6 +67,7 @@ class T_function(object):
             print('cv0 is ', self.cv0)
         self.test_dimensional_rhs = False
         self.save_derivative = build.save_wave_loc
+        self.thermal_couple = build.thermal_couple
 
         
     def make_e(self, xs, a, b):
@@ -71,8 +78,11 @@ class T_function(object):
         return temp 
     
     def integrate_quad(self, a, b, j):
-        argument = (b-a)/2 * self.xs_quad + (a+b)/2
-        self.H[j] = (b-a)/2 * np.sum(self.ws_quad * self.T_func(argument, a, b) * normPn(j, argument, a, b))
+        if self.thermal_couple['none'] != True:
+            argument = (b-a)/2 * self.xs_quad + (a+b)/2
+            self.H[j] = (b-a)/2 * np.sum(self.ws_quad * self.T_func(argument, a, b) * normPn(j, argument, a, b))
+        else:
+             self.H[j] = 0
         
     def T_func(self, argument, a, b):
         e = self.make_e(argument, a, b)

@@ -11,15 +11,18 @@ from numba import float64, int64, deferred_type
 from numba.experimental import jitclass
 
 from .build_problem import build
-from .functions import normPn
+from .functions import normPn, normTn
 from .functions import numba_expi as expi
 from .uncollided_solutions import uncollided_solution
 from scipy.special import expi as expi2
+from numba import types, typed
+import numba as nb
 ###############################################################################
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
 uncollided_solution_type = deferred_type()
 uncollided_solution_type.define(uncollided_solution.class_type.instance_type)
+params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 
 data = [("S", float64[:]),
         ("source_type", int64[:]),
@@ -48,7 +51,9 @@ data = [("S", float64[:]),
         ("t3", float64),
         ("tau", float64),
         ("sigma", float64),
-        ('source_strength', float64)
+        ('source_strength', float64),
+        ('sigma_s', float64),
+        ('geometry', nb.typeof(params_default)),
         
         ]
 ###############################################################################
@@ -66,13 +71,20 @@ class source_class(object):
         self.tfinal = build.tfinal
         self.t0 = build.t0
         self.sigma = build.sigma
+        self.sigma_s = build.sigma_s
         # self.source_strength = 0.0137225 * 299.98
         self.source_strength = build.source_strength
+        self.geometry = build.geometry
     
     def integrate_quad(self, t, a, b, j, func):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
         self.S[j] = (b-a)/2 * np.sum(self.ws_quad * func(argument, t) * normPn(j, argument, a, b))
-        
+
+    def integrate_quad_sphere(self, t, a, b, j, func):
+        argument = (b-a)/2 * self.xs_quad + (a+b)/2
+        self.S[j] = (b-a)/2 * np.sum(self.ws_quad * func(argument, t) * normTn(j, argument, a, b) * 2.0) 
+
+
     def integrate_quad_not_isotropic(self, t, a, b, j, mu, func):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
         self.S[j] = (b-a)/2 * np.sum(self.ws_quad * func(argument, t, mu) * normPn(j, argument, a, b))
@@ -102,22 +114,30 @@ class source_class(object):
         
         
     def make_source(self, t, xL, xR, uncollided_solution):
-        if self.uncollided == True:
-            if (self.source_type[0] == 1) and  (self.moving == True):
-                    self.S[0] = uncollided_solution.plane_IC_uncollided_solution_integrated(t, xL, xR)
-            else:
-                for j in range(self.M+1):
-                    self.integrate_quad(t, xL, xR, j, uncollided_solution.uncollided_solution)
-
-                                  
-        elif self.uncollided == False:
-            if self.source_type[2] == 1:
-                for j in range(self.M+1):
-                    self.integrate_quad(t, xL, xR, j, self.square_source)
-            elif self.source_type[5] == 1:
-                for j in range(self.M+1):
-                    self.integrate_quad(t, xL, xR, j, self.gaussian_source)
+        if self.geometry['slab'] == True:
+            if self.uncollided == True:
+                if (self.source_type[0] == 1) and  (self.moving == True):
+                        self.S[0] = uncollided_solution.plane_IC_uncollided_solution_integrated(t, xL, xR)
+                else:
+                    for j in range(self.M+1):
+                        self.integrate_quad(t, xL, xR, j, uncollided_solution.uncollided_solution)
+                self.S = self.S * self.sigma_s
+            elif self.uncollided == False:
+                if self.source_type[2] == 1:
+                    for j in range(self.M+1):
+                        self.integrate_quad(t, xL, xR, j, self.square_source)
+                elif self.source_type[5] == 1:
+                    for j in range(self.M+1):
+                        self.integrate_quad(t, xL, xR, j, self.gaussian_source)
         
+        elif self.geometry['sphere'] == True:
+            if self.uncollided == True:
+                if self.source_type[0] == 1:
+                    for j in range(self.M+1):
+                        if (xL <= t <= xR):
+                            t = t + 1e-10
+                            self.S[j] = math.exp(-t)/4/math.pi/t * normTn(j, np.array([t]), xL, xR)[0] 
+
         self.S = self.S * self.source_strength
 
     def make_source_not_isotropic(self, t, mu, xL, xR):

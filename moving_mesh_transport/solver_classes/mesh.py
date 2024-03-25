@@ -9,6 +9,8 @@ from .mesh_functions import set_func, _interp1d
 import numpy.polynomial as nply
 from scipy.special import roots_legendre
 from .mesh_functions import boundary_source_init_func_outside
+import numba as nb
+params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 
 
 #################################################################################################
@@ -62,7 +64,8 @@ data = [('N_ang', int64),
         ('vnaught', float64),
         ('boundary_on', int64[:]),
         ('vv0', float64),
-        ('t0', float64)
+        ('t0', float64),
+        ('geometry', nb.typeof(params_default)),
         # ('problem_type', int64)
         ]
 #################################################################################################
@@ -73,7 +76,7 @@ data = [('N_ang', int64),
 class mesh_class(object):
     def __init__(self, N_space, x0, tfinal, moving, move_type, source_type, edge_v,
      thick, move_factor, wave_loc_array, pad, leader_pad, thick_quad, thick_quad_edge, 
-     finite_domain, domain_width, fake_sedov_v, boundary_on, t0):
+     finite_domain, domain_width, fake_sedov_v, boundary_on, t0, geometry):
         
         self.debugging = True
         self.test_dimensional_rhs = False
@@ -89,6 +92,7 @@ class mesh_class(object):
         self.Dedges = np.zeros(N_space+1)
         self.N_space = N_space
         self.speed = edge_v
+        self.geometry = geometry
 
         self.move_factor = move_factor
         if self.test_dimensional_rhs == True:
@@ -166,9 +170,12 @@ class mesh_class(object):
                 #     self.Dedges = self.edges/self.edges[-1] * self.speed
 
             if self.source_type[0] == 1 or self.source_type[0]==2:
+
                 self.edges = self.edges0 + self.Dedges_const*t
 
-            if self.source_type[1] == 1:
+
+
+            elif self.source_type[1] == 1:
                 if self.finite_domain == True and t == self.tfinal:
 
                 # print(self.edges0[-1] + t * self.speed, "###### final edge ######")
@@ -181,10 +188,15 @@ class mesh_class(object):
                     self.edges = self.edges
                     self.Dedges = self.Dedges_const*0
                 else:
+                    # print('here')
+                    # print(self.edges0, 'edges0')
                     self.edges = self.edges0 + self.Dedges_const*t
                     self.Dedges = self.Dedges_const
+                    # print(self.Dedges_const*t, 'dedges times t')
 
-            elif self.source_type[2] == 1 or self.source_type[1] == 1 or self.source_type[0]!=0:
+           
+
+            elif (self.source_type[2] == 1 or self.source_type[1] == 1) and self.finite_domain == True: #or self.source_type[0]!=0:
                 # self.finite_domain = True # what is the deal with this?
                 if (self.finite_domain == True) and (self.edges[-1] >= self.domain_width/2 or abs(self.edges[-1]-self.domain_width/2)<=1e-2):
                         self.edges = self.edges
@@ -480,8 +492,13 @@ class mesh_class(object):
 
 
     def simple_moving_init_func(self):
-            self.edges = np.linspace(-self.x0, self.x0, self.N_space+1)
+            if self.geometry['slab'] == True:
+                self.edges = np.linspace(-self.x0, self.x0, self.N_space+1)
+            elif self.geometry['sphere'] == True:
+                self.edges = np.linspace(0, self.x0, self.N_space+1)
+                self.edges0 = self.edges
             self.Dedges = self.edges/self.edges[-1] * self.speed
+            self.Dedges_const = self.Dedges
             if self.source_type[0] == 2:
                 self.edges += 0.01
 
@@ -776,7 +793,11 @@ class mesh_class(object):
             # elif self.problem_type in ['square_IC', 'square_source']:
             elif self.source_type[1] == 1 or self.source_type[2] == 1:
                 print('calling thin square init')
-                self.thin_square_init_func_legendre()
+                if self.geometry['slab'] == True:
+                    self.thin_square_init_func_legendre()
+                else:
+                    print('initializing')
+                    self.simple_moving_init_func()
             
             elif np.all(self.source_type == 0):
                 self.boundary_source_init_func(self.vnaught)
@@ -821,6 +842,7 @@ class mesh_class(object):
 
 
         if self.moving == False:
+
             self.tactual = 0.0
             # static mesh -- puts the edges at the final positions that the moving mesh would occupy
             # sets derivatives to 0

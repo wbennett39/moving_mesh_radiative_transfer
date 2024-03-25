@@ -6,14 +6,15 @@ Created on Wed Feb  2 18:17:08 2022
 @author: bennett
 """
 import numpy as np
-from .functions import normPn, dx_normPn
+from .functions import normPn, dx_normPn, normTn
 from numba.experimental import jitclass
 from numba import int64, float64, deferred_type
 from .uncollided_solutions import uncollided_solution
+import numba as nb
 
 uncollided_solution_type = deferred_type()
 uncollided_solution_type.define(uncollided_solution.class_type.instance_type)
-
+params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 data = [('N_ang', int64), 
         ('t', float64),
         ('M', int64),
@@ -26,11 +27,12 @@ data = [('N_ang', int64),
         ('psi_out', float64[:,:]),
         ('phi_out', float64[:]), 
         ('e_out', float64[:]),
-        ('exit_dist', float64[:,:])
+        ('exit_dist', float64[:,:]),
+        ('geometry', nb.typeof(params_default)),
         ]
 @jitclass(data)
 class make_output:
-    def __init__(self, t, N_ang, ws, xs, u, M, edges, uncollided):
+    def __init__(self, t, N_ang, ws, xs, u, M, edges, uncollided, geometry):
         self.N_ang = N_ang
         self.ws = ws
         self.xs = xs
@@ -39,6 +41,15 @@ class make_output:
         self.edges = edges
         self.uncollided = uncollided
         self.t = t
+        self.geometry = geometry 
+
+    def basis(self, i, x, a, b):
+        if self.geometry['slab'] == True:
+            return normPn(i, x, a, b)
+        elif self.geometry['sphere'] == True:
+            return normTn(i, x, a, b)
+
+
     def make_phi(self, uncollided_solution):
         output = self.xs*0
         psi = np.zeros((self.N_ang, self.xs.size))
@@ -51,7 +62,7 @@ class make_output:
                     idx = self.edges.size - 1
                 if self.edges[0] <= self.xs[count] <= self.edges[-1]:
                     for i in range(self.M+1):
-                        psi[ang, count] += self.u[ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
+                        psi[ang, count] += self.u[ang,idx-1,i] * self.basis(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         output = np.sum(np.multiply(psi.transpose(), self.ws), axis = 1)
         if self.uncollided == True:
             uncol = uncollided_solution.uncollided_solution(self.xs, self.t)
@@ -71,7 +82,7 @@ class make_output:
                 idx = self.edges.size - 1
             for i in range(self.M+1):
                 if self.edges[0] <= self.xs[count] <= self.edges[-1]:
-                    e[count] += self.u[self.N_ang,idx-1,i] * normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
+                    e[count] += self.u[self.N_ang,idx-1,i] * self.basis(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
                     if self.M <=11:
                         self.dx_e[count] += self.u[self.N_ang,idx-1,i] * dx_normPn(i,self.xs[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         self.e_out = e
@@ -91,7 +102,7 @@ class make_output:
                     idx = self.edges.size - 1
                 if self.edges[0] <= x_eval[count] <= self.edges[-1]:
                     for i in range(self.M+1):
-                        psi[ang, count] += self.u[ang,idx-1,i] * normPn(i,x_eval[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
+                        psi[ang, count] += self.u[ang,idx-1,i] * self.basis(i,x_eval[count:count+1],float(self.edges[idx-1]),float(self.edges[idx]))[0]
         
         self.exit_dist = psi
         output = np.sum(np.multiply(psi.transpose(), self.ws), axis = 1)

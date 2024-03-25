@@ -8,7 +8,10 @@ from scipy.special import expi
 import matplotlib.pyplot as plt
 from ..plots.plot_functions.show import show
 import numpy.polynomial as poly
-
+from functools import partial
+from scipy.special import roots_legendre
+import numpy.polynomial as poly
+import scipy.special as sps
 
 
 
@@ -44,6 +47,8 @@ def normPn(n,x,a=-1.0,b=1.0):
         # tmp[count] = sc.eval_legendre(n,z)*fact
         tmp[count] = numba_eval_legendre_float64(n, z)
     return tmp * fact
+
+
 
 @njit('float64[:](int64, float64[:], float64, float64)')
 def Pn(n,x,a=-1.0,b=1.0):
@@ -175,16 +180,29 @@ def LU_surf_func(u,space,N_space,mul,M,xL,xR,dxL,dxR):
         LU[i] = rightspeed*B_right*(sumright) - leftspeed*B_left*(sumleft)
     return LU 
 
-def find_nodes(edges, M):
+def find_nodes(edges, M, geometry):
     # scheme = quadpy.c1.gauss_legendre(M+1)
-    xs_quad, ws_quad = poly.legendre.leggauss(M+1)
-    # xs_quad = scheme.points
-    ixx = xs_quad.size
-    xs_list = np.zeros(ixx*(edges.size-1))
-    for k in range(edges.size-1):
-        xL = edges[k]
-        xR = edges[k+1]
-        xs_list[k*ixx:(k+1)*ixx] = xL + (xs_quad + 1)*(xR - xL)/2
+    if M == 0:
+        M = 1
+    if geometry['slab'] == True:
+        xs_quad, ws_quad = poly.legendre.leggauss(M)
+        # xs_quad = scheme.points
+        ixx = xs_quad.size
+        xs_list = np.zeros(ixx*(edges.size-1))
+        for k in range(edges.size-1):
+            xL = edges[k]
+            xR = edges[k+1]
+            xs_list[k*ixx:(k+1)*ixx] = xL + (xs_quad + 1)*(xR - xL)/2
+    
+    elif geometry['sphere'] == True:
+        xs_quad, ws_quad = quadrature(M, 'chebyshev')
+        ixx = xs_quad.size
+        xs_list = np.zeros(ixx*(edges.size-1))
+        for k in range(edges.size-1):
+            xL = edges[k]
+            xR = edges[k+1]
+            xs_list[k*ixx:(k+1)*ixx] = 0.5 * (xR -xL) * xs_quad + 0.5 * (xR+xL)
+
     return xs_list
 
 def convergence(err1, x1, err2, x2):
@@ -392,15 +410,15 @@ def test_s2_sol(t = 10, t0 = 10):
         # phi_test[ix] = uncollided_su_olson_s2_2(xs[ix],t, x0, t0)
         phi_exact[ix] = integrate.quad(su_olson_s2_integrand, 0, min(t,t0), args = (xs[ix],t,x0,t0))[0]
     
-    plt.plot(xs, phi, '-ob')
-    plt.plot(xs, phi_exact, '-k')
+    # plt.plot(xs, phi, '-ob')
+    # plt.plot(xs, phi_exact, '-k')
     # plt.plot(xs, phi_test, '-or', mfc = 'none')
     # plt.axvline(x = x0 + math.sqrt(3)*(t-t0)/3.0, color = 'r')
     # t - (x0-x)*3/math.sqrt(3)
     
     print(np.sqrt(np.mean(phi_exact-phi)**2), 'RMSE')
-    show('uncollided_su_olson_s2_t_10')
-    plt.show()
+    # show('uncollided_su_olson_s2_t_10')
+    # plt.show()
 
 def test_square_sol(t = 31.6228, t0 = 10):
     import scipy.integrate as integrate
@@ -415,11 +433,11 @@ def test_square_sol(t = 31.6228, t0 = 10):
 
     
     # plt.plot(xs, phi, '-ob')
-    plt.plot(xs, phi, '-k')
+    # plt.plot(xs, phi, '-k')
     # plt.plot(xs, phi_test, '-or', mfc = 'none')
     
     # show('uncollided_square_s2t')
-    plt.show()
+    # plt.show()
 
 # def time_step_counter(t, division):
 @njit    
@@ -437,19 +455,200 @@ def heaviside_scalar(x):
         returnval = 0.0
     return returnval
     
+@njit
+def shaper(angles, spaces, M, thermal):
+    if thermal == True:
+        return np.array([angles + 1 , spaces, M+1])
+    else:
+        return np.array([angles, spaces, M+1])
     
-        
-     
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+@njit 
 
+def eval_Tn(n,x):
+    if n == 0:
+        return  1 + x*0 
+    elif n == 1:
+        return x
+    elif n == 2:
+        return -1 + 2*x**2
+    elif n == 3:
+        return -3*x + 4*x**3
+    elif n == 4:
+        return 1 - 8*x**2 + 8*x**4
+    elif n == 5:
+        return 5*x - 20*x**3 + 16*x**5
+    elif n == 6:
+        return -1 + 18*x**2 - 48*x**4 + 32*x**6
+    elif n == 7:
+        return -7*x + 56*x**3 - 112*x**5 + 64*x**7
+    elif n == 8:
+        return 1 - 32*x**2 + 160*x**4 - 256*x**6 + 128*x**8
+    elif n > 8:
+        print('not implemented to this order yet')
+        assert(0)
+
+@njit('float64(int64)')
+def kronecker(i):
+    if i == 0:
+        return 1.0
+    else:
+        return 0.0
+    
+@njit('float64[:](int64, float64[:], float64, float64)')
+def normTn(n,x,a=0,b=1.0):
+    tmp = 0*x
+    norm = (1/ math.sqrt(2))**kronecker(n) * math.sqrt(1/(b-a)) * math.sqrt(2) / math.sqrt(math.pi) 
+    for count in prange(x.size):
+        xx = x[count]
+        # tmp[count] = sc.eval_legendre(n,z)*fact
+        z = 2/(b - a) * xx - (b + a)/(b - a)
+
+        tmp[count] = norm * eval_Tn(n, z)
+    return tmp 
+
+
+
+@njit('float64[:](float64[:], float64, float64)')
+def weight_func_Tn(x, a, b):
+    return (b-a) / np.sqrt((a-x) * (x-b))
+
+@njit 
+def angular_deriv(N_ang, angle, mus, V_old, space):
+
+    if angle != 0 and angle != N_ang -1:
+        h = (mus[angle+1] - mus[angle]) / (mus[angle]-mus[angle-1])
+        right = (1-mus[angle+1]**2)*V_old[angle+1,space,:]
+        middle = (1-mus[angle]**2)*V_old[angle,space,:]
+        left = (1-mus[angle-1]**2)*V_old[angle-1,space,:]
+        dterm =  (right - h**2 * middle - (1-h**2) * left) / (mus[angle+1]-mus[angle]) / (1+h) 
+    
+    elif angle == 0:
+        h = mus[angle+1] - mus[angle]
+        right = (1-mus[angle+1]**2)*V_old[angle+1,space,:]
+        middle = (1-mus[angle]**2)*V_old[angle,space,:]
+        dterm = (right - middle) / h
+
+    elif angle == N_ang - 1:
+        h = mus[angle] - mus[angle-1]
+        right = (1-mus[angle]**2)*V_old[angle,space,:]
+        middle = (1-mus[angle-1]**2)*V_old[angle-1,space,:]
+        dterm = (right - middle) / h
+
+    return dterm
+
+
+@njit
+def finite_diff_uneven(x, ix, u, left = False, right = False):
+    if left == False and right == False:
+        h = (x[ix+1] - x[ix]) / (x[ix] - x[ix-1])
+        res = (u[ix + 1] - h**2 * u[ix-1] - (1-h**2) * u[ix]) / (x[ix+1]- x[ix]) / (1+h)
+    
+    elif left == True:
+        h = x[ix+1] - x[ix]
+        right = u[ix+1]
+        middle = u[ix]
+        res = (right - middle) / h
+    
+    elif right == True:
+        h = x[ix] - x[ix-1]
+        right = u[ix]
+        middle = u[ix-1]
+        res = (right - middle) / h
+    return res
+
+# @njit
+# def gauss_quadrature(integrand, xs_quad, ws_quad, a, b):
+#      argument = (b-a)/2*self.xs_quad + (a+b)/2
+#     mu = self.mus[ang]
+#     self.IC[ang,space,j] = (b-a)/2 * np.sum(self.ws_quad * ic.function(argument, mu) * Tn(j, argument, a, b) * weight_func_Tn(argument, a, b))
+        
+        
+def quadrature(n, name, testing = False):
+    ws = np.zeros(n)
+    xs = np.zeros(n)
+    # roots, weights = roots_legendre(n-1)
+    roots = np.zeros(n)
+    if name == 'gauss_legendre':
+        xs, ws = poly.legendre.leggauss(n)
+    elif name == 'chebyshev':
+        ws = np.zeros(n)
+        xs = np.zeros(n)
+        pi = math.pi
+        for i in range(1,n+1):
+            xs[i-1] = math.cos((2*i-1)/2/n * pi)
+            ws[i-1] = pi/n
+
+    elif name == 'gauss_lobatto':
+        if n > 1:
+            # brackets = sps.legendre(n-1).weights[:, 0]
+            xs_brackets, blanl = poly.legendre.leggauss(n-1)
+            brackets = xs_brackets
+        else:
+            brackets = np.array([-1,1])
+        for i in range(n-2):
+            # roots[i+1] = bisection(partial(eval_legendre_deriv, n-1), brackets[i], brackets[i+1])
+            x0 = (brackets[i]+ brackets[i+1])*0.5
+            roots[i+1] =  newtons(x0, partial(eval_legendre_deriv, n-1), partial(eval_second_legendre_deriv, n-1))
+
+        xs = roots
+        xs[0] = -1
+        xs[-1] = 1
+        for nn in range(1, n-1):
+            inn = nn + 1
+            ws[nn] = 2 / (n*(n-1)) / (sps.eval_legendre(n-1, roots[nn]))**2
+            ws[0] = 2/ (n*(n-1))
+            ws[-1] = 2/ (n*(n-1))
+        # if testing == True:
+        #     testxs = quadpy.c1.gauss_lobatto(n).points
+        #     testws = quadpy.c1.gauss_lobatto(n).weights
+        #     np.testing.assert_allclose(testxs, xs)
+        #     np.testing.assert_allclose(testws, ws)
+
+
+        # if testing == True:
+        #     # testxs = quadpy.c1.gauss_legendre(n).points
+        #     # testws = quadpy.c1.gauss_legendre(n).weights
+        #     np.testing.assert_allclose(testxs, xs)
+        #     np.testing.assert_allclose(testws, ws)
+    return xs, ws    
+
+def bisection(f, a, b, tol=1e-14):
+    assert np.sign(f(a)) != np.sign(f(b))
+    while b-a > tol:
+        m = a + (b-a)/2
+        fm = f(m)
+        if np.sign(f(a)) != np.sign(fm):
+            b = m
+        else:
+            a = m
+            
+    return m
+
+def eval_legendre_deriv(n, x):
+    return (
+        (x*sps.eval_legendre(n, x) - sps.eval_legendre(n-1, x))
+        /
+        ((x**2-1)/n))
+
+def eval_second_legendre_deriv(n, x):
+    return (n*(-((1 + x**2)*sps.eval_legendre(n, x)) + 2*x*sps.eval_legendre(n-1, x) + (-1 + x**2)*(x*eval_legendre_deriv(n, x) - eval_legendre_deriv(n-1, x))))/(-1 + x**2)**2
+
+def newtons2(x0, f, fprime, tol = 1e-14):
+    old_guess = x0
+    new_guess = 1000
+    it = 0
+    while abs(old_guess-new_guess) > tol:
+        new_guess = old_guess - f(old_guess) / fprime(old_guess)
+        old_guess = new_guess
+    return old_guess
+
+def newtons(x0, f, fprime, tol = 1e-14):
+    def iterate(x0, f, fprime):
+        return x0 - f(x0) / fprime(x0)
+    tol_met = False
+    while tol_met == False:
+        new_x0 = iterate(x0, f, fprime)
+        if abs(new_x0-x0) <= tol:
+            tol_met = True
+        x0 = new_x0
+    return x0

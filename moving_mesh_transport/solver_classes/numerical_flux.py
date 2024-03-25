@@ -9,6 +9,8 @@ import numpy as np
 import math
 from numba import float64, int64, deferred_type
 from numba.experimental import jitclass
+from numba import types, typed
+import numba as nb
 
 from .mesh import mesh_class
 from .functions import normPn
@@ -16,6 +18,7 @@ from .build_problem import build
 ###############################################################################
 mesh_class_type = deferred_type()
 mesh_class_type.define(mesh_class.class_type.instance_type)
+params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 
 data = [("M", int64),
         ("N_space", int64),
@@ -41,7 +44,7 @@ data = [("M", int64),
         ("hm", float64),
         ("xL_minus", float64),
         ("xR_plus", float64),
-        ('thermal_couple', int64),
+        ('thermal_couple', nb.typeof(params_default)),
         ('moving', int64),
         ('e_init', float64),
         ('speed', float64),
@@ -50,7 +53,8 @@ data = [("M", int64),
         ('boundary_source_strength', float64),
         ('boundary_source', int64),
         ('uncollided', int64),
-        ('t0', float64)
+        ('t0', float64),
+        ('geometry', nb.typeof(params_default))
         ]
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
@@ -80,6 +84,7 @@ class LU_surf(object):
         self.boundary_on = np.array(list(build.boundary_on), dtype = np.int64) # [left, right]
         self.boundary_source_strength = build.boundary_source_strength
         self.uncollided = build.uncollided
+        self.geometry = build.geometry
         # if build.test_dimensional_rhs == True:
         #     self.speed = build.particle_v
 
@@ -91,16 +96,31 @@ class LU_surf(object):
         return res
         
     def B_LR_func(self, i, h):
-        if i == 0:
-            B_right = 1/h
-            B_left = 1/h
-        elif i>0:
-            B_right = math.sqrt(2*i+1)/h
-            if i%2 ==0:
-                B_left = math.sqrt(2*i+1)/h
-            else: 
-                B_left = -math.sqrt(2*i+1)/h
+        if self.geometry['slab'] == True:
+            if i == 0:
+                B_right = 1/h
+                B_left = 1/h
+            elif i>0:
+                B_right = math.sqrt(2*i+1)/h
+                if i%2 ==0:
+                    B_left = math.sqrt(2*i+1)/h
+                else: 
+                    B_left = -math.sqrt(2*i+1)/h
+            
+        elif self.geometry['sphere'] == True:
+            edgeval = 1 / h / math.sqrt(math.pi)
+            if i == 0:
+                B_left = edgeval
+                B_right = edgeval
+            else:
+                B_right = math.sqrt(2) * edgeval
+                if i%2 == 0: 
+                    B_left = B_right
+                else:
+                    B_left = -B_right
         return B_left, B_right
+            
+
     
     def BC_func(self, xs, t):
         temp = xs*0
@@ -157,16 +177,21 @@ class LU_surf(object):
         return returnval
 
 
-    def make_sol(self, space, u, t):
+    def make_sol(self, space, u, t, u_refl):
         for j in range(self.M+1):
                 if space != 0:
                     self.v0 += self.B_LR_func(j, self.hm)[1]*(u[space-1,j])
                     
                 elif space == 0 and self.is_boundary_source_on(space, t): # special MMS case
                     self.v0 += self.integrate_quad(t, self.xL_minus, self.edges[space], j, "l") * self.B_LR_func(j, self.h)[1] 
+                
+                elif space == 0 and self.geometry['sphere'] == True: #reflecing BC for sphere
+                    self.v0 += self.B_LR_func(j, self.h)[0]*(u_refl[j])
+
                     
                 self.v1 += self.B_LR_func(j, self.h)[0]*(u[space, j])
                 self.v2 += self.B_LR_func(j, self.h)[1]*(u[space, j])
+
                 
                 if space != self.N_space - 1:
                     self.v3 += self.B_LR_func(j, self.hp)[0]*(u[space+1,j])
@@ -175,7 +200,7 @@ class LU_surf(object):
                     self.v3 += self.integrate_quad(t, self.edges[space+1], self.xR_plus, j, "r") * self.B_LR_func(j, self.h)[0] 
             
     
-    def make_LU(self, t, mesh_class, u, space, mul):
+    def make_LU(self, t, mesh_class, u, space, mul, u_refl):
         self.v0 = 0 
         self.v1 = 0
         self.v2 = 0
@@ -188,20 +213,48 @@ class LU_surf(object):
         
         self.make_h(space)
         self.extend_mesh(space)
-        self.make_sol(space, u, t)
+        self.make_sol(space, u, t, u_refl)
+
+        xL = mesh_class.edges[space]
+        xR = mesh_class.edges[space + 1]
 
         if leftspeed >= 0: 
             psi_minus = self.v0
+            # if space == 0:
+            #     assert (psi_minus == 1 / self.h / math.sqrt(math.pi) * u[space, 0]) 
         elif leftspeed < 0: 
             psi_minus = self.v1
         if rightspeed >= 0: 
             psi_plus = self.v2
         elif rightspeed < 0:
             psi_plus = self.v3
+        
 
         for i in range(0,self.M+1):
             B_left, B_right = self.B_LR_func(i, self.h)
-            self.LU[i] = (B_right*rightspeed*psi_plus - B_left*leftspeed*psi_minus)
+            if self.geometry['slab'] == True:
+                self.LU[i] = (B_right*rightspeed*psi_plus - B_left*leftspeed*psi_minus)
+            elif self.geometry['sphere'] == True:
+                self.LU[i] = (xR**2*B_right*rightspeed*psi_plus - xL**2*B_left*leftspeed*psi_minus)
+
+                if space == 0:
+                    if self.geometry['sphere'] == True:
+                        if mul > 0:
+                            LUanalytic = mul * math.sqrt(1/math.pi) * math.sqrt(1/(xR-xL)) * (xR**2* psi_plus - xL**2*psi_minus)
+                            if abs(LUanalytic- self.LU[0]) >= 1e-4:
+                                print('error', abs(LUanalytic- self.LU[0]) )
+                                assert(0)
+                elif space == self.N_space - 1:
+                    if rightspeed < 0:
+                        assert(abs(psi_plus)<=1e-10) 
+
+
+
+
+
+
+ 
+
             
             
             

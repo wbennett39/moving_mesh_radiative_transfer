@@ -9,9 +9,13 @@ from numba import njit, jit, int64, float64
 from numba.experimental import jitclass
 import numpy as np
 import math
+from numba import types, typed
+import numba as nb
+
 
 
 ###############################################################################
+params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 data = [('N_ang', int64), 
         ('N_space', int64),
         ('M', int64),
@@ -25,54 +29,81 @@ data = [('N_ang', int64),
         ('source_strength', float64),
         ('sigma', float64),
         ('x1', float64),
-        ('mu', float64)
+        ('mu', float64),
+        ('geometry', nb.typeof(params_default)),
         ]
 @jitclass(data)
 class IC_func(object):
-    def __init__(self, source_type, uncollided, x0, source_strength, sigma, x1 = 0):
+    def __init__(self, source_type, uncollided, x0, source_strength, sigma, x1, geometry):
         self.source_type = np.array(list(source_type), dtype = np.int64)
         self.uncollided = uncollided
         self.x0 = x0
         self.source_strength = source_strength
         self.sigma = sigma
         self.x1 = x1
+        self.geometry = geometry
 
 
     def function(self, x, mu):
-        if self.uncollided == True:
-            return np.zeros(x.size)
-        elif self.uncollided == False and self.source_type[0] == 1:
-            return self.plane_and_square_IC(x)/self.x0/2.0
-            # return self.gaussian_plane(x)/2.0
-        elif self.uncollided == False and self.source_type[1] == 1:
-            return self.plane_and_square_IC(x)
-        elif self.uncollided == False and self.source_type[2] == 1:
-            return np.zeros(x.size)
-        elif self.uncollided == False and self.source_type[3] == 1:
-            if self.source_type[-1] == 1:
-                return self.gaussian_IC_noniso(x,mu)
+        if self.geometry['slab'] == True:
+            if self.uncollided == True:
+                return np.zeros(x.size)
+            elif self.uncollided == False and self.source_type[0] == 1:
+                return self.plane_and_square_IC(x)/self.x0/2.0
+                # return self.gaussian_plane(x)/2.0
+            elif self.uncollided == False and self.source_type[1] == 1:
+                return self.plane_and_square_IC(x)
+            elif self.uncollided == False and self.source_type[2] == 1:
+                return np.zeros(x.size)
+            elif self.uncollided == False and self.source_type[3] == 1:
+                if self.source_type[-1] == 1:
+                    return self.gaussian_IC_noniso(x,mu)
+                else:
+                    return self.gaussian_IC(x)
+            elif self.source_type[4] == 1 and self.source_type[3] == 0:
+                return self.MMS_IC(x)
+            elif self.source_type[0] == 2:
+                return self.dipole(x)/abs(self.x1)
+            elif self.source_type[0] == 3:
+                return self.self_sim_plane(x)
             else:
-                return self.gaussian_IC(x,mu)
-        elif self.source_type[4] == 1 and self.source_type[3] == 0:
-            return self.MMS_IC(x)
-        elif self.source_type[0] == 2:
-            return self.dipole(x)/abs(self.x1)
-        elif self.source_type[0] == 3:
-            return self.self_sim_plane(x)
-        else:
-            return np.zeros(x.size)
-        
+                return np.zeros(x.size)
+
+        elif self.geometry['sphere'] == True:
+            if self.uncollided == False:
+                if self.source_type[0] == 1:
+                    # return self.plane_and_square_IC(x)/self.x0/2.0 
+                    return self.point_pulse(x)/(self.x0**3)
+
+                elif self.source_type[1] == 1:
+                    return self.shell_IC(x)
+            else:
+                return np.zeros(x.size)
+
+    def point_pulse(self, x):
+        temp = (np.greater(x, 0) - np.greater(x, self.x0))*self.source_strength
+        return temp
+
+
+
     def plane_and_square_IC(self, x):
         temp = (np.greater(x, -self.x0) - np.greater(x, self.x0))*self.source_strength
             # temp = x/x
         return temp/2.0
+    
+    def shell_IC(self, x):
+        R = self.x0
+        a = 0
+        temp = (np.greater(x, a) - np.greater(x, R))*self.source_strength * 4 * math.pi * R**3 /3
+            # temp = x/x
+        return temp  * 2.0
 
     def gaussian_plane(self, x):
         RES = math.sqrt(1/math.pi/2.0)/self.x0 * np.exp(-0.5 * x**2/self.x0**2)
         print(RES)
         return RES
     
-    def gaussian_IC(self, x, mu):
+    def gaussian_IC(self, x):
         temp = np.exp(-x*x/self.sigma**2)*self.source_strength
         return temp/2.0
 

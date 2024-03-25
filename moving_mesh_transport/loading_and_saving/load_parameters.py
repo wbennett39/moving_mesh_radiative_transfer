@@ -8,6 +8,8 @@ Created on Wed Jun 15 10:49:08 2022
 
 import numpy as np
 import math
+import numba as nb
+
 
 
 class parameter_load_class:
@@ -27,7 +29,9 @@ class parameter_load_class:
         self.t0 = float(parameters['all']['t0'])
         # self.scattering_ratio = float(parameters['all']['c'])
         self.major = str(parameters['all']['major'])
-        self.thermal_couple = int(parameters['all']['radiative_transfer'])
+        # self.thermal_couple = int(parameters['all']['radiative_transfer'])
+        self.thermal_couple = nb.typed.Dict.empty(key_type=nb.typeof('par_1'), value_type=nb.typeof(1))
+        dictionary_loader(parameters['all']['radiative_transfer'], self.thermal_couple)   
         self.temp_function = np.array(parameters['all']['temperature_dependence'])
         self.e_initial = float(parameters['all']['e_initial'])
         self.weights = str(parameters['all']['weights'])
@@ -40,8 +44,9 @@ class parameter_load_class:
         self.scattering_ratio = self.sigma_s/self.sigma_t
         self.integrator = str(parameters['all']['integrator'])
         self.epsilon = float(parameters['all']['epsilon'])
+        self.geometry = nb.typed.Dict.empty(key_type=nb.typeof('par_1'), value_type=nb.typeof(1))
+        dictionary_loader(parameters['all']['geometry'], self.geometry)   
         
-
 
         self.thick = int(parameters['all']['thick'])
         if self.thick == True:
@@ -119,7 +124,12 @@ class parameter_load_class:
         self.boundary_on = np.array(mesh_parameters['boundary_on'])
         self.boundary_source = int(mesh_parameters['boundary_source'])
         self.boundary_source_strength = float(mesh_parameters['boundary_source_strength'])
-        self.sigma_func = np.array(mesh_parameters['sigma_func'])
+        self.sigma_func = nb.typed.Dict.empty(key_type=nb.typeof('par_1'), value_type=nb.typeof(1))
+        # for key in mesh_parameters['sigma_func'].keys():
+        #     self.sigma_func[key] = mesh_parameters['sigma_func'][key]
+        # 
+        dictionary_loader(mesh_parameters['sigma_func'], self.sigma_func)
+        print(self.sigma_func['constant'])            
         self.Msigma = int(mesh_parameters['Msigma'])
         self.finite_domain = int(mesh_parameters['finite'])
         self.domain_width = -1
@@ -147,3 +157,15 @@ class parameter_load_class:
 
 
             
+def dictionary_loader(inputdict, outputdict):
+    counter = 0
+    for key in inputdict.keys():
+        outputdict[key] = inputdict[key]
+        #check if only one element of the list is true
+        if inputdict[key] == True: 
+            counter += 1
+    if counter >= 2:
+        print('Two noncomplementary parameters have been selected simultaneously.')
+        assert(0)
+
+      

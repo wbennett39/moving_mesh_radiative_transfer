@@ -5,9 +5,14 @@ from .build_problem import build
 from numba.experimental import jitclass
 from numba import int64, float64, deferred_type, prange
 from .functions import Pn, normPn
+from numba import types, typed
+import numba as nb
 
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
+kv_ty = (types.int64, types.unicode_type)
+params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
+
 data = [('N_ang', int64), 
         ('N_space', int64),
         ('M', int64),
@@ -19,7 +24,7 @@ data = [('N_ang', int64),
         ('x0', float64),
         ("xL", float64),
         ("xR", float64),
-        ('sigma_func', int64[:]),
+        ('sigma_func', nb.typeof(params_default)),
         ('Msigma', int64),
         ('AAA', float64[:,:,:]),
         ('xs_quad', float64[:]),
@@ -31,7 +36,8 @@ data = [('N_ang', int64),
         ('VP', float64[:]),
         ('moving', float64),
         ('sigma_v', float64), 
-        ('fake_sedov_v0', float64)
+        ('fake_sedov_v0', float64),
+
         ]
 
 
@@ -43,7 +49,7 @@ class sigma_integrator():
         print(self.sigma_s,'sigma_s')
         self.sigma_a = self.sigma_t - self.sigma_s
         print(self.sigma_a,'sigma_a')
-        self.sigma_func = np.array(list(build.sigma_func), dtype = np.int64) 
+        self.sigma_func = build.sigma_func
         self.M = build.M
         self.Msigma = build.Msigma
         self.xs_quad = build.xs_quad
@@ -56,8 +62,8 @@ class sigma_integrator():
         self.VP = np.zeros(self.M+1)
         self.AAA = np.zeros((self.M+1, self.M + 1, self.Msigma + 1))
         self.moving = False
-        if self.sigma_func[4] == 1:
-            self.moving = True
+        # if self.sigma_func['fake_sedov'] == True:
+        #     self.moving = True
         # self.sigma_v = 0.005
         self.sigma_v = build.fake_sedov_v0
 
@@ -121,16 +127,17 @@ class sigma_integrator():
         return return_array
 
     def sigma_function(self, x, t):
-        if self.sigma_func[0] == 1:
+
+        if self.sigma_func['constant'] == 1:
             return x * 0 + 1.0
-        elif self.sigma_func[1] == 1:
+        elif self.sigma_func['gaussian'] == 1:
             return np.exp(- x**2 /(2* self.std**2))  # probably shouldn't have sigma_a here
             # return x * 0 + 1.0
-        elif self.sigma_func[2] == 1: # siewert with omega_0 = 1, s = 1
+        elif self.sigma_func['siewert1'] == 1: # siewert with omega_0 = 1, s = 1
             return np.exp(-x - 2.5)
-        elif self.sigma_func[3] == 1:
+        elif self.sigma_func['siewert2'] == 1:
             return np.exp(-x/100000000000)
-        elif self.sigma_func[4] == 1:
+        elif self.sigma_func['fake_sedov'] == 1:
             # return np.exp(-(x- self.sigma_v * t)**2/(2*self.std**2))
             c1 = 1
             xi2x = self.xi2(x, t, 0, c1, self.sigma_v)
@@ -153,17 +160,19 @@ class sigma_integrator():
             return res
     
     def make_vectors(self, edges, u, space):
-        VV = u * 0
+
         # self.sigma_moments(edges) # take moments of the opacity
         xL = edges[space]
         xR = edges[space+1]
         dx = math.sqrt(xR-xL)
-        
-        for i in range(self.M + 1):
-            for j in range(self.M + 1):
-                for k in range(self.Msigma + 1):
-                    VV[i] +=   (self.sigma_a + self.sigma_s) * self.cs[space, k] * u[j] * self.AAA[i, j, k] / dx
-        return VV
+        if self.sigma_func['constant'] == True:
+            self.VV = u * self.sigma_t
+        else:
+            for i in range(self.M + 1):
+                for j in range(self.M + 1):
+                    for k in range(self.Msigma + 1):
+                        self.VV[i] +=   (self.sigma_a + self.sigma_s) * self.cs[space, k] * u[j] * self.AAA[i, j, k] / dx
+
 
 
 

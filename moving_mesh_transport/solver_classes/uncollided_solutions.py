@@ -11,9 +11,9 @@ import math
 from .build_problem import build
 from .functions import normPn, numba_expi, uncollided_su_olson_s2, uncollided_square_s2
 from .functions import uncollided_s2_gaussian, uncollided_s2_gaussian_thick
-from.functions import heaviside_vector, heaviside_scalar
+from.functions import heaviside_vector, heaviside_scalar, normTn
 # from scipy.special import expi as expi2
-
+import numba as nb
 from numba import float64, int64, deferred_type
 from numba.experimental import jitclass
 ###############################################################################
@@ -25,6 +25,7 @@ make temp a self. variable and call it instead of returning it
 
 build_type = deferred_type()
 build_type.define(build.class_type.instance_type)
+params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 
 data = [("S", float64[:]),
         ("source_type", int64[:]),
@@ -50,7 +51,8 @@ data = [("S", float64[:]),
         ('v0', float64),
         ('ws', float64[:]),
         ('mus', float64[:]),
-        ('t0_source', float64)
+        ('t0_source', float64),
+        ('geometry', nb.typeof(params_default)),
         ]
 ###############################################################################
 @jitclass(data)
@@ -79,7 +81,7 @@ class uncollided_solution(object):
         self.ws = build.ws
         self.mus = build.mus
         self.t0_source = build.t0
-        print(build.t0, 'source duration')
+        self.geometry = build.geometry
 ###############################################################################
         
     def integrate_quad_gaussian_source(self, t, x, a, b, func):
@@ -234,7 +236,11 @@ class uncollided_solution(object):
         temp = xs*0
         for ix in range(xs.size):
             if (-t <= xs[ix] <= t):
+ 
                 temp[ix] = math.exp(-t)/(2*t+1e-12) 
+                # elif self.geometry['sphere'] == True:
+                #     eta = xs[ix] / t
+                #     temp[ix] = math.exp(-t)/(2* math.pi * t**2 * math.sqrt(1-eta**2) + 1e-12 ) 
         return temp
     
     def plane_IC_uncollided_solution_integrated(self, t, xL, xR):
@@ -269,33 +275,45 @@ class uncollided_solution(object):
         for ix, xx in enumerate(xs):
             temp[ix] = self.integrate_quad_sedov_source(t, xx, -1, 1, self.fake_sedov_integrand)
         return temp
-
     
-        
+    def point_source(self, rhos, t):   
+        temp = rhos*0
+        for ix in range(rhos.size):
+            rho = rhos[ix]
+            if abs(rho-t) <= 1e-10:
+                temp[ix] = math.exp(-t)/4/math.pi/t**2/rho
+        return temp
+
     def uncollided_solution(self, xs, t):
         if self.uncollided == True:
-            if self.source_type[0] == 1:
-                self.uncollided_solution_return = (self.plane_IC_uncollided_solution(xs, t) * self.source_strength)
-            
-            elif self.source_type[1] == 1:
-                self.uncollided_solution_return = (self.square_IC_uncollided_solution(xs, t) * self.source_strength)
-        
-            elif self.source_type[2] == 1:
-                if self.N_ang == 2:
-                    self.uncollided_solution_return = (self.su_olson_s2_uncollided_solution(xs, t) * self.source_strength)
-                else:
-                    self.uncollided_solution_return = (self.square_source_uncollided_solution(xs, t) * self.source_strength)
+            if self.geometry['slab'] == True:
+                if self.source_type[0] == 1:
+                    self.uncollided_solution_return = (self.plane_IC_uncollided_solution(xs, t) * self.source_strength)
                 
-            elif self.source_type[3] == 1:      
-                self.uncollided_solution_return =  (self.gaussian_IC_uncollided_solution(xs, t) * self.source_strength)        
+                elif self.source_type[1] == 1:
+                    self.uncollided_solution_return = (self.square_IC_uncollided_solution(xs, t) * self.source_strength)
             
-            elif self.source_type[5] == 1:
-                if self.N_ang == 2:
-                    self.uncollided_solution_return = (self.gaussian_s2(xs,t) * self.source_strength)
-                else:
-                    self.uncollided_solution_return = (self.gaussian_source_uncollided_solution(xs, t) * self.source_strength)
-            elif np.all(self.source_type==0):
-                self.uncollided_solution_return = self.fake_sedov(xs,t) * self.source_strength
+                elif self.source_type[2] == 1:
+                    if self.N_ang == 2:
+                        self.uncollided_solution_return = (self.su_olson_s2_uncollided_solution(xs, t) * self.source_strength)
+                    else:
+                        self.uncollided_solution_return = (self.square_source_uncollided_solution(xs, t) * self.source_strength)
+                    
+                elif self.source_type[3] == 1:      
+                    self.uncollided_solution_return =  (self.gaussian_IC_uncollided_solution(xs, t) * self.source_strength)        
+                
+                elif self.source_type[5] == 1:
+                    if self.N_ang == 2:
+                        self.uncollided_solution_return = (self.gaussian_s2(xs,t) * self.source_strength)
+                    else:
+                        self.uncollided_solution_return = (self.gaussian_source_uncollided_solution(xs, t) * self.source_strength)
+                elif np.all(self.source_type==0):
+                    self.uncollided_solution_return = self.fake_sedov(xs,t) * self.source_strength
+            
+            elif self.geometry['sphere'] == True:
+                if self.source_type[0] == 1:
+
+                    self.uncollided_solution_return = (self.point_source(xs, t) * self.source_strength)
         else:
             self.uncollided_solution_return = np.zeros(xs.size)
 
