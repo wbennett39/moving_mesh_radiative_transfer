@@ -190,6 +190,7 @@ class rhs_class():
             xL = mesh.edges[space]
             dxR = mesh.Dedges[space+1]
             dxL = mesh.Dedges[space]
+            matrices.matrix_test(False)
             matrices.make_all_matrices(xL, xR, dxL, dxR)
             L = matrices.L
             G = matrices.G
@@ -223,7 +224,7 @@ class rhs_class():
                     refl_index = self.N_ang-angle-1
                     assert(abs(self.mus[refl_index] - -self.mus[angle])<=1e-10)
                     
-                num_flux.make_LU(t, mesh, V_old[angle,:,:], space, mul, V_old[refl_index, 0])
+                num_flux.make_LU(t, mesh, V_old[angle,:,:], space, mul, V_old[refl_index, 0, :])
                 
                     # print(self.mus[self.N_ang-angle-1], -self.mus[angle])
                     

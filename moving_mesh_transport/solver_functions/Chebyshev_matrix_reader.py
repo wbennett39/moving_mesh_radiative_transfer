@@ -16,8 +16,8 @@ class file_reader():
         self.G_mat_denom = f2['denominators'][:]
         self.L_mat_denom = f3['denominators'][:]
         self.VV_mat_denom = f4['denominators'][:]
-        # M = self.mass_mat_denom[0].size
-        M =2
+        M = self.mass_mat_denom[0].size
+        # M =2
         N = self.VV_mat_denom[:,0,0].size
         self.mass_mat_coeff_even = np.zeros((M, M, 3))
         self.mass_mat_coeff_odd = np.zeros((M, M, 2))
@@ -29,13 +29,13 @@ class file_reader():
         self.VV_mat_coeff_odd = np.zeros((N, M, M, 2))
         for ii in range(M):
             for jj in range(M):
-                if ii > 0:
-                    self.G_mat_coeff[ii, jj] = f2['coefficients'][f'Element{ii+1}{jj+1}'][:].flatten()
-                    self.J_mat_coeff[ii, jj] = f1['coefficients'][f'Element{ii+1}{jj+1}'][:].flatten()
+                self.J_mat_coeff[ii, jj] = f1['coefficients'][f'Element{ii+1}{jj+1}'][:].flatten()
+                # if ii > 0:
+                # self.G_mat_coeff[ii, jj] = f2['coefficients'][f'Element{ii+1}{jj+1}'][:].flatten()
                 
                 if (ii + jj + 2) % 2 == 0:
                     self.mass_mat_coeff_even[ii, jj] = f['coefficients'][f'Element{ii+1}{jj+1}'][:].flatten()
-                    if ii + jj != 0:
+                    if ii > 0:
                         self.L_mat_coeff_even[ii, jj] = f3['coefficients'][f'Element{ii+1}{jj+1}'][:].flatten()
                     
                 else:

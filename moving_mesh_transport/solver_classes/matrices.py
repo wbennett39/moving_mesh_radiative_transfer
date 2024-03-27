@@ -47,6 +47,7 @@ data = [("M", int64),
         ('J', float64[:,:]),
         ('VV', float64[:,:,:]),
         ('geometry', nb.typeof(params_default)),
+        ('testing', int64)
 
         ]
 @jitclass(data)
@@ -77,12 +78,17 @@ class G_L:
         self.geometry = build.geometry
         self.N = build.Msigma
 
+        
+
         for i in range(0,self.M+1):
             for j in range(0,self.M+1):
                 if i > j and (i+j) % 2 !=0: 
                     self.L_const[i,j] = 2 * math.sqrt(2*i +1 )* math.sqrt(2*j+1)
                 else:
                     self.L_const[i,j] = 0
+        
+        # self.matrix_test()
+        self.testing = False
     
     def make_L(self, xL, xR):
         if self.geometry['slab'] == True:
@@ -126,7 +132,7 @@ class G_L:
                         self.G[i,j] = -math.sqrt(2*j+1)*math.sqrt(2*i+1)*ih*(b+a)
 
     def make_mass_sphere(self, rL, rR):
-        """This function builds the mass matrix for the spherical case"""
+        """This function builds the mass matrix for spherical geometry"""
         rL2 = rL**2
         rR2 = rR**2
         rL3 = rL**3
@@ -155,15 +161,17 @@ class G_L:
         self.Mass = np.multiply(self.Mass, 1/self.Mass_denom[0:self.M+1, 0:self.M+1])
 
         # testing mass matrix
-        # assert(abs(self.Mass[0,0] - (rL2 + rLrR + rR2)/3/pi <= 1e-10))
-        # assert(abs(self.Mass[1,0] - (rR2-rL2)/ 3/rttwo / pi  <= 1e-10))
-        # assert(abs(self.Mass[0,1] - (rR2-rL2)/ 3/rttwo / pi  <= 1e-10))
-        # assert(abs(self.Mass[1,1] - 2*(2*rL2 + rLrR + 2*rR2)/15/pi  <= 1e-10))
+        if self.testing == True:
+            assert(abs(self.Mass[0,0] - (rL2 + rLrR + rR2)/3/pi <= 1e-10))
+            if self.M>0:
+                assert(abs(self.Mass[1,0] - (rR2-rL2)/ 3/rttwo / pi  <= 1e-10))
+                assert(abs(self.Mass[0,1] - (rR2-rL2)/ 3/rttwo / pi  <= 1e-10))
+                assert(abs(self.Mass[1,1] - 2*(2*rL2 + rLrR + 2*rR2)/15/pi  <= 1e-10))
+            if self.M>1:
+                assert(abs(self.Mass[2,2] - (30 * rL2 + 38 * rLrR + 30 * rR2)/105/pi)<=1e-10)
 
                
-               
-
-
+            
 
     def make_J_sphere(self, rL, rR):
         """This function builds the J matrix for the spherical case"""
@@ -181,15 +189,22 @@ class G_L:
         # elif self.M > 1:
         for ii in range(self.M+1):
             for jj in range(self.M+1):
-                self.J[ii, jj] = (self.J_coeff[ii, jj, 0] * rL + self.J_coeff[ii, jj, 1] * rR)  * rtf(ii, jj) / pi
+                self.J[ii, jj] = (self.J_coeff[ii, jj, 0] * rL + self.J_coeff[ii, jj, 1] * rR)  / pi
         
+        self.J[1:,0] = self.J[1:,0] / rttwo
+        self.J[0,1:] = self.J[0,1:] / rttwo
+
         self.J = np.multiply(self.J, 1/self.J_denom[0:self.M+1, 0:self.M+1])
-        
-        if self.M == 1:
+        if self.testing == True:
             assert(abs(self.J[0,0] - 0.5 * (rR+rL) /  pi)<=1e-10)
-            assert(abs(self.J[1,0] - (rR-rL) /3 /rttwo/pi)<=1e-10)
-            assert(abs(self.J[0,1] - (rR-rL) /3 /rttwo/pi)<=1e-10)
-            assert(abs(self.J[1,1] -  (rR+rL) / pi / 3)<=1e-10)
+            
+            if self.M >0:
+                assert(abs(self.J[1,0] - (rR-rL) /3 /rttwo/pi)<=1e-10)
+                assert(abs(self.J[0,1] - (rR-rL) /3 /rttwo/pi)<=1e-10)
+                assert(abs(self.J[1,1] -  (rR+rL) / pi / 3)<=1e-10)
+            if self.M > 1:
+                assert(abs(self.J[2,2] - 7 * (rL+rR) /15 /pi)<=1e-10)
+
     
     
 
@@ -217,11 +232,11 @@ class G_L:
         # if self.M == 0:
         #     self.L[0,0] = 0
 
-        if self.M == 1:
-            self.L[0,0] = 0
-            self.L[0,1] = 0
-            self.L[1,0] = -2 * rtwo * (rL2 + rLrR + rR2) / 3/ pi /(rL-rR)
-            self.L[1,1] = 2*(rL + rR)/3/pi
+        # if self.M == 1:
+        #     self.L[0,0] = 0
+        #     self.L[0,1] = 0
+        #     self.L[1,0] = -2 * rtwo * (rL2 + rLrR + rR2) / 3/ pi /(rL-rR)
+        #     self.L[1,1] = 2*(rL + rR)/3/pi
 
         for ii in range(1, self.M+1):
             for jj in range(self.M+1):
@@ -230,16 +245,23 @@ class G_L:
                 else:
                     self.L[ii, jj] = (self.L_coeff_even[ii, jj, 0] * rL + self.L_coeff_even[ii, jj, 1] * rR)  / pi
 
-        self.L[:][0] = self.L[:][0] * rtwo
-        print(self.L, 'before denom')
-        self.L = np.multiply(self.L[1:,:], 1/self.L_denom[1:self.M+1, 0:self.M+1])
+        self.L[1:,0] = self.L[1:,0] * rtwo
+
+        self.L[1:,:] = np.multiply(self.L[1:,:], 1/self.L_denom[1:self.M+1, 0:self.M+1])
         #testing L
-        print(self.L, 'after denom')
-        if self.M == 1:
+        if self.testing == True:
             assert(self.L[0,0] == 0)
-            assert(self.L[0,1] == 0)
-            assert(abs(self.L[1,0] + 2 * rtwo * (rL2 + rLrR + rR2) / 3/ pi /(rL-rR))<=1e-10)
-            assert(abs(self.L[1,1] - 2*(rL + rR)/3/pi)<=1e-10)
+            if self.M >0:
+                assert(self.L[0,1] == 0)
+                assert(abs(self.L[1,0] + 2 * rtwo * (rL2 + rLrR + rR2) / 3/ pi /(rL-rR))<=1e-10)
+                assert(abs(self.L[1,1] - 2*(rL + rR)/3/pi)<=1e-10)
+            if self.M > 1:
+                L2ac = -16 * (2* rL2 + rLrR + 2 * rR2) /15/pi/(rL-rR)
+                assert(abs(self.L[2,1] - L2ac ) <= 1e-10)
+            if self.M > 2:
+                L33ac = 18 * (rR+rL) / 35/ pi
+                assert(abs(self.L[3,3] - L33ac ) <= 1e-10)
+
         
 
         # self.L[0,0]  = 2*math.log(rR/rL)/pi/(rR-rL)
@@ -247,4 +269,38 @@ class G_L:
     def make_VV_sphere(self, rL, rR):
         """This function builds the VV matrix for the spherical case"""
         self.VV[0,0] = 0
-        
+
+    def matrix_test(self, test):
+        self.testing = test
+        if self.testing == True:
+            a = 0.2
+            b = 0.9
+            self.make_all_matrices(a, b, 0.0, 0.0)
+
+            if self.M == 3:
+                L_bench = np.array([[0.0, 0.0, 0.0, 0.0],
+                                    [0.441584, 0.233427, -0.168553, -0.140056],
+                                    [0.660232, 0.911882, 0.186742, -0.465642],
+                                    [0.609643, 0.980394, 1.17502, 0.180072]
+                                    ])
+                J_bench = np.array([[0.17507, 0.0525185, -0.082529, -0.0315111],
+                                    [0.0525185, 0.116714, 0.0148545, -0.0700282],
+                                    [-0.082529, 0.0148545, 0.163399, 0.031831],
+                                    [-0.0315111, -0.0700282, 0.031831, 0.170068]
+                                    ])
+                Mass_bench = np.array([[0.109286, 0.0577703, -0.0417147, -0.0346622],
+                                    [0.0577703, 0.0797897, 0.0163399, -0.0407437],
+                                    [-0.0417147, 0.0163399, 0.0980394, 0.0350141],
+                                    [-0.0346622, -0.0407437, 0.0350141, 0.105174]
+                                    ])
+                if (np.abs(L_bench - self.L)>=1e-5).any():
+                    print("L fail")
+                    print(np.abs(L_bench - self.L))
+                    assert(0)
+                if (np.abs(J_bench - self.J)>=1e-5).any():
+                    print("J fail")
+                    assert(0)
+                if (np.abs(Mass_bench - self.Mass)>=1e-5).any():
+                    print("Massfail")
+                    assert(0)
+            self.testing = False

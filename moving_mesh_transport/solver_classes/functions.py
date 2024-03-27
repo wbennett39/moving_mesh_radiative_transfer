@@ -201,7 +201,7 @@ def find_nodes(edges, M, geometry):
         for k in range(edges.size-1):
             xL = edges[k]
             xR = edges[k+1]
-            xs_list[k*ixx:(k+1)*ixx] = 0.5 * (xR -xL) * xs_quad + 0.5 * (xR+xL)
+            xs_list[k*ixx:(k+1)*ixx] = np.sort(xL + (xs_quad + 1)*(xR - xL)/2)
 
     return xs_list
 
@@ -483,7 +483,15 @@ def eval_Tn(n,x):
         return -7*x + 56*x**3 - 112*x**5 + 64*x**7
     elif n == 8:
         return 1 - 32*x**2 + 160*x**4 - 256*x**6 + 128*x**8
-    elif n > 8:
+    elif n == 9:
+        return 9*x - 120*x**3 + 432*x**5 - 576*x**7 + 256*x**9
+    elif n == 10:
+        return -1 + 50*x**2 - 400*x**4 + 1120*x**6 - 1280*x**8 + 512*x**10
+    elif n == 11:
+        return -11*x + 220*x**3 - 1232*x**5 + 2816*x**7 - 2816*x**9 + 1024*x**11
+    elif n == 12:
+        return 1 - 72*x**2 + 840*x**4 - 3584*x**6 + 6912*x**8 - 6144*x**10 + 2048*x**12
+    elif n > 12:
         print('not implemented to this order yet')
         assert(0)
 
@@ -577,6 +585,7 @@ def quadrature(n, name, testing = False):
         for i in range(1,n+1):
             xs[i-1] = math.cos((2*i-1)/2/n * pi)
             ws[i-1] = pi/n
+
 
     elif name == 'gauss_lobatto':
         if n > 1:

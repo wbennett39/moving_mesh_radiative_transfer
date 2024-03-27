@@ -3,7 +3,11 @@
 import sys
 import matplotlib.pyplot as plt
 sys.path.append('/Users/bennett/Documents/Github/transport_benchmarks/')
+from numba.core.errors import NumbaDeprecationWarning, NumbaPendingDeprecationWarning
+import warnings
 
+warnings.simplefilter('ignore', category=NumbaDeprecationWarning)
+warnings.simplefilter('ignore', category=NumbaPendingDeprecationWarning)
 
 from benchmarks import integrate_greens as intg
 from moving_mesh_transport.plots import plotting_script as plotter
@@ -36,6 +40,8 @@ from moving_mesh_transport.loading_and_saving.load_solution import load_sol as l
 
 
 from moving_mesh_transport.solver_functions.run_functions import run
+
+
 
 run = run()
 run.load()
