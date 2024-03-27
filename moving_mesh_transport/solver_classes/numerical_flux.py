@@ -237,16 +237,16 @@ class LU_surf(object):
             elif self.geometry['sphere'] == True:
                 self.LU[i] = (xR**2*B_right*rightspeed*psi_plus - xL**2*B_left*leftspeed*psi_minus)
 
-                if space == 0:
-                    if self.geometry['sphere'] == True:
-                        if mul > 0:
-                            LUanalytic = mul * math.sqrt(1/math.pi) * math.sqrt(1/(xR-xL)) * (xR**2* psi_plus - xL**2*psi_minus)
-                            if abs(LUanalytic- self.LU[0]) >= 1e-4:
-                                print('error', abs(LUanalytic- self.LU[0]) )
-                                assert(0)
-                elif space == self.N_space - 1:
-                    if rightspeed < 0:
-                        assert(abs(psi_plus)<=1e-10) 
+                # if space == 0:
+                #     if self.geometry['sphere'] == True:
+                #         if mul > 0:
+                #             LUanalytic = mul * math.sqrt(1/math.pi) * math.sqrt(1/(xR-xL)) * (xR**2* psi_plus - xL**2*psi_minus)
+                #             if abs(LUanalytic- self.LU[0]) >= 1e-4:
+                #                 print('error', abs(LUanalytic- self.LU[0]) )
+                #                 assert(0)
+                # elif space == self.N_space - 1:
+                #     if rightspeed < 0:
+                #         assert(abs(psi_plus)<=1e-10) 
 
 
 

@@ -652,3 +652,22 @@ def newtons(x0, f, fprime, tol = 1e-14):
             tol_met = True
         x0 = new_x0
     return x0
+
+@njit
+def sqrt_two_mass_func(i, j):
+    rttwo = math.sqrt(2)
+    if ((i == 0) and (j == 0)) or ((i != 0) and (j != 0)):
+        return 1.0
+    elif (i == 0) and (j != 0):
+        if j%2 == 0:
+            return rttwo
+        else:
+            return 1/rttwo
+    elif (j == 0) and (i!=0):
+        if i%2 == 0:
+            return rttwo
+        else:
+            return 1/rttwo
+    else:
+        assert(0)
+

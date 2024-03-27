@@ -308,12 +308,13 @@ class rhs_class():
                     if self.M ==0:
                         assert(np.abs(RHS[0] + 3 * math.pi  * LU[0]  /  (a*b + b**2 + a**2) )<=1e-8)
 
-                    RHS += mul*np.dot(L,U) * 0
+                    RHS += np.dot(Minv, mul*np.dot(L,U))
                     RHS -= V_old[angle, space,:]
-
-                    scalar_flux = np.sum(np.multiply(V_old[:, space, 0], self.ws)) * (self.c) 
-                    PV = U*0 
-                    PV[0] = scalar_flux
+                    PV = U * 0
+                    for ii in range(self.M+1):
+                        PV[ii] = np.sum(np.multiply(V_old[:,space, ii], self.ws)) * (self.c) 
+                    # PV = U*0 
+                    # PV = scalar_flux
                     RHS += PV
                     mu_derivative = np.dot(Minv, np.dot(J, dterm))
                     if self.M == 0:

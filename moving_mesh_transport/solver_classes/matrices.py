@@ -7,7 +7,9 @@ Created on Fri Jan 28 11:23:59 2022
 """
 import numpy as np
 from .build_problem import build
+# from .chebyshev_matrix_builder import matrix_builder
 import math
+from .functions import sqrt_two_mass_func as rtf
 
 from numba import int64, float64, deferred_type
 from numba.experimental import jitclass
@@ -35,10 +37,10 @@ data = [("M", int64),
         ('VV_denom', int64[:,:,:]),
         ('Mass_coeff_even', float64[:,:,:]),
         ('Mass_coeff_odd', float64[:,:,:]),
-        ('J_coeff_even', float64[:,:,:]),
-        ('J_coeff_odd', float64[:,:,:]),
+        ('J_coeff', float64[:,:,:]),
         ('G_coeff', float64[:,:,:]),
-        ('L_coeff', float64[:,:,:]),
+        ('L_coeff_even', float64[:,:,:]),
+        ('L_coeff_odd', float64[:,:,:]),
         ('VV_coeff_even', float64[:,:,:,:]),
         ('VV_coeff_odd', float64[:,:,:,:]),
         ('Mass', float64[:,:]),
@@ -50,7 +52,7 @@ data = [("M", int64),
 @jitclass(data)
 class G_L:
     def __init__(self, build, Mass_denom, J_denom, G_denom, L_denom, VV_denom, Mass_coeff_even, Mass_coeff_odd, 
-                J_coeff_even, J_coeff_odd, G_coeff, L_coeff, VV_coeff_even, VV_coeff_odd):
+                J_coeff, G_coeff, L_coeff_even, L_coeff_odd, VV_coeff_even, VV_coeff_odd):
         self.M = build.M
         self.L = np.zeros((self.M+1, self.M+1))
         self.L_const = np.zeros((self.M+1, self.M+1))
@@ -66,10 +68,10 @@ class G_L:
         self.VV_denom = VV_denom[:]
         self.Mass_coeff_even = Mass_coeff_even[:]
         self.Mass_coeff_odd = Mass_coeff_odd[:]
-        self.J_coeff_even = J_coeff_even[:]
-        self.J_coeff_odd = J_coeff_odd[:]
+        self.J_coeff = J_coeff[:]
         self.G_coeff = G_coeff
-        self.L_coeff = L_coeff
+        self.L_coeff_even = L_coeff_even[:]
+        self.L_coeff_odd = L_coeff_odd[:]
         self.VV_coeff_even = VV_coeff_even
         self.VV_coeff_odd = VV_coeff_odd
         self.geometry = build.geometry
@@ -132,14 +134,36 @@ class G_L:
         rLrR = rL*rR
         pi = math.pi
         rttwo = math.sqrt(2)
-        if self.M ==0:
-            self.Mass[0,0] = (rL2 + rLrR + rR2)/3/pi
-        elif self.M == 1:
-            self.Mass[0,0] = (rL2 + rLrR + rR2)/3/pi
-            self.Mass[1,0] = (rR2-rL2)/ 3/rttwo / pi 
-            self.Mass[0,1] = (rR2-rL2)/ 3/rttwo / pi
-            self.Mass[1,1] = 2*(2*rL2 + rLrR + 2*rR2)/15/pi
+
+        # if self.M ==0:
+        #     self.Mass[0,0] = (rL2 + rLrR + rR2)/3/pi
+        # elif self.M == 1:
+        #     self.Mass[0,0] = (rL2 + rLrR + rR2)/3/pi
+        #     self.Mass[1,0] = (rR2-rL2)/ 3/rttwo / pi 
+        #     self.Mass[0,1] = (rR2-rL2)/ 3/rttwo / pi
+        #     self.Mass[1,1] = 2*(2*rL2 + rLrR + 2*rR2)/15/pi
         # self.Mass[0,0] = 1/math.pi
+
+        for ii in range(self.M+1):
+            for jj in range(self.M+1):
+                if (ii + jj + 2) % 2 == 0 or (ii == 0 and jj == 0):
+                    self.Mass[ii][jj] = (self.Mass_coeff_even[ii, jj, 0] * rL2 + self.Mass_coeff_even[ii, jj, 1] * rLrR + self.Mass_coeff_even[ii, jj, 2] * rR2) * rtf(ii, jj) / pi 
+                else:
+                    self.Mass[ii][jj] = (self.Mass_coeff_odd[ii, jj, 0] * rL2 + self.Mass_coeff_odd[ii, jj, 1] * rR2 ) * rtf(ii, jj) / pi 
+                
+
+        self.Mass = np.multiply(self.Mass, 1/self.Mass_denom[0:self.M+1, 0:self.M+1])
+
+        # testing mass matrix
+        # assert(abs(self.Mass[0,0] - (rL2 + rLrR + rR2)/3/pi <= 1e-10))
+        # assert(abs(self.Mass[1,0] - (rR2-rL2)/ 3/rttwo / pi  <= 1e-10))
+        # assert(abs(self.Mass[0,1] - (rR2-rL2)/ 3/rttwo / pi  <= 1e-10))
+        # assert(abs(self.Mass[1,1] - 2*(2*rL2 + rLrR + 2*rR2)/15/pi  <= 1e-10))
+
+               
+               
+
+
 
     def make_J_sphere(self, rL, rR):
         """This function builds the J matrix for the spherical case"""
@@ -147,13 +171,25 @@ class G_L:
         rL2 = rL**2
         rR2 = rR**2
         rttwo = math.sqrt(2)
-        if self.M == 0:
-            self.J[0,0] = 0.5 * (rR+rL) / pi
-        elif self.M == 1:
-            self.J[0,0] = 0.5 * (rR+rL) /  pi
-            self.J[1,0] = (rR-rL) /3 /rttwo/pi
-            self.J[0,1] = (rR-rL) /3 /rttwo/pi
-            self.J[1,1] =  (rR+rL) / pi / 3
+        # if self.M == 0:
+        #     self.J[0,0] = 0.5 * (rR+rL) / pi
+        # elif self.M == 1:
+        #     self.J[0,0] = 0.5 * (rR+rL) /  pi
+        #     self.J[1,0] = (rR-rL) /3 /rttwo/pi
+        #     self.J[0,1] = (rR-rL) /3 /rttwo/pi
+        #     self.J[1,1] =  (rR+rL) / pi / 3
+        # elif self.M > 1:
+        for ii in range(self.M+1):
+            for jj in range(self.M+1):
+                self.J[ii, jj] = (self.J_coeff[ii, jj, 0] * rL + self.J_coeff[ii, jj, 1] * rR)  * rtf(ii, jj) / pi
+        
+        self.J = np.multiply(self.J, 1/self.J_denom[0:self.M+1, 0:self.M+1])
+        
+        if self.M == 1:
+            assert(abs(self.J[0,0] - 0.5 * (rR+rL) /  pi)<=1e-10)
+            assert(abs(self.J[1,0] - (rR-rL) /3 /rttwo/pi)<=1e-10)
+            assert(abs(self.J[0,1] - (rR-rL) /3 /rttwo/pi)<=1e-10)
+            assert(abs(self.J[1,1] -  (rR+rL) / pi / 3)<=1e-10)
     
     
 
@@ -178,14 +214,33 @@ class G_L:
         rR2 = rR**2
         rLrR = rL*rR
         rtwo = math.sqrt(2)
-        if self.M == 0:
-            self.L[0,0] = 0
+        # if self.M == 0:
+        #     self.L[0,0] = 0
 
-        elif self.M == 1:
+        if self.M == 1:
             self.L[0,0] = 0
             self.L[0,1] = 0
             self.L[1,0] = -2 * rtwo * (rL2 + rLrR + rR2) / 3/ pi /(rL-rR)
             self.L[1,1] = 2*(rL + rR)/3/pi
+
+        for ii in range(1, self.M+1):
+            for jj in range(self.M+1):
+                if (ii + jj + 2) % 2 != 0:
+                    self.L[ii, jj] = (self.L_coeff_odd[ii, jj, 0] * rL2 + self.L_coeff_odd[ii, jj, 1] * rLrR + self.L_coeff_odd[ii, jj, 2] * rR2) / (rL-rR) / pi
+                else:
+                    self.L[ii, jj] = (self.L_coeff_even[ii, jj, 0] * rL + self.L_coeff_even[ii, jj, 1] * rR)  / pi
+
+        self.L[:][0] = self.L[:][0] * rtwo
+        print(self.L, 'before denom')
+        self.L = np.multiply(self.L[1:,:], 1/self.L_denom[1:self.M+1, 0:self.M+1])
+        #testing L
+        print(self.L, 'after denom')
+        if self.M == 1:
+            assert(self.L[0,0] == 0)
+            assert(self.L[0,1] == 0)
+            assert(abs(self.L[1,0] + 2 * rtwo * (rL2 + rLrR + rR2) / 3/ pi /(rL-rR))<=1e-10)
+            assert(abs(self.L[1,1] - 2*(rL + rR)/3/pi)<=1e-10)
+        
 
         # self.L[0,0]  = 2*math.log(rR/rL)/pi/(rR-rL)
     

@@ -94,9 +94,9 @@ class IC_func(object):
     def shell_IC(self, x):
         R = self.x0
         a = 0
-        temp = (np.greater(x, a) - np.greater(x, R))*self.source_strength * 4 * math.pi * R**3 /3
+        temp = (np.greater(x, a) - np.greater(x, R))*self.source_strength * 3 / 4 / math.pi / R**3
             # temp = x/x
-        return temp  * 2.0
+        return temp / 2.0 
 
     def gaussian_plane(self, x):
         RES = math.sqrt(1/math.pi/2.0)/self.x0 * np.exp(-0.5 * x**2/self.x0**2)
