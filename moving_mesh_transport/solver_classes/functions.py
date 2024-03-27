@@ -680,3 +680,21 @@ def sqrt_two_mass_func(i, j):
     else:
         assert(0)
 
+@njit
+def rttwo_mistake_undoer(i,j):
+    if ((i == 0) and (j == 0)) or ((i != 0) and (j != 0)):
+        return 1.0
+    elif (i == 0) and (j != 0):
+        if j%2 == 0:
+            return 1.0
+        else:
+            return 0.5
+    elif (j == 0) and (i!=0):
+        if i%2 == 0:
+            return 1
+        else:
+            return 0.5
+    else:
+        assert(0)
+        
+

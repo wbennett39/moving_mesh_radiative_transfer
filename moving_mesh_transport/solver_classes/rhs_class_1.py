@@ -190,7 +190,7 @@ class rhs_class():
             xL = mesh.edges[space]
             dxR = mesh.Dedges[space+1]
             dxL = mesh.Dedges[space]
-            matrices.matrix_test(False)
+            matrices.matrix_test(True)
             matrices.make_all_matrices(xL, xR, dxL, dxR)
             L = matrices.L
             G = matrices.G

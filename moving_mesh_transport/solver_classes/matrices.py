@@ -10,6 +10,7 @@ from .build_problem import build
 # from .chebyshev_matrix_builder import matrix_builder
 import math
 from .functions import sqrt_two_mass_func as rtf
+from .GMAT_sphere import GMatrix
 
 from numba import int64, float64, deferred_type
 from numba.experimental import jitclass
@@ -219,8 +220,16 @@ class G_L:
         rR2 = rR**2
         rLrR = rL*rR
         pi = math.pi
+        rttwo = math.sqrt(2)
 
-        self.G[0,0] = - (rL2 + rLrR + rR2) * (rLp - rRp) / 6 / pi / (rL-rR)
+        for ii in range(self.M+1):
+            for jj in range(self.M+1):
+                self.G[ii, jj] = GMatrix(ii, jj, rL, rR, rLp, rRp)
+        self.G[1:,0] = self.J[1:,0] / rttwo
+        self.G[0,1:] = self.J[0,1:] / rttwo
+
+        self.G = np.multiply(self.G, self.G_denom)
+        
 
     def make_L_sphere(self, rL, rR):
         """This function builds the L matrix for the spherical case"""
@@ -275,7 +284,9 @@ class G_L:
         if self.testing == True:
             a = 0.2
             b = 0.9
-            self.make_all_matrices(a, b, 0.0, 0.0)
+            ap = 0.9
+            bp = 1.2
+            self.make_all_matrices(a, b, ap, bp)
 
             if self.M == 3:
                 L_bench = np.array([[0.0, 0.0, 0.0, 0.0],
@@ -293,6 +304,11 @@ class G_L:
                                     [-0.0417147, 0.0163399, 0.0980394, 0.0350141],
                                     [-0.0346622, -0.0407437, 0.0350141, 0.105174]
                                     ])
+                G_bench = np.array([[-0.0234185, -0.0123793, 0.00893885, 
+                                    0.00742761], [-0.500801, -0.296392, 0.166476, 
+                                    0.173252], [-0.781024, -1.04501, -0.250555, 
+                                    0.493426], [-0.736684, -1.17347, -1.32831, -0.242067]])
+                
                 if (np.abs(L_bench - self.L)>=1e-5).any():
                     print("L fail")
                     print(np.abs(L_bench - self.L))
@@ -301,6 +317,9 @@ class G_L:
                     print("J fail")
                     assert(0)
                 if (np.abs(Mass_bench - self.Mass)>=1e-5).any():
-                    print("Massfail")
+                    print("Mass fail")
+                    assert(0)
+                if (np.abs(G_bench - self.G)>=1e-5).any():
+                    print("G fail")
                     assert(0)
             self.testing = False
