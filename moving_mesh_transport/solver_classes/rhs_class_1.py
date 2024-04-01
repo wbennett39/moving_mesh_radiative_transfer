@@ -109,17 +109,19 @@ class rhs_class():
         self.mus = build.mus
         self.ws = build.ws
         self.source_type = np.array(list(build.source_type), dtype = np.int64) 
-        self.c = build.sigma_s 
+
         self.thermal_couple = build.thermal_couple
         self.uncollided = build.uncollided
         self.test_dimensional_rhs = build.test_dimensional_rhs
         self.told = 0.0
         self.sigma_s = build.sigma_s
         self.sigma_a = build.sigma_a
+        self.c = build.sigma_s 
         self.particle_v = build.particle_v
         self.geometry = build.geometry
        
         self.c_a = build.sigma_a / build.sigma_t
+        
         self.mean_free_time = 1/build.sigma_t
         self.division = 1000
         self.counter = 0
@@ -190,7 +192,7 @@ class rhs_class():
             xL = mesh.edges[space]
             dxR = mesh.Dedges[space+1]
             dxL = mesh.Dedges[space]
-            matrices.matrix_test(True)
+            matrices.matrix_test(False)
             matrices.make_all_matrices(xL, xR, dxL, dxR)
             L = matrices.L
             G = matrices.G
@@ -303,24 +305,31 @@ class rhs_class():
 
                     a = xL
                     b = xR
+
                     RHS = V_old[angle, space, :]*0
                     
                     RHS -= np.dot(Minv, LU)
-                    if self.M ==0:
-                        assert(np.abs(RHS[0] + 3 * math.pi  * LU[0]  /  (a*b + b**2 + a**2) )<=1e-8)
+                    # if self.M ==0:
+                    #     assert(np.abs(RHS[0] + 3 * math.pi  * LU[0]  /  (a*b + b**2 + a**2) )<=1e-8)
 
                     RHS += np.dot(Minv, mul*np.dot(L,U))
-                    RHS -= V_old[angle, space,:]
+                   
                     PV = U * 0
+                  
+                    mu_derivative = np.dot(Minv, np.dot(J, dterm))
+                    # if self.M == RHS -= V_old[angle, space,:] 0:
+                    #     assert(abs(mu_derivative[0] -(3 * (a+b) / 2 / (a*b + b**2 + a**2)) * dterm[0])<=1e-8)
+                    RHS -= mu_derivative
+
+                    RHS += np.dot(Minv, np.dot(G,U))
+
+
                     for ii in range(self.M+1):
-                        PV[ii] = np.sum(np.multiply(V_old[:,space, ii], self.ws)) * (self.c) 
+                        PV[ii] = np.sum(np.multiply(V_old[:,space,ii],self.ws)) * (self.c) 
                     # PV = U*0 
                     # PV = scalar_flux
-                    RHS += PV
-                    mu_derivative = np.dot(Minv, np.dot(J, dterm))
-                    if self.M == 0:
-                        assert(abs(mu_derivative[0] -(3 * (a+b) / 2 / (a*b + b**2 + a**2)) * dterm[0])<=1e-8)
-                    RHS -= mu_derivative
+                    RHS += PV * self.c
+                    RHS -= U
 
                     # RHS2 -= (3 * (a+b) / 2 / (a*b + b**2 + a**2)) * dterm 
 

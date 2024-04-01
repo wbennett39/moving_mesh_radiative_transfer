@@ -207,16 +207,18 @@ class LU_surf(object):
         self.v3 = 0
         self.edges = mesh_class.edges
         self.Dedges = mesh_class.Dedges
+
+        xL = self.edges[space]
+        xR = self.edges[space + 1]
         
-        leftspeed = self.speed * mul - self.Dedges[space]
-        rightspeed = self.speed * mul - self.Dedges[space+1]
+        leftspeed = self.speed * mul - self.Dedges[space] 
+        rightspeed = self.speed * mul - self.Dedges[space+1] 
         
         self.make_h(space)
         self.extend_mesh(space)
         self.make_sol(space, u, t, u_refl)
 
-        xL = mesh_class.edges[space]
-        xR = mesh_class.edges[space + 1]
+
 
         if leftspeed >= 0: 
             psi_minus = self.v0

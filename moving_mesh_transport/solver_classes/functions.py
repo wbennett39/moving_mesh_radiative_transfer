@@ -686,14 +686,14 @@ def rttwo_mistake_undoer(i,j):
         return 1.0
     elif (i == 0) and (j != 0):
         if j%2 == 0:
-            return 1.0
+            return 2.0
         else:
-            return 0.5
+            return 1.0
     elif (j == 0) and (i!=0):
         if i%2 == 0:
-            return 1
+            return 2.0
         else:
-            return 0.5
+            return 1.0
     else:
         assert(0)
         

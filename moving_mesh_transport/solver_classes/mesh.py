@@ -188,7 +188,6 @@ class mesh_class(object):
                     self.edges = self.edges
                     self.Dedges = self.Dedges_const*0
                 else:
-                    # print('here')
                     # print(self.edges0, 'edges0')
                     self.edges = self.edges0 + self.Dedges_const*t
                     self.Dedges = self.Dedges_const
@@ -502,6 +501,24 @@ class mesh_class(object):
             if self.source_type[0] == 2:
                 self.edges += 0.01
 
+    def shell_source(self):
+        dx = 1e-5
+        N_inside = int(self.N_space/2 + 1)
+        edges_inside = np.linspace(0, self.x0, N_inside+1)
+        N_outside = int(self.N_space + 1 - N_inside )
+        edges_outside = np.linspace(self.x0, self.x0 + dx, N_outside)
+        self.edges = np.concatenate((edges_inside, edges_outside[1:]))
+        self.edges0 = self.edges
+        assert(self.edges.size == self.N_space + 1)
+        self.Dedges = np.zeros(self.N_space + 1)
+
+        self.Dedges[N_inside + 1:] = (self.edges[N_inside + 1:] - self.x0)/(self.edges[-1] - self.x0) * self.speed
+        self.Dedges_const = self.Dedges
+        print(self.Dedges_const, 'dedges')
+
+
+        
+
     # def thick_square_moving_func(self, t):
     #     middlebin = int(self.N_space/2)
     #     sidebin = int(self.N_space/4)
@@ -796,8 +813,8 @@ class mesh_class(object):
                 if self.geometry['slab'] == True:
                     self.thin_square_init_func_legendre()
                 else:
-                    print('initializing')
-                    self.simple_moving_init_func()
+                    # self.simple_moving_init_func()
+                    self.shell_source()
             
             elif np.all(self.source_type == 0):
                 self.boundary_source_init_func(self.vnaught)

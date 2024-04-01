@@ -10,6 +10,7 @@ from .build_problem import build
 # from .chebyshev_matrix_builder import matrix_builder
 import math
 from .functions import sqrt_two_mass_func as rtf
+from .functions import rttwo_mistake_undoer as rund
 from .GMAT_sphere import GMatrix
 
 from numba import int64, float64, deferred_type
@@ -224,11 +225,20 @@ class G_L:
 
         for ii in range(self.M+1):
             for jj in range(self.M+1):
-                self.G[ii, jj] = GMatrix(ii, jj, rL, rR, rLp, rRp)
-        self.G[1:,0] = self.J[1:,0] / rttwo
-        self.G[0,1:] = self.J[0,1:] / rttwo
+                self.G[ii, jj] = GMatrix(ii, jj, rL, rR, rLp, rRp) / pi * rund(ii, jj)
+        
+        self.G[1:,0] = self.G[1:,0] / rttwo
+        self.G[0,1:] = self.G[0,1:] / rttwo
 
-        self.G = np.multiply(self.G, self.G_denom)
+        self.G = np.multiply(self.G, 1/self.G_denom[0:self.M+1, 0:self.M+1])
+
+
+        if self.testing == True:
+            a = rL
+            b = rR
+            ap = rLp
+            bp = rRp
+            assert(abs(self.G[0,0]  + 0.16666666666666666*((a**2 + a*b + b**2)*(ap - bp))/((a - b)*math.pi))<=1e-10)
         
 
     def make_L_sphere(self, rL, rR):
@@ -321,5 +331,6 @@ class G_L:
                     assert(0)
                 if (np.abs(G_bench - self.G)>=1e-5).any():
                     print("G fail")
+                    print(np.abs(G_bench - self.G))
                     assert(0)
             self.testing = False
