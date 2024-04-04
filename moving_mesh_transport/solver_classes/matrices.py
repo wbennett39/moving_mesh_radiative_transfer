@@ -90,7 +90,7 @@ class G_L:
                     self.L_const[i,j] = 0
         
         # self.matrix_test()
-        self.testing = False
+        self.testing = False 
     
     def make_L(self, xL, xR):
         if self.geometry['slab'] == True:
@@ -239,6 +239,13 @@ class G_L:
             ap = rLp
             bp = rRp
             assert(abs(self.G[0,0]  + 0.16666666666666666*((a**2 + a*b + b**2)*(ap - bp))/((a - b)*math.pi))<=1e-10)
+            if self.M > 0:
+                assert(abs(self.G[0,1] - ((a + b)*(ap - bp))/(6.*math.sqrt(2)*math.pi)) <=1e-10)
+                assert(abs(self.G[1, 0] - (ap*(7*a**2 + 4*a*b + b**2) + (a**2 + 4*a*b + 7*b**2)*bp)/(6.*math.sqrt(2)*(a - b)*math.pi))<=1e-10)
+                assert(abs(self.G[1,1] - (-(ap*(11*a**2 + 3*a*b + b**2)) + (a**2 + 3*a*b + 11*b**2)*bp)/(15.*(a - b)*math.pi)) <=1e-10)
+            elif self.M > 1:
+                assert(abs(self.G[2, 0] - (ap*(-7*a**2 - a*b + b**2) + (-a**2 + a*b + 7*b**2)*bp)/(3.*math.sqrt(2)*(a - b)*math.pi))<=1e-10)
+                assert(abs(self.G[0,2] - ((a**2 + 3*a*b + b**2)*(ap - bp))/(15.*math.sqrt(2)*(a - b)*math.pi)))
         
 
     def make_L_sphere(self, rL, rR):

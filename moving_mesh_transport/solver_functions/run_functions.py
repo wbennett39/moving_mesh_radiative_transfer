@@ -226,7 +226,7 @@ class run:
                 print(self.mus[-1], 'last mu')
 
                 plt.figure(5)
-                plt.plot(self.eval_array, self.exit_phi[:,0], '--b', mfc = 'none', label = 'left exit distribution')
+                plt.plot(self.eval_array, self.exit_phi[:,0], '-ob', mfc = 'none', label = 'left exit distribution')
                 plt.xlabel('t')
                 plt.legend()
                 plt.show()
@@ -234,7 +234,7 @@ class run:
                 # plt.show()
 
                 plt.figure(6)
-                plt.plot(self.eval_array, self.exit_phi[:,-1], '--b', mfc = 'none', label = f'right exit distribution')
+                plt.plot(self.eval_array, self.exit_phi[:,-1], '-ob', mfc = 'none', label = f'right exit distribution')
                 plt.legend()
                 plt.xlabel('t')
                 plt.show()

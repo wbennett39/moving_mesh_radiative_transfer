@@ -26,6 +26,6 @@
 'boundary_source': False
 'boundary_source_loc': [10,0]
 'sigma_func': {constant: True,linear: False, siewert1: False, siewert2: False, gaussian: False, f_sedov: False} # [constant, gaussian, siewert s = 1, siewert s = infty, Fake Sedov]
-'Msigma': 5
+'Msigma': 0
 'fake_sedov_v0': 0.005
 

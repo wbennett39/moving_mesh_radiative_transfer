@@ -154,6 +154,7 @@ class mesh_class(object):
 
 
     def move(self, t):
+
         # print(self.edges)pr
         """
         Called each time the rhs moves the mesh. Changes edges and Dedges
@@ -191,6 +192,7 @@ class mesh_class(object):
                     # print(self.edges0, 'edges0')
                     self.edges = self.edges0 + self.Dedges_const*t
                     self.Dedges = self.Dedges_const
+
                     # print(self.Dedges_const*t, 'dedges times t')
 
            
