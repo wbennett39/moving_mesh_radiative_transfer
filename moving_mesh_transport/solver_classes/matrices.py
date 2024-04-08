@@ -293,9 +293,10 @@ class G_L:
 
     
     def make_MPRIME(self, a, b, ap, bp):
+        pi = math.pi
         for ii in range(self.M+1):
             for jj in range(self.M+1):
-                self.MPRIME[ii, jj] = MPRIME(ii, jj, a, b, ap, bp)
+                self.MPRIME[ii, jj] = MPRIME(ii, jj, a, b, ap, bp) / pi
 
         # self.L[0,0]  = 2*math.log(rR/rL)/pi/(rR-rL)
     

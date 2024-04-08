@@ -191,8 +191,6 @@ class rhs_class():
             xR = mesh.edges[space+1]
             xL = mesh.edges[space]
             dxR = mesh.Dedges[space+1]
-            # if space == 2:
-            #     dxR = 1.0
             dxL = mesh.Dedges[space]
             # matrices.matrix_test(True)
             matrices.make_all_matrices(xL, xR, dxL, dxR)

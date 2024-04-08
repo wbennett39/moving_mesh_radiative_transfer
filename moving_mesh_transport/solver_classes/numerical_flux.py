@@ -212,7 +212,7 @@ class LU_surf(object):
         xR = self.edges[space + 1]
         
         leftspeed = self.speed * mul -  self.Dedges[space] 
-        rightspeed = self.speed * mul -  self.Dedges[space+1] 
+        rightspeed = self.speed * mul -  self.Dedges[space+1]
         
         self.make_h(space)
         self.extend_mesh(space)
