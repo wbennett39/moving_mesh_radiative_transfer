@@ -324,10 +324,11 @@ class rhs_class():
                         # RHS -= np.dot(Minv, (ap*(2*a + b) + (a + 2*b)*bp)/(3.*math.pi) * U)
                     RHS -= np.dot(MPRIME, U)
                     RHS = np.dot(Minv, RHS)
-                    PV = U * 0
-                    for ii in range(self.M+1):
-                        PV[ii] = np.sum(np.multiply(V_old[:,space,ii],self.ws)) #* (self.c) 
-                    
+                    PV2 = U * 0
+                    # for ii in range(self.M+1):
+                    #     PV2[ii] = np.sum(np.multiply(V_old[:,space,ii],self.ws)) #* (self.c) 
+                    # if max(np.abs(PV - PV2)) >= 1e-10:
+                    #     assert(0)
                     RHS += PV * self.c
                     RHS -= U
 

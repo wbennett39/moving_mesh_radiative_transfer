@@ -228,12 +228,12 @@ class G_L:
 
         for ii in range(self.M+1):
             for jj in range(self.M+1):
-                self.G[ii, jj] = GMatrix(ii, jj, rL, rR, rLp, rRp) / pi * rund(ii, jj)
+                self.G[ii, jj] = GMatrix(ii, jj, rL, rR, rLp, rRp) / pi 
         
-        self.G[1:,0] = self.G[1:,0] / rttwo
-        self.G[0,1:] = self.G[0,1:] / rttwo
+        # self.G[1:,0] = self.G[1:,0] / rttwo
+        # self.G[0,1:] = self.G[0,1:] / rttwo
 
-        self.G = np.multiply(self.G, 1/self.G_denom[0:self.M+1, 0:self.M+1])
+        # self.G = np.multiply(self.G, 1/self.G_denom[0:self.M+1, 0:self.M+1])
 
 
         if self.testing == True:
@@ -333,6 +333,12 @@ class G_L:
                                     0.00742761], [-0.500801, -0.296392, 0.166476, 
                                     0.173252], [-0.781024, -1.04501, -0.250555, 
                                     0.493426], [-0.736684, -1.17347, -1.32831, -0.242067]])
+                MPRIME_bench = np.array([
+                                [0.378789 , 0.135047, -0.17016, -0.0810285],
+                                [0.135047, 0.258468, 0.0381972, -0.148969],
+                                [-0.17016, 0.0381972, 0.350141, 0.0818511],
+                                [-0.0810285, -0.148969, 0.0818511, 0.367117]
+                                ])
                 
                 if (np.abs(L_bench - self.L)>=1e-5).any():
                     print("L fail")
@@ -346,6 +352,10 @@ class G_L:
                     assert(0)
                 if (np.abs(G_bench - self.G)>=1e-5).any():
                     print("G fail")
+                    print(np.abs(G_bench - self.G))
+                    assert(0)
+                if (np.abs(MPRIME_bench - self.MPRIME)>=1e-5).any():
+                    print("M_prime fail")
                     print(np.abs(G_bench - self.G))
                     assert(0)
             self.testing = False
