@@ -198,6 +198,7 @@ class rhs_class():
             matrices.make_all_matrices(xL, xR, dxL, dxR)
             L = matrices.L
             G = matrices.G
+            MPRIME = matrices.MPRIME
              # special matrices for spherical geometries
             if self.geometry['sphere'] == True:
                 Mass = matrices.Mass
@@ -298,54 +299,38 @@ class rhs_class():
 
 
                 if self.geometry['sphere'] == True:
-                    # V_new[angle,space,:] = np.dot(Minv,RHS)
-                    # assert(Minv[0,0] - 3 * math.pi / (xL**2 + xL*xR + xR**2)) <= 1e-8
-                    
-                    # RHS = np.dot(G,U)  -  LU + mul*np.dot(L,U) - np.dot(Mass, U) + self.c / 4 / math.pi * np.dot(Mass, PV) + S/4/math.pi - dterm * np.dot(J,U)  
-                    # V_new[angle,space,0] = RHS[0] *  3 * math.pi / (xL**2 + xL*xR + xR**2)
-                    # RHS = self.c * PV / 4/ math.pi - U - 3 * (dterm * np.dot(J,U) + LU) * math.pi / (xL**2 + xL*xR + xR**2)
-                    # V_new[angle,space,:] = np.dot(Minv, RHS)
-
                     a = xL
                     b = xR
-
                     RHS = V_old[angle, space, :]*0
-                    
-                    RHS -= np.dot(Minv, LU)
+
+                    RHS -=  LU
                     # if self.M ==0:
                     #     assert(np.abs(RHS[0] + 3 * math.pi  * LU[0]  /  (a*b + b**2 + a**2) )<=1e-8)
-
-                    RHS += np.dot(Minv, mul*np.dot(L,U))
-                   
-                    PV = U * 0
-                  
-                    mu_derivative = np.dot(Minv, np.dot(J, dterm))
+                    RHS +=  mul*np.dot(L,U)
+                    mu_derivative =  np.dot(J, dterm)
                     # if self.M == RHS -= V_old[angle, space,:] 0:
                     #     assert(abs(mu_derivative[0] -(3 * (a+b) / 2 / (a*b + b**2 + a**2)) * dterm[0])<=1e-8)
                     RHS -= mu_derivative
-                    if space == 2 and dxR >0:
-                        if abs(G[0,0] - (a**2 + a*b + b**2)/(6*a*math.pi - 6*b*math.pi))>=1e-6:
-                            print(abs(G[0,0] - (a**2 + a*b + b**2)/(6*a*math.pi - 6*b*math.pi)))
-                            print(t)
-                            assert(0)
-                    # RHS += np.dot(Minv, np.dot(G,U))
-                    G1 = np.dot(G, V_old[angle, space, :])
-                    # RHS += np.dot(Minv, np.dot(G, U))
-                    G2 = np.dot(Minv, G1)
-                    if self.M == 0:
-                        a = xL
-                        b = xR
-                        ap = dxL
-                        bp = dxR
-                        assert(abs(G2[0] - U[0]*(-ap + bp)/(2.*(a - b))) <=1e-6)
-
-                    RHS += G2 * self.c
-
+                    # if space == 2 and dxR >0:
+                    #     if abs(G[0,0] - (a**2 + a*b + b**2)/(6*a*math.pi - 6*b*math.pi))>=1e-6:
+                    #         print(abs(G[0,0] - (a**2 + a*b + b**2)/(6*a*math.pi - 6*b*math.pi)))
+                    #         print(t)
+                    #         assert(0)
+                    RHS += np.dot(G, U)
+                    # if self.M == 0:
+                    #     a = xL
+                    #     b = xR
+                    #     ap = dxL
+                    #     bp = dxR
+                        # assert(abs(G2[0] - U[0]*(-ap + bp)/(2.*(a - b))) <=1e-6)
+                        # RHS -= np.dot(Minv, (ap*(2*a + b) + (a + 2*b)*bp)/(3.*math.pi) * U)
+                    RHS -= np.dot(MPRIME, U)
+                    RHS = np.dot(Minv, RHS)
+                    PV = U * 0
                     for ii in range(self.M+1):
                         PV[ii] = np.sum(np.multiply(V_old[:,space,ii],self.ws)) #* (self.c) 
-                    # PV = U*0 
-                    # PV = scalar_flux
-                    RHS += PV #* self.c
+                    
+                    RHS += PV * self.c
                     RHS -= U
 
                     # RHS2 -= (3 * (a+b) / 2 / (a*b + b**2 + a**2)) * dterm 

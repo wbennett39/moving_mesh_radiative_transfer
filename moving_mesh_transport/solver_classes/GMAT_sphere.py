@@ -1,5 +1,5 @@
 from numba import njit
-
+import math
 @njit
 def GMatrix(i, j, a, b, ap, bp):
     j += 1
@@ -256,3 +256,500 @@ def GMatrix(i, j, a, b, ap, bp):
             return (45200*a*b*(ap + bp) + a**2*(76121*ap + 21479*bp) + b**2*(21479*ap + 76121*bp))/(a - b)
         elif j == 11:
             return (-25803*a*b*(ap - bp) + a**2*(-104203*ap + 26003*bp) + b**2*(-26003*ap + 104203*bp))/(a - b)
+        
+@njit
+def MPRIME(i, j, a, b, ap, bp):
+    if i == 0:
+        if j == 0:
+            return (a*(2*ap + bp) + b*(ap + 2*bp))/3.
+        elif j == 1:
+            return (math.sqrt(2)*(-(a*ap) + b*bp))/3.
+        elif j == 2:
+            return -0.06666666666666667*(math.sqrt(2)*(2*a*ap + 3*ap*b + 3*a*bp + 2*b*bp))
+        elif j == 3:
+            return (math.sqrt(2)*(a*ap - b*bp))/5.
+        elif j == 4:
+            return (math.sqrt(2)*(-10*a*ap + 3*ap*b + 3*a*bp - 10*b*bp))/105.
+        elif j == 5:
+
+            return (math.sqrt(2)*(a*ap - b*bp))/21.
+
+        elif j == 6:
+
+            return (math.sqrt(2)*(b*(ap - 10*bp) + a*(-10*ap + bp)))/315.
+
+        elif j == 7:
+
+            return (math.sqrt(2)*(a*ap - b*bp))/45.
+
+        elif j == 8:
+
+            return (math.sqrt(2)*(-58*a*ap + 3*ap*b + 3*a*bp - 58*b*bp))/3465.
+
+        elif j == 9:
+
+            return (math.sqrt(2)*(a*ap - b*bp))/77.
+
+        elif j == 10:
+
+            return (math.sqrt(2)*(-94*a*ap + 3*ap*b + 3*a*bp - 94*b*bp))/9009.
+
+    elif i == 1:
+
+        if j == 0:
+
+            return (math.sqrt(2)*(-(a*ap) + b*bp))/3.
+
+        elif j == 1:
+
+            return (2*(a*(4*ap + bp) + b*(ap + 4*bp)))/15.
+
+        elif j == 2:
+
+            return (-2*(a*ap - b*bp))/15.
+
+        elif j == 3:
+
+            return (-2*(4*a*ap + 3*ap*b + 3*a*bp + 4*b*bp))/35.
+
+        elif j == 4:
+
+            return (26*(a*ap - b*bp))/105.
+
+        elif j == 5:
+
+            return (-2*(4*a*ap - ap*b - a*bp + 4*b*bp))/63.
+
+        elif j == 6:
+
+            return (22*(a*ap - b*bp))/315.
+
+        elif j == 7:
+
+            return (-2*(12*a*ap - ap*b - a*bp + 12*b*bp))/495.
+
+        elif j == 8:
+
+            return (122*(a*ap - b*bp))/3465.
+
+        elif j == 9:
+
+            return (-2*(68*a*ap - 3*ap*b - 3*a*bp + 68*b*bp))/5005.
+
+        elif j == 10:
+
+            return (194*(a*ap - b*bp))/9009.
+
+    elif i == 2:
+
+        if j == 0:
+
+            return -0.06666666666666667*(math.sqrt(2)*(2*a*ap + 3*ap*b + 3*a*bp + 2*b*bp))
+
+        elif j == 1:
+
+            return (-2*(a*ap - b*bp))/15.
+
+        elif j == 2:
+
+            return (2*(30*a*ap + 19*ap*b + 19*a*bp + 30*b*bp))/105.
+
+        elif j == 3:
+
+            return (2*(-(a*ap) + b*bp))/7.
+
+        elif j == 4:
+
+            return (-2*(26*a*ap + 31*ap*b + 31*a*bp + 26*b*bp))/315.
+
+        elif j == 5:
+
+            return (2*(a*ap - b*bp))/9.
+
+        elif j == 6:
+
+            return (-2*(194*a*ap - 51*ap*b - 51*a*bp + 194*b*bp))/3465.
+
+        elif j == 7:
+
+            return (2*(a*ap - b*bp))/33.
+
+        elif j == 8:
+
+            return (-2*(950*a*ap - 79*ap*b - 79*a*bp + 950*b*bp))/45045.
+
+        elif j == 9:
+
+            return (2*(a*ap - b*bp))/65.
+
+        elif j == 10:
+
+            return (-2*(538*a*ap - 23*ap*b - 23*a*bp + 538*b*bp))/45045.
+
+    elif i == 3:
+
+        if j == 0:
+
+            return (math.sqrt(2)*(a*ap - b*bp))/5.
+
+        elif j == 1:
+
+            return (-2*(4*a*ap + 3*ap*b + 3*a*bp + 4*b*bp))/35.
+
+        elif j == 2:
+
+            return (2*(-(a*ap) + b*bp))/7.
+
+        elif j == 3:
+
+            return (2*(100*a*ap + 53*ap*b + 53*a*bp + 100*b*bp))/315.
+
+        elif j == 4:
+
+            return (-14*(a*ap - b*bp))/45.
+
+        elif j == 5:
+
+            return (-2*(52*a*ap + 69*ap*b + 69*a*bp + 52*b*bp))/693.
+
+        elif j == 6:
+
+            return (82*(a*ap - b*bp))/385.
+
+        elif j == 7:
+
+            return (-2*(340*a*ap - 93*ap*b - 93*a*bp + 340*b*bp))/6435.
+
+        elif j == 8:
+
+            return (46*(a*ap - b*bp))/819.
+
+        elif j == 9:
+
+            return (-584*a*ap + 50*ap*b + 50*a*bp - 584*b*bp)/15015.
+
+        elif j == 10:
+
+            return (14*(a*ap - b*bp))/495.
+
+    elif i == 4:
+
+        if j == 0:
+
+            return (math.sqrt(2)*(-10*a*ap + 3*ap*b + 3*a*bp - 10*b*bp))/105.
+
+        elif j == 1:
+
+            return (26*(a*ap - b*bp))/105.
+
+        elif j == 2:
+
+            return (-2*(26*a*ap + 31*ap*b + 31*a*bp + 26*b*bp))/315.
+
+        elif j == 3:
+
+            return (-14*(a*ap - b*bp))/45.
+
+        elif j == 4:
+
+            return (2*(1126*a*ap + 579*ap*b + 579*a*bp + 1126*b*bp))/3465.
+
+        elif j == 5:
+
+            return (-74*(a*ap - b*bp))/231.
+
+        elif j == 6:
+
+            return (-2*(3238*a*ap + 4497*ap*b + 4497*a*bp + 3238*b*bp))/45045.
+
+        elif j == 7:
+
+            return (122*(a*ap - b*bp))/585.
+
+        elif j == 8:
+
+            return (-2*(2306*a*ap - 647*ap*b - 647*a*bp + 2306*b*bp))/45045.
+
+        elif j == 9:
+
+            return (62*(a*ap - b*bp))/1155.
+
+        elif j == 10:
+
+            return (-2*(14150*a*ap - 1247*ap*b - 1247*a*bp + 14150*b*bp))/765765.
+
+    elif i == 5:
+
+        if j == 0:
+
+            return (math.sqrt(2)*(a*ap - b*bp))/21.
+
+        elif j == 1:
+
+            return (-2*(4*a*ap - ap*b - a*bp + 4*b*bp))/63.
+
+        elif j == 2:
+
+            return (2*(a*ap - b*bp))/9.
+
+        elif j == 3:
+
+            return (-2*(52*a*ap + 69*ap*b + 69*a*bp + 52*b*bp))/693.
+
+        elif j == 4:
+
+            return (-74*(a*ap - b*bp))/231.
+
+        elif j == 5:
+
+            return (2*(2956*a*ap + 1503*ap*b + 1503*a*bp + 2956*b*bp))/9009.
+
+        elif j == 6:
+
+            return (-38*(a*ap - b*bp))/117.
+
+        elif j == 7:
+
+            return (-2*(452*a*ap + 643*ap*b + 643*a*bp + 452*b*bp))/6435.
+
+        elif j == 8:
+
+            return (34*(a*ap - b*bp))/165.
+
+        elif j == 9:
+
+            return (-2*(12820*a*ap - 3657*ap*b - 3657*a*bp + 12820*b*bp))/255255.
+
+        elif j == 10:
+
+            return (242*(a*ap - b*bp))/4641.
+
+    elif i == 6:
+
+        if j == 0:
+
+            return (math.sqrt(2)*(b*(ap - 10*bp) + a*(-10*ap + bp)))/315.
+
+        elif j == 1:
+
+            return (22*(a*ap - b*bp))/315.
+
+        elif j == 2:
+
+            return (-2*(194*a*ap - 51*ap*b - 51*a*bp + 194*b*bp))/3465.
+
+        elif j == 3:
+
+            return (82*(a*ap - b*bp))/385.
+
+        elif j == 4:
+
+            return (-2*(3238*a*ap + 4497*ap*b + 4497*a*bp + 3238*b*bp))/45045.
+
+        elif j == 5:
+
+            return (-38*(a*ap - b*bp))/117.
+
+        elif j == 6:
+
+            return (2*(2122*a*ap + 1073*ap*b + 1073*a*bp + 2122*b*bp))/6435.
+
+        elif j == 7:
+
+            return (-18*(a*ap - b*bp))/55.
+
+        elif j == 8:
+
+            return (-2*(842*a*ap + 1215*ap*b + 1215*a*bp + 842*b*bp))/12155.
+
+        elif j == 9:
+
+            return (226*(a*ap - b*bp))/1105.
+
+        elif j == 10:
+
+            return (-6*(2430*a*ap - 701*ap*b - 701*a*bp + 2430*b*bp))/146965.
+
+    elif i == 7:
+
+        if j == 0:
+
+            return (math.sqrt(2)*(a*ap - b*bp))/45.
+
+        elif j == 1:
+
+            return (-2*(12*a*ap - ap*b - a*bp + 12*b*bp))/495.
+
+        elif j == 2:
+
+            return (2*(a*ap - b*bp))/33.
+
+        elif j == 3:
+
+            return (-2*(340*a*ap - 93*ap*b - 93*a*bp + 340*b*bp))/6435.
+
+        elif j == 4:
+
+            return (122*(a*ap - b*bp))/585.
+
+        elif j == 5:
+
+            return (-2*(452*a*ap + 643*ap*b + 643*a*bp + 452*b*bp))/6435.
+
+        elif j == 6:
+
+            return (-18*(a*ap - b*bp))/55.
+
+        elif j == 7:
+
+            return (2*(12060*a*ap + 6079*ap*b + 6079*a*bp + 12060*b*bp))/36465.
+
+        elif j == 8:
+
+            return (-218*(a*ap - b*bp))/663.
+
+        elif j == 9:
+
+            return (-2*(4324*a*ap + 6297*ap*b + 6297*a*bp + 4324*b*bp))/62985.
+
+        elif j == 10:
+
+            return (58*(a*ap - b*bp))/285.
+
+    elif i == 8:
+
+        if j == 0:
+
+            return (math.sqrt(2)*(-58*a*ap + 3*ap*b + 3*a*bp - 58*b*bp))/3465.
+
+        elif j == 1:
+
+            return (122*(a*ap - b*bp))/3465.
+
+        elif j == 2:
+
+            return (-2*(950*a*ap - 79*ap*b - 79*a*bp + 950*b*bp))/45045.
+
+        elif j == 3:
+
+            return (46*(a*ap - b*bp))/819.
+
+        elif j == 4:
+
+            return (-2*(2306*a*ap - 647*ap*b - 647*a*bp + 2306*b*bp))/45045.
+
+        elif j == 5:
+
+            return (34*(a*ap - b*bp))/165.
+
+        elif j == 6:
+
+            return (-2*(842*a*ap + 1215*ap*b + 1215*a*bp + 842*b*bp))/12155.
+
+        elif j == 7:
+
+            return (-218*(a*ap - b*bp))/663.
+
+        elif j == 8:
+
+            return (2*(20870*a*ap + 10499*ap*b + 10499*a*bp + 20870*b*bp))/62985.
+
+        elif j == 9:
+
+            return (-94*(a*ap - b*bp))/285.
+
+        elif j == 10:
+
+            return (-2*(2314*a*ap + 3391*ap*b + 3391*a*bp + 2314*b*bp))/33915.
+
+    elif i == 9:
+
+        if j == 0:
+
+            return (math.sqrt(2)*(a*ap - b*bp))/77.
+
+        elif j == 1:
+
+            return (-2*(68*a*ap - 3*ap*b - 3*a*bp + 68*b*bp))/5005.
+
+        elif j == 2:
+
+            return (2*(a*ap - b*bp))/65.
+
+        elif j == 3:
+
+            return (-584*a*ap + 50*ap*b + 50*a*bp - 584*b*bp)/15015.
+
+        elif j == 4:
+
+            return (62*(a*ap - b*bp))/1155.
+
+        elif j == 5:
+
+            return (-2*(12820*a*ap - 3657*ap*b - 3657*a*bp + 12820*b*bp))/255255.
+
+        elif j == 6:
+
+            return (226*(a*ap - b*bp))/1105.
+
+        elif j == 7:
+
+            return (-2*(4324*a*ap + 6297*ap*b + 6297*a*bp + 4324*b*bp))/62985.
+
+        elif j == 8:
+
+            return (-94*(a*ap - b*bp))/285.
+
+        elif j == 9:
+
+            return (2*(11252*a*ap + 5653*ap*b + 5653*a*bp + 11252*b*bp))/33915.
+
+        elif j == 10:
+
+            return (59*(-2*a*ap + 2*b*bp))/357.
+
+    elif i == 10:
+
+        if j == 0:
+
+            return (math.sqrt(2)*(-94*a*ap + 3*ap*b + 3*a*bp - 94*b*bp))/9009.
+
+        elif j == 1:
+
+            return (194*(a*ap - b*bp))/9009.
+
+        elif j == 2:
+
+            return (-2*(538*a*ap - 23*ap*b - 23*a*bp + 538*b*bp))/45045.
+
+        elif j == 3:
+
+            return (14*(a*ap - b*bp))/495.
+
+        elif j == 4:
+
+            return (-2*(14150*a*ap - 1247*ap*b - 1247*a*bp + 14150*b*bp))/765765.
+
+        elif j == 5:
+
+            return (242*(a*ap - b*bp))/4641.
+
+        elif j == 6:
+
+            return (-6*(2430*a*ap - 701*ap*b - 701*a*bp + 2430*b*bp))/146965.
+
+        elif j == 7:
+
+            return (58*(a*ap - b*bp))/285.
+
+        elif j == 8:
+
+            return (-2*(2314*a*ap + 3391*ap*b + 3391*a*bp + 2314*b*bp))/33915.
+
+        elif j == 9:
+
+            return (59*(-2*a*ap + 2*b*bp))/357.
+
+        elif j == 10:
+
+            return (2*(51806*a*ap + 26003*ap*b + 26003*a*bp + 51806*b*bp))/156009.

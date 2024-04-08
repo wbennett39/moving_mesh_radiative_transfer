@@ -11,7 +11,7 @@ from .build_problem import build
 import math
 from .functions import sqrt_two_mass_func as rtf
 from .functions import rttwo_mistake_undoer as rund
-from .GMAT_sphere import GMatrix
+from .GMAT_sphere import GMatrix, MPRIME
 
 from numba import int64, float64, deferred_type
 from numba.experimental import jitclass
@@ -23,6 +23,7 @@ build_type.define(build.class_type.instance_type)
 params_default = nb.typed.Dict.empty(key_type=nb.typeof('par_1'),value_type=nb.typeof(1))
 
 data = [("M", int64),
+        ('MPRIME', float64[:, :]),
         ('N', int64),
         ("L", float64[:,:]),
         ("L_const", float64[:,:]),
@@ -63,6 +64,7 @@ class G_L:
         self.Mass = np.zeros((self.M+1, self.M+1))
         self.J = np.zeros((self.M+1, self.M+1))
         self.VV = np.zeros((self.N+1, self.M+1, self.M+1))
+        self.MPRIME = np.zeros((self.M+1, self.M+1))
 
         self.Mass_denom = Mass_denom[:]
         self.J_denom = J_denom[:]
@@ -110,6 +112,7 @@ class G_L:
         if self.geometry['sphere'] == True:
             self.make_mass_sphere(xL, xR)
             self.make_J_sphere(xL, xR)
+            self.make_MPRIME(xL, xR, dxL, dxR)
             # self.make_VV_sphere(xL, xR)
 
         
@@ -288,7 +291,11 @@ class G_L:
                 L33ac = 18 * (rR+rL) / 35/ pi
                 assert(abs(self.L[3,3] - L33ac ) <= 1e-10)
 
-        
+    
+    def make_MPRIME(self, a, b, ap, bp):
+        for ii in range(self.M+1):
+            for jj in range(self.M+1):
+                self.MPRIME[ii, jj] = MPRIME(ii, jj, a, b, ap, bp)
 
         # self.L[0,0]  = 2*math.log(rR/rL)/pi/(rR-rL)
     
