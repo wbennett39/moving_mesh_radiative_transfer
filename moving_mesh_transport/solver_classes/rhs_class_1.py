@@ -223,9 +223,12 @@ class rhs_class():
                 mul = self.mus[angle]
                 # calculate numerical flux
                 refl_index = 0
-                if angle <= self.N_ang/2 -1:
-                    refl_index = self.N_ang-angle-1
-                    assert(abs(self.mus[refl_index] - -self.mus[angle])<=1e-10)
+                if space == 0:
+                    if angle >= self.N_ang/2:
+                        assert(self.mus[angle] > 0)
+                        refl_index = self.N_ang-angle-1
+                        assert(abs(self.mus[refl_index] - -self.mus[angle])<=1e-10)
+                    # print(self.mus[])
                     
                 num_flux.make_LU(t, mesh, V_old[angle,:,:], space, mul, V_old[refl_index, 0, :])
                 
@@ -260,15 +263,16 @@ class rhs_class():
                 if self.geometry['sphere'] == True:
                     Minv = np.linalg.inv(Mass) 
 
-                    if self.M == 0:
-                        a = xL
-                        b = xR
-                        # print(Minv,  3 * math.pi/ (a*b + b**2 + a**2))
-                        assert(np.abs(Minv[0,0] - 3 * math.pi/ (a*b + b**2 + a**2)) <=1e-8)
+                    # if self.M == 0:
+                    #     a = xL
+                    #     b = xR
+                    #     # print(Minv,  3 * math.pi/ (a*b + b**2 + a**2))
+                    #     assert(np.abs(Minv[0,0] - 3 * math.pi/ (a*b + b**2 + a**2)) <=1e-8)
                     dterm = U*0
                     for j in range(self.M+1):
-                        vec = (1-self.mus**2) * V_old[:, space, j]
-                        dterm[j] = finite_diff_uneven(self.mus, angle, vec, left = (angle==0), right = (angle == self.N_ang - 1))
+                        # vec = (1-self.mus**2) * V_old[:, space, j]
+                        # if angle != 0 and angle != self.N_ang-1:
+                        dterm[j] = finite_diff_uneven(self.mus, angle, V_old[:, space, j], left = (angle==0), right = (angle == self.N_ang-1))
 
                     # Minv = np.copy(M)
                     # Minv[0,0] = 1/ M[0,0]
@@ -315,6 +319,7 @@ class rhs_class():
                     #         print(t)
                     #         assert(0)
                     RHS += np.dot(G, U)
+                    RHS += 0.5 * S /math.pi
                     # if self.M == 0:
                     #     a = xL
                     #     b = xR

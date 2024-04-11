@@ -224,6 +224,21 @@ class uncollided_solution(object):
                     temp[ix] = math.exp(-t)*(t - xx + self.x0)/(2.0 * t + 1e-12)
         return temp * self.source_strength
     
+    def shell_IC_uncollided_solution(self, xs, t):
+        temp = xs*0 
+        sigma_abs = 1
+        N01  = 4 * math.pi * self.x0**3 / 3
+        N0 = 1
+        n0 = N0 / (4. * math.pi / 3. * (self.x0 ** 3)) / (4. * math.pi)
+        for ix, r in enumerate(xs):
+            tt = t + 1e-12
+            mu_crit = min(1., max(-1.,0.5*(tt/r+r/tt-self.x0**2/(r*tt))))
+            r2 = r ** 2 + t ** 2 - 2 * mu_crit * r * t
+            # if np.sqrt(r2) < self.x0: 
+            temp[ix] = n0 * 2 * math.pi *  (1. - mu_crit ) * np.exp(-t * sigma_abs) 
+        return temp
+
+
     def gaussian_IC_uncollided_solution(self, xs, t):
         temp = xs*0
         sqrtpi = math.sqrt(math.pi)
@@ -312,8 +327,9 @@ class uncollided_solution(object):
             
             elif self.geometry['sphere'] == True:
                 if self.source_type[0] == 1:
-
                     self.uncollided_solution_return = (self.point_source(xs, t) * self.source_strength)
+                elif self.source_type[1] == 1:
+                    self.uncollided_solution_return = self.shell_IC_uncollided_solution(xs, t) * self.source_strength
         else:
             self.uncollided_solution_return = np.zeros(xs.size)
 

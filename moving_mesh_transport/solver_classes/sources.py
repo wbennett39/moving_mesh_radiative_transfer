@@ -80,9 +80,11 @@ class source_class(object):
         argument = (b-a)/2 * self.xs_quad + (a+b)/2
         self.S[j] = (b-a)/2 * np.sum(self.ws_quad * func(argument, t) * normPn(j, argument, a, b))
 
+    
     def integrate_quad_sphere(self, t, a, b, j, func):
-        argument = (b-a)/2 * self.xs_quad + (a+b)/2
-        self.S[j] = (b-a)/2 * np.sum(self.ws_quad * func(argument, t) * normTn(j, argument, a, b) * 2.0) 
+        argument = (b-a)/2*self.xs_quad + (a+b)/2
+        self.S[j] = 0.5 * (b-a) * np.sum(argument ** 2 * self.ws_quad * func(argument, t) * 2.0 * normTn(j, argument, a, b))
+
 
 
     def integrate_quad_not_isotropic(self, t, a, b, j, mu, func):
@@ -132,11 +134,17 @@ class source_class(object):
         
         elif self.geometry['sphere'] == True:
             if self.uncollided == True:
-                if self.source_type[0] == 1:
+                if self.source_type[1] == 1:
                     for j in range(self.M+1):
-                        if (xL <= t <= xR):
-                            t = t + 1e-10
-                            self.S[j] = math.exp(-t)/4/math.pi/t * normTn(j, np.array([t]), xL, xR)[0] 
+                        self.integrate_quad_sphere(t, xL, xR, j, uncollided_solution.uncollided_solution)
+                    
+                # if self.source_type[0] == 1:
+                #     for j in range(self.M+1):
+                #         if (xL <= t <= xR):
+                #             t = t + 1e-10
+                #             self.S[j] = math.exp(-t)/4/math.pi/t * normTn(j, np.array([t]), xL, xR)[0] 
+
+                        
 
         self.S = self.S * self.source_strength
 

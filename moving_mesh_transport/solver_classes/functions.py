@@ -546,7 +546,8 @@ def angular_deriv(N_ang, angle, mus, V_old, space):
 
 
 @njit
-def finite_diff_uneven(x, ix, u, left = False, right = False):
+def finite_diff_uneven_2(x, ix, u, left = False, right = False):
+
     if left == False and right == False:
         h = (x[ix+1] - x[ix]) / (x[ix] - x[ix-1])
         res = (u[ix + 1] - h**2 * u[ix-1] - (1-h**2) * u[ix]) / (x[ix+1]- x[ix]) / (1+h)
@@ -555,13 +556,50 @@ def finite_diff_uneven(x, ix, u, left = False, right = False):
         h = x[ix+1] - x[ix]
         right = u[ix+1]
         middle = u[ix]
-        res = (right - middle) / h
-    
+        res = (right - middle) / h 
+        # xghost = x[ix] - (x[ix+1]-x[ix])
+        # h = (x[ix+1] - x[ix]) / (x[ix] - xghost)
+        # res = (u[ix + 1] - h**2 * 0 - (1-h**2) * u[ix]) / (x[ix+1]- x[ix]) / (1+h)
+
     elif right == True:
         h = x[ix] - x[ix-1]
         right = u[ix]
         middle = u[ix-1]
-        res = (right - middle) / h
+        res = (right - middle) / h 
+        # xghost = x[ix] + (x[ix] - x[ix-1])
+        # h = (xghost - x[ix]) / (x[ix] - x[ix-1])
+        # res = (0 - h**2 * u[ix-1] - (1-h**2) * u[ix]) / (xghost- x[ix]) / (1+h)
+    return res
+
+@njit
+def finite_diff_uneven(x, ix, psi, left = False, right = False):
+    # if left == False and right == False:
+    #     h = (x[ix+1] - x[ix]) / (x[ix] - x[ix-1])
+    #     res = (u[ix + 1] - h**2 * u[ix-1] - (1-h**2) * u[ix]) / (x[ix+1]- x[ix]) / (1+h)
+    
+    # elif left == True:
+    # if right != True:
+    if left == False and right == False:
+        psip = 0.5 * (psi[ix+1] + psi[ix])
+        psim = 0.5 * (psi[ix] + psi[ix-1])
+        mup = (x[ix+1] - x[ix])*0.5 + x[ix]
+        mum = (x[ix] - x[ix-1])*0.5 + x[ix-1]
+        deltamu = mup - mum
+        res = ((1-mup**2) * psip - (1-mum**2) * psim) / deltamu
+    elif left == True:
+         psip = 0.5 * (psi[ix+1] + psi[ix])
+         mup = (x[ix+1] - x[ix])*0.5 + x[ix]
+         mum =  -1
+         deltamu = mup - mum
+         res = ((1-mup**2) * psip ) / deltamu
+    elif right == True:
+         mup = 1
+         mum =  (x[ix] - x[ix-1])*0.5 + x[ix-1]
+         psim = 0.5 * (psi[ix] + psi[ix-1])
+         deltamu = mup - mum
+         res = (-(1-mum**2) * psim ) / deltamu
+
+ 
     return res
 
 # @njit
