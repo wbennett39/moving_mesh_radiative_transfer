@@ -159,7 +159,7 @@ class build(object):
     def integrate_quad_sphere(self, a, b, ang, space, j, ic):
         argument = (b-a)/2*self.xs_quad + (a+b)/2
         mu = self.mus[ang]
-        self.IC[ang,space,j] = 0.5 * (b-a) * np.sum(self.ws_quad * ic.function(argument, mu) * 2.0 * normTn(j, argument, a, b) )
+        self.IC[ang,space,j] = 0.5 * (b-a) * np.sum(self.ws_quad * ic.function(argument, mu) * 2.0 * normTn(j, argument, a, b))
         
 
     def integrate_e(self, a, b, space, j):

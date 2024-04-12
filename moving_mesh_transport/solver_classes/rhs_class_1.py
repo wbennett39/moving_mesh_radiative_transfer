@@ -319,7 +319,7 @@ class rhs_class():
                     #         print(t)
                     #         assert(0)
                     RHS += np.dot(G, U)
-                    RHS += 0.5 * S /math.pi
+                    RHS += 0.5 * S * self.c 
                     # if self.M == 0:
                     #     a = xL
                     #     b = xR

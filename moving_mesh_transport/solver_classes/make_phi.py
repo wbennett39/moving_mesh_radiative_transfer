@@ -66,7 +66,7 @@ class make_output:
         output = np.sum(np.multiply(psi.transpose(), self.ws), axis = 1)
         if self.uncollided == True:
             uncol = uncollided_solution.uncollided_solution(self.xs, self.t)
-            output += uncol
+            output += uncol 
         self.psi_out = psi
         self.phi_out = output
         return output

@@ -117,7 +117,7 @@ def solve(tfinal, N_space, N_ang, M, x0, t0, sigma_t, sigma_s, t_nodes, source_t
     if geometry['slab'] == True:
         xs_quad, ws_quad = quadrature(2*M+1, 'gauss_legendre')
     elif geometry['sphere'] == True:
-        xs_quad, ws_quad = quadrature(2*M+1, 'chebyshev')
+        xs_quad, ws_quad = quadrature(6*M+1, 'chebyshev')
 
     # t_quad = quadpy.c1.gauss_legendre(t_nodes).points
     t_quad, t_ws = quadrature(t_nodes, 'gauss_legendre')

@@ -83,7 +83,7 @@ class source_class(object):
     
     def integrate_quad_sphere(self, t, a, b, j, func):
         argument = (b-a)/2*self.xs_quad + (a+b)/2
-        self.S[j] = 0.5 * (b-a) * np.sum(argument ** 2 * self.ws_quad * func(argument, t) * 2.0 * normTn(j, argument, a, b))
+        self.S[j] = 0.5 * (b-a) * np.sum((argument**2) * np.sqrt(1- self.xs_quad**2) * self.ws_quad * func(argument, t) * 1 * normTn(j, argument, a, b))
 
 
 
